@@ -13,6 +13,8 @@ import Combine
 import NotificationCenter
 
 struct LoginScreen: View {
+    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
+
     
     @State var email = ""
     @State var password = ""
@@ -170,6 +172,14 @@ struct LoginScreen: View {
     
     func presentMainApp() {
         //present main ringingroom view
+        self.viewControllerHolder?.present(style: .fullScreen) {
+            VStack {
+                MainApp()
+                     Button("Cancel") {
+                           NotificationCenter.default.post(name: Notification.Name(rawValue: "dismissModal"), object: nil)
+                            }
+                    }
+        }
     }
 }
 
@@ -197,3 +207,37 @@ struct LoginScreen_Previews: PreviewProvider {
         LoginScreen()
     }
 }
+
+struct ViewControllerHolder {
+    weak var value: UIViewController?
+}
+
+struct ViewControllerKey: EnvironmentKey {
+    static var defaultValue: ViewControllerHolder {
+        return ViewControllerHolder(value: UIApplication.shared.windows.first?.rootViewController)
+
+    }
+}
+
+extension EnvironmentValues {
+    var viewController: UIViewController? {
+        get { return self[ViewControllerKey.self].value }
+        set { self[ViewControllerKey.self].value = newValue }
+    }
+}
+
+extension UIViewController {
+    func present<Content: View>(style: UIModalPresentationStyle = .automatic, @ViewBuilder builder: () -> Content) {
+        let toPresent = UIHostingController(rootView: AnyView(EmptyView()))
+        toPresent.modalPresentationStyle = style
+        toPresent.rootView = AnyView(
+            builder()
+                .environment(\.viewController, toPresent)
+        )
+        NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "dismissModal"), object: nil, queue: nil) { [weak toPresent] _ in
+            toPresent?.dismiss(animated: true, completion: nil)
+        }
+        self.present(toPresent, animated: false, completion: nil)
+    }
+}
+
