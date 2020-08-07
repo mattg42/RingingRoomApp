@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3404247024DCA36E00EEAE34 /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3404246F24DCA36E00EEAE34 /* MainApp.swift */; };
-		3404247224DCA48E00EEAE34 /* MyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3404247124DCA48E00EEAE34 /* MyManager.swift */; };
+		3404247224DCA48E00EEAE34 /* SocketIOManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3404247124DCA48E00EEAE34 /* SocketIOManager.swift */; };
 		3494798124D9EFA7006B4ABE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3494798024D9EFA7006B4ABE /* AppDelegate.swift */; };
 		3494798324D9EFA7006B4ABE /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3494798224D9EFA7006B4ABE /* SceneDelegate.swift */; };
 		3494798724D9EFAA006B4ABE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3494798624D9EFAA006B4ABE /* Assets.xcassets */; };
@@ -31,7 +31,7 @@
 
 /* Begin PBXFileReference section */
 		3404246F24DCA36E00EEAE34 /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
-		3404247124DCA48E00EEAE34 /* MyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyManager.swift; sourceTree = "<group>"; };
+		3404247124DCA48E00EEAE34 /* SocketIOManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketIOManager.swift; sourceTree = "<group>"; };
 		3494797D24D9EFA7006B4ABE /* iOSRingingRoom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSRingingRoom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3494798024D9EFA7006B4ABE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3494798224D9EFA7006B4ABE /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -95,7 +95,7 @@
 				349479A924D9FA36006B4ABE /* agreeToPrivacyPolicyView.swift */,
 				349479AB24D9FA5D006B4ABE /* mailView.swift */,
 				349479AD24D9FA61006B4ABE /* bulletLine.swift */,
-				3404247124DCA48E00EEAE34 /* MyManager.swift */,
+				3404247124DCA48E00EEAE34 /* SocketIOManager.swift */,
 				3494798624D9EFAA006B4ABE /* Assets.xcassets */,
 				3494798B24D9EFAA006B4ABE /* LaunchScreen.storyboard */,
 				3494798E24D9EFAA006B4ABE /* Info.plist */,
@@ -207,7 +207,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3494798124D9EFA7006B4ABE /* AppDelegate.swift in Sources */,
-				3404247224DCA48E00EEAE34 /* MyManager.swift in Sources */,
+				3404247224DCA48E00EEAE34 /* SocketIOManager.swift in Sources */,
 				349479A024D9F0E0006B4ABE /* LoginScreen.swift in Sources */,
 				3404247024DCA36E00EEAE34 /* MainApp.swift in Sources */,
 				3494798324D9EFA7006B4ABE /* SceneDelegate.swift in Sources */,

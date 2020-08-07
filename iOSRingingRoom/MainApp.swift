@@ -15,7 +15,7 @@ struct MainApp: View {
 
     @State var tower_id = ""
     
-    @State var manager:MyManager!
+    @State var Manager:SocketIOManager!
     
     var body: some View {
         ZStack {
@@ -164,7 +164,7 @@ struct MainApp: View {
     }
     
     func initializeManager() {
-        manager = MyManager(server_ip: towerParameters["server_ip"] as! String)
+        manager = SocketIOManager(server_ip: towerParameters["server_ip"] as! String)
         
     }
     

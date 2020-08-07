@@ -168,6 +168,7 @@ struct LoginScreen: View {
     
     func login() {
         //send login request to server
+        presentMainApp()
     }
     
     func presentMainApp() {

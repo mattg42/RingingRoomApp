@@ -9,7 +9,7 @@
 import Foundation
 import SocketIO
 
-class MyManager: NSObject {
+class SocketIOManager: NSObject {
     var socket:SocketIOClient!
     
     var manager:SocketManager!
