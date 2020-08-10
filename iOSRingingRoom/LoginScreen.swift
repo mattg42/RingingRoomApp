@@ -174,12 +174,7 @@ struct LoginScreen: View {
     func presentMainApp() {
         //present main ringingroom view
         self.viewControllerHolder?.present(style: .fullScreen) {
-            VStack {
                 MainApp()
-                     Button("Cancel") {
-                           NotificationCenter.default.post(name: Notification.Name(rawValue: "dismissModal"), object: nil)
-                            }
-                    }
         }
     }
 }
