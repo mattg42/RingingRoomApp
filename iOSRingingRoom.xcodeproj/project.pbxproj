@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		3404247224DCA48E00EEAE34 /* SocketIOManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3404247124DCA48E00EEAE34 /* SocketIOManager.swift */; };
 		3404247424DF0A4100EEAE34 /* RingingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3404247324DF0A4100EEAE34 /* RingingRoomView.swift */; };
+		343DDE5924E2DDF800970FA1 /* Tower.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343DDE5824E2DDF800970FA1 /* Tower.swift */; };
+		343DDE5B24E2EAB900970FA1 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343DDE5A24E2EAB900970FA1 /* User.swift */; };
 		345B52F624DFD2360050BB8F /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345B52F524DFD2360050BB8F /* HelpView.swift */; };
 		345B52F824DFD24B0050BB8F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345B52F724DFD24B0050BB8F /* SettingsView.swift */; };
 		345B52FA24DFD25E0050BB8F /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345B52F924DFD25E0050BB8F /* MainApp.swift */; };
@@ -33,11 +35,14 @@
 		349479AC24D9FA5D006B4ABE /* mailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349479AB24D9FA5D006B4ABE /* mailView.swift */; };
 		349479AE24D9FA61006B4ABE /* bulletLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349479AD24D9FA61006B4ABE /* bulletLine.swift */; };
 		349479B124DB1A1B006B4ABE /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 349479B024DB1A1B006B4ABE /* SocketIO */; };
+		34D8C7AF24E1B07D00C0D7A6 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D8C7AE24E1B07D00C0D7A6 /* WebView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		3404247124DCA48E00EEAE34 /* SocketIOManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketIOManager.swift; sourceTree = "<group>"; };
 		3404247324DF0A4100EEAE34 /* RingingRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingingRoomView.swift; sourceTree = "<group>"; };
+		343DDE5824E2DDF800970FA1 /* Tower.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tower.swift; sourceTree = "<group>"; };
+		343DDE5A24E2EAB900970FA1 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		345B52F524DFD2360050BB8F /* HelpView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		345B52F724DFD24B0050BB8F /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		345B52F924DFD25E0050BB8F /* MainApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
@@ -63,6 +68,7 @@
 		349479A924D9FA36006B4ABE /* agreeToPrivacyPolicyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = agreeToPrivacyPolicyView.swift; sourceTree = "<group>"; };
 		349479AB24D9FA5D006B4ABE /* mailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = mailView.swift; sourceTree = "<group>"; };
 		349479AD24D9FA61006B4ABE /* bulletLine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = bulletLine.swift; sourceTree = "<group>"; };
+		34D8C7AE24E1B07D00C0D7A6 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +116,8 @@
 			isa = PBXGroup;
 			children = (
 				3494798024D9EFA7006B4ABE /* AppDelegate.swift */,
+				343DDE5824E2DDF800970FA1 /* Tower.swift */,
+				343DDE5A24E2EAB900970FA1 /* User.swift */,
 				3494798224D9EFA7006B4ABE /* SceneDelegate.swift */,
 				3494799F24D9F0E0006B4ABE /* LoginScreen.swift */,
 				345B52F924DFD25E0050BB8F /* MainApp.swift */,
@@ -122,6 +130,7 @@
 				349479AB24D9FA5D006B4ABE /* mailView.swift */,
 				349479AD24D9FA61006B4ABE /* bulletLine.swift */,
 				3404247124DCA48E00EEAE34 /* SocketIOManager.swift */,
+				34D8C7AE24E1B07D00C0D7A6 /* WebView.swift */,
 				3494798624D9EFAA006B4ABE /* Assets.xcassets */,
 				3494798B24D9EFAA006B4ABE /* LaunchScreen.storyboard */,
 				3494798E24D9EFAA006B4ABE /* Info.plist */,
@@ -239,6 +248,8 @@
 				3494798324D9EFA7006B4ABE /* SceneDelegate.swift in Sources */,
 				349479A424D9FA20006B4ABE /* accountCreationView.swift in Sources */,
 				345B530024DFD29E0050BB8F /* RingView.swift in Sources */,
+				343DDE5924E2DDF800970FA1 /* Tower.swift in Sources */,
+				343DDE5B24E2EAB900970FA1 /* User.swift in Sources */,
 				345B52FA24DFD25E0050BB8F /* MainApp.swift in Sources */,
 				3404247424DF0A4100EEAE34 /* RingingRoomView.swift in Sources */,
 				349479AA24D9FA36006B4ABE /* agreeToPrivacyPolicyView.swift in Sources */,
@@ -247,6 +258,7 @@
 				349479AE24D9FA61006B4ABE /* bulletLine.swift in Sources */,
 				349479A624D9FA24006B4ABE /* resetPasswordView.swift in Sources */,
 				349479AC24D9FA5D006B4ABE /* mailView.swift in Sources */,
+				34D8C7AF24E1B07D00C0D7A6 /* WebView.swift in Sources */,
 				345B52FC24DFD27F0050BB8F /* StoreView.swift in Sources */,
 				345B52F624DFD2360050BB8F /* HelpView.swift in Sources */,
 			);
