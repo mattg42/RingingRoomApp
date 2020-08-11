@@ -43,7 +43,16 @@ struct MainApp: View {
                     Text("Settings")
             }
         }
-        .accentColor(Color(red: 178/255, green: 39/255, blue: 110/255))
+        .accentColor(Color.main)
+//        .onAppear(perform: {
+//            UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
+//        })
         
+    }
+}
+
+extension Color {
+    public static var main:Color {
+        return Color(red: 178/255, green: 39/255, blue: 110/255)
     }
 }
