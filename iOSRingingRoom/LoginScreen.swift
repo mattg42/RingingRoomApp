@@ -15,7 +15,6 @@ import NotificationCenter
 struct LoginScreen: View {
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
 
-    
     @State var email = ""
     @State var password = ""
     @State var stayLoggedIn = false
@@ -173,7 +172,8 @@ struct LoginScreen: View {
     
     func presentMainApp() {
         //present main ringingroom view
-        self.viewControllerHolder?.present(style: .fullScreen) {
+        UserDefaults.standard.set(stayLoggedIn, forKey: "keepMeLoggedIn")
+        self.viewControllerHolder?.present(style: .fullScreen, name: "Main") {
                 MainApp()
         }
     }
@@ -223,15 +223,16 @@ extension EnvironmentValues {
 }
 
 extension UIViewController {
-    func present<Content: View>(style: UIModalPresentationStyle = .automatic, @ViewBuilder builder: () -> Content) {
+    func present<Content: View>(style: UIModalPresentationStyle = .automatic, name:String, @ViewBuilder builder: () -> Content) {
         let toPresent = UIHostingController(rootView: AnyView(EmptyView()))
         toPresent.modalPresentationStyle = style
         toPresent.rootView = AnyView(
             builder()
                 .environment(\.viewController, toPresent)
         )
-        NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "dismissModal"), object: nil, queue: nil) { [weak toPresent] _ in
-            toPresent?.dismiss(animated: true, completion: nil)
+        print()
+        NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "dismiss\(name)"), object: nil, queue: nil) { [weak toPresent] _ in
+            toPresent?.dismiss(animated: false, completion: nil)
         }
         self.present(toPresent, animated: false, completion: nil)
     }
