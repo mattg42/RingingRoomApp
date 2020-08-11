@@ -9,8 +9,22 @@
 import SwiftUI
 
 struct RingView: View {
+    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
+    
+    @State var tower_id = "254317968"
     var body: some View {
-        Text("Hi")
+        VStack {
+            TextField("Tower id", text: $tower_id)
+            Button(action: joinTower) {
+                Text("Join Tower")
+            }
+        }
+    }
+    
+    func joinTower() {
+        self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
+            RingingRoomView(tower_id: tower_id)
+        }
     }
 }
 
