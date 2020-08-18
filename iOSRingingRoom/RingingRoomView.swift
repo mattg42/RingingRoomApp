@@ -36,6 +36,7 @@ struct RingingRoomView: View {
                         .font(.subheadline)
                         .padding(20)
                 GeometryReader { geo in
+                    ZStack(alignment: .topTrailing) {
                         ZStack {
                             ForEach(self.bellCircle.bells) { bell in
                                 if self.setupComplete {
@@ -53,6 +54,12 @@ struct RingingRoomView: View {
                                 }
                             }
                         }
+                        Button(action: {print("menu")}) {
+                            Image(systemName: "line.horizontal.3")
+                                .font(.title)
+                                .foregroundColor(.black)
+                        }
+                        .padding()
                     }
                     .onAppear(perform: {
                         let height = geo.frame(in: .global).height
