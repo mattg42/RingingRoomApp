@@ -204,10 +204,12 @@ struct RingingRoomView: View {
         Manager.socket.emit("c_join", ["tower_id":towerParameters.id!, "anonymous_user":towerParameters.anonymous_user])
     }
     
-    func ringBell() {
-        print(bellNumber)
-        Manager.socket.emit("c_bell_rung", ["bell": bellNumber, "stroke": "handstroke", "tower_id": towerParameters["id"]])
-        print("hopefully rang bell")
+    
+    func ringBell(number:Int) -> () -> () {
+        return {
+            self.bellCircle.bells[number-1].stroke.toggle()
+            self.Manager.socket.emit("c_bell_rung", ["bell": number, "stroke": self.bellCircle.bells[number-1].stroke.rawValue ? "handstroke" : "backstroke", "tower_id": self.towerParameters.id!])
+        }
     }
     
         bellPositions = [CGPoint]()
