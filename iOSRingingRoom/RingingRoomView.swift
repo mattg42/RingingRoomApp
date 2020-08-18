@@ -41,8 +41,12 @@ struct RingingRoomView: View {
                                 if self.setupComplete {
                                     Button(action: self.ringBell(number: bell.number)) {
                                         HStack(spacing: CGFloat(12-self.bellCircle.size)) {
+                                            Text(String(bell.number))
+                                                .opacity((2...(self.bellCircle.size/2)+1).contains(bell.number) ? 0 : 1)
                                             Image(bell.stroke.rawValue ? ((bell.number == 1) ? "t-handstroke-treble" : "t-handstroke") :"t-backstroke").resizable()
                                                 .frame(width: 25, height: 75)
+                                            Text(String(bell.number))
+                                                .opacity((2...(self.bellCircle.size/2)+1).contains(bell.number) ? 1 : 0)
                                         }
                                     }.buttonStyle(touchDown())
                                         .position(self.bellPositions[bell.number-1])
