@@ -186,7 +186,10 @@ struct RingingRoomView: View {
     }
     
     func connectToTower() {
+        for i in 1...towerParameters.size {
+            self.bellCircle.bells.append(Bell(number: i, stroke: .handstoke, person: self.towerParameters.assignments[i-1]))
         }
+        self.bellCircle.size = towerParameters.size
         initializeManager()
         initializeSocket()
         joinTower()
