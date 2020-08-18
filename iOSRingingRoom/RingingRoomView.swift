@@ -67,6 +67,97 @@ struct RingingRoomView: View {
                 Button(action: leaveTower) {
                     Text("Leave Tower")
                 }
+                VStack {
+                    HStack {
+                        Button(action: {print("")}) {
+                            ZStack {
+                                Color.white
+                                Text("Bob")
+                                    .foregroundColor(.black)
+                            }
+                        }
+                        .cornerRadius(5)
+                        
+                        Button(action: {print("")}) {
+                            ZStack {
+                                Color.white
+                                Text("Single")
+                                    .foregroundColor(.black)
+                            }
+                        }
+                        .cornerRadius(5)
+
+                        Button(action: {print("")}) {
+                            ZStack {
+                                Color.white
+                                Text("Thats all")
+                                    .foregroundColor(.black)
+                            }
+                        }
+                        .cornerRadius(5)
+
+                    }
+                    .frame(maxHeight: 35)
+                    HStack {
+                        Button(action: {
+                            self.bellCircle.size = 8
+                            self.getBellPositions(center: self.center, radius: self.radius)
+                        }) {
+                            ZStack {
+                                Color.white
+                                Text("Look to")
+                                    .foregroundColor(.black)
+                            }
+                        }
+                        .cornerRadius(5)
+
+                        Button(action: {self.bellCircle.bells[4].person = "Nigel"}) {
+                            ZStack {
+                                Color.white
+                                Text("Go next time")
+                                    .foregroundColor(.black)
+                                    .truncationMode(.tail)
+                            }
+                        }
+                        .cornerRadius(5)
+
+                        Button(action: {self.bellCircle.bells[3].person = "Nigeljhkfjdhfkjshdfkjhslkdjf"}) {
+                            ZStack {
+                                Color.white
+                                Text("Stand next")
+                                    .foregroundColor(.black)
+                            }
+                        }
+                        .cornerRadius(5)
+
+                    }
+                    .frame(maxHeight: 35)
+                    
+                    HStack {
+                        Button(action: {self.bellCircle.bells[5].person = "Nigel"}) {
+                            ZStack {
+                                Color.white
+                                Text("Left")
+                                    .foregroundColor(.black)
+                            }
+                        }
+                        .cornerRadius(5)
+
+                        
+                        Button(action: {self.bellCircle.bells[5].person = "Matthew Goodship"}) {
+                            ZStack {
+                                Color.white
+                                Text("Right")
+                                    .foregroundColor(.black)
+                            }
+                        }
+                        .cornerRadius(5)
+
+                    }
+                    .frame(maxHeight: 70)
+                }
+                .padding(.horizontal)
+                .padding(.bottom)
             }
         }
         .onAppear(perform: {
