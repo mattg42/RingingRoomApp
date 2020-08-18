@@ -10,6 +10,12 @@ import SwiftUI
 import Combine
 
 struct RingView: View {
+    
+    init() {
+         UIScrollView.appearance().bounces = false
+
+    }
+    
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     
     @State var towerListSelection:Int = 0
