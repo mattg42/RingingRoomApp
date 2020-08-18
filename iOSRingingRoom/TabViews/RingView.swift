@@ -25,7 +25,7 @@ struct RingView: View {
     
     @State var selectedTower = 0
     
-    @State var towerIDFieldYPosition:CGFloat = 0
+    @State var joinTowerYPosition:CGFloat = 0
     @State var keyboardHeight:CGFloat = 0
     
     @State var viewOffset:CGFloat = 0
@@ -52,44 +52,47 @@ struct RingView: View {
             }
             Spacer()
             HStack {
-                GeometryReader { geo in
-                    TextField("Tower id", text: self.$tower_id, onEditingChanged: { selected in
-                        self.textFieldSelected = selected
-                    })
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .keyboardType(.numberPad)
-                        .onAppear(perform: {
-                            var pos = geo.frame(in: .global).midY
-                            pos += geo.frame(in: .global).height*2
-                            pos = UIScreen.main.bounds.height - pos
-                            self.towerIDFieldYPosition = pos
-                        })
-                }
-                .fixedSize(horizontal: false, vertical: true)
+                TextField("Tower id", text: self.$tower_id, onEditingChanged: { selected in
+                    self.textFieldSelected = selected
+                })
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .keyboardType(.numberPad)
+                
                 Button("Hide keyboard") {
                     self.hideKeyboard()
                 }
                 .opacity((keyboardHeight > 0) ? 1 : 0.4)
                 .disabled(keyboardHeight == 0)
             }
-            Button(action: joinTower) {
-                ZStack {
-                    Color.main
-                        .cornerRadius(5)
-                    Text("Join Tower")
-                        .foregroundColor(.white)
+            GeometryReader { geo in
+                Button(action: self.joinTower) {
+                    ZStack {
+                        Color.main
+                            .cornerRadius(5)
+                        Text("Join Tower")
+                            .foregroundColor(.white)
+                    }
                 }
+                .opacity((self.tower_id.count == 9) ? 1 : 0.35)
+                .disabled(!(self.tower_id.count == 9))
+                    .onAppear(perform: {
+                        var pos = geo.frame(in: .global).midY
+                        pos += geo.frame(in: .global).height/2 + 10
+                        print("pos", pos)
+                        pos = UIScreen.main.bounds.height - pos
+                        self.joinTowerYPosition = pos
+                    })
             }
-            .frame(height: 45)
-            .opacity((tower_id.count == 9) ? 1 : 0.35)
-            .disabled(!(tower_id.count == 9))
+                .frame(height: 45)
+            .fixedSize(horizontal: false, vertical: true)
+            
         }
         .padding()
         .offset(y: viewOffset)
         .onReceive(Publishers.keyboardHeight) {
             self.keyboardHeight = $0
             print(self.keyboardHeight)
-            let offset = self.keyboardHeight - self.towerIDFieldYPosition
+            let offset = self.keyboardHeight - self.joinTowerYPosition
             print("offset: ",offset)
             if offset <= 0 {
                 withAnimation(.easeIn(duration: 0.16)) {
@@ -106,7 +109,7 @@ struct RingView: View {
     }
     func getOffset() -> CGFloat {
         
-        let offset = keyboardHeight - towerIDFieldYPosition
+        let offset = keyboardHeight - joinTowerYPosition
         print("offset: ",offset)
         if offset <= 0 {
             return 0
