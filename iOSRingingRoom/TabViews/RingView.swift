@@ -20,7 +20,7 @@ struct RingView: View {
     
     @State var towerListSelection:Int = 0
     var towerLists = ["Recents", "Favourites", "Created", "Host"]
-    var recentTowers = [Tower(id: "123456789", name: "Goodship"), Tower(id: "215436789", name: "Test"), Tower(id: "918273645", name: "3ls"), Tower(id: "263451789", name: "Lancashire branch"), Tower(id: "564738921", name: "Peal"), Tower(id: "873456129", name: "Practice"), Tower(id: "283719465", name: "Striking"), Tower(id: "178625439", name: "Silverdale")]
+    var recentTowers = [Tower(id: "123456789", name: "Goodship"), Tower(id: "215436789", name: "Test"), Tower(id: "918273645", name: "3ls"), Tower(id: "263451789", name: "Lancashire branch"), Tower(id: "564738921", name: "Peal"), Tower(id: "873456129", name: "Practice"), Tower(id: "283719465", name: "Striking"), Tower(id: "178625439", name: "Silverdale"), Tower(id: "123456789", name: "Goodship"), Tower(id: "215436789", name: "Test"), Tower(id: "918273645", name: "3ls"), Tower(id: "263451789", name: "Lancashire branch"), Tower(id: "564738921", name: "Peal"), Tower(id: "873456129", name: "Practice"), Tower(id: "283719465", name: "Striking"), Tower(id: "178625439", name: "Silverdale")]
     @State var tower_id = "254317968"
     
     @State var selectedTower = 0
