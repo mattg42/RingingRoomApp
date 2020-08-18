@@ -14,7 +14,7 @@ import NotificationCenter
 
 struct LoginScreen: View {
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
-
+    
     @State var email = ""
     @State var password = ""
     @State var stayLoggedIn = false
@@ -29,10 +29,8 @@ struct LoginScreen: View {
     
     let screenHeight = UIScreen.main.bounds.height
     
-    @State var positionOfPasswordField:CGFloat = 0
-    
     @State var loginScreenIsActive = true
-
+    
     @State private var accountCreated = false
     
     var body: some View {
@@ -63,10 +61,10 @@ struct LoginScreen: View {
                 Spacer(minLength: 13)
                 VStack(spacing: 10) {
                     TextField("Email", text: $email, onEditingChanged: { selected in
-                            if !selected {
-                                self.emailTextfieldChanged()
-                            }
-                        })
+                        if !selected {
+                            self.emailTextfieldChanged()
+                        }
+                    })
                         .textContentType(.emailAddress)
                         .keyboardType(.emailAddress)
                         .disableAutocorrection(true)
@@ -85,14 +83,14 @@ struct LoginScreen: View {
                                 pos += geo.frame(in: .global).height*2
                                 pos = UIScreen.main.bounds.height - pos
                                 print("performed", pos)
-
+                                
                                 self.passwordFieldYPosition = pos
                             })
                     }
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 10)
                     .padding(.bottom, 12)
-
+                    
                 }
                 
                 Toggle(isOn: $stayLoggedIn) {
@@ -101,7 +99,7 @@ struct LoginScreen: View {
                 .padding(.vertical, 7)
                 Button(action: login) {
                     ZStack {
-                        Color(red: 178/255, green: 39/255, blue: 110/255)
+                        Color.main
                             .cornerRadius(5)
                             .opacity(loginDisabled ? 0.35 : 1)
                         Text("Login")
@@ -156,12 +154,16 @@ struct LoginScreen: View {
     }
     
     func getOffset() -> CGFloat {
-        var offset = keyboardHeight - passwordFieldYPosition
-        print(offset)
-        if offset <= 0 {
+        if keyboardHeight < 260 { //to stop the view being offset on launch when launced from spotlight
             return 0
         } else {
-            return -offset
+            let offset = keyboardHeight - passwordFieldYPosition
+            print("offset: ",offset)
+            if offset <= 0 {
+                return 0
+            } else {
+                return -offset
+            }
         }
     }
     
@@ -174,7 +176,7 @@ struct LoginScreen: View {
         //present main ringingroom view
         UserDefaults.standard.set(stayLoggedIn, forKey: "keepMeLoggedIn")
         self.viewControllerHolder?.present(style: .fullScreen, name: "Main") {
-                MainApp()
+            MainApp()
         }
     }
 }
@@ -211,7 +213,7 @@ struct ViewControllerHolder {
 struct ViewControllerKey: EnvironmentKey {
     static var defaultValue: ViewControllerHolder {
         return ViewControllerHolder(value: UIApplication.shared.windows.first?.rootViewController)
-
+        
     }
 }
 
