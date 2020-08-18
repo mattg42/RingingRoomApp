@@ -39,18 +39,46 @@ struct RingView: View {
                 }
             }
             .pickerStyle(SegmentedPickerStyle())
-            VStack {
-                ForEach(0..<recentTowers.count) { number in
-                    Button(action: {self.tower_id = self.recentTowers[number].id; self.selectedTower = number}) {
-                        Text(self.recentTowers[number].id)
-                        .towerButtonStyle(isSelected: (number == self.selectedTower), name: self.recentTowers[number].name)
- 
+            ScrollView() {
+                    ForEach(0..<recentTowers.count) { number in
+                        Button(action: {self.tower_id = self.recentTowers[number].id; self.selectedTower = number}) {
+                            Text(self.recentTowers[number].id)
+                            .towerButtonStyle(isSelected: (number == self.selectedTower), name: self.recentTowers[number].name)
+                        }
+                        .frame(height: 40)
+                            .padding(.horizontal)
+                        .buttonStyle(CustomButtonSyle())
+                        .cornerRadius(10)
+                        .contextMenu {
+                            Button(action: {
+                                print("")
+                            }) {
+                                HStack {
+                                    Image(systemName: "bookmark.fill")
+                                    Text("Favourite")
+                                }
+                            }
+
+                            Button(action: {
+                                print("")
+                            }) {
+                                HStack {
+                                    Image(systemName: "gear")
+                                    Text("Settings")
+                                }
+                            }
+
+                            Button(action: {
+                                print("")
+                            }) {
+                                    Image(systemName: "minus.circle")
+                                        .accentColor(.red)
+                                    Text("Remove")
+                            }
                     }
-                    .frame(height: 32)
-                .buttonStyle(CustomButtonSyle())
+
                 }
             }
-            Spacer()
             HStack {
                 TextField("Tower id", text: self.$tower_id, onEditingChanged: { selected in
                     self.textFieldSelected = selected
