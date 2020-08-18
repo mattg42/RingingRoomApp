@@ -24,7 +24,7 @@ struct StoreView: View {
                     })
                 }
                 ZStack {
-                    Color.white
+                    Color.primary.colorInvert()
                     HStack {
                         Button(action: {self.webview.goBack()}) {
                             Image(systemName: "chevron.left")
@@ -41,7 +41,7 @@ struct StoreView: View {
                    //             .font(.title)
                         }
                         .sheet(isPresented: self.$actionSheetIsPresented) {
-                            ShareSheet(activityItems: [self.webview.webviewController?.webview.url!], applicationActivities: nil)
+                            ShareSheet(activityItems: [self.webview.webviewController!.webview.url!], applicationActivities: nil)
                         }
                         Spacer()
                         Button(action: {UIApplication.shared.open((self.webview.webviewController?.webview.url)!)}) {

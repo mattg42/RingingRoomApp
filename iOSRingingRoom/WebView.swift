@@ -38,7 +38,7 @@ struct Webview: UIViewControllerRepresentable {
     
 }
 
-class WebviewController: UIViewController, UIWebViewDelegate, UIScrollViewDelegate {
+class WebviewController: UIViewController, UIScrollViewDelegate {
     lazy var webview: WKWebView = WKWebView()
     lazy var progressbar: UIProgressView = UIProgressView()
 
@@ -95,10 +95,6 @@ class WebviewController: UIViewController, UIWebViewDelegate, UIScrollViewDelega
         default:
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
-    }
-    
-    func webViewDidFinishLoad(_ webView: UIWebView) {
-        self.webview.scrollView.showsHorizontalScrollIndicator = false
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
