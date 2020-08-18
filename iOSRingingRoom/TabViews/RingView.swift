@@ -33,6 +33,7 @@ struct RingView: View {
     
     var body: some View {
         VStack(spacing: 20) {
+            
             Picker("Tower list selection", selection: $towerListSelection) {
                 ForEach(0 ..< towerLists.count) {
                     Text(self.towerLists[$0])
@@ -277,18 +278,13 @@ struct towerButtonModifier:ViewModifier {
     var name:String
     
     func body(content: Content) -> some View {
-        ZStack(alignment: .leading) {
-            Color.main
-                .opacity(isSelected ? 1 : 0)
-                .cornerRadius(5)
             HStack() {
                 Text(name)
                 .fontWeight(isSelected ? Font.Weight.bold : nil)
                 content
+                Spacer()
             }
-            .padding(.horizontal)
-            .foregroundColor(isSelected ? .white : Color.primary)
-        }
+            .foregroundColor(isSelected ? .main : Color.primary)
     }
 }
 
