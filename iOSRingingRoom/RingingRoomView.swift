@@ -17,6 +17,15 @@ struct RingingRoomView: View {
     @State var center = CGPoint(x: 0, y: 0)
     
     @State var radius:CGFloat = 0
+    
+    @State var angleOffset:CGFloat = 20 {
+        didSet {
+            getBellPositions(center: center, radius: radius)
+        }
+    }
+    
+    @State var assignmentLabelScaleFactor = 1
+    
     @State var bellPositions = [CGPoint]()
     
     @State var setupComplete = false
@@ -48,6 +57,17 @@ struct RingingRoomView: View {
                                         .position(self.bellPositions[bell.number-1])
                                 }
                             }
+                            VStack(alignment: .leading) {
+                                ForEach(self.bellCircle.bells) { bell in
+                                    Text("\(bell.number) \(bell.person)")
+                                        .opacity(((bell.person) == "") ? 0 : 1)
+                                        .minimumScaleFactor(0.8)
+                                    .lineLimit(1)
+                                }
+                                .minimumScaleFactor(0.5)
+                            }
+                            .frame(width: geo.frame(in: .global).width,height: geo.frame(in: .global).height - 185)
+                         //   .scaleEffect(0.6)
                         }
                         Button(action: {print("menu")}) {
                             Image(systemName: "line.horizontal.3")
@@ -234,10 +254,6 @@ struct RingingRoomView: View {
             let bellXOffset = -sin(currentAngle.radians()) * radius
             let bellYOffset = cos(currentAngle.radians()) * radius
             bellPositions.append(CGPoint(x: center.x + bellXOffset, y: center.y + bellYOffset))
-            
-            let numberXOffset = -sin(currentAngle.radians()) * (radius - 60)
-            let numberYOffset = cos(currentAngle.radians()) * (radius - 60)
-            numberPositions.append(CGPoint(x: center.x + numberXOffset, y: center.y + numberYOffset))
             
             currentAngle += bellAngle
             

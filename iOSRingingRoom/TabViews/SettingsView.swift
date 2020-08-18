@@ -11,13 +11,14 @@ import SwiftUI
 struct SettingsView: View {
     var body: some View {
         NavigationView {
-            Form {
-                Text("setting")
-
-            }.navigationBarTitle("Settings", displayMode: .inline)
-
-        }
- //   .navigationViewStyle(StackNavigationViewStyle())
+                Form {
+                    Section(header: Text("Username")) {
+                        Text("Current username: ")
+                    }
+                    
+                }.navigationBarTitle("Settings", displayMode: .inline)
+            }
+           .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
