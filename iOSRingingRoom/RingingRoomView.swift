@@ -177,7 +177,12 @@ struct RingingRoomView: View {
     }
     
     func leaveTower() {
-         NotificationCenter.default.post(name: Notification.Name(rawValue: "dismissRingingRoom"), object: nil)
+        Manager.socket.emit("c_user_left",
+                            ["user_name": towerParameters.cur_user_name!,
+                             "user_token": towerParameters.user_token!,
+                             "anonymous_user": towerParameters.anonymous_user!,
+                             "tower_id": towerParameters.id!])
+        Manager.socket.disconnect()
     }
     
     func connectToTower() {
