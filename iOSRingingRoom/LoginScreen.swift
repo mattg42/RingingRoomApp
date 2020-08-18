@@ -62,8 +62,8 @@ struct LoginScreen: View {
                     .scaledToFit()
                 Spacer(minLength: 13)
                 VStack(spacing: 10) {
-                    TextField("Email", text: $email, onEditingChanged: { isEditing in
-                            if !isEditing {
+                    TextField("Email", text: $email, onEditingChanged: { selected in
+                            if !selected {
                                 self.emailTextfieldChanged()
                             }
                         })
