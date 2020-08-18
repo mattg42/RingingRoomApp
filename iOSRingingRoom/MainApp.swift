@@ -18,12 +18,6 @@ struct MainApp: View {
                         .font(.title)
                     Text("Ring")
             }
-            TowersView()
-                .tabItem {
-                    Image(systemName: "list.bullet")
-                        .font(.title)
-                    Text("Towers")
-            }
             StoreView()
                 .tabItem {
                     Image(systemName: "cart")
@@ -54,5 +48,11 @@ struct MainApp: View {
 extension Color {
     public static var main:Color {
         return Color(red: 178/255, green: 39/255, blue: 110/255)
+    }
+}
+
+struct MainApp_Previews: PreviewProvider {
+    static var previews: some View {
+        /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
     }
 }
