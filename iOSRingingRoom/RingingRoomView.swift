@@ -10,11 +10,16 @@ import SwiftUI
 
 struct RingingRoomView: View {
     @State var bellNumber = 1
-    @State var towerParameters = [String:Any]()
+    var towerParameters:TowerParameters
+    
     @ObservedObject var bellCircle = BellCircle()
+    
     @State var center = CGPoint(x: 0, y: 0)
+    
     @State var radius:CGFloat = 0
     @State var bellPositions = [CGPoint]()
+    
+    @State var setupComplete = false
     
     let tower_id:String
     
@@ -22,19 +27,9 @@ struct RingingRoomView: View {
     
     var body: some View {
         ZStack {
-            //#d3d1dc
             Color(red: 211/255, green: 209/255, blue: 220/255)
-                .edgesIgnoringSafeArea(.all)
+                .edgesIgnoringSafeArea(.all) //background view
             VStack(spacing: 10) {
-                Button(action: ringBell) {
-                    
-                    Text("ring")
-                }.buttonStyle(touchDown())
-                
-                Stepper(value: $bellNumber, in: 1...8) {
-                    Text("Bell selected: \(bellNumber)")
-                        .font(.subheadline)
-                        .padding(20)
                 GeometryReader { geo in
                     ZStack(alignment: .topTrailing) {
                         ZStack {
@@ -190,6 +185,7 @@ struct RingingRoomView: View {
                              "anonymous_user": towerParameters.anonymous_user!,
                              "tower_id": towerParameters.id!])
         Manager.socket.disconnect()
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "dismissRingingRoom"), object: nil)
     }
     
     func connectToTower() {
@@ -203,19 +199,19 @@ struct RingingRoomView: View {
     }
     
     func initializeManager() {
-        Manager = SocketIOManager(server_ip: towerParameters["server_ip"] as! String)
         Manager = SocketIOManager(server_ip: towerParameters.server_ip)
         
     }
     
     func initializeSocket() {
         Manager.addListeners()
+        
         Manager.connectSocket()
-        Manager.getStatus()
+        
+        //  Manager.getStatus()
     }
     
     func joinTower() {
-        Manager.socket.emit("c_join", ["tower_id":towerParameters["id"],"user_token":towerParameters["user_token"],"anonymous_user":towerParameters["anonymous_user"]])
         Manager.socket.emit("c_join", ["tower_id":towerParameters.id!, "anonymous_user":towerParameters.anonymous_user])
     }
     
@@ -227,6 +223,7 @@ struct RingingRoomView: View {
         }
     }
     
+    func getBellPositions(center:CGPoint, radius:CGFloat) {
         bellPositions = [CGPoint]()
         let bellAngle = CGFloat(360)/CGFloat(self.bellCircle.size)
         
