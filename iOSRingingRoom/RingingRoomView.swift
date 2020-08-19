@@ -45,7 +45,7 @@ struct RingingRoomView: View {
             VStack(spacing: 10) {
                 GeometryReader { geo in
                     ZStack(alignment: .topTrailing) {
-                        ZStack {
+                        ZStack() {
                             ForEach(self.bellCircle.bells) { bell in
                                 if self.setupComplete {
                                     Button(action: self.ringBell(number: bell.number)) {
@@ -61,17 +61,17 @@ struct RingingRoomView: View {
                                         .position(self.bellPositions[bell.number-1])
                                 }
                             }
-                            VStack(alignment: .leading) {
-                                ForEach(self.bellCircle.bells) { bell in
-                                    Text("\(bell.number) \(bell.person)")
-                                        .opacity(((bell.person) == "") ? 0 : 1)
-                                        .minimumScaleFactor(0.8)
-                                    .lineLimit(1)
-                                }
-                                .minimumScaleFactor(0.5)
+                            GeometryReader { scrollGeo in
+                                ScrollView(.vertical, showsIndicators: true) {
+                                    ForEach(self.bellCircle.bells) { bell in
+                                        Text((bell.person == "") ? "" : "\(bell.number) \(bell.person)")
+                                        .frame(maxWidth: geo.frame(in: .global).width - 100)
+                                    }
+                                }.id(UUID().uuidString)
+                                .frame(maxHeight: geo.frame(in: .global).height - 250)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .position(self.center)
                             }
-                            .frame(width: geo.frame(in: .global).width,height: geo.frame(in: .global).height - 185)
-                         //   .scaleEffect(0.6)
                         }
                         Button(action: {print("menu")}) {
                             Image(systemName: "line.horizontal.3")
