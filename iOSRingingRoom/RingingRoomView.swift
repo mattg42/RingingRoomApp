@@ -24,7 +24,11 @@ struct RingingRoomView: View {
         }
     }
     
-    @State var assignmentLabelScaleFactor = 1
+    @State var perspective = 1 {
+        didSet {
+            getBellPositions(center: center, radius: radius)
+        }
+    }
     
     @State var bellPositions = [CGPoint]()
     
@@ -209,10 +213,15 @@ struct RingingRoomView: View {
     }
     
     func connectToTower() {
-        for i in 1...towerParameters.size {
-            self.bellCircle.bells.append(Bell(number: i, stroke: .handstoke, person: self.towerParameters.assignments[i-1]))
-        }
         self.bellCircle.size = towerParameters.size
+        var setPerseptive = false
+        for i in 1...towerParameters.size {
+            self.bellCircle.bells[i-1] = Bell(number: i, stroke: .handstoke, person: self.towerParameters.assignments[i-1])
+            if !setPerseptive && self.bellCircle.bells[i-1].person == self.towerParameters.cur_user_name {
+                self.perspective = i
+                setPerseptive = true
+            }
+        }
         initializeManager()
         initializeSocket()
         joinTower()
@@ -247,7 +256,9 @@ struct RingingRoomView: View {
         bellPositions = [CGPoint]()
         let bellAngle = CGFloat(360)/CGFloat(self.bellCircle.size)
         
-        var currentAngle:CGFloat = (360 - bellAngle/2)
+        let baseline = (360 + bellAngle*0.5)
+        
+        var currentAngle:CGFloat = baseline - bellAngle*CGFloat(perspective)
         
         for _ in 1...self.bellCircle.size {
             print(currentAngle)
