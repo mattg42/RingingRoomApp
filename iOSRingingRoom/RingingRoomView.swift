@@ -51,11 +51,11 @@ struct RingingRoomView: View {
                                     Button(action: self.ringBell(number: bell.number)) {
                                         HStack(spacing: CGFloat(12-self.bellCircle.size)) {
                                             Text(String(bell.number))
-                                                .opacity((2...(self.bellCircle.size/2)+1).contains(bell.number) ? 0 : 1)
+                                                .opacity((bell.side == .left) ? 1 : 0)
                                             Image(bell.stroke.rawValue ? ((bell.number == 1) ? "t-handstroke-treble" : "t-handstroke") :"t-backstroke").resizable()
                                                 .frame(width: 25, height: 75)
                                             Text(String(bell.number))
-                                                .opacity((2...(self.bellCircle.size/2)+1).contains(bell.number) ? 1 : 0)
+                                                .opacity((bell.side == .right) ? 1 : 0)
                                         }
                                     }.buttonStyle(touchDown())
                                         .position(self.bellPositions[bell.number-1])
@@ -216,7 +216,7 @@ struct RingingRoomView: View {
         self.bellCircle.size = towerParameters.size
         var setPerseptive = false
         for i in 1...towerParameters.size {
-            self.bellCircle.bells[i-1] = Bell(number: i, stroke: .handstoke, person: self.towerParameters.assignments[i-1])
+            self.bellCircle.bells[i-1].person = self.towerParameters.assignments[i-1]
             if !setPerseptive && self.bellCircle.bells[i-1].person == self.towerParameters.cur_user_name {
                 self.perspective = i
                 setPerseptive = true
@@ -260,11 +260,15 @@ struct RingingRoomView: View {
         
         var currentAngle:CGFloat = baseline - bellAngle*CGFloat(perspective)
         
-        for _ in 1...self.bellCircle.size {
+        for i in 0..<self.bellCircle.size {
             print(currentAngle)
             let bellXOffset = -sin(currentAngle.radians()) * radius
             let bellYOffset = cos(currentAngle.radians()) * radius
             bellPositions.append(CGPoint(x: center.x + bellXOffset, y: center.y + bellYOffset))
+            
+            if bellCircle.bells.count > 0 {
+                bellCircle.bells[i].side = (180.0...360.0).contains(currentAngle) ? .left : .right
+            }
             
             currentAngle += bellAngle
             
