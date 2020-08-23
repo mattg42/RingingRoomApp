@@ -29,7 +29,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 window.makeKeyAndVisible()
             }
         } else {
-            let contentView = LoginScreen()
+            let contentView = LoginScreen().colorScheme(.light)
             if let windowScene = scene as? UIWindowScene {
                 let window = UIWindow(windowScene: windowScene)
                 window.rootViewController = UIHostingController(rootView: contentView)

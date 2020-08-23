@@ -34,7 +34,6 @@ struct LoginScreen: View {
     @State private var accountCreated = false
     
     var body: some View {
-        
         ZStack {
             Color(red: 211/255, green: 209/255, blue: 220/255)
                 .edgesIgnoringSafeArea(.all) //background view
@@ -69,14 +68,14 @@ struct LoginScreen: View {
                         .keyboardType(.emailAddress)
                         .disableAutocorrection(true)
                         .padding(8)
-                        .background(Color(.white))
+                        .background(Color.white)
                         .cornerRadius(5.0)
                     GeometryReader { geo in
                         SecureField("Password", text: self.$password)
                             .textContentType(.password)
                             .disableAutocorrection(true)
                             .padding(8)
-                            .background(Color(.white))
+                            .background(Color.white)
                             .cornerRadius(5.0)
                             .onAppear(perform: {
                                 var pos = geo.frame(in: .global).midY
