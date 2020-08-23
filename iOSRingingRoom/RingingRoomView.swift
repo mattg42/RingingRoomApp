@@ -65,11 +65,11 @@ struct RingingRoomView: View {
                                 ScrollView(.vertical, showsIndicators: true) {
                                     ForEach(self.bellCircle.bells) { bell in
                                         Text((bell.person == "") ? "" : "\(bell.number) \(bell.person)")
-                                        .frame(maxWidth: geo.frame(in: .global).width - 100)
+                                        .frame(maxWidth: geo.frame(in: .global).width - 100, alignment: .leading)
                                     }
                                 }.id(UUID().uuidString)
-                                .frame(maxHeight: geo.frame(in: .global).height - 250)
-                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxHeight: geo.frame(in: .global).height - 220)
+                                .fixedSize(horizontal: true, vertical: true)
                                 .position(self.center)
                             }
                         }
@@ -177,8 +177,6 @@ struct RingingRoomView: View {
                                     .foregroundColor(.black)
                             }
                         }
-                        .cornerRadius(5)
-
                     }
                     .frame(maxHeight: 70)
                 }
