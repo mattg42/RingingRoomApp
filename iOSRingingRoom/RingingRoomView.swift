@@ -95,7 +95,7 @@ struct RingingRoomView: View {
                 }
                 VStack {
                     HStack {
-                        Button(action: {print("")}) {
+                        Button(action: {self.perspective = 2}) {
                             ZStack {
                                 Color.white
                                 Text("Bob")
@@ -104,7 +104,7 @@ struct RingingRoomView: View {
                         }
                         .cornerRadius(5)
                         
-                        Button(action: {print("")}) {
+                        Button(action: {self.perspective = 5}) {
                             ZStack {
                                 Color.white
                                 Text("Single")
@@ -113,7 +113,7 @@ struct RingingRoomView: View {
                         }
                         .cornerRadius(5)
 
-                        Button(action: {print("")}) {
+                        Button(action: {self.perspective = 7}) {
                             ZStack {
                                 Color.white
                                 Text("Thats all")
@@ -160,22 +160,20 @@ struct RingingRoomView: View {
                     .frame(maxHeight: 35)
                     
                     HStack {
-                        Button(action: {self.bellCircle.bells[5].person = "Nigel"}) {
-                            ZStack {
-                                Color.white
-                                Text("Left")
-                                    .foregroundColor(.black)
-                            }
-                        }
-                        .cornerRadius(5)
-
-                        
-                        Button(action: {self.bellCircle.bells[5].person = "Matthew Goodship"}) {
-                            ZStack {
-                                Color.white
-                                Text("Right")
-                                    .foregroundColor(.black)
-                            }
+                        ForEach(self.bellCircle.bells.reversed()) { bell in
+                       //     if !self.towerParameters.anonymous_user {
+                                if bell.person == self.towerParameters.cur_user_name {
+                                    Button(action: self.ringBell(number: (bell.number))) {
+                                        ZStack {
+                                            Color.primary.colorInvert()
+                                            Text("\(bell.number)")
+                                                .foregroundColor(.primary)
+                                                .bold()
+                                        }
+                                    }
+                                    .cornerRadius(5)
+                                }
+//                     /
                         }
                     }
                     .frame(maxHeight: 70)
