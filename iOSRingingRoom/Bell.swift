@@ -64,7 +64,7 @@ class Bell:Identifiable {
     var stroke:Stroke {
         didSet {
             print("posting")
-            NotificationCenter.default.post(name: NSNotification.Name.strokeChanged, object: nil, userInfo: ["number":self.number, "stroke": self.stroke, "person": self.person])
+            NotificationCenter.default.post(name: NSNotification.Name.strokeChanged, object: nil, userInfo: ["number":self.number, "stroke": self.stroke, "person": self.person, "side":self.side])
         }
     }
     var number:Int
