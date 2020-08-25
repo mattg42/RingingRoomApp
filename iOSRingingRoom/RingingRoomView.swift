@@ -248,6 +248,10 @@ struct RingingRoomView: View {
         }
     }
     
+    func makeCall(_ call:String) -> () -> () {
+        return {
+            Manager.socket.emit("c_call", [call: call,tower_id: towerParameters.id])
+        }
     func getBellPositions(center:CGPoint, radius:CGFloat) {
         bellPositions = [CGPoint]()
         let bellAngle = CGFloat(360)/CGFloat(self.bellCircle.size)
