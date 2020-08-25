@@ -95,7 +95,7 @@ struct RingingRoomView: View {
                 }
                 VStack {
                     HStack {
-                        Button(action: {self.perspective = 2}) {
+                        Button(action: self.makeCall("Bob")) {
                             ZStack {
                                 Color.white
                                 Text("Bob")
@@ -104,7 +104,7 @@ struct RingingRoomView: View {
                         }
                         .cornerRadius(5)
                         
-                        Button(action: {self.perspective = 5}) {
+                        Button(action: self.makeCall("Single")) {
                             ZStack {
                                 Color.white
                                 Text("Single")
@@ -113,7 +113,7 @@ struct RingingRoomView: View {
                         }
                         .cornerRadius(5)
 
-                        Button(action: {self.perspective = 7}) {
+                        Button(action: self.makeCall("That's all")) {
                             ZStack {
                                 Color.white
                                 Text("Thats all")
@@ -125,10 +125,7 @@ struct RingingRoomView: View {
                     }
                     .frame(maxHeight: 35)
                     HStack {
-                        Button(action: {
-                            self.bellCircle.size = 8
-                            self.getBellPositions(center: self.center, radius: self.radius)
-                        }) {
+                        Button(action: self.makeCall("Look to")) {
                             ZStack {
                                 Color.white
                                 Text("Look to")
@@ -137,7 +134,7 @@ struct RingingRoomView: View {
                         }
                         .cornerRadius(5)
 
-                        Button(action: {self.bellCircle.bells[4].person = "Nigel"}) {
+                        Button(action: self.makeCall("Go")) {
                             ZStack {
                                 Color.white
                                 Text("Go next time")
@@ -147,7 +144,7 @@ struct RingingRoomView: View {
                         }
                         .cornerRadius(5)
 
-                        Button(action: {self.bellCircle.bells[3].person = "Nigeljhkfjdhfkjshdfkjhslkdjf"}) {
+                        Button(action: self.makeCall("Stand next")) {
                             ZStack {
                                 Color.white
                                 Text("Stand next")
@@ -250,8 +247,10 @@ struct RingingRoomView: View {
     
     func makeCall(_ call:String) -> () -> () {
         return {
-            Manager.socket.emit("c_call", [call: call,tower_id: towerParameters.id])
+            self.Manager.socket.emit("c_call", ["call": call, "tower_id": self.towerParameters.id])
         }
+    }
+    
     func getBellPositions(center:CGPoint, radius:CGFloat) {
         bellPositions = [CGPoint]()
         let bellAngle = CGFloat(360)/CGFloat(self.bellCircle.size)
