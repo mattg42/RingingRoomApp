@@ -55,7 +55,7 @@ struct RingView: View {
                                 print("")
                             }) {
                                 HStack {
-                                    Image(systemName: "bookmark.fill")
+                                    Image(systemName: "bookmark")
                                     Text("Favourite")
                                 }
                             }
