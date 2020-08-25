@@ -90,6 +90,7 @@ struct RingView: View {
                 Button("Hide keyboard") {
                     self.hideKeyboard()
                 }
+                .foregroundColor((keyboardHeight > 0) ? Color.main : Color.secondary)
                 .opacity((keyboardHeight > 0) ? 1 : 0.4)
                 .disabled(keyboardHeight == 0)
             }
