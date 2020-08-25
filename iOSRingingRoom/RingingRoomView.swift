@@ -116,7 +116,7 @@ struct RingingRoomView: View {
                         Button(action: self.makeCall("That's all")) {
                             ZStack {
                                 Color.white
-                                Text("Thats all")
+                                Text("That's all")
                                     .foregroundColor(.black)
                             }
                         }
