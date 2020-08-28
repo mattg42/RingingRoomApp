@@ -13,9 +13,15 @@ enum Side {
     case left, right
 }
 
+enum BellType:String {
+    case tower = "tower", hand = "hand"
+}
+
 class BellCircle: ObservableObject {
     
     @Published var bells:[Bell]
+    
+    @Published var bellType:BellType
     
     @Published var size:Int {
         didSet {
@@ -31,6 +37,8 @@ class BellCircle: ObservableObject {
     init(number:Int = 0) {
         self.size = number
         bells = [Bell]()
+        //change to .tower to test tower bells
+        bellType = .hand
         if number > 0 {
             for i in 1...number {
                 bells.append(Bell(number: i, side: ((2...size/2).contains(i)) ? .left : .right))
@@ -61,6 +69,23 @@ class Bell:Identifiable {
     
     var side:Side
     
+    static var sounds = [
+        BellType.tower : [
+        4: ["5","6","7","8"],
+        6: ["3","4","5","6","7","8"],
+        8: ["1","2sharp","3","4","5","6","7","8"],
+        10: ["3","4","5","6","7","8","9","0","E","T"],
+        12: ["1","2","3","4","5","6","7","8","9","0","E","T"]
+        ],
+        BellType.hand : [
+        4: ["5","6","7","8"],
+        6: ["3","4","5","6","7","8"],
+        8: ["5","6","7","8","9","0","E","T"],
+        10: ["3","4","5","6","7","8","9","0","E","T"],
+        12: ["1","2","3","4","5","6","7","8","9","0","E","T"]
+        ]
+    ]
+    
     var stroke:Stroke {
         didSet {
             print("posting")
@@ -76,10 +101,10 @@ class Bell:Identifiable {
     }
     
     init(number:Int, stroke:Stroke = .handstoke, person:String = "", side:Side) {
+        self.side = side
         self.number = number
         self.stroke = stroke
         self.person = person
-        self.side = side
     }
 }
 

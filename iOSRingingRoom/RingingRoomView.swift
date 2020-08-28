@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import AVFoundation
+
 
 struct RingingRoomView: View {
     @State var bellNumber = 1
@@ -35,6 +37,7 @@ struct RingingRoomView: View {
     @State var setupComplete = false
     
     let tower_id:String
+    @State var audioPlayer:AVAudioPlayer?
     
     @State var Manager:SocketIOManager!
     
@@ -241,13 +244,17 @@ struct RingingRoomView: View {
     func ringBell(number:Int) -> () -> () {
         return {
             self.bellCircle.bells[number-1].stroke.toggle()
-            self.Manager.socket.emit("c_bell_rung", ["bell": number, "stroke": self.bellCircle.bells[number-1].stroke.rawValue ? "handstroke" : "backstroke", "tower_id": self.towerParameters.id!])
+            self.Manager.socket.emit("c_bell_rung", ["bell": number, "stroke": self.bellCircle.bells[number-1].stroke.rawValue ? "handstroke" : "backstroke", "tower_id": self.towerParameters!.id])
+            self.play(Bell.sounds[self.bellCircle.bellType]![self.bellCircle.size]![number-1].prefix((self.bellCircle.bellType == .hand) ? "H" : "T"), inDirectory: "RingingRoomAudio")
         }
     }
     
     func makeCall(_ call:String) -> () -> () {
         return {
-            self.Manager.socket.emit("c_call", ["call": call, "tower_id": self.towerParameters.id])
+            self.Manager.socket.emit("c_call", ["call": call, "tower_id": self.towerParameters!.id])
+            self.play(call, inDirectory: "RingingRoomAudio")
+        }
+    }
         }
     }
     
@@ -283,10 +290,33 @@ struct RingingRoomView: View {
         }
         setupComplete = true
     }
+    
+    func play(_ fileName:String, inDirectory directory:String? = nil) {
+        if let path = Bundle.main.path(forResource: fileName, ofType: ".m4a", inDirectory: directory) {
+
+            self.audioPlayer = AVAudioPlayer()
+
+            let url = URL(fileURLWithPath: path)
+
+            do {
+                self.audioPlayer = try AVAudioPlayer(contentsOf: url)
+                self.audioPlayer?.prepareToPlay()
+                self.audioPlayer?.play()
+            }catch {
+                print("Error")
+            }
+        }
+    }
 }
 
 extension CGFloat {
     func radians() -> CGFloat {
         (self * CGFloat.pi)/180
+    }
+}
+
+extension String {
+    mutating func prefix(_ prefix:String) -> String {
+        return prefix + self
     }
 }
