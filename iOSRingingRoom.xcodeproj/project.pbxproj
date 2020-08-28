@@ -12,7 +12,6 @@
 		343DDE5924E2DDF800970FA1 /* Tower.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343DDE5824E2DDF800970FA1 /* Tower.swift */; };
 		343DDE5B24E2EAB900970FA1 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343DDE5A24E2EAB900970FA1 /* User.swift */; };
 		345505A124E3F6E9002D288F /* TowerParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345505A024E3F6E9002D288F /* TowerParameters.swift */; };
-		34598F1D24E5AF2400F7CCF9 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34598F1C24E5AF2400F7CCF9 /* ShareSheet.swift */; };
 		345B52F624DFD2360050BB8F /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345B52F524DFD2360050BB8F /* HelpView.swift */; };
 		345B52F824DFD24B0050BB8F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345B52F724DFD24B0050BB8F /* SettingsView.swift */; };
 		345B52FA24DFD25E0050BB8F /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345B52F924DFD25E0050BB8F /* MainApp.swift */; };
@@ -38,25 +37,9 @@
 		349479B124DB1A1B006B4ABE /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 349479B024DB1A1B006B4ABE /* SocketIO */; };
 		34D3EFEB24EB182200B86D69 /* Bell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D3EFEA24EB182200B86D69 /* Bell.swift */; };
 		34D8C7AF24E1B07D00C0D7A6 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D8C7AE24E1B07D00C0D7A6 /* WebView.swift */; };
-		34E7119024F5774D00167956 /* 8.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7117D24F5774D00167956 /* 8.m4a */; };
-		34E7119124F5774D00167956 /* 9.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7117E24F5774D00167956 /* 9.m4a */; };
-		34E7119224F5774D00167956 /* Look.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7117F24F5774D00167956 /* Look.m4a */; };
-		34E7119324F5774D00167956 /* Bob.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118024F5774D00167956 /* Bob.m4a */; };
-		34E7119424F5774D00167956 /* Stand.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118124F5774D00167956 /* Stand.m4a */; };
-		34E7119524F5774D00167956 /* ThatsAll.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118224F5774D00167956 /* ThatsAll.m4a */; };
-		34E7119624F5774D00167956 /* 2sharp.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118324F5774D00167956 /* 2sharp.m4a */; };
-		34E7119724F5774D00167956 /* Go.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118424F5774D00167956 /* Go.m4a */; };
-		34E7119824F5774D00167956 /* 1.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118524F5774D00167956 /* 1.m4a */; };
-		34E7119924F5774D00167956 /* 0.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118624F5774D00167956 /* 0.m4a */; };
-		34E7119A24F5774D00167956 /* 2.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118724F5774D00167956 /* 2.m4a */; };
-		34E7119B24F5774D00167956 /* E.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118824F5774D00167956 /* E.m4a */; };
-		34E7119C24F5774D00167956 /* 3.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118924F5774D00167956 /* 3.m4a */; };
-		34E7119D24F5774D00167956 /* 7.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118A24F5774D00167956 /* 7.m4a */; };
-		34E7119E24F5774D00167956 /* 6.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118B24F5774D00167956 /* 6.m4a */; };
-		34E7119F24F5774D00167956 /* Single.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118C24F5774D00167956 /* Single.m4a */; };
-		34E711A024F5774D00167956 /* 4.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118D24F5774D00167956 /* 4.m4a */; };
-		34E711A124F5774D00167956 /* T.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118E24F5774D00167956 /* T.m4a */; };
-		34E711A224F5774D00167956 /* 5.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 34E7118F24F5774D00167956 /* 5.m4a */; };
+		34E711A424F57DDE00167956 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E711A324F57DDE00167956 /* AudioPlayer.swift */; };
+		34E711CB24F6D16E00167956 /* RingingRoomAudio in Resources */ = {isa = PBXBuildFile; fileRef = 34E711CA24F6D16E00167956 /* RingingRoomAudio */; };
+		34F1299824F6FFD7000AED7E /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F1299724F6FFD7000AED7E /* ShareSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,7 +48,6 @@
 		343DDE5824E2DDF800970FA1 /* Tower.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tower.swift; sourceTree = "<group>"; };
 		343DDE5A24E2EAB900970FA1 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		345505A024E3F6E9002D288F /* TowerParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TowerParameters.swift; sourceTree = "<group>"; };
-		34598F1C24E5AF2400F7CCF9 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareSheet.swift; path = TabViews/ShareSheet.swift; sourceTree = "<group>"; };
 		345B52F524DFD2360050BB8F /* HelpView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		345B52F724DFD24B0050BB8F /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		345B52F924DFD25E0050BB8F /* MainApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
@@ -92,25 +74,9 @@
 		349479AD24D9FA61006B4ABE /* bulletLine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = bulletLine.swift; sourceTree = "<group>"; };
 		34D3EFEA24EB182200B86D69 /* Bell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bell.swift; sourceTree = "<group>"; };
 		34D8C7AE24E1B07D00C0D7A6 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
-		34E7117D24F5774D00167956 /* 8.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 8.m4a; sourceTree = "<group>"; };
-		34E7117E24F5774D00167956 /* 9.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 9.m4a; sourceTree = "<group>"; };
-		34E7117F24F5774D00167956 /* Look.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = Look.m4a; sourceTree = "<group>"; };
-		34E7118024F5774D00167956 /* Bob.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = Bob.m4a; sourceTree = "<group>"; };
-		34E7118124F5774D00167956 /* Stand.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = Stand.m4a; sourceTree = "<group>"; };
-		34E7118224F5774D00167956 /* ThatsAll.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = ThatsAll.m4a; sourceTree = "<group>"; };
-		34E7118324F5774D00167956 /* 2sharp.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 2sharp.m4a; sourceTree = "<group>"; };
-		34E7118424F5774D00167956 /* Go.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = Go.m4a; sourceTree = "<group>"; };
-		34E7118524F5774D00167956 /* 1.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1.m4a; sourceTree = "<group>"; };
-		34E7118624F5774D00167956 /* 0.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 0.m4a; sourceTree = "<group>"; };
-		34E7118724F5774D00167956 /* 2.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 2.m4a; sourceTree = "<group>"; };
-		34E7118824F5774D00167956 /* E.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = E.m4a; sourceTree = "<group>"; };
-		34E7118924F5774D00167956 /* 3.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 3.m4a; sourceTree = "<group>"; };
-		34E7118A24F5774D00167956 /* 7.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 7.m4a; sourceTree = "<group>"; };
-		34E7118B24F5774D00167956 /* 6.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 6.m4a; sourceTree = "<group>"; };
-		34E7118C24F5774D00167956 /* Single.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = Single.m4a; sourceTree = "<group>"; };
-		34E7118D24F5774D00167956 /* 4.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 4.m4a; sourceTree = "<group>"; };
-		34E7118E24F5774D00167956 /* T.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = T.m4a; sourceTree = "<group>"; };
-		34E7118F24F5774D00167956 /* 5.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 5.m4a; sourceTree = "<group>"; };
+		34E711A324F57DDE00167956 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
+		34E711CA24F6D16E00167956 /* RingingRoomAudio */ = {isa = PBXFileReference; lastKnownFileType = folder; path = RingingRoomAudio; sourceTree = "<group>"; };
+		34F1299724F6FFD7000AED7E /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +94,7 @@
 		345B52F424DFD1BA0050BB8F /* TabViews */ = {
 			isa = PBXGroup;
 			children = (
+				34F1299724F6FFD7000AED7E /* ShareSheet.swift */,
 				345B52FF24DFD29E0050BB8F /* RingView.swift */,
 				345B52FB24DFD27F0050BB8F /* StoreView.swift */,
 				345B52F524DFD2360050BB8F /* HelpView.swift */,
@@ -156,7 +123,7 @@
 		3494797F24D9EFA7006B4ABE /* iOSRingingRoom */ = {
 			isa = PBXGroup;
 			children = (
-				34598F1C24E5AF2400F7CCF9 /* ShareSheet.swift */,
+				34E711CA24F6D16E00167956 /* RingingRoomAudio */,
 				3494798024D9EFA7006B4ABE /* AppDelegate.swift */,
 				343DDE5824E2DDF800970FA1 /* Tower.swift */,
 				343DDE5A24E2EAB900970FA1 /* User.swift */,
@@ -166,6 +133,7 @@
 				345B52F424DFD1BA0050BB8F /* TabViews */,
 				349479A324D9FA1F006B4ABE /* accountCreationView.swift */,
 				3404247324DF0A4100EEAE34 /* RingingRoomView.swift */,
+				34E711A324F57DDE00167956 /* AudioPlayer.swift */,
 				34D3EFEA24EB182200B86D69 /* Bell.swift */,
 				345505A024E3F6E9002D288F /* TowerParameters.swift */,
 				349479A524D9FA24006B4ABE /* resetPasswordView.swift */,
@@ -178,7 +146,6 @@
 				3494798624D9EFAA006B4ABE /* Assets.xcassets */,
 				3494798B24D9EFAA006B4ABE /* LaunchScreen.storyboard */,
 				3494798E24D9EFAA006B4ABE /* Info.plist */,
-				34E7117C24F5774D00167956 /* RingingRoomAudio */,
 				3494798824D9EFAA006B4ABE /* Preview Content */,
 			);
 			path = iOSRingingRoom;
@@ -202,32 +169,6 @@
 				3494799924D9EFC9006B4ABE /* Simonetta-BlackItalic.ttf */,
 			);
 			path = Simonetta;
-			sourceTree = "<group>";
-		};
-		34E7117C24F5774D00167956 /* RingingRoomAudio */ = {
-			isa = PBXGroup;
-			children = (
-				34E7117D24F5774D00167956 /* 8.m4a */,
-				34E7117E24F5774D00167956 /* 9.m4a */,
-				34E7117F24F5774D00167956 /* Look.m4a */,
-				34E7118024F5774D00167956 /* Bob.m4a */,
-				34E7118124F5774D00167956 /* Stand.m4a */,
-				34E7118224F5774D00167956 /* ThatsAll.m4a */,
-				34E7118324F5774D00167956 /* 2sharp.m4a */,
-				34E7118424F5774D00167956 /* Go.m4a */,
-				34E7118524F5774D00167956 /* 1.m4a */,
-				34E7118624F5774D00167956 /* 0.m4a */,
-				34E7118724F5774D00167956 /* 2.m4a */,
-				34E7118824F5774D00167956 /* E.m4a */,
-				34E7118924F5774D00167956 /* 3.m4a */,
-				34E7118A24F5774D00167956 /* 7.m4a */,
-				34E7118B24F5774D00167956 /* 6.m4a */,
-				34E7118C24F5774D00167956 /* Single.m4a */,
-				34E7118D24F5774D00167956 /* 4.m4a */,
-				34E7118E24F5774D00167956 /* T.m4a */,
-				34E7118F24F5774D00167956 /* 5.m4a */,
-			);
-			path = RingingRoomAudio;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -294,33 +235,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				34E7119D24F5774D00167956 /* 7.m4a in Resources */,
-				34E7119E24F5774D00167956 /* 6.m4a in Resources */,
-				34E7119A24F5774D00167956 /* 2.m4a in Resources */,
 				3494799D24D9EFC9006B4ABE /* OFL.txt in Resources */,
-				34E7119B24F5774D00167956 /* E.m4a in Resources */,
-				34E7119524F5774D00167956 /* ThatsAll.m4a in Resources */,
-				34E711A024F5774D00167956 /* 4.m4a in Resources */,
-				34E7119624F5774D00167956 /* 2sharp.m4a in Resources */,
+				34E711CB24F6D16E00167956 /* RingingRoomAudio in Resources */,
 				3494799E24D9EFC9006B4ABE /* Simonetta-BlackItalic.ttf in Resources */,
-				34E7119224F5774D00167956 /* Look.m4a in Resources */,
 				3494798D24D9EFAA006B4ABE /* LaunchScreen.storyboard in Resources */,
-				34E711A124F5774D00167956 /* T.m4a in Resources */,
-				34E7119024F5774D00167956 /* 8.m4a in Resources */,
 				3494799A24D9EFC9006B4ABE /* Simonetta-Black.ttf in Resources */,
-				34E7119F24F5774D00167956 /* Single.m4a in Resources */,
-				34E7119324F5774D00167956 /* Bob.m4a in Resources */,
-				34E7119924F5774D00167956 /* 0.m4a in Resources */,
-				34E7119C24F5774D00167956 /* 3.m4a in Resources */,
 				3494798A24D9EFAA006B4ABE /* Preview Assets.xcassets in Resources */,
-				34E7119124F5774D00167956 /* 9.m4a in Resources */,
 				3494799B24D9EFC9006B4ABE /* Simonetta-Regular.ttf in Resources */,
-				34E711A224F5774D00167956 /* 5.m4a in Resources */,
-				34E7119724F5774D00167956 /* Go.m4a in Resources */,
 				3494798724D9EFAA006B4ABE /* Assets.xcassets in Resources */,
 				3494799C24D9EFC9006B4ABE /* Simonetta-Italic.ttf in Resources */,
-				34E7119424F5774D00167956 /* Stand.m4a in Resources */,
-				34E7119824F5774D00167956 /* 1.m4a in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,6 +257,7 @@
 				345B52F824DFD24B0050BB8F /* SettingsView.swift in Sources */,
 				3494798124D9EFA7006B4ABE /* AppDelegate.swift in Sources */,
 				3404247224DCA48E00EEAE34 /* SocketIOManager.swift in Sources */,
+				34E711A424F57DDE00167956 /* AudioPlayer.swift in Sources */,
 				349479A024D9F0E0006B4ABE /* LoginScreen.swift in Sources */,
 				3494798324D9EFA7006B4ABE /* SceneDelegate.swift in Sources */,
 				349479A424D9FA20006B4ABE /* accountCreationView.swift in Sources */,
@@ -350,9 +274,9 @@
 				349479A624D9FA24006B4ABE /* resetPasswordView.swift in Sources */,
 				349479AC24D9FA5D006B4ABE /* mailView.swift in Sources */,
 				34D8C7AF24E1B07D00C0D7A6 /* WebView.swift in Sources */,
+				34F1299824F6FFD7000AED7E /* ShareSheet.swift in Sources */,
 				345B52FC24DFD27F0050BB8F /* StoreView.swift in Sources */,
 				345B52F624DFD2360050BB8F /* HelpView.swift in Sources */,
-				34598F1D24E5AF2400F7CCF9 /* ShareSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
