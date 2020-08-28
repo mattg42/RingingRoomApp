@@ -11,10 +11,9 @@ import AVFoundation
 
 
 struct RingingRoomView: View {
-    @State var bellNumber = 1
-    var towerParameters:TowerParameters
-    
-    @ObservedObject var bellCircle = BellCircle()
+    var towerParameters:TowerParameters? = nil
+        
+    @ObservedObject var bellCircle:BellCircle = BellCircle()
     
     @State var center = CGPoint(x: 0, y: 0)
     
@@ -36,11 +35,10 @@ struct RingingRoomView: View {
     
     @State var setupComplete = false
     
-    let tower_id:String
     @State var audioPlayer:AVAudioPlayer?
-    
+        
     @State var Manager:SocketIOManager!
-    
+        
     var body: some View {
         ZStack {
             Color(red: 211/255, green: 209/255, blue: 220/255)
@@ -162,7 +160,7 @@ struct RingingRoomView: View {
                     HStack {
                         ForEach(self.bellCircle.bells.reversed()) { bell in
                        //     if !self.towerParameters.anonymous_user {
-                                if bell.person == self.towerParameters.cur_user_name {
+                            if bell.person == self.towerParameters!.cur_user_name {
                                     Button(action: self.ringBell(number: (bell.number))) {
                                         ZStack {
                                             Color.primary.colorInvert()
@@ -183,7 +181,23 @@ struct RingingRoomView: View {
             }
         }
         .onAppear(perform: {
-            self.connectToTower()
+            if !(towerParameters == nil) {
+                self.bellCircle.size = self.towerParameters!.size
+                
+                self.towerParameters!.cur_user_name = "Matthew Goodship"
+                print("before connecting to new tower size = ", self.bellCircle.bells.count)
+                var setPerseptive = false
+                for i in 1...self.bellCircle.size {
+                    print("legit noti")
+                    self.bellCircle.bells[i-1].person = self.towerParameters!.assignments[i-1]
+                    if !setPerseptive && self.bellCircle.bells[i-1].person == self.towerParameters!.cur_user_name {
+                        self.perspective = i
+                        setPerseptive = true
+                    }
+                }
+                
+                self.connectToTower()
+            }
         })
     }
     
@@ -200,31 +214,22 @@ struct RingingRoomView: View {
     
     func leaveTower() {
         Manager.socket.emit("c_user_left",
-                            ["user_name": towerParameters.cur_user_name!,
-                             "user_token": towerParameters.user_token!,
-                             "anonymous_user": towerParameters.anonymous_user!,
-                             "tower_id": towerParameters.id!])
+                            ["user_name": towerParameters!.cur_user_name!,
+                             "user_token": towerParameters!.user_token!,
+                             "anonymous_user": towerParameters!.anonymous_user!,
+                             "tower_id": towerParameters!.id!])
         Manager.socket.disconnect()
         NotificationCenter.default.post(name: Notification.Name(rawValue: "dismissRingingRoom"), object: nil)
     }
     
     func connectToTower() {
-        self.bellCircle.size = towerParameters.size
-        var setPerseptive = false
-        for i in 1...towerParameters.size {
-            self.bellCircle.bells[i-1].person = self.towerParameters.assignments[i-1]
-            if !setPerseptive && self.bellCircle.bells[i-1].person == self.towerParameters.cur_user_name {
-                self.perspective = i
-                setPerseptive = true
-            }
-        }
         initializeManager()
         initializeSocket()
         joinTower()
     }
     
     func initializeManager() {
-        Manager = SocketIOManager(server_ip: towerParameters.server_ip)
+        Manager = SocketIOManager(server_ip: towerParameters!.server_ip)
         
     }
     
@@ -237,7 +242,7 @@ struct RingingRoomView: View {
     }
     
     func joinTower() {
-        Manager.socket.emit("c_join", ["tower_id":towerParameters.id!, "anonymous_user":towerParameters.anonymous_user])
+        Manager.socket.emit("c_join", ["tower_id":towerParameters!.id, "anonymous_user":towerParameters!.anonymous_user])
     }
     
     

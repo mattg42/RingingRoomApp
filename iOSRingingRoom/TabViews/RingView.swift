@@ -13,7 +13,6 @@ struct RingView: View {
     
     init() {
          UIScrollView.appearance().bounces = false
-
     }
     
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
@@ -24,6 +23,8 @@ struct RingView: View {
     @State var tower_id = "254317968"
     
     @State var selectedTower = 0
+    
+    @State var ringingRoomView:RingingRoomView = RingingRoomView(tower_id: "0")
     
     @State var joinTowerYPosition:CGFloat = 0
     @State var keyboardHeight:CGFloat = 0
@@ -149,8 +150,10 @@ struct RingView: View {
     }
     
     func joinTower() {
+        self.ringingRoomView.towerParameters = getTowerParameters()
+        self.ringingRoomView.tower_id = tower_id
         self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
-            RingingRoomView(towerParameters: getTowerParameters(), tower_id: tower_id)
+            self.ringingRoomView
         }
     }
     
@@ -264,7 +267,6 @@ struct RingView: View {
         task.resume()
         
         while !requestComplete {
-
         }
         
         print(towerParameters!.size)
