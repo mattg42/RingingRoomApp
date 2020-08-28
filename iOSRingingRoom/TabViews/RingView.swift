@@ -24,7 +24,7 @@ struct RingView: View {
     
     @State var selectedTower = 0
     
-    @State var ringingRoomView:RingingRoomView = RingingRoomView(tower_id: "0")
+    @State var ringingRoomView:RingingRoomView = RingingRoomView()
     
     @State var joinTowerYPosition:CGFloat = 0
     @State var keyboardHeight:CGFloat = 0
@@ -151,7 +151,7 @@ struct RingView: View {
     
     func joinTower() {
         self.ringingRoomView.towerParameters = getTowerParameters()
-        self.ringingRoomView.tower_id = tower_id
+        self.ringingRoomView.setupComplete = false
         self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
             self.ringingRoomView
         }

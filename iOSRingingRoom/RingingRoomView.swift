@@ -48,28 +48,31 @@ struct RingingRoomView: View {
                     ZStack(alignment: .topTrailing) {
                         ZStack() {
                             ForEach(self.bellCircle.bells) { bell in
-                                if self.setupComplete {
+                                if self.bellPositions.count == self.bellCircle.size {
                                     Button(action: self.ringBell(number: bell.number)) {
-                                        HStack(spacing: CGFloat(12-self.bellCircle.size)) {
+                                        HStack(spacing: CGFloat(6-self.bellCircle.size) - ((self.bellCircle.bellType == .hand) ? 1 : 0)) {
                                             Text(String(bell.number))
                                                 .opacity((bell.side == .left) ? 1 : 0)
-                                            Image(bell.stroke.rawValue ? ((bell.number == 1) ? "t-handstroke-treble" : "t-handstroke") :"t-backstroke").resizable()
-                                                .frame(width: 25, height: 75)
+                                            Image(self.getImage(bell.number)).resizable()
+                                               .aspectRatio(contentMode: ContentMode.fit)
+                                                .frame(height: self.bellCircle.bellType == .hand ?  58 : 75)
+                                                .rotation3DEffect(.degrees(self.bellCircle.bellType == .hand ? (bell.side == .left) ? 0 : 180 : 0), axis: (x: 0, y: 1, z: 0))
                                             Text(String(bell.number))
                                                 .opacity((bell.side == .right) ? 1 : 0)
                                         }
                                     }.buttonStyle(touchDown())
-                                        .position(self.bellPositions[bell.number-1])
+                                    .position(self.bellPositions[bell.number-1])
                                 }
                             }
                             GeometryReader { scrollGeo in
                                 ScrollView(.vertical, showsIndicators: true) {
                                     ForEach(self.bellCircle.bells) { bell in
                                         Text((bell.person == "") ? "" : "\(bell.number) \(bell.person)")
+                                            .font(.callout)
                                         .frame(maxWidth: geo.frame(in: .global).width - 100, alignment: .leading)
                                     }
                                 }.id(UUID().uuidString)
-                                .frame(maxHeight: geo.frame(in: .global).height - 220)
+                                .frame(maxHeight: geo.frame(in: .global).height - 230)
                                 .fixedSize(horizontal: true, vertical: true)
                                 .position(self.center)
                             }
@@ -87,8 +90,29 @@ struct RingingRoomView: View {
                         
                         self.radius = width/2 - 20
                         
+                        if self.bellCircle.bellType == .hand {
+                            switch self.bellCircle.size {
+                            case 6:
+                                self.radius -= 20
+                            case 8:
+                                self.radius -= 0
+                            case 10:
+                                self.radius -= 10
+                            case 12:
+                                self.radius -= 5
+                            default:
+                                self.radius -= 0
+                            }
+                        }
+                        
                         self.center = CGPoint(x: width/2, y: height/2)
+                        print(self.bellPositions.count)
+                        
+                //        self.bellPositions = [CGPoint(x: 0, y: 0), CGPoint(x: 0, y: 0), CGPoint(x: 0, y: 0), CGPoint(x: 0, y: 0), CGPoint(x: 0, y: 0)]
+                        
                         self.getBellPositions(center: self.center, radius: self.radius)
+                        print(self.bellPositions.count)
+                        self.setupComplete = true
                     })
                 }
                 Button(action: leaveTower) {
@@ -181,7 +205,7 @@ struct RingingRoomView: View {
             }
         }
         .onAppear(perform: {
-            if !(towerParameters == nil) {
+            if !(self.towerParameters == nil) {
                 self.bellCircle.size = self.towerParameters!.size
                 
                 self.towerParameters!.cur_user_name = "Matthew Goodship"
@@ -260,11 +284,34 @@ struct RingingRoomView: View {
             self.play(call, inDirectory: "RingingRoomAudio")
         }
     }
+    
+    func getImage(_ number:Int) -> String {
+        var imageName = ""
+        
+        if bellCircle.bellType == .tower {
+            imageName += "t"
+        } else {
+            imageName += "h"
         }
+        
+        if bellCircle.bells[number-1].stroke == .handstoke {
+            imageName += "-handstroke"
+            
+            if number == 1 {
+                imageName += "-treble"
+            }
+            
+        } else {
+            imageName += "-backstroke"
+        }
+        
+        
+        
+        return imageName
     }
     
     func getBellPositions(center:CGPoint, radius:CGFloat) {
-        bellPositions = [CGPoint]()
+        self.bellPositions = [CGPoint]()
         let bellAngle = CGFloat(360)/CGFloat(self.bellCircle.size)
         
         let baseline = (360 + bellAngle*0.5)
@@ -275,7 +322,7 @@ struct RingingRoomView: View {
             print(currentAngle)
             let bellXOffset = -sin(currentAngle.radians()) * radius
             let bellYOffset = cos(currentAngle.radians()) * radius
-            bellPositions.append(CGPoint(x: center.x + bellXOffset, y: center.y + bellYOffset))
+            self.bellPositions.append(CGPoint(x: center.x + bellXOffset, y: center.y + bellYOffset))
             
             if bellCircle.bells.count > 0 {
                 bellCircle.bells[i].side = (180.0...360.0).contains(currentAngle) ? .left : .right
@@ -293,7 +340,6 @@ struct RingingRoomView: View {
         for pos in bellPositions {
             print(pos)
         }
-        setupComplete = true
     }
     
     func play(_ fileName:String, inDirectory directory:String? = nil) {
