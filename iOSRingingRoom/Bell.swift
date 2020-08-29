@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 enum Side {
     case left, right
@@ -18,6 +19,42 @@ enum BellType:String {
 }
 
 class BellCircle: ObservableObject {
+    @Published var bellPositions = [CGPoint]()
+    
+    var baseRadius:CGFloat = 0
+    
+    var radius:CGFloat {
+        get {
+            var returnValue = self.baseRadius
+            if bellType == .hand {
+                switch self.size {
+                case 6:
+                    returnValue -= 40
+                case 8:
+                    returnValue -= 20
+                case 10:
+                    returnValue -= 30
+                case 12:
+                    returnValue -= 25
+                default:
+                    returnValue -= 20
+                }
+            }
+            return returnValue
+        }
+    }
+    
+    @Published var center:CGPoint = CGPoint(x: 0, y: 0) {
+        didSet {
+            self.bellPositions = newBellPositions()
+        }
+    }
+    
+    var perspective = 1 {
+        didSet {
+            self.bellPositions = newBellPositions()
+        }
+    }
     
     @Published var bells:[Bell]
     
@@ -25,12 +62,13 @@ class BellCircle: ObservableObject {
     
     @Published var size:Int {
         didSet {
-            
             var newBells = [Bell]()
             for i in 1...size {
                 newBells.append(Bell(number: i, side: ((2...size/2).contains(i)) ? .left : .right))
             }
             bells = newBells
+            
+            self.bellPositions = newBellPositions()
         }
     }
     
@@ -61,6 +99,35 @@ class BellCircle: ObservableObject {
         
         self.bells = newBells
     }
+    
+    func newBellPositions() -> [CGPoint] {
+        var newBellPoints = [CGPoint]()
+        let bellAngle = CGFloat(360)/CGFloat(size)
+        
+        let baseline = (360 + bellAngle*0.5)
+        
+        var currentAngle:CGFloat = baseline - bellAngle*CGFloat(perspective)
+        
+        for i in 0..<size {
+            print(currentAngle)
+            let bellXOffset = -sin(currentAngle.radians()) * radius
+            let bellYOffset = cos(currentAngle.radians()) * radius
+            newBellPoints.append(CGPoint(x: center.x + bellXOffset, y: center.y + bellYOffset))
+            
+            if bells.count > 0 {
+                bells[i].side = (180.0...360.0).contains(currentAngle) ? .left : .right
+            }
+            
+            currentAngle += bellAngle
+            
+            if currentAngle > 360 {
+                currentAngle -= 360
+            }
+            
+        }
+        return newBellPoints
+    }
+    
 }
 
 class Bell:Identifiable {
