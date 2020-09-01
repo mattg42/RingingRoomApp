@@ -182,6 +182,7 @@ struct RingingRoomView: View {
                 }
             }
             VStack {
+                ZStack {
                 HStack {
                     Spacer()
                     Button(action: { withAnimation(self.isShowingTowerControls ? .easeIn : .easeOut) { print(self.bellCircle.assignments) ; self.isShowingTowerControls.toggle() ; print(self.bellCircle.assignments)} }) {
@@ -191,6 +192,8 @@ struct RingingRoomView: View {
                             .padding(5)
                     }
                 }
+                    Text(towerParameters!.name)
+                        .font(Font.custom("Simonetta-Black", size: 35))
                 }
                 Spacer()
             }
