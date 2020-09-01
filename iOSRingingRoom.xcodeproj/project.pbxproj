@@ -10,7 +10,6 @@
 		3404247224DCA48E00EEAE34 /* SocketIOManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3404247124DCA48E00EEAE34 /* SocketIOManager.swift */; };
 		3404247424DF0A4100EEAE34 /* RingingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3404247324DF0A4100EEAE34 /* RingingRoomView.swift */; };
 		343DDE5924E2DDF800970FA1 /* Tower.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343DDE5824E2DDF800970FA1 /* Tower.swift */; };
-		343DDE5B24E2EAB900970FA1 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343DDE5A24E2EAB900970FA1 /* User.swift */; };
 		345505A124E3F6E9002D288F /* TowerParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345505A024E3F6E9002D288F /* TowerParameters.swift */; };
 		345B52F624DFD2360050BB8F /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345B52F524DFD2360050BB8F /* HelpView.swift */; };
 		345B52F824DFD24B0050BB8F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345B52F724DFD24B0050BB8F /* SettingsView.swift */; };
