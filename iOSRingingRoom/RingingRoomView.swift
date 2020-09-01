@@ -175,15 +175,31 @@ struct RingingRoomView: View {
                 
             }
             .blur(radius: self.isShowingTowerControls ? 1 : 0)
+ 
             Group {
                 if self.towerControlsView != nil {
                     towerControlsView!
                     .offset(x: self.isShowingTowerControls ? 0 : self.towerControlsViewWidth, y: 0)
                 }
             }
+            .padding(.vertical, 5)
             VStack {
                 ZStack {
                 HStack {
+                    Button(action: {
+                        for bell in self.bellCircle.bells {
+                            bell.stroke = Stroke.handstoke
+                        }
+                        
+                    }) {
+                        VStack {
+                            Text("Set at")
+                            Text("hand")
+                        }
+                    .padding(5)
+                        .background(Color.main).cornerRadius(5)
+                    }
+                    .foregroundColor(.white)
                     Spacer()
                     Button(action: { withAnimation(self.isShowingTowerControls ? .easeIn : .easeOut) { print(self.bellCircle.assignments) ; self.isShowingTowerControls.toggle() ; print(self.bellCircle.assignments)} }) {
                         Image(systemName: "line.horizontal.3")
