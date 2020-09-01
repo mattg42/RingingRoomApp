@@ -172,7 +172,6 @@ struct RingingRoomView: View {
                     .offset(x: self.isShowingTowerControls ? 0 : self.towerControlsViewWidth, y: 0)
                 }
             }
-            .padding(.vertical, 5)
             VStack {
                 ZStack {
                 HStack {
@@ -194,7 +193,7 @@ struct RingingRoomView: View {
                     Button(action: { withAnimation(self.isShowingTowerControls ? .easeIn : .easeOut) { print(self.bellCircle.assignments) ; self.isShowingTowerControls.toggle() ; print(self.bellCircle.assignments)} }) {
                         Image(systemName: "line.horizontal.3")
                             .font(.largeTitle)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                             .padding(5)
                     }
                 }
@@ -525,7 +524,7 @@ struct UsersView:View {
         })
         .clipped()
         .padding()
-        .background(Color.white.cornerRadius(5).shadow(color: .gray, radius: 20, x: 0, y: 0))
+            .background(Color.primary.colorInvert().cornerRadius(5).shadow(color: .gray, radius: 20, x: 0, y: 0))
     }
     
     func assign(to bell:Int) -> () -> () {
