@@ -294,14 +294,10 @@ struct RingingRoomView: View {
     
     func play(_ fileName:String, inDirectory directory:String? = nil) {
         if let path = Bundle.main.path(forResource: fileName, ofType: ".m4a", inDirectory: directory) {
-
-            self.audioPlayer = AVAudioPlayer()
-
             let url = URL(fileURLWithPath: path)
 
             do {
                 self.audioPlayer = try AVAudioPlayer(contentsOf: url)
-                self.audioPlayer?.prepareToPlay()
                 self.audioPlayer?.play()
             }catch {
                 print("Error")
