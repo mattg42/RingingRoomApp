@@ -72,7 +72,12 @@ class BellCircle: ObservableObject {
     
     @Published var bells:[Bell]
     
-    @Published var bellType:BellType
+    @Published var bellType:BellType {
+        didSet {
+            print("from belltype")
+            self.bellPositions = newBellPositions()
+        }
+    }
     
     @Published var size:Int {
         didSet {
