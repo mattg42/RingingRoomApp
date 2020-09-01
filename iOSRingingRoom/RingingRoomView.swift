@@ -51,7 +51,7 @@ struct RingingRoomView: View {
                             GeometryReader { scrollGeo in
                                 ScrollView(.vertical, showsIndicators: true) {
                                     ForEach(self.bellCircle.bells) { bell in
-                                        Text((bell.person == "") ? "" : "\(bell.number) \(bell.person)")
+                                        Text((self.bellCircle.assignments[bell.number - 1] == "") ? "" : "\(bell.number) \(self.bellCircle.assignments[bell.number - 1])")
                                             .font(.callout)
                                         .frame(maxWidth: geo.frame(in: .global).width - 100, alignment: .leading)
                                     }
@@ -149,7 +149,7 @@ struct RingingRoomView: View {
                     HStack {
                         ForEach(self.bellCircle.bells.reversed()) { bell in
                        //     if !self.towerParameters.anonymous_user {
-                            if bell.person == self.towerParameters!.cur_user_name {
+                            if self.bellCircle.assignments[bell.number - 1] == self.towerParameters!.cur_user_name {
                                     Button(action: self.ringBell(number: (bell.number))) {
                                         ZStack {
                                             Color.primary.colorInvert()
@@ -174,16 +174,8 @@ struct RingingRoomView: View {
                 self.bellCircle.size = self.towerParameters!.size
                 
                 self.towerParameters!.cur_user_name = "Matthew Goodship"
+                self.bellCircle.assignments = self.towerParameters!.assignments
                 print("before connecting to new tower size = ", self.bellCircle.bells.count)
-                var setPerseptive = false
-                for i in 1...self.bellCircle.size {
-                    print("legit noti")
-                    self.bellCircle.bells[i-1].person = self.towerParameters!.assignments[i-1]
-                    if !setPerseptive && self.bellCircle.bells[i-1].person == self.towerParameters!.cur_user_name {
-                        self.bellCircle.perspective = i
-                        setPerseptive = true
-                    }
-                }
                 
                 self.connectToTower()
             }

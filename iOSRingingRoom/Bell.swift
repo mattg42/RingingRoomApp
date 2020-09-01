@@ -26,18 +26,17 @@ class BellCircle: ObservableObject {
     var radius:CGFloat {
         get {
             var returnValue = self.baseRadius
+            returnValue -= 20
             if bellType == .hand {
                 switch self.size {
                 case 6:
-                    returnValue -= 40
-                case 8:
                     returnValue -= 20
                 case 10:
-                    returnValue -= 30
+                    returnValue -= 10
                 case 12:
-                    returnValue -= 25
+                    returnValue -= 5
                 default:
-                    returnValue -= 20
+                    returnValue -= 0
                 }
             }
             return returnValue
@@ -56,34 +55,51 @@ class BellCircle: ObservableObject {
         }
     }
     
+    @Published var assignments:[String] {
+        didSet {
+            print(self.assignments.count)
+            for i in 1...self.size {
+                if self.assignments[i-1] == userName {
+                    self.perspective = i
+                    return
+                }
+            }
+            self.perspective = 1
+        }
+    }
+    
     @Published var bells:[Bell]
     
     @Published var bellType:BellType
     
     @Published var size:Int {
         didSet {
+            var newAssignments = [String]()
+            
             var newBells = [Bell]()
             for i in 1...size {
+                newAssignments.append("")
                 newBells.append(Bell(number: i, side: ((2...size/2).contains(i)) ? .left : .right))
             }
             bells = newBells
             
-            self.bellPositions = newBellPositions()
+            assignments = newAssignments
         }
     }
     
     init(number:Int = 0) {
         self.size = number
         bells = [Bell]()
+        assignments = [String]()
         //change to .tower to test tower bells
         bellType = .hand
         if number > 0 {
             for i in 1...number {
+                assignments.append("")
                 bells.append(Bell(number: i, side: ((2...size/2).contains(i)) ? .left : .right))
             }
         }
         NotificationCenter.default.addObserver(self, selector: #selector(updateBells), name: NSNotification.Name.strokeChanged, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(updateBells), name: NSNotification.Name.assignmentChanged, object: nil)
     }
     
     @objc func updateBells(notification:Notification) {
@@ -92,9 +108,7 @@ class BellCircle: ObservableObject {
         var newBells = self.bells
         
         if notification.name.rawValue == "strokeChanged" {
-            newBells[(info["number"] as! Int) - 1] = Bell(number: info["number"] as! Int, stroke: info["stroke"] as! Stroke, person: info["person"] as! String, side: info["side"] as! Side)
-        } else if notification.name.rawValue == "assignmentChanged" {
-            newBells[(info["number"] as! Int) - 1] = Bell(number: info["number"] as! Int, stroke: info["stroke"] as! Stroke, person: info["person"] as! String, side: info["side"] as! Side)
+            newBells[(info["number"] as! Int) - 1] = Bell(number: info["number"] as! Int, stroke: info["stroke"] as! Stroke, side: info["side"] as! Side)
         }
         
         self.bells = newBells
@@ -156,27 +170,18 @@ class Bell:Identifiable {
     var stroke:Stroke {
         didSet {
             print("posting")
-            NotificationCenter.default.post(name: NSNotification.Name.strokeChanged, object: nil, userInfo: ["number":self.number, "stroke": self.stroke, "person": self.person, "side":self.side])
+            NotificationCenter.default.post(name: NSNotification.Name.strokeChanged, object: nil, userInfo: ["number":self.number, "stroke": self.stroke, "side":self.side])
         }
     }
     var number:Int
-    var person:String {
-        didSet {
-            print("posting")
-            NotificationCenter.default.post(name: NSNotification.Name.assignmentChanged, object: nil, userInfo: ["number":self.number, "person": self.person, "stroke": self.stroke, "side":self.side])
-        }
-    }
     
-    init(number:Int, stroke:Stroke = .handstoke, person:String = "", side:Side) {
+    init(number:Int, stroke:Stroke = .handstoke, side:Side) {
         self.side = side
         self.number = number
         self.stroke = stroke
-        self.person = person
     }
 }
 
 extension NSNotification.Name {
     public static let strokeChanged = NSNotification.Name(rawValue: "strokeChanged")
-    public static let assignmentChanged = NSNotification.Name(rawValue: "assignmentChanged")
-
 }
