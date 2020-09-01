@@ -22,6 +22,8 @@ class BellCircle: ObservableObject {
     @Published var bellPositions = [CGPoint]()
     
     var baseRadius:CGFloat = 0
+        
+    var userName:String
     
     var radius:CGFloat {
         get {
@@ -81,14 +83,15 @@ class BellCircle: ObservableObject {
                 newAssignments.append("")
                 newBells.append(Bell(number: i, side: ((2...size/2).contains(i)) ? .left : .right))
             }
-            bells = newBells
             
+            bells = newBells
             assignments = newAssignments
         }
     }
     
-    init(number:Int = 0) {
+    init(number:Int = 0, userName:String = "") {
         self.size = number
+        self.userName = userName
         bells = [Bell]()
         assignments = [String]()
         //change to .tower to test tower bells
