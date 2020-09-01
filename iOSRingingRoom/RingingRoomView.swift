@@ -8,7 +8,6 @@
 
 import SwiftUI
 import AVFoundation
-
 import Combine
 
 struct RingingRoomView: View {
@@ -18,7 +17,7 @@ struct RingingRoomView: View {
         
     @State var setupComplete = false
     
-    
+        
     @State var isShowingTowerControls = false
     @State var towerControlsView:TowerControlsView? = nil
     @State var towerControlsViewWidth:CGFloat = 0
@@ -32,13 +31,13 @@ struct RingingRoomView: View {
             Color(red: 211/255, green: 209/255, blue: 220/255)
                 .edgesIgnoringSafeArea(.all) //background view
             VStack(spacing: 10) {
+                Spacer()
                 GeometryReader { geo in
-                    ZStack(alignment: .topTrailing) {
                         ZStack() {
                             ForEach(self.bellCircle.bells) { bell in
                                 if self.bellCircle.bellPositions.count == self.bellCircle.size {
                                     Button(action: self.ringBell(number: bell.number)) {
-                                        HStack(spacing: CGFloat(6-self.bellCircle.size) - ((self.bellCircle.bellType == .hand) ? 1 : 0)) {
+                                        HStack(spacing: CGFloat(6-self.bellCircle.size) - ((self.bellCircle.bellType == .hand) ? 1 : -1)) {
                                             Text(String(bell.number))
                                                 .opacity((bell.side == .left) ? 1 : 0)
                                             Image(self.getImage(bell.number)).resizable()
@@ -64,13 +63,6 @@ struct RingingRoomView: View {
                                 .fixedSize(horizontal: true, vertical: true)
                                     .position(self.bellCircle.center)
                             }
-                        }
-                        Button(action: {print("menu")}) {
-                            Image(systemName: "line.horizontal.3")
-                                .font(.title)
-                                .foregroundColor(.black)
-                        }
-                        .padding()
                     }
                     .onAppear(perform: {
                         let height = geo.frame(in: .global).height
@@ -83,9 +75,7 @@ struct RingingRoomView: View {
                         self.setupComplete = true
                     })
                 }
-                Button(action: leaveTower) {
-                    Text("Leave Tower")
-                }
+                .padding(.bottom, -40)
                 VStack {
                     HStack {
                         Button(action: self.makeCall("Bob")) {
