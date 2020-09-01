@@ -92,6 +92,7 @@ struct RingingRoomView: View {
                             }
                         }
                         .cornerRadius(5)
+                        .buttonStyle(touchDown())
                         
                         Button(action: self.makeCall("Single")) {
                             ZStack {
@@ -101,7 +102,7 @@ struct RingingRoomView: View {
                             }
                         }
                         .cornerRadius(5)
-
+                        .buttonStyle(touchDown())
                         Button(action: self.makeCall("That's all")) {
                             ZStack {
                                 Color.white
@@ -110,7 +111,7 @@ struct RingingRoomView: View {
                             }
                         }
                         .cornerRadius(5)
-
+                        .buttonStyle(touchDown())
                     }
                     .frame(maxHeight: 35)
                     HStack {
@@ -122,7 +123,7 @@ struct RingingRoomView: View {
                             }
                         }
                         .cornerRadius(5)
-
+                        .buttonStyle(touchDown())
                         Button(action: self.makeCall("Go")) {
                             ZStack {
                                 Color.white
@@ -132,7 +133,7 @@ struct RingingRoomView: View {
                             }
                         }
                         .cornerRadius(5)
-
+                        .buttonStyle(touchDown())
                         Button(action: self.makeCall("Stand next")) {
                             ZStack {
                                 Color.white
@@ -141,7 +142,7 @@ struct RingingRoomView: View {
                             }
                         }
                         .cornerRadius(5)
-
+                        .buttonStyle(touchDown())
                     }
                     .frame(maxHeight: 35)
                     
@@ -158,8 +159,8 @@ struct RingingRoomView: View {
                                         }
                                     }
                                     .cornerRadius(5)
-                                }
-//                     /
+                                .buttonStyle(touchDown())
+                            }
                         }
                     }
                     .frame(maxHeight: 70)
