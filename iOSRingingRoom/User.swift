@@ -9,9 +9,7 @@
 import Foundation
 
 class User {
-    var username:String!
-    var recentTowers:[Tower]!
-    var bookmarkedTowers:[Tower]!
-    var createdTowers:[Tower]!
-    var hostTowers:[Tower]!
+    static var name:String!
+    static var email:String!
+    static var towers:[Tower]!
 }
