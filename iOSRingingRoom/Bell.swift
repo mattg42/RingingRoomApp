@@ -18,6 +18,19 @@ enum BellType:String {
     case tower = "tower", hand = "hand"
 }
 
+enum Stroke:Bool {
+    case handstroke = true, backstroke = false
+    
+    mutating func toggle() {
+        switch self {
+            case .handstroke:
+                self = .backstroke
+            case .backstroke:
+                self = .handstroke
+        }
+    }
+}
+
 class BellCircle: ObservableObject {
     @Published var bellPositions = [CGPoint]()
     

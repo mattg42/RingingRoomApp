@@ -6,18 +6,7 @@
 //  Copyright © 2020 Matthew Goodship. All rights reserved.
 //
 
-enum Stroke:Bool {
-    case handstoke = true, backstroke = false
-    
-    mutating func toggle() {
-        switch self {
-            case .handstoke:
-                self = .backstroke
-            case .backstroke:
-                self = .handstoke
-        }
-    }
-}
+
 
 import Foundation
 
