@@ -10,6 +10,9 @@ import SwiftUI
 import SocketIO
 
 struct MainApp: View {
+    
+    @State var isPresentingHelpView = true
+        
     var body: some View {
         TabView {
             RingView()
@@ -24,7 +27,7 @@ struct MainApp: View {
                         .font(.title)
                     Text("Store")
             }
-            HelpView()
+            HelpView(asSheet: false, isPresented: self.$isPresentingHelpView)
                 .tabItem {
                     Image(systemName: "questionmark.circle")
                         .font(.title)
@@ -38,9 +41,9 @@ struct MainApp: View {
             }
         }
         .accentColor(Color.main)
-//        .onAppear(perform: {
+        .onAppear(perform: {
 //            UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
-//        })
+        })
         
     }
 }

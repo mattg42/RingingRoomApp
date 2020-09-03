@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct accountCreationView: View {
+struct AccountCreationView: View {
     @Binding var isPresented:Bool
     @State var isShowingPrivacyPolicy = false
     
@@ -102,8 +102,13 @@ struct accountCreationView: View {
             return
         }
         //send account creation request to server
-        accountCreated = true
-        isPresented = false
+        CommunicationController.registerNewUser(username: username, email: email, password: password, sender: self)
+    }
+    
+    func receivedResponse(statusCode:Int? = nil, response:String) {
+        print(statusCode, response)
+       // accountCreated = true
+      //  isPresented = false
     }
     
     func passwordsDontMatch(passwords:[String]) -> Bool {

@@ -196,7 +196,7 @@ class Bell:Identifiable {
     }
     var number:Int
     
-    init(number:Int, stroke:Stroke = .handstoke, side:Side) {
+    init(number:Int, stroke:Stroke = .handstroke, side:Side) {
         self.side = side
         self.number = number
         self.stroke = stroke

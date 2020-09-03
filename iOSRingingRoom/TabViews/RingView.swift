@@ -11,20 +11,20 @@ import Combine
 
 struct RingView: View {
     
-    init() {
-         UIScrollView.appearance().bounces = false
-    }
+//    init() {
+//         UIScrollView.appearance().bounces = false
+//    }
     
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     
     @State var towerListSelection:Int = 0
     var towerLists = ["Recents", "Favourites", "Created", "Host"]
     var recentTowers = [Tower(id: "123456789", name: "Goodship"), Tower(id: "215436789", name: "Test"), Tower(id: "918273645", name: "3ls"), Tower(id: "263451789", name: "Lancashire branch"), Tower(id: "564738921", name: "Peal"), Tower(id: "873456129", name: "Practice"), Tower(id: "283719465", name: "Striking"), Tower(id: "178625439", name: "Silverdale"), Tower(id: "123456789", name: "Goodship"), Tower(id: "215436789", name: "Test"), Tower(id: "918273645", name: "3ls"), Tower(id: "263451789", name: "Lancashire branch"), Tower(id: "564738921", name: "Peal"), Tower(id: "873456129", name: "Practice"), Tower(id: "283719465", name: "Striking"), Tower(id: "178625439", name: "Silverdale")]
-    @State var tower_id = "254317968"
-    
+    @State var tower_id = "891234567"
+        
     @State var selectedTower = 0
     
-    @State var ringingRoomView:RingingRoomView = RingingRoomView()
+    @State var ringingRoomView:RingingRoomView = RingingRoomView(id: 0, towerName: "", serverURL: "")
     
     @State var joinTowerYPosition:CGFloat = 0
     @State var keyboardHeight:CGFloat = 0
@@ -85,9 +85,7 @@ struct RingView: View {
                 TextField("Tower id", text: self.$tower_id, onEditingChanged: { selected in
                     self.textFieldSelected = selected
                 })
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .keyboardType(.numberPad)
-                
+                    .textFieldStyle(RoundedBorderTextFieldStyle())                
                 Button("Hide keyboard") {
                     self.hideKeyboard()
                 }
@@ -119,8 +117,7 @@ struct RingView: View {
             
         }
         .padding()
-        .offset(y: viewOffset)
-        .onReceive(Publishers.keyboardHeight) {
+        .offset(y: viewOffset).onReceive(Publishers.keyboardHeight) {
             self.keyboardHeight = $0
             print(self.keyboardHeight)
             let offset = self.keyboardHeight - self.joinTowerYPosition
@@ -137,6 +134,7 @@ struct RingView: View {
                 }
             }
         }
+        
     }
     func getOffset() -> CGFloat {
         
@@ -150,128 +148,34 @@ struct RingView: View {
     }
     
     func joinTower() {
-        self.ringingRoomView.towerParameters = getTowerParameters()
-        self.ringingRoomView.setupComplete = false
-        self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
-            self.ringingRoomView
+        if tower_id.count == 9 {
+            if Int(tower_id) != nil {
+                self.getTowerConnectionDetails()
+            }
         }
+        
+        //create new tower
+        
+        
     }
     
-    func getTowerParameters() -> TowerParameters {
-        let url = URL(string: "https://ringingroom.com/\(tower_id)")
-        guard let requestUrl = url else { fatalError() }
-        // Create URL Request
-        var request = URLRequest(url: requestUrl)
-        // Specify HTTP Method to use
-        request.httpMethod = "GET"
+    func getTowerConnectionDetails() {
+        CommunicationController.getTowerDetails(id: Int(self.tower_id)!, sender: self)
+    }
+    
+    func receivedResponse(statusCode:Int?, response:[String:Any]) {
         
-        var requestComplete = false
+        self.ringingRoomView.setupComplete = false
         
-        var towerParameters:TowerParameters? = nil
+        self.ringingRoomView.serverURL = response["server_address"]! as! String
+        self.ringingRoomView.towerName = response["tower_name"]! as! String
+        self.ringingRoomView.id = response["tower_id"]! as! Int
         
-        var initialTowerParameters = [String:Any]()
-        // Send HTTP Request
-        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-            
-            // Check if Error took place
-            if let error = error {
-                print("Error took place \(error)")
-                return
+        DispatchQueue.main.async {
+            self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
+                self.ringingRoomView
             }
-            
-            //            // Read HTTP Response Status code
-            //            if let response = response as? HTTPURLResponse {
-            //                //  print("Response HTTP Status code: \(response.statusCode)")
-            //            }
-            
-            // Convert HTTP Response Data to a simple String
-            if let data = data, let dataString = String(data: data, encoding: .utf8) {
-                // print("Response data string:\n \(dataString)")
-                
-                //parse result for window.tower_parameters
-                let towerParameterText = (dataString.components(separatedBy: "window.tower_parameters = {")[1]).components(separatedBy: "}")[0]
-                
-                //convert resulting string of tower_parameters to a dictionary
-                
-                //removing whitespace
-                var parameterLines = towerParameterText.components(separatedBy: ",\n")
-                for (index, line) in parameterLines.enumerated() {
-                    let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
-                    parameterLines[index] = trimmedLine
-                }
-                parameterLines.removeLast()
-                
-                //adding all strings to a dictionary
-                var dictLines = [[String]]()
-                for (_, line) in parameterLines.enumerated() {
-                    let newArr = line.components(separatedBy: ": ")
-                    dictLines.append(newArr)
-                }
-                
-                for line in dictLines {
-                    initialTowerParameters[line[0]] = line[1]
-                }
-                                
-                //converting all the strings to their actual value
-                for (key, value) in initialTowerParameters {
-                    if let stringValue = value as? String {
-                        if stringValue == "false" { //if the parameter's value is false
-                            initialTowerParameters[key] = false
-                        } else if stringValue == "true" { //if the parameter's value is true
-                            initialTowerParameters[key] = true
-                        } else if stringValue.contains("parseInt") { //if the parameter's value is an Tnt
-                            //remove 'parseInt(...)' text, then convert the number to an Int
-                            var newValue = stringValue
-                            let firstIndex = newValue.index(newValue.startIndex, offsetBy: 9)
-                            let endIndex = newValue.index(newValue.endIndex, offsetBy: -1)
-                            newValue = String(newValue[firstIndex..<endIndex])
-                            initialTowerParameters[key] = Int(newValue)
-                        } else if stringValue.contains("[") { //if the parameter's value is an Array
-                            //remove the brackets, spaces and extra quotes, then convert the remaining String to an Array
-                            var newValue = stringValue
-                            newValue.removeFirst()
-                            newValue.removeLast()
-                            newValue = newValue.replacingOccurrences(of: " '", with: "")
-                            newValue = newValue.replacingOccurrences(of: "'", with: "")
-                            let newArr = newValue.components(separatedBy: ",")
-                            initialTowerParameters[key] = newArr
-                        } else { // if all other checks fail, the parameter's value must be a string
-                            //remove extra quotes
-                            var newValue = stringValue
-                            newValue.removeFirst()
-                            newValue.removeLast()
-                            initialTowerParameters[key] = newValue
-                        }
-                    }
-                    
-                }
-                //converting the dictionary of towerparameters to an object
-           //     print(initialTowerParameters)
-                var dictString = initialTowerParameters.description
-                dictString.removeLast()
-                dictString.removeFirst()
-                dictString.insert("{", at: dictString.startIndex)
-                dictString.append("}")
-                
-                let jsonData = Data(dictString.utf8)
-                let decoder = JSONDecoder()
-                do {
-                    towerParameters = try decoder.decode(TowerParameters.self, from: jsonData)
-                } catch {
-                    print(error.localizedDescription)
-                }
-                requestComplete = true
-            }
-            
         }
-        task.resume()
-        
-        while !requestComplete {
-        }
-        
-        print(towerParameters!.size)
-        return towerParameters!
-        
     }
     
 }

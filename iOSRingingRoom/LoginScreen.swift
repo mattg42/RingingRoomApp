@@ -129,8 +129,8 @@ struct LoginScreen: View {
                     Button(action: { self.showingAccountCreationView = true; self.loginScreenIsActive = false} ) {
                         Text("Create an account")
                             .font(.footnote)
-                    }.sheet(isPresented: $showingAccountCreationView, onDismiss: {self.loginScreenIsActive = true; if self.accountCreated {self.login()}}) {
-                        accountCreationView(isPresented: self.$showingAccountCreationView, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
+                    }.sheet(isPresented: $showingAccountCreationView, onDismiss: {self.loginScreenIsActive = true}) {//; if self.accountCreated {self.login()}}) {
+                        AccountCreationView(isPresented: self.$showingAccountCreationView, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
                     }
                 }
                 .foregroundColor(Color(red: 178/255, green: 39/255, blue: 110/255))
@@ -167,9 +167,19 @@ struct LoginScreen: View {
     }
     
     func login() {
+       CommunicationController.login(email: self.email, password: self.password, sender: self)
         //send login request to server
-        presentMainApp()
+  //     presentMainApp()
     }
+    
+    func receivedResponse(statusCode:Int?, responseData:[String:Any]?) {
+        print("status code: \(statusCode)")
+        print(responseData)
+        DispatchQueue.main.async {
+            self.presentMainApp()
+        }
+    }
+    
     
     func presentMainApp() {
         //present main ringingroom view
@@ -178,6 +188,8 @@ struct LoginScreen: View {
             MainApp()
         }
     }
+    
+    
 }
 
 extension Publishers {
@@ -238,4 +250,7 @@ extension UIViewController {
         self.present(toPresent, animated: false, completion: nil)
     }
 }
+
+
+
 
