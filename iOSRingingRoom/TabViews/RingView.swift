@@ -143,7 +143,7 @@ struct RingView: View {
             
         }
         .onAppear(perform: {
-            if self.user.savedTowerID == "" {
+            if self.user.savedTowerID == ""  && (User.shared.myTowers[0].tower_id) != 0 {
                 if self.user.loggedIn {
                     self.user.savedTowerID = String(User.shared.myTowers[0].tower_id)
                 }
