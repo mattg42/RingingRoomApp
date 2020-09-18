@@ -75,6 +75,7 @@ class SocketIOManager: NSObject {
             if !BellCircle.current.users.contains(self.getDict(data)["user_name"] as! String) {
                 BellCircle.current.users.append(self.getDict(data)["user_name"] as! String)
             }
+            BellCircle.current.sortUsers()
             self.ringingroomView.gotUserEntered = true
         }
 

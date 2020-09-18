@@ -87,6 +87,7 @@ class BellCircle: ObservableObject {
                 }
                 self.perspective = newPerspective
             }
+            sortUsers()
         }
     }
     
@@ -174,6 +175,24 @@ class BellCircle: ObservableObject {
         newAssignments[bell-1] = user
         self.assignments = newAssignments
         
+    }
+    
+    func sortUsers() {
+        var newUsers = [String]()
+        for user in assignments {
+            if user != "" {
+                if !newUsers.contains(user) {
+                    newUsers.append(user)
+                }
+            }
+        }
+        users.sort()
+        for user in users {
+            if !newUsers.contains(user) {
+                newUsers.append(user)
+            }
+        }
+        users = newUsers
     }
     
     
