@@ -21,7 +21,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Create the SwiftUI view that provides the window contents.
         
         if UserDefaults.standard.bool(forKey: "keepMeLoggedIn") {
-            let contentView = MainApp()
+           
+            let contentView = AutoLogin()
             if let windowScene = scene as? UIWindowScene {
                 let window = UIWindow(windowScene: windowScene)
                 window.rootViewController = UIHostingController(rootView: contentView)
@@ -29,7 +30,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 window.makeKeyAndVisible()
             }
         } else {
-            let contentView = LoginScreen().colorScheme(.light)
+            let contentView = WelcomeLoginScreen().colorScheme(.light)
             if let windowScene = scene as? UIWindowScene {
                 let window = UIWindow(windowScene: windowScene)
                 window.rootViewController = UIHostingController(rootView: contentView)
