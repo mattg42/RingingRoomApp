@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Users/matthew/Library/Mobile Documents/com~apple~CloudDocs/Xcode/Xcode Projects/iOSRingingRoom/Ringing Room.xcodeproj">
+      location = "self:">
    </FileRef>
 </Workspace>

@@ -11,6 +11,8 @@ import SwiftUI
 struct AccountCreationView: View {
     @Environment(\.presentationMode) var presentationMode
     
+    @State var comController:CommunicationController!
+
     @Binding var isPresented:Bool
     @State var isShowingPrivacyPolicy = false
     
@@ -76,6 +78,9 @@ struct AccountCreationView: View {
                 .navigationBarItems(trailing: Button(action: {self.presentationMode.wrappedValue.dismiss()}) {Text("Back").bold()})
         }
     .navigationViewStyle(StackNavigationViewStyle())
+    .onAppear(perform: {
+        self.comController = CommunicationController(sender: self)
+    })
     }
     
     func createAccount() {
@@ -104,13 +109,19 @@ struct AccountCreationView: View {
             return
         }
         //send account creation request to server
-        CommunicationController.registerNewUser(username: username, email: email, password: password, sender: self)
+        comController.registerNewUser(username: username, email: email.lowercased(), password: password)
     }
     
-    func receivedResponse(statusCode:Int? = nil, response:String) {
-        print(statusCode, response)
-       // accountCreated = true
-      //  isPresented = false
+    func receivedResponse(statusCode:Int? = nil, response:[String:Any]) {
+        if statusCode == 500 {
+            print("whoops")
+            alertTitle = "Email already registered"
+            alertMessage = "There is already an account with that email address"
+            self.presentingAlert = true
+        } else {
+            self.accountCreated = true
+            self.presentationMode.wrappedValue.dismiss()
+        }
     }
     
     func passwordsDontMatch(passwords:[String]) -> Bool {

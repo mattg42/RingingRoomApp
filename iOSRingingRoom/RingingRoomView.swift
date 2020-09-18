@@ -11,11 +11,30 @@ import AVFoundation
 import Combine
 
 struct RingingRoomView: View {
-    var id:Int
+    
+    @Environment(\.colorScheme) var colorScheme
+    
+    init(towerName:String, serverURL:String) {
+        
+        self.towerName = towerName
+        self.serverURL = serverURL
+        
+        let audioSession = AVAudioSession.sharedInstance()
+        
+        do {
+            try audioSession.setPreferredIOBufferDuration(0.002)
+            try audioSession.setCategory(.playback)
+        } catch {
+                print("error")
+        }
+    }
+    
     var towerName:String
     var serverURL:String
     
-    @ObservedObject var bellCircle:BellCircle = BellCircle()
+    @ObservedObject var bellCircle:BellCircle = BellCircle.current
+    
+    var audioController = AudioController()
     
     @State var gotUserList = false
     @State var gotSize = false
@@ -37,11 +56,7 @@ struct RingingRoomView: View {
             self.gotUserEntered = newValue
         }
     }
-
-    @State var users = [String]()
-    
-    @State var isBookmarked = false
-        
+            
     @State var hostModeEnabled = false
     @State var permitHostMode = true
     
@@ -51,227 +66,265 @@ struct RingingRoomView: View {
     @State var towerControlsView:TowerControlsView? = nil
     @State var towerControlsViewWidth:CGFloat = 0
     
-    @State var audioPlayer:AVAudioPlayer?
+    @State var audioPlayer:AVAudioPlayer!
     
-    @State var Manager:SocketIOManager!
+    @State var cooldownSounds = [String]()
+    @State var timers = [Timer]()
+    
+    @State var manager:SocketIOManager!
+    
+    @State var callText = ""
+    @State var callTextOpacity = 0.0
+    
+    @State var callTimer:Timer?
     
     var body: some View {
         ZStack {
-            Color(red: 211/255, green: 209/255, blue: 220/255)
-                .edgesIgnoringSafeArea(.all) //background view
-            VStack(spacing: 10) {
-                Spacer()
-                GeometryReader { geo in
-                    ZStack() {
-                        ForEach(self.bellCircle.bells) { bell in
-                            if self.bellCircle.bellPositions.count == self.bellCircle.size {
-                                Button(action: self.ringBell(number: bell.number)) {
-                                    HStack(spacing: CGFloat(6-self.bellCircle.size) - ((self.bellCircle.bellType == .hand) ? 1 : -1)) {
-                                        Text(String(bell.number))
-                                            .opacity((bell.side == .left) ? 1 : 0)
-                                        Image(self.getImage(bell.number)).resizable()
-                                            .aspectRatio(contentMode: ContentMode.fit)
-                                            .frame(height: self.bellCircle.bellType == .hand ?  58 : 75)
-                                            .rotation3DEffect(.degrees(self.bellCircle.bellType == .hand ? (bell.side == .left) ? 0 : 180 : 0), axis: (x: 0, y: 1, z: 0))
-                                        Text(String(bell.number))
-                                            .opacity((bell.side == .right) ? 1 : 0)
+            if colorScheme == .dark {
+                Color.darkBackground
+                .edgesIgnoringSafeArea(.all)
+            } else {
+                Color.lightBackground
+                .edgesIgnoringSafeArea(.all)
+            }
+            //background view
+            if setupComplete {
+                ZStack {
+                    VStack(spacing: 10) {
+                        Spacer()
+                        GeometryReader { geo in
+                            ZStack() {
+                                if self.bellCircle.bellPositions.count != 0 {
+                                    ForEach(self.bellCircle.bells) { bell in
+                                        Button(action: self.ringBell(number: bell.number)) {
+                                            HStack(spacing: CGFloat(6-self.bellCircle.size) - ((self.bellCircle.bellType == .hand) ? 1 : -1)) {
+                                                Text(String(bell.number))
+                                                    .opacity((bell.side == .left) ? 1 : 0)
+                                                Image(self.getImage(bell.number)).resizable()
+                                                    .aspectRatio(contentMode: ContentMode.fit)
+                                                    .frame(height: self.bellCircle.bellType == .hand ?  58 : 75)
+                                                    .rotation3DEffect(.degrees(self.bellCircle.bellType == .hand ? (bell.side == .left) ? 0 : 180 : 0), axis: (x: 0, y: 1, z: 0))
+                                                Text(String(bell.number))
+                                                    .opacity((bell.side == .right) ? 1 : 0)
+                                            }
+                                        }
+                                        .buttonStyle(touchDown())
+                                        .position(self.bellCircle.bellPositions[bell.number-1])
+                                        .disabled(self.hostModeEnabled ? self.host ? false : (self.bellCircle.assignments[bell.number - 1] == User.shared.name) ? false : true : false)
                                     }
                                 }
-                                .buttonStyle(touchDown())
-                                .position(self.bellCircle.bellPositions[bell.number-1])
-                                .disabled(self.hostModeEnabled ? self.host ? false : (self.bellCircle.assignments[bell.number - 1] == User.name) ? false : true : false)
-                            }
-                        }
-                        GeometryReader { scrollGeo in
-                            ScrollView(.vertical, showsIndicators: true) {
-                                ForEach(self.bellCircle.bells) { bell in
-                                    Text((self.bellCircle.assignments[bell.number - 1] == "") ? "" : "\(bell.number) \(self.bellCircle.assignments[bell.number - 1])")
-                                        .font(.callout)
-                                        .frame(maxWidth: geo.frame(in: .global).width - 100, alignment: .leading)
+                                GeometryReader { scrollGeo in
+                                    ScrollView(.vertical, showsIndicators: true) {
+                                        ForEach(self.bellCircle.bells) { bell in
+                                            Text((self.bellCircle.assignments[bell.number - 1] == "") ? "" : "\(bell.number) \(self.bellCircle.assignments[bell.number - 1])")
+                                                .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
+                                                .font(.callout)
+                                                .frame(maxWidth: geo.frame(in: .global).width - 100, alignment: .leading)
+                                        }
+                                    }.id(UUID().uuidString)
+                                        .frame(maxHeight: geo.frame(in: .global).height - 230)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .position(self.bellCircle.center)
                                 }
-                            }.id(UUID().uuidString)
-                                .frame(maxHeight: geo.frame(in: .global).height - 230)
-                                .fixedSize(horizontal: true, vertical: true)
-                                .position(self.bellCircle.center)
-                        }
-                    }
-                    .onAppear(perform: {
-                        let height = geo.frame(in: .global).height
-                        let width = geo.frame(in: .global).width
-                        
-                        self.bellCircle.baseRadius = width/2
-                        
-                        self.bellCircle.center = CGPoint(x: width/2, y: height/2)
-                     })
-                }
-                .padding(.bottom, -40)
-                VStack {
-                    HStack {
-                        Button(action: self.makeCall("Bob")) {
-                            ZStack {
-                                Color.white
-                                Text("Bob")
-                                    .foregroundColor(.black)
+                                ZStack {
+                                    Color.primary.colorInvert()
+                                            .shadow(color: .white, radius: 10, x: 0, y: 0)
+                                            .opacity(self.callTextOpacity/2)
+                                        .cornerRadius(10)
+                                        .blur(radius: 10, opaque: false)
+                                    Text(self.callText)
+                                        .font(.system(size: 60, weight: .bold))
+                                     //   .foregroundColor(Color.init(white: 0.7))
+                                        .opacity(self.callTextOpacity)
+                                    .padding()
+                                  //  .shadow(radius: 10)
+                                }
+                            .fixedSize()
                             }
+                            .onAppear(perform: {
+                                let height = geo.frame(in: .global).height
+                                let width = geo.frame(in: .global).width
+                                
+                                self.bellCircle.baseRadius = width/2
+                                
+                                self.bellCircle.center = CGPoint(x: width/2, y: height/2)
+                             })
                         }
-                        .disabled(self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? false : true : false)
-                        .opacity(self.hostModeEnabled ? self.host ? 1 : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? 1 : 0.35 : 1)
-                        .cornerRadius(5)
-                        .buttonStyle(touchDown())
-                        
-                        Button(action: self.makeCall("Single")) {
-                            ZStack {
-                                Color.white
-                                Text("Single")
-                                    .foregroundColor(.black)
-                            }
-                        }
-                        .disabled(self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? false : true : false)
-                        .opacity(self.hostModeEnabled ? self.host ? 1 : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? 1 : 0.35 : 1)
-                        .cornerRadius(5)
-                        .buttonStyle(touchDown())
-                        Button(action: self.makeCall("That's all")) {
-                            ZStack {
-                                Color.white
-                                Text("That's all")
-                                    .foregroundColor(.black)
-                            }
-                        }
-                        .disabled(self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? false : true : false)
-                        .opacity(self.hostModeEnabled ? self.host ? 1 : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? 1 : 0.35 : 1)
-                        .cornerRadius(5)
-                        .buttonStyle(touchDown())
-                    }
-                    .frame(maxHeight: 35)
-                    HStack {
-                        Button(action: self.makeCall("Look to")) {
-                            ZStack {
-                                Color.white
-                                Text("Look to")
-                                    .foregroundColor(.black)
-                            }
-                        }
-                        .disabled(self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? false : true : false)
-                        .opacity(self.hostModeEnabled ? self.host ? 1 : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? 1 : 0.35 : 1)
-                        .cornerRadius(5)
-                        .buttonStyle(touchDown())
-                        Button(action: self.makeCall("Go")) {
-                            ZStack {
-                                Color.white
-                                Text("Go next time")
-                                    .foregroundColor(.black)
-                                    .truncationMode(.tail)
-                            }
-                        }
-                        .disabled(self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? false : true : false)
-                        .opacity(self.hostModeEnabled ? self.host ? 1 : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? 1 : 0.35 : 1)
-                        .cornerRadius(5)
-                        .buttonStyle(touchDown())
-                        Button(action: self.makeCall("Stand next")) {
-                            ZStack {
-                                Color.white
-                                Text("Stand next")
-                                    .foregroundColor(.black)
-                            }
-                        }
-                        .disabled(self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? false : true : false)
-                        .opacity(self.hostModeEnabled ? self.host ? 1 : self.bellCircle.assignments.firstIndex(of: User.name) != nil ? 1 : 0.35 : 1)
-                        .cornerRadius(5)
-                        .buttonStyle(touchDown())
-                    }
-                    .frame(maxHeight: 35)
-                    
-                    HStack {
-                        ForEach(self.bellCircle.bells.reversed()) { bell in
-                            //     if !self.towerParameters.anonymous_user {
-                            if self.bellCircle.assignments[bell.number - 1] == User.name {
-                                Button(action: self.ringBell(number: (bell.number))) {
+                        .padding(.bottom, -40)
+                        VStack {
+                            HStack {
+                                Button(action: self.makeCall("Bob")) {
                                     ZStack {
                                         Color.primary.colorInvert()
-                                        Text("\(bell.number)")
+                                        Text("Bob")
                                             .foregroundColor(.primary)
-                                            .bold()
                                     }
                                 }
-                                .cornerRadius(5)
+                            
+                                .modifier(CallButtonViewModifier(disabled: self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.shared.name) != nil ? false : true : false))
+                                .buttonStyle(touchDown())
+                                
+                                Button(action: self.makeCall("Single")) {
+                                    ZStack {
+                                        Color.primary.colorInvert()
+                                        Text("Single")
+                                            .foregroundColor(.primary)
+                                    }
+                                }
+                                .modifier(CallButtonViewModifier(disabled: self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.shared.name) != nil ? false : true : false))
+                                .buttonStyle(touchDown())
+                                Button(action: self.makeCall("That's all")) {
+                                    ZStack {
+                                        Color.primary.colorInvert()
+                                        Text("That's all")
+                                            .foregroundColor(.primary)
+                                    }
+                                }
+                                .modifier(CallButtonViewModifier(disabled: self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.shared.name) != nil ? false : true : false))
                                 .buttonStyle(touchDown())
                             }
+                            .frame(maxHeight: 35)
+                            HStack {
+                                Button(action: self.makeCall("Look to")) {
+                                    ZStack {
+                                        Color.primary.colorInvert()
+                                        Text("Look to")
+                                            .foregroundColor(.primary)
+                                    }
+                                }
+                                .modifier(CallButtonViewModifier(disabled: self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.shared.name) != nil ? false : true : false))
+                                .buttonStyle(touchDown())
+                                Button(action: self.makeCall("Go")) {
+                                    ZStack {
+                                        Color.primary.colorInvert()
+                                        Text("Go")
+                                            .foregroundColor(.primary)
+                                            .truncationMode(.tail)
+                                    }
+                                }
+                                .modifier(CallButtonViewModifier(disabled: self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.shared.name) != nil ? false : true : false))
+                                .buttonStyle(touchDown())
+                                Button(action: self.makeCall("Stand next")) {
+                                    ZStack {
+                                        Color.primary.colorInvert()
+                                        Text("Stand")
+                                            .foregroundColor(.primary)
+                                    }
+                                }
+                            .modifier(CallButtonViewModifier(disabled: self.hostModeEnabled ? self.host ? false : self.bellCircle.assignments.firstIndex(of: User.shared.name) != nil ? false : true : false))
+                                .buttonStyle(touchDown())
+                            }
+                            .frame(maxHeight: 35)
+                            
+                            HStack {
+                                if self.bellCircle.assignments.contains(User.shared.name) {
+                                    ForEach(self.bellCircle.bells.reversed()) { bell in
+                                        //     if !self.towerParameters.anonymous_user {
+                                        if self.bellCircle.assignments[bell.number - 1] == User.shared.name {
+                                            Button(action: self.ringBell(number: (bell.number))) {
+                                                ZStack {
+                                                    Color.primary.colorInvert()
+                                                    Text("\(bell.number)")
+                                                        .foregroundColor(.primary)
+                                                        .bold()
+                                                }
+                                            }
+                                            .cornerRadius(5)
+                                            .buttonStyle(touchDown())
+                                            .frame(height: 70)
+                                        }
+                                    }
+                                } else {
+                                    Color.white.frame(height: 70).opacity(0)
+                                }
+                            }
                         }
+                        .padding(.horizontal)
+                        .padding(.bottom)
+                        
+                        
                     }
-                    .frame(maxHeight: 70)
-                }
-                .padding(.horizontal)
-                .padding(.bottom)
-                
-                
-            }
-            .blur(radius: self.isShowingTowerControls ? 1 : 0)
-            
-            Color.primary.colorInvert().edgesIgnoringSafeArea(.all).opacity(0.9)
-                .offset(x: self.isShowingTowerControls ? 0 : self.towerControlsViewWidth, y: 0)
-            
-            VStack {
-                ZStack {
-                    HStack {
-                        Button(action: {
-                            for bell in self.bellCircle.bells {
-                                bell.stroke = .handstroke
+                 //   .blur(radius: self.isShowingTowerControls ? 1 : 0)
+                    
+                    Color.primary.colorInvert().edgesIgnoringSafeArea(.all).opacity(0.92)
+                        .offset(x: self.isShowingTowerControls ? 0 : self.towerControlsViewWidth, y: 0)
+                    
+                    VStack {
+                        ZStack {
+                            HStack {
+                                Button(action: {
+                                    self.manager.socket.emit("c_set_bells", ["tower_id":self.bellCircle.towerID])
+                                }) {
+                                    VStack {
+                                        Text("Set at")
+                                        Text("hand")
+                                    }
+                                    .padding(5)
+                                    .background(Color.main).cornerRadius(5)
+                                }
+                                .foregroundColor(.white)
+                                Spacer()
+                                Button(action: { withAnimation(self.isShowingTowerControls ? .easeIn : .easeOut) { print(self.bellCircle.assignments) ; self.isShowingTowerControls.toggle() ; print(self.bellCircle.assignments)} }) {
+                                    Image(systemName: "line.horizontal.3")
+                                        .font(.largeTitle)
+                                        .foregroundColor(.primary)
+                                        .padding(5)
+                                }
                             }
                             
-                        }) {
-                            VStack {
-                                Text("Set at")
-                                Text("hand")
+                            HStack {
+                                VStack(spacing: 0) {
+                                    
+                                    Text(self.towerName)
+                                        .font(Font.custom("Simonetta-Black", size: 35))
+                                        .lineLimit(1)
+                                        .layoutPriority(2)
+                                        .scaleEffect(0.9)
+                                        .padding(.vertical, -3)
+                                        .padding(.horizontal, -15)
+                             //       .background(Color.red)
+                                    Text(String(bellCircle.towerID))
+                                    .padding(.top, -5)
+
+                                }
+                        //        .background(Color.green)
                             }
-                            .padding(5)
-                            .background(Color.main).cornerRadius(5)
+                   //         .background(Color.blue)
+                            .minimumScaleFactor(0.7)
+                            .padding(.horizontal, 60)
                         }
-                        .foregroundColor(.white)
+                        .padding(.top, -10)
                         Spacer()
-                        Button(action: { withAnimation(self.isShowingTowerControls ? .easeIn : .easeOut) { print(self.bellCircle.assignments) ; self.isShowingTowerControls.toggle() ; print(self.bellCircle.assignments)} }) {
-                            Image(systemName: "line.horizontal.3")
-                                .font(.largeTitle)
-                                .foregroundColor(.primary)
-                                .padding(5)
+                    }
+                    .padding()
+                    Group {
+                        if self.towerControlsView != nil {
+                            towerControlsView!
+                                .offset(x: self.isShowingTowerControls ? 0 : self.towerControlsViewWidth, y: 0)
+                                .padding(.top, 65)
                         }
                     }
-                    
-                    HStack {
-                        Button(action: {
-                            self.isBookmarked.toggle()
-                        }) {
-                            Image(systemName: self.isBookmarked ? "bookmark.fill" : "bookmark")
-                                .foregroundColor(.black)
-                                .font(.title)
-                                .scaleEffect(0.85)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        Text(self.towerName)
-                            .font(Font.custom("Simonetta-Black", size: 35))
-                            .lineLimit(1)
-                            .layoutPriority(2)
-                    }
-                    .minimumScaleFactor(0.5)
-                    .padding(.horizontal, 60)
                 }
-                Spacer()
-            }
-            .padding()
-            Group {
-                if self.towerControlsView != nil {
-                    towerControlsView!
-                        .offset(x: self.isShowingTowerControls ? 0 : self.towerControlsViewWidth, y: 0)
-                        .padding(.top, 75)
-                }
+            } else {
+                /*@START_MENU_TOKEN@*/EmptyView()/*@END_MENU_TOKEN@*/
             }
         }
         .onAppear(perform: {
-            self.bellCircle.size = 8
-
+            print("performing on appear")
+            self.towerControlsView = TowerControlsView(permitHostMode: self.permitHostMode, width: self.$towerControlsViewWidth, manager: self.$manager, towerSizeSelection: 0)
             self.connectToTower()
-
             
-            self.towerControlsView = TowerControlsView(towerID: self.id, hostModeEnabled: self.$hostModeEnabled, permitHostMode: self.permitHostMode, host: self.host, width: self.$towerControlsViewWidth, isBookmarked: self.$isBookmarked, manager: self.$Manager, size: .init(get: {self.bellCircle.size}, set: {self.bellCircle.size = $0}), bellType: .init(get: {self.bellCircle.bellType}, set: {self.bellCircle.bellType = $0}), assignments: .init(get: {self.bellCircle.assignments}, set: {self.bellCircle.assignments = $0}))
+            //plays a silent sound on startup to remove initial audio delay
+            if let path = Bundle.main.path(forResource: "Bob", ofType: ".aifc", inDirectory: "RingingRoomAudio") {
+                let url = URL(fileURLWithPath: path)
+                do {
+                    self.audioPlayer = try AVAudioPlayer(contentsOf: url)
+                    self.audioPlayer.prepareToPlay()
+                    self.audioPlayer.play(atTime: self.audioPlayer.duration)
+                } catch {
+                    print("Error")
+                }
+            }
         })
     }
     
@@ -289,42 +342,68 @@ struct RingingRoomView: View {
     func connectToTower() {
         initializeManager()
         initializeSocket()
-        joinTower()
     }
     
     func initializeManager() {
-        Manager = SocketIOManager(server_ip: self.serverURL, ringingRoomView: self)
+        manager = SocketIOManager(server_ip: self.serverURL, ringingRoomView: self, towerControlsView: self.towerControlsView!)
         
     }
     
-    func initializeSocket() {
-        Manager.addListeners()
-        
-        Manager.connectSocket()
-        
+    func initializeSocket() {        
+        manager.connectSocket()
         //  Manager.getStatus()
     }
     
     func joinTower() {
         print(CommunicationController.token!)
-        Manager.socket.emit("c_join", ["tower_id":self.id, "user_token":CommunicationController.token!, "anonymous_user":false])
+        manager.socket.emit("c_join", ["tower_id":self.bellCircle.towerID, "user_token":CommunicationController.token!, "anonymous_user":false])
     }
-    
     
     func ringBell(number:Int) -> () -> () {
         return {
-            self.Manager.socket.emit("c_bell_rung", ["bell": number, "stroke": self.bellCircle.bells[number-1].stroke.rawValue ? "handstroke" : "backstroke", "tower_id": self.self.id])
+            let bellName = Bell.sounds[self.bellCircle.bellType]![self.bellCircle.size]![number - 1].prefix((self.bellCircle.bellType == .hand) ? "H" : "T")
+            if !self.cooldownSounds.contains(bellName) {
+                self.manager.socket.emit("c_bell_rung", ["bell": number, "stroke": self.bellCircle.bellStates[number-1] ? "handstroke" : "backstroke", "tower_id": self.bellCircle.towerID])
+                self.cooldownSounds.append(bellName)
+                let newTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: false) { timer in
+                    self.cooldownSounds.remove(at: self.cooldownSounds.firstIndex(of: bellName)!)
+                    self.timers.remove(at: self.timers.firstIndex(of: timer)!)
+                }
+                self.timers.append(newTimer)
+            }
         }
     }
     
-    func bellRang(number:Int) {
-        self.play(Bell.sounds[self.bellCircle.bellType]![self.bellCircle.size]![number-1].prefix((self.bellCircle.bellType == .hand) ? "H" : "T"), inDirectory: "RingingRoomAudio")
+    func bellRang(number:String) {
+        audioController.play(Bell.sounds[self.bellCircle.bellType]![self.bellCircle.size]![Int(number)!].prefix((self.bellCircle.bellType == .hand) ? "H" : "T"))
+        bellCircle.objectWillChange.send()
+        bellCircle.bellStates[Int(number)!].toggle()
     }
     
     func makeCall(_ call:String) -> () -> () {
         return {
-            self.Manager.socket.emit("c_call", ["call": call, "tower_id": self.self.id])
-            self.play(call, inDirectory: "RingingRoomAudio")
+            if !self.cooldownSounds.contains(call) {
+                self.manager.socket.emit("c_call", ["call": call, "tower_id": self.bellCircle.towerID])
+                self.cooldownSounds.append(call)
+                print("timers, ",self.timers.count)
+                let newTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: false) { timer in
+                    self.cooldownSounds.remove(at: self.cooldownSounds.firstIndex(of: call)!)
+                    self.timers.remove(at: self.timers.firstIndex(of: timer)!)
+                }
+                self.timers.append(newTimer)
+            }
+        }
+    }
+    
+    func callMade(_ call:String) {
+        audioController.play(call)
+        self.callText = call
+        self.callTextOpacity = 1
+        self.callTimer?.invalidate()
+        self.callTimer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: false) { timer in
+            withAnimation(.linear(duration: 0.4)) {
+                self.callTextOpacity = 0
+            }
         }
     }
     
@@ -337,7 +416,7 @@ struct RingingRoomView: View {
             imageName += "h"
         }
         
-        if bellCircle.bells[number-1].stroke == .handstroke {
+        if bellCircle.bellStates[number-1] {
             imageName += "-handstroke"
             
             if number == 1 {
@@ -353,19 +432,16 @@ struct RingingRoomView: View {
         return imageName
     }
     
+}
+
+struct CallButtonViewModifier:ViewModifier {
+    var disabled:Bool
     
-    
-    func play(_ fileName:String, inDirectory directory:String? = nil) {
-        if let path = Bundle.main.path(forResource: fileName, ofType: ".m4a", inDirectory: directory) {
-            let url = URL(fileURLWithPath: path)
-            
-            do {
-                self.audioPlayer = try AVAudioPlayer(contentsOf: url)
-                self.audioPlayer?.play()
-            }catch {
-                print("Error")
-            }
-        }
+    func body(content: Content) -> some View {
+        content
+        .disabled(disabled)
+        .opacity(disabled ? 0.35 : 1)
+        .cornerRadius(5)
     }
 }
 
@@ -384,25 +460,24 @@ extension String {
 struct TowerControlsView:View {
     @State var presentingHelp = false
     
-    @State var towerID:Int
+    @ObservedObject var bellCircle = BellCircle.current
     
-    @Binding var hostModeEnabled:Bool
     @State var permitHostMode:Bool
-    @State var host:Bool
     
     @Binding var width:CGFloat
-    
-    @Binding var isBookmarked:Bool
-    
+        
     @Binding var manager:SocketIOManager!
-        
-    @State var users = ["Matthew Goodship", "Nigel", "James", "Leland", "Sarah", "Brynn", "Anthony"]
-        
-    @Binding var size:Int
-    @Binding var bellType:BellType
-    @Binding var assignments:[String]
     
-    @State var towerSizeSelection = 0
+    @State var updateView = false
+    
+    @State var towerSizeSelection:Int {
+        willSet {
+            print("about to set to  ", newValue)
+        }
+        didSet {
+            print("oldValue: ", oldValue, ", current value: ", self.towerSizeSelection)
+        }
+    }
     @State var bellTypeSelection = 0
     
     @State var selectedUser = 0
@@ -415,8 +490,8 @@ struct TowerControlsView:View {
     @State var towerSelectionCount = 0
     @State var bellTypeSelectionCount = 0
     
+    var bellTypes = [BellType.tower, BellType.hand]
     var towerSizes = [4, 6, 8, 10, 12]
-    var bellTypes = [BellType.hand, BellType.tower]
     
     @State var showingUsers = false
     
@@ -426,149 +501,149 @@ struct TowerControlsView:View {
     
     var body: some View {
         GeometryReader { geo in
-            VStack(spacing: 0) {
-                if self.host && self.permitHostMode {
-                    Toggle(isOn: self.$hostModeEnabled) {
-                        Text("Enable host mode")
+                VStack(spacing: 0) {
+                    Button(action: {
+                        let pasteboard = UIPasteboard.general
+                        pasteboard.string = String(self.bellCircle.towerID)
+                    }) {
+                        Text("Copy tower ID").foregroundColor(.main)
                     }
-                    .padding(.horizontal)
-                }
-                if !self.hostModeEnabled || self.host {
-                    Picker(selection: self.$towerSizeSelection.onChange(self.sizeChanged), label: Text("Tower size picker")) {
-                        ForEach(0..<5) { i in
-                            Text(String(self.towerSizes[i]))
-                                .fixedSize(horizontal: true, vertical: false)
-                                .padding(.horizontal)
+                    .foregroundColor(.primary)
+                    if User.shared.host && self.permitHostMode {
+                        Toggle(isOn: .init(get: {self.bellCircle.hostModeEnabled}, set: {
+                            self.manager.socket.emit("c_host_mode", ["new_mode":$0, "tower_id":self.bellCircle.towerID])
+                        }) ) {
+                            Text("Enable host mode")
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
-                        .opacity(1)
-                        .padding(.top, 10)
+                    if !self.bellCircle.hostModeEnabled || User.shared.host {
+                        Picker(selection: .init(get: {(self.bellCircle.size-4)/2}, set: {self.sizeChanged(value:$0)}), label: Text("Tower size picker")) {
+                            ForEach(0..<5) { i in
+                                Text(String(self.towerSizes[i]))
+                            }
+                        }
+                        .padding(.horizontal)
+                            .opacity(1)
+                            .padding(.top, 10)
+                            .pickerStyle(SegmentedPickerStyle())
+                        Picker(selection: .init(get: {self.bellTypes.firstIndex(of: self.bellCircle.bellType)!}, set: {self.bellTypeChanged(value:$0)}), label: Text("Bell type picker")) {
+                            ForEach(0..<2) { i in
+                                Text(self.bellTypes[i].rawValue)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 7)
                         .pickerStyle(SegmentedPickerStyle())
-                        .onAppear(perform: {
-                            self.towerSizeSelection = self.towerSizes.firstIndex(of: self.size)!
-                        })
-                    Picker(selection: self.$bellTypeSelection.onChange(self.bellTypeChanged), label: Text("Bell type picker")) {
-                        ForEach(0..<2) { i in
-                            Text(self.bellTypes[i].rawValue)
+                    }
+                    if self.usersView != nil {
+                        self.usersView
+                            .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
+                            .padding(.top, 10)
+                            .padding(.horizontal)
+                        //     .fixedSize(horizontal: false, vertical: true)
+
+                    }
+
+                    if self.chatView != nil {
+                        self.chatView
+                            .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
+                            .padding(.top, 10)
+                            .padding(.horizontal)
+                            .offset(x: 0, y: self.viewOffset)
+                        //      .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    Spacer()
+                    HStack {
+                        Button(action: self.leaveTower) {
+                            Text("Leave Tower")
+                                .foregroundColor(.main)
+                        }
+                        Spacer()
+                        Button(action:  {
+                            self.presentingHelp = true
+                        }) {
+                            Text("Help")
+                        }
+                        .sheet(isPresented: self.$presentingHelp) {
+                            HelpView(asSheet: true, isPresented: self.$presentingHelp)
                         }
                     }
                     .padding(.horizontal)
-                    .padding(.top, 7)
-                    .pickerStyle(SegmentedPickerStyle())
-                    .onAppear(perform: {
-                        self.bellTypeSelection = self.bellTypes.firstIndex(of: self.bellType)!
-                    })
+                    .padding(.bottom, 7)
                 }
-                if self.usersView != nil {
-                    self.usersView
-                        .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
-                        .padding(.top, 10)
-                        .padding(.horizontal)
-                    //     .fixedSize(horizontal: false, vertical: true)
-                    
-                }
-                
-                if self.chatView != nil {
-                    self.chatView
-                        .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
-                        .padding(.top, 10)
-                        .padding(.horizontal)
-                        .offset(x: 0, y: self.viewOffset)
-                    //      .fixedSize(horizontal: false, vertical: true)
-                }
-                
-                
-                Spacer()
-                HStack {
-                    Button(action: self.leaveTower) {
-                        Text("Leave Tower")
-                            .foregroundColor(.main)
-                    }
-                    Spacer()
-                    Button(action:  { self.presentingHelp = true }) {
-                        Text("Help")
-                    }
-                    .sheet(isPresented: self.$presentingHelp) {
-                        HelpView(asSheet: true, isPresented: self.$presentingHelp)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.bottom, 7)
-            }
-            .onAppear(perform: {
-                self.width = geo.frame(in: .global).width
-                print("controls width: ", self.width)
-                self.usersView = UsersView(host: self.host, hostModeEnabled: self.hostModeEnabled, size: self.size, users: self.$users, assignments: self.$assignments)
-                self.chatView = ChatView(messageFieldYPosition: self.$messageFieldYPosition)
-            })
-                .onReceive(Publishers.keyboardHeight) {
-                    self.keyboardHeight = $0
-                    print(self.keyboardHeight)
-                    let offset = self.keyboardHeight - self.messageFieldYPosition
-                    print("offset: ",offset)
-                    if offset <= 0 {
-                        withAnimation(.easeIn(duration: 0.16)) {
-                            self.viewOffset = 0
+                .onAppear(perform: {
+                    self.width = geo.frame(in: .global).width
+                    print("controls width: ", self.width)
+                    self.usersView = UsersView(manager: self.manager)
+//                    self.chatView = ChatView(manager: self.manager, messageFieldYPosition: self.$messageFieldYPosition)
+                })
+                    .onReceive(Publishers.keyboardHeight) {
+                        self.keyboardHeight = $0
+                        print(self.keyboardHeight)
+                        let offset = self.keyboardHeight - self.messageFieldYPosition
+                        print("offset: ",offset)
+                        if offset <= 0 {
+                            withAnimation(.easeIn(duration: 0.16)) {
+                                self.viewOffset = 0
+                            }
+                        } else {
+                            withAnimation(.easeOut(duration: 0.16)) {
+                                self.viewOffset = -offset
+                            }
                         }
-                    } else {
-                        withAnimation(.easeOut(duration: 0.16)) {
-                            self.viewOffset = -offset
-                        }
-                    }
-            }
+                }
             
         }
         
         
     }
     
-    
+    func update() {
+        self.updateView.toggle()
+        print("updated tower controls")
+    }
     
     func leaveTower() {
         manager.socket.emit("c_user_left",
-                            ["user_name": User.name,
+                            ["user_name": User.shared.name,
                              "user_token": CommunicationController.token!,
                              "anonymous_user": false,
-                             "tower_id": self.towerID])
+                             "tower_id": self.bellCircle.towerID])
         manager.socket.disconnect()
         NotificationCenter.default.post(name: Notification.Name(rawValue: "dismissRingingRoom"), object: nil)
     }
     
     func bellTypeChanged(value:Int) {
-        self.bellType = self.bellTypes[self.bellTypeSelection]
+        print("changing belltype")
+        self.manager.socket.emit("c_audio_change", ["new_audio":self.bellTypes[value].rawValue, "tower_id":self.bellCircle.towerID])
+     //
     }
     
     func sizeChanged(value:Int) {
-        self.size = self.towerSizes[self.towerSizeSelection]
-        if self.usersView != nil {
-            print("trying to update")
-            self.usersView!.size = self.size
-        }
+        print(self.towerSizeSelection)
+        self.manager.socket.emit("c_size_change", ["new_size":value*2+4, "tower_id":self.bellCircle.towerID])
+    //    self.size = self.towerSizes[self.towerSizeSelection]
+//        if self.usersView != nil {
+//            print("trying to update")
+//            self.usersView!.size = self.size
+//        }
     }
     
 }
 
 struct UsersView:View {
     
-    @State var showingUsers = false
-    
-    @State var host:Bool
-    @State var hostModeEnabled:Bool
-    
-    var size:Int {
-        didSet {
-            self.updateView.toggle()
-        }
-    }
+    @State var showingUsers = true
+            
+    @ObservedObject var bellCircle = BellCircle.current
         
-    @Binding var users:[String]
-    
-    @Binding var assignments:[String]
-    
     @State var selectedUser = ""
     
     @State var updateView = false
+    
+    @State var manager:SocketIOManager!
     
     var body: some View {
         VStack {
@@ -586,14 +661,44 @@ struct UsersView:View {
                     Spacer()
                 }
                 .foregroundColor(.primary)
-                .padding(.leading, 7)
+                .padding(.leading, 4)
+                .contentShape(Rectangle())
                     if available() {
+                        Button(action: {
+                            var tempUsers = self.bellCircle.users
+                            for assignedUser in self.bellCircle.assignments {
+                                if assignedUser != "" {
+                                    if let index = tempUsers.firstIndex(of: assignedUser) {
+                                        tempUsers.remove(at: index)
+                                    }
+                                }
+                            }
+                            for i in 0..<self.bellCircle.size {
+                                if self.bellCircle.assignments[i] == "" {
+                                    let index = Int.random(in: 0..<tempUsers.count)
+                                    let user = tempUsers[index]
+                                    self.manager.socket.emit("c_assign_user", ["user":user, "bell":i+1, "tower_id":self.bellCircle.towerID])
+                                    tempUsers.remove(at: index)
+                                }
+                            }
+                        }) {
+                            Text("Fill In")
+                                .padding(7)
+                            .lineLimit(1)
+                        }
+                            .background(Color.main.cornerRadius(5))
+                        .disabled(self.bellCircle.users.count < self.bellCircle.size)
+                        .opacity(self.bellCircle.users.count < self.bellCircle.size ? 0.35 : 1)
+                        .foregroundColor(.white)
+                        
                     Button(action: {
-                        self.assignments = Array(repeating: "", count: self.size)
-                        self.updateView.toggle()
+                        for i in 0..<self.bellCircle.size {
+                            self.unAssign(bell: i+1)
+                        }
                     }) {
                         Text("Unassign all")
                             .padding(7)
+                        .lineLimit(1)
                     }
                     .foregroundColor(.white)
                     .background(Color.main.cornerRadius(5))
@@ -604,8 +709,8 @@ struct UsersView:View {
                     
                     HStack(alignment: .top) {
                         VStack(spacing: 7) {
-                            ForEach(self.users, id: \.self) { user in
-                                RingerView(assignments: self.assignments, user: user, selectedUser: self.selectedUser)
+                            ForEach(self.bellCircle.users, id: \.self) { user in
+                                RingerView(assignments: self.bellCircle.assignments, user: user, selectedUser: self.selectedUser)
                                     .opacity(self.available() ? 1 : (user == self.selectedUser) ? 1 : 0.35)
                                 .onTapGesture(perform: {
                                     if self.available() {
@@ -618,25 +723,25 @@ struct UsersView:View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 4)
                         VStack(alignment: .trailing, spacing: -7) {
-                            ForEach(0..<self.size, id: \.self) { number in
+                            ForEach(0..<self.bellCircle.size, id: \.self) { number in
                                 HStack(alignment: .top) {
                                     if self.canUnassign(number)  {
                                             Button(action: {
-                                                self.assignments[number] = ""
+                                                self.unAssign(bell: number+1)
                                                 self.updateView.toggle()
                                             }) {
                                                 Text("x")
-                                                    .foregroundColor(.black)
+                                                    .foregroundColor(.primary)
                                                     .font(.title)
                                             }
                                             .padding(.top, 1)
                                     }
-                                    Button(action: self.assign(to: number)) {
+                                    Button(action: self.assign(self.selectedUser, to: number + 1)) {
                                         Text(String(number + 1))
                                             .font(.callout)
                                             .bold()
                                     }
-                                    .modifier(BellAssigmentViewModifier(isAvailible: (self.assignments[number] == "")))
+                                    .modifier(BellAssigmentViewModifier(isAvailible: (self.bellCircle.assignments[number] == "")))
                                     //.background(.black)
                                 }
                             }
@@ -649,7 +754,8 @@ struct UsersView:View {
             }
         }
         .onAppear(perform: {
-            self.selectedUser = User.name
+            print("users view initialized")
+            self.selectedUser = User.shared.name
         })
             .clipped()
             .padding(7)
@@ -657,18 +763,23 @@ struct UsersView:View {
     }
         
     func canUnassign(_ number:Int) -> Bool {
-        return (self.assignments[number] != "") && (self.available() || self.assignments[number] == User.name)
+        return (self.bellCircle.assignments[number] != "") && (self.available() || self.bellCircle.assignments[number] == User.shared.name)
     }
 
     func available() -> Bool {
-        return self.host || !self.hostModeEnabled
+        return User.shared.host || !self.bellCircle.hostModeEnabled
     }
     
-    func assign(to bell:Int) -> () -> () {
+    func assign(_ user:String, to bell:Int) -> () -> () {
         return {
-            self.assignments[bell] = self.selectedUser
-            self.updateView.toggle()
+            print("assigning")
+            self.manager.socket.emit("c_assign_user", ["user":user, "bell":bell, "tower_id":self.bellCircle.towerID])
         }
+    }
+    
+    func unAssign(bell:Int) {
+        print("unassigning")
+        manager.socket.emit("c_assign_user", ["user":"", "bell":bell, "tower_id":self.bellCircle.towerID])
     }
     
     
@@ -712,12 +823,23 @@ struct RingerView:View {
 
 struct ChatView:View {
     
+    @State var manager:SocketIOManager!
+    
     @State var updateView = false
     
-    @State var showingChat = false
+    @State var showingChat = false {
+        didSet {
+            self.chatManager.canSeeMessages = self.showingChat
+            if self.showingChat == true {
+                self.chatManager.newMessages = 0
+            }
+        }
+    }
     
+    @ObservedObject var chatManager = ChatManager()
+        
     @State var currentMessage = ""
-    
+        
     @Binding var messageFieldYPosition:CGFloat
     
     @State var viewOffset:CGFloat = 0
@@ -740,18 +862,28 @@ struct ChatView:View {
                 }
                 .foregroundColor(.primary)
                 .padding(.leading, 7)
+                if chatManager.newMessages > 0 {
+                    Text(String(chatManager.newMessages))
+                    .padding(8)
+                        .background(Circle().fill(Color.main))
+                        .foregroundColor(.white)
+                }
             }
             if self.showingChat {
                 ScrollView {
-                    VStack(alignment: .leading) {
-                        ForEach(0..<10) { number in
-                            HStack {
-                                Text("Matthew Goodship: \(number)")
-                                Spacer()
+                    VStack {
+                        if chatManager.messages.count > 0 {
+                            ForEach(chatManager.messages, id: \.self) { message in
+                                HStack {
+                                    Text(message)
+                                    Spacer()
+                                }
+                            .flippedUpsideDown()
                             }
                         }
                     }
                 }
+                .flippedUpsideDown()
                 HStack {
                     GeometryReader { geo in
                         TextField("Message", text: self.$currentMessage, onEditingChanged: { selected in
@@ -776,7 +908,9 @@ struct ChatView:View {
                 .padding(.bottom, 7)
             }
         }
-            
+    .onAppear(perform: {
+        self.manager.chatView = self
+    })
             
         .clipped()
         .padding(.horizontal, 7)
@@ -786,8 +920,11 @@ struct ChatView:View {
     
     func sendMessage() {
         //send message
+        chatManager.objectWillChange.send()
+        chatManager.messages.append(currentMessage)
+       // manager.socket.emit("c_msg_sent", ["user":User.name, "email":User.email, "msg":currentMessage, "tower_id":BellCircle.current.towerID])
+        currentMessage = ""
     }
-    
 }
 
 extension Binding {
@@ -809,7 +946,7 @@ extension Array {
         if strSelf.firstIndex(of: member) != nil {
             while !finished {
                 indexes.append(strSelf.firstIndex(of: member)!)
-                for i in 0...indexes.last! {
+                for _ in 0...indexes.last! {
                     strSelf.removeFirst()
                 }
                 if indexes.count != 1 {
@@ -846,4 +983,28 @@ struct BellAssigmentViewModifier:ViewModifier {
         .fixedSize(horizontal: true, vertical: true)
         
     }
+}
+
+struct RingingRoomView_Previews: PreviewProvider {
+    static var previews: some View {
+        /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
+    }
+}
+
+struct FlippedUpsideDown: ViewModifier {
+   func body(content: Content) -> some View {
+    content
+        .rotationEffect(Angle.init(radians: Double.pi))
+      .scaleEffect(x: -1, y: 1, anchor: .center)
+   }
+}
+extension View{
+   func flippedUpsideDown() -> some View{
+     self.modifier(FlippedUpsideDown())
+   }
+}
+
+extension Color {
+    static var lightBackground = Color(red: 211/255, green: 209/255, blue: 220/255)
+    static var darkBackground = Color(white: 0.07)
 }

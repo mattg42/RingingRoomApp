@@ -15,7 +15,7 @@ enum Side {
 }
 
 enum BellType:String {
-    case tower = "tower", hand = "hand"
+    case tower = "Tower", hand = "Hand"
 }
 
 enum Stroke:Bool {
@@ -32,12 +32,16 @@ enum Stroke:Bool {
 }
 
 class BellCircle: ObservableObject {
+    var towerID:Int = 0
+    
+    @Published var users:[String] = [String]()
+    
+    static var current = BellCircle()
+    
     @Published var bellPositions = [CGPoint]()
     
     var baseRadius:CGFloat = 0
-        
-    var userName:String
-    
+            
     var radius:CGFloat {
         get {
             var returnValue = self.baseRadius
@@ -64,7 +68,7 @@ class BellCircle: ObservableObject {
         }
     }
     
-    var perspective = 1 {
+    @Published var perspective = 4 {
         didSet {
             self.bellPositions = newBellPositions()
         }
@@ -72,18 +76,25 @@ class BellCircle: ObservableObject {
     
     @Published var assignments:[String] {
         didSet {
-            print(self.assignments.count)
-            for i in 1...self.size {
-                if self.assignments[i-1] == userName {
-                    self.perspective = i
-                    return
+            if assignments.count == size {
+                var newPerspective = 1
+                print(self.assignments.count)
+                for i in 0..<self.size {
+                    if self.assignments[i] == User.shared.name {
+                        newPerspective = i+1
+                        break
+                    }
                 }
+                self.perspective = newPerspective
             }
-            self.perspective = 1
         }
     }
     
+    @Published var hostModeEnabled = false
+    
     @Published var bells:[Bell]
+    
+    @Published var bellStates:[Bool]
     
     @Published var bellType:BellType {
         didSet {
@@ -92,48 +103,43 @@ class BellCircle: ObservableObject {
         }
     }
     
-    @Published var size:Int {
+    var size:Int = 0 {
         didSet {
-            var newAssignments = [String]()
-            
             var newBells = [Bell]()
             for i in 1...size {
-                newAssignments.append("")
                 newBells.append(Bell(number: i, side: ((2...size/2).contains(i)) ? .left : .right))
             }
-            
             bells = newBells
-            assignments = newAssignments
+            if oldValue > size {
+                assignments = Array(assignments[0..<size])
+                    print("new array size: ", assignments.count)
+            } else if size > oldValue {
+                for _ in 0..<size-oldValue {
+                    print("added empty assignment")
+                    assignments.append("")
+                }
+            }
+            bellStates = Array.init(repeating: true, count: self.size)
+            self.bellPositions = newBellPositions()
         }
     }
     
-    init(number:Int = 0, userName:String = "") {
+    init(number:Int = 0) {
         self.size = number
-        self.userName = userName
         bells = [Bell]()
         assignments = [String]()
+        bellStates = [Bool]()
         //change to .tower to test tower bells
         bellType = .hand
         if number > 0 {
             for i in 1...number {
                 assignments.append("")
                 bells.append(Bell(number: i, side: ((2...size/2).contains(i)) ? .left : .right))
+                bellStates.append(true)
             }
         }
-        NotificationCenter.default.addObserver(self, selector: #selector(updateBells), name: NSNotification.Name.strokeChanged, object: nil)
     }
-    
-    @objc func updateBells(notification:Notification) {
-        print("received notification")
-        let info = notification.userInfo!
-        var newBells = self.bells
-        
-        if notification.name.rawValue == "strokeChanged" {
-            newBells[(info["number"] as! Int) - 1] = Bell(number: info["number"] as! Int, stroke: info["stroke"] as! Stroke, side: info["side"] as! Side)
-        }
-        
-        self.bells = newBells
-    }
+
     
     func newBellPositions() -> [CGPoint] {
         var newBellPoints = [CGPoint]()
@@ -163,6 +169,14 @@ class BellCircle: ObservableObject {
         return newBellPoints
     }
     
+    func setAssignment(user:String, to bell:Int) {
+        var newAssignments = self.assignments
+        newAssignments[bell-1] = user
+        self.assignments = newAssignments
+        
+    }
+    
+    
 }
 
 class Bell:Identifiable {
@@ -188,21 +202,16 @@ class Bell:Identifiable {
         ]
     ]
     
-    var stroke:Stroke {
-        didSet {
-            print("posting")
-            NotificationCenter.default.post(name: NSNotification.Name.strokeChanged, object: nil, userInfo: ["number":self.number, "stroke": self.stroke, "side":self.side])
-        }
-    }
     var number:Int
     
-    init(number:Int, stroke:Stroke = .handstroke, side:Side) {
+    init(number:Int, side:Side) {
         self.side = side
         self.number = number
-        self.stroke = stroke
     }
 }
 
 extension NSNotification.Name {
     public static let strokeChanged = NSNotification.Name(rawValue: "strokeChanged")
+    public static let sizeChanged = NSNotification.Name(rawValue: "sizeChanged")
+    public static let loggedOut = NSNotification.Name(rawValue: "loggedOut")
 }

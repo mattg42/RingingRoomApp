@@ -11,6 +11,7 @@ import SwiftUI
 struct SimpleLoginView: View {
     @Environment(\.presentationMode) var presentationMode
     
+    @State var comController:CommunicationController!
 
     @State var email = ""
     @State var password = ""
@@ -90,6 +91,9 @@ struct SimpleLoginView: View {
             .navigationBarItems(leading: Button("Back") {self.presentationMode.wrappedValue.dismiss()})
             .navigationBarTitle("Login", displayMode: .inline)
         }
+    .onAppear(perform: {
+        self.comController = CommunicationController(sender: self, loginType: .simple)
+    })
     }
     
     func textFieldCommitted() {
@@ -106,7 +110,38 @@ struct SimpleLoginView: View {
 
     
     func login() {
+        comController.login(email: self.email, password: self.password)
         //send login request to server
   //     presentMainApp()
     }
+    
+    func receivedResponse(statusCode:Int?, responseData:[String:Any]?) {
+        if statusCode! == 401 {
+            print(responseData)
+            alertTitle = Text("Your username or password is incorrect")
+            self.showingAlert = true
+        } else {
+            DispatchQueue.main.async {
+                self.comController.getUserDetails()
+                self.comController.getMyTowers()
+                self.presentationMode.wrappedValue.dismiss()
+            }
+        }
+    }
+    
+    func receivedMyTowers(statusCode:Int?, responseData:[String:Any]?) {
+        if statusCode! == 401 {
+            alertTitle = Text("Error")
+            self.showingAlert = true
+        } else {
+            UserDefaults.standard.set(self.stayLoggedIn, forKey: "keepMeLoggedIn")
+            UserDefaults.standard.set(self.email, forKey: "userEmail")
+            UserDefaults.standard.set(self.password, forKey: "userPassword")
+            UserDefaults.standard.set(0, forKey: "selectedTower")
+            self.loggedIn = true
+//            self.presentationMode.wrappedValue.dismiss()
+//            print("tried to dismiss")
+        }
+    }
+    
 }

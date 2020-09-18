@@ -9,7 +9,12 @@
 import SwiftUI
 
 struct AutoLogin: View {
+    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
+
     @State var showingAlert = false
+    
+    @State var comController:CommunicationController!
+    
     var body: some View {
         ZStack {
             Color.main
@@ -29,6 +34,31 @@ struct AutoLogin: View {
                     WelcomeLoginScreen()
                 }
             }))
+        }
+        .onAppear(perform: {
+            self.comController = CommunicationController(sender: self, loginType: .auto)
+            self.comController.login(email: UserDefaults.standard.string(forKey: "userEmail")!, password: UserDefaults.standard.string(forKey: "userPassword")!)
+        })
+    }
+    
+    func receivedResponse(statusCode:Int?, response:[String:Any]) {
+        if statusCode == 401 {
+            self.showingAlert = true
+        } else {
+            self.comController.getUserDetails()
+            self.comController.getMyTowers()
+        }
+    }
+    
+    func receivedMyTowers(statusCode:Int?, response:[String:Any]) {
+        if statusCode == 401 {
+            self.showingAlert = true
+        } else {
+            DispatchQueue.main.async {
+                self.viewControllerHolder?.present(style: .fullScreen, name: "Main", animated: false) {
+                    MainApp()
+                }
+            }
         }
     }
 }

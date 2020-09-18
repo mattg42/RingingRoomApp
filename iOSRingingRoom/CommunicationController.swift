@@ -10,20 +10,19 @@ import Foundation
 
 class CommunicationController {
     
-    static var loginScreen:LoginScreen? = nil
-    
-    static var ringingRoomView:RingingRoomView? = nil
-    
-    static var ringView:RingView? = nil
-    
-    static var settingsView:SettingsView? = nil
-    
-    static var accountCreationView:AccountCreationView? = nil
-    
     static var token:String? = nil
     
-    static func sendRequest(method:String, endpoint:String, headers:[String:String]? = nil, json:[String:String]? = nil, type:RequestType) {
-        let baseUrl = "https:/dev.ringingroom.com/api/"
+    var loginType:LoginType?
+    
+    var sender:Any
+    
+    init(sender:Any, loginType:LoginType? = nil) {
+        self.sender = sender
+        self.loginType = loginType
+    }
+    
+    func sendRequest(method:String, endpoint:String, headers:[String:String]? = nil, json:[String:String]? = nil, type:RequestType) {
+        let baseUrl = "https:/ringingroom.com/api/"
         
         // Create URL Request
         guard let requestUrl = URL(string: baseUrl+endpoint) else { return }
@@ -32,16 +31,13 @@ class CommunicationController {
         // Specify HTTP Method to use
         request.httpMethod = method
         
+        
         if let requestHeaders = headers {
             for header in requestHeaders {
                 request.addValue(header.value, forHTTPHeaderField: header.key)
             }
         }
-        
-        
-        
-        print(request.allHTTPHeaderFields)
-        
+    
         if let jsonData = json {
             
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -74,37 +70,90 @@ class CommunicationController {
                 statusCode = response.statusCode
             }
             var dataDict = [String:Any]()
+            var towersDict = [String:[String:Any]]()
             // Convert HTTP Response Data to a simple String
             if let data = data, let dataString = String(data: data, encoding: .utf8) {
                 // print("Response data string:\n \(dataString)")
                 
                 do {
-                    dataDict = try JSONSerialization.jsonObject(with: data) as! [String : Any]
+                    if type == .getMyTowers {
+                        towersDict = try JSONSerialization.jsonObject(with: data) as! [String : [String : Any]]
+                    } else {
+                        dataDict = try JSONSerialization.jsonObject(with: data) as! [String : Any]
+                    }
                 } catch {
                     "error converting response to a dictionary"
                 }
             }
             
+            print(dataDict)
+            print(towersDict)
+            
             switch type {
             case .loginAttempt:
-                self.token = dataDict["token"] as! String
-                self.loginScreen?.receivedResponse(statusCode: statusCode, responseData: dataDict)
-                CommunicationController.getUsername()
+                if let token = dataDict["token"] as? String {
+                    CommunicationController.token = token
+                    User.shared.loggedIn = true
+                }
+                switch self.loginType {
+                case .auto:
+                    (self.sender as! AutoLogin).receivedResponse(statusCode: statusCode, response: dataDict)
+                case .welcome:
+                    (self.sender as! WelcomeLoginScreen).receivedResponse(statusCode: statusCode, responseData: dataDict)
+                case .simple:
+                    (self.sender as! SimpleLoginView).receivedResponse(statusCode: statusCode, responseData: dataDict)
+                case .settings:
+                    (self.sender as! SettingsView).receivedResponse(statusCode: statusCode, responseData: dataDict)
+                default:
+                    fatalError()
+                }
+                
 //            case .logout:
+                
             case .getUserDetails:
-                User.name = dataDict["username"] as! String
-                User.email = dataDict["email"] as! String
-//            case .registerNewUser:
-//                self.accountCreationView?.receivedResponse(statusCode: statusCode, response: dataDict)
+                User.shared.name = dataDict["username"] as! String
+                User.shared.email = dataDict["email"] as! String
+            case .registerNewUser:
+                (self.sender as! AccountCreationView).receivedResponse(statusCode: statusCode, response: dataDict)
 //            case .modifyUserDetails:
 //            case .deleteUser:
-//            case .getMyTowers:
+            case .getMyTowers:
+//                for dict in dataDict {
+//                    print(dict.value)
+//                    do {
+//                        var tempDict = [String:Any]()
+//                        tempDict = try JSONSerialization.jsonObject(with: dict.value as! Data) as! [String : Any]
+//                        towersDict[dict.key] = tempDict
+//                    } catch {
+//                        "error converting response to a dictionary"
+//                    }
+//                }
+                print("added towers")
+                for dict in towersDict {
+                    let tower = Tower(id: Int(dict.value["tower_id"] as! String)!, name: dict.value["tower_name"] as! String, host: dict.value["host"] as! Int, recent: dict.value["recent"] as! Int, visited: dict.value["visited"] as! String, creator: dict.value["creator"] as! Int, bookmark: dict.value["bookmark"] as! Int)
+                    User.shared.addTower(tower)
+                }
+                switch self.loginType {
+                case .auto:
+                    (self.sender as! AutoLogin).receivedMyTowers(statusCode: statusCode, response: dataDict)
+                case .welcome:
+                    (self.sender as! WelcomeLoginScreen).receivedMyTowers(statusCode: statusCode, responseData: dataDict)
+                case .simple:
+                    (self.sender as! SimpleLoginView).receivedMyTowers(statusCode: statusCode, responseData: dataDict)
+                case .settings:
+                    (self.sender as! SettingsView).receivedMyTowers(statusCode: statusCode, responseData: dataDict)
+                default:
+                    fatalError()
+                }
+            //    {"928134567": {"bookmark": 0,"creator": 1,"host": 1,"recent": 1,"tower_id": 928134567,"tower_name": "Advent","visited": "Mon, 31 Aug 2020 15:45:54 GMT"}, "987654321": {"bookmark": 0,"creator": 0,"host": 0,"recent": 1,"tower_id": 987654321,"tower_name": "Old North","visited": "Mon, 31 Aug 2020 15:44:40 GMT"}}
+                
 //            case .toggleBookmark:
 //            case .deleteTowerFromRecents:
             case .connectToTower:
                 print(dataDict)
-                self.ringView?.receivedResponse(statusCode: statusCode, response: dataDict)
-//            case .createTower:
+                (self.sender as! RingView).receivedResponse(statusCode: statusCode, response: dataDict)
+            case .createTower:
+                self.getTowerDetails(id: dataDict["tower_id"] as! Int)
 //            case .deleteTower:
 //            case .getTowerSettings:
 //            case .modifyTowerSettings:
@@ -117,42 +166,52 @@ class CommunicationController {
         task.resume()
     }
     
-    static func login(email:String, password:String, sender:LoginScreen) {
-        self.loginScreen = sender
-        
-        let utf8str = "\(email):\(password)".data(using: .utf8)
-
+    func login(email:String, password:String) {
+        let utf8str = "\(email.lowercased()):\(password)".data(using: .utf8)
         if let base64Encoded = utf8str?.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0)) {
             print("Encoded: \(base64Encoded)")
             sendRequest(method: "POST", endpoint: "tokens", headers: ["Authorization":"Basic \(base64Encoded)"], type: .loginAttempt)
         }
     }
     
-    static func registerNewUser(username:String, email:String, password:String, sender:AccountCreationView) {
-        self.accountCreationView = sender
-        
+    func registerNewUser(username:String, email:String, password:String) {
        var json = ["password":password, "username":username, "email":email]
         
         sendRequest(method: "POST", endpoint: "user", json: json, type: .registerNewUser)
     }
     
-    static func getTowerDetails(id:Int, sender:RingView) {
-        self.ringView = sender
-        
-        var headers = ["Authorization":"Bearer \(self.token!)"]
+    func getTowerDetails(id:Int) {
+        var headers = ["Authorization":"Bearer \(CommunicationController.token!)"]
         
         sendRequest(method: "GET", endpoint: "tower/\(id)", headers: headers, type: .connectToTower)
     }
     
-    static func getUsername() {
-        var headers = ["Authorization":"Bearer \(self.token!)"]
+    func getUserDetails() {
+        var headers = ["Authorization":"Bearer \(CommunicationController.token!)"]
         sendRequest(method: "GET", endpoint: "user", headers: headers, type: .getUserDetails)
+    }
+    
+    func createTower(name:String) {
+        var headers = ["Authorization":"Bearer \(CommunicationController.token!)"]
+        var json = ["tower_name":name]
+        
+        sendRequest(method: "POST", endpoint: "tower", headers: headers, json: json, type: .createTower)
+    }
+    
+    func getMyTowers() {
+        var headers = ["Authorization":"Bearer \(CommunicationController.token!)"]
+        
+        sendRequest(method: "GET", endpoint: "my_towers", headers: headers, type: .getMyTowers)
     }
     
 }
 
 enum RequestType {
-    case loginAttempt, logout, getUserDetails, registerNewUser, modifyUserDetails, deleteUser
+    case welcomeLoginAttempt, loginAttempt, autoLoginAttempt, logout, getUserDetails, registerNewUser, modifyUserDetails, deleteUser
     case getMyTowers, toggleBookmark, deleteTowerFromRecents
     case connectToTower, createTower, deleteTower, getTowerSettings, modifyTowerSettings, addHost, removeHost
+}
+
+enum LoginType {
+    case auto, welcome, simple, settings
 }
