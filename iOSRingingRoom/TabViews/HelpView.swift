@@ -34,7 +34,7 @@ struct MasterHelpView:View {
             Section {
                 NavigationLink("Quick Start Guide", destination: QuickStartGuideView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Advanced Features", destination: AdvancedFeaturesView(asSheet: self.asSheet, isPresented: self.$isPresented))
-                NavigationLink("FAQs",  destination: QuickStartGuideView(asSheet: self.asSheet, isPresented: self.$isPresented))
+//                NavigationLink("FAQs",  destination: QuickStartGuideView(asSheet: self.asSheet, isPresented: self.$isPresented))
             }
             Section {
                 NavigationLink("Full help document", destination: HelpTextView(asSheet: self.asSheet, isPresented: self.$isPresented))
@@ -68,7 +68,18 @@ struct QuickStartGuideView:View {
                 NavigationLink("Leaving a tower", destination: LeavingATowerView(asSheet: self.asSheet, isPresented: self.$isPresented))
             }
             Section {
-                NavigationLink("Full Quick Start Guide", destination: QuickStartGuideTextView(asSheet: self.asSheet, isPresented: self.$isPresented))
+                NavigationLink("Full Quick Start Guide", destination: ScrollView {
+                    QuickStartGuideTextView(asSheet: self.asSheet, isPresented: self.$isPresented)
+                }
+                .navigationBarTitle("Full Quick Start Guide", displayMode: .inline)
+                .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
+                    if asSheet {
+                        Text("Dismiss")
+                    } else {
+                        Text("")
+                    }
+                    
+                }))
             }
         }
         .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
@@ -101,7 +112,7 @@ struct ComputingSetUpView:View {
                     bulletLine(text: "Headphones: Ideal to reduce echo and double-clappering")
                     bulletLine(text: "Internet Connection: Use a wired connection where wireless is too slow.")
                 }
-                Text("Alternatively, if you use an iPhone, you can download the Ringing Room app from the App Store")
+                Text("Alternatively, if you use an iPhone, you can download the free Ringing Room app from the App Store")
                 Spacer()
             }
         }
@@ -153,8 +164,8 @@ struct CreatingOrJoiningATowerView:View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 10) {
-                Text("Creating a tower on Ringing Room is simple. Go to the ring tab and type your desired name into the box in the center of the page. Once you press enter, you will be sent to a tower with that name. Each tower comes with a unique 9-digit ID which can be shared to allow others into that same tower.")
-                Text("To join a tower, you must be equipped with its 9-digit ID number, which can then be typed or copied into the box at the bottom of the ring tab. Alternately, if you have been furnished with a link to a tower, you can click that link and be sent to the tower directly.")
+                Text("Creating a tower on Ringing Room is simple. Go to the ring tab and type your desired name into the box at the bottom of the page. Once you press enter, you will be sent to a tower with that name. Each tower comes with a unique 9-digit ID which can be shared to allow others into that same tower.")
+                Text("To join a tower, you must be equipped with its 9-digit ID number, which can then be typed or copied into the box at the bottom of the ring tab.")
                 Spacer()
             }
         }
@@ -180,7 +191,7 @@ struct RingingTheBellsView:View {
             
             VStack(alignment: .leading, spacing: 10) {
                 Text("Once you're in a tower, you can ring the bells by tapping on their images. If you are assigned a bell, a button for that bell will appear at the bottom of your screen.")
-                Text("You may wish to change the number of bells in the tower, or whether you are in ringing tower bells or handbells. This can be achieved by selecting the desired option in the tower controls. You can access the tower controls by clicking on the 3-lined black menu button in the top-right. Also available in the tower controls are a list of users, and a chat box. You will also be able to assign ringers to bells; this will be covered in the Advanced Features section.")
+                Text("You may wish to change the number of bells in the tower, or whether you are in ringing tower bells or handbells. This can be achieved by selecting the desired option in the tower controls. You can access the tower controls by clicking on the 3-lined black menu button in the top-right. Also available in the tower controls are a list of users. You will also be able to assign ringers to bells; this will be covered in the Advanced Features section.")
                 Spacer()
             }
         }
@@ -249,8 +260,6 @@ struct QuickStartGuideTextView:View {
     
     @Binding var isPresented:Bool
     var body: some View {
-        ScrollView {
-            
             VStack(alignment: .leading, spacing: 10) {
                 Group {
                     Text("Computing set-up")
@@ -265,7 +274,7 @@ struct QuickStartGuideTextView:View {
                         bulletLine(text: "Headphones: Ideal to reduce echo and double-clappering")
                         bulletLine(text: "Internet Connection: Use a wired connection where wireless is too slow.")
                     }
-                    Text("Alternatively, if you use an iPhone, you can download the Ringing Room app from the App Store.")
+                    Text("Alternatively, if you use an iPhone, you can download the free Ringing Room app from the App Store.")
                 }
                 Group {
                     Text("Creating an account")
@@ -279,15 +288,15 @@ struct QuickStartGuideTextView:View {
                     Text("Creating or joining a tower")
                         .font(.headline)
                         .bold()
-                    Text("Creating a tower on Ringing Room is simple. Go to the ring tab and type your desired name into the box in the center of the page. Once you press enter, you will be sent to a tower with that name. Each tower comes with a unique 9-digit ID which can be shared to allow others into that same tower.")
-                    Text("To join a tower, you must be equipped with its 9-digit ID number, which can then be typed or copied into the box at the bottom of the ring tab. Alternately, if you have been furnished with a link to a tower, you can click that link and be sent to the tower directly.")
+                    Text("Creating a tower on Ringing Room is simple. Go to the ring tab and type your desired name into the box at the bottom of the page. Once you press enter, you will be sent to a tower with that name. Each tower comes with a unique 9-digit ID which can be shared to allow others into that same tower.")
+                    Text("To join a tower, you must be equipped with its 9-digit ID number, which can then be typed or copied into the box at the bottom of the ring tab.")
                 }
                 Group {
                     Text("Ringing the bells")
                         .font(.headline)
                         .bold()
                     Text("Once you're in a tower, you can ring the bells by tapping on their images. If you are assigned a bell, a button for that bell will appear at the bottom of your screen.")
-                    Text("You may wish to change the number of bells in the tower, or whether you are in ringing tower bells or handbells. This can be achieved by selecting the desired option in the tower controls. You can access the tower controls by clicking on the 3-lined black menu button in the top-right. Also available in the tower controls are a list of users, and a chat box. You will also be able to assign ringers to bells; this will be covered in the Advanced Features section.")
+                    Text("You may wish to change the number of bells in the tower, or whether you are in ringing tower bells or handbells. This can be achieved by selecting the desired option in the tower controls. You can access the tower controls by clicking on the 3-lined black menu button in the top-right. Also available in the tower controls are a list of users. You will also be able to assign ringers to bells; this will be covered in the Advanced Features section.")
                 }
                 Group {
                     Text("Making calls")
@@ -302,16 +311,6 @@ struct QuickStartGuideTextView:View {
                     Text("At the bottom of the tower controls menu, there is a button called 'Leave tower'. Pressing this will remove you from the tower and bring you back to the ring tab.")
                 }
             }
-        }
-        .navigationBarTitle("Full Quick Start Guide", displayMode: .inline)
-        .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
-            if asSheet {
-                Text("Dismiss")
-            } else {
-                Text("")
-            }
-            
-        })
             .padding()
     }
 }
@@ -322,11 +321,26 @@ struct AdvancedFeaturesView:View {
     @Binding var isPresented:Bool
     var body: some View {
         Form {
-            NavigationLink("Assigning ringers to bells", destination: AssigningRingersView(asSheet: self.asSheet, isPresented: self.$isPresented))
-            NavigationLink("Managing your towers", destination: AdvancedFeaturesTextView(asSheet: self.asSheet, isPresented: self.$isPresented))
-            NavigationLink("Hosts and host mode", destination: AdvancedFeaturesTextView(asSheet: self.asSheet, isPresented: self.$isPresented))
-            NavigationLink("Listener links", destination: AdvancedFeaturesTextView(asSheet: self.asSheet, isPresented: self.$isPresented))
-            NavigationLink("Handbell and Towerbell Simulators", destination: AdvancedFeaturesTextView(asSheet: self.asSheet, isPresented: self.$isPresented))
+            Section {
+                NavigationLink("Assigning Ringers to Bells", destination: AssigningRingersView(asSheet: self.asSheet, isPresented: self.$isPresented))
+                NavigationLink("Managing Your Towers", destination: ManagingTowersView(asSheet: self.asSheet, isPresented: self.$isPresented))
+                NavigationLink("Hosts and Host Mode", destination: HostsAndHostModeView(asSheet: self.asSheet, isPresented: self.$isPresented))
+//                NavigationLink("Listener links", destination: ListenerLinksView(asSheet: self.asSheet, isPresented: self.$isPresented))
+//            NavigationLink("Handbell and Towerbell Simulators", destination: )
+            }
+            Section {
+                NavigationLink("Full Advanced Features", destination: ScrollView {
+                    AdvancedFeaturesTextView(asSheet: self.asSheet, isPresented: self.$isPresented)
+                }
+                .navigationBarTitle("Advanced Features", displayMode: .inline)
+                .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
+                    if asSheet {
+                        Text("Dismiss")
+                    } else {
+                        Text("")
+                    }
+                }))
+            }
         }
         .navigationBarTitle("Advanced Features", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
@@ -345,7 +359,40 @@ struct AdvancedFeaturesTextView:View {
     
     @Binding var isPresented:Bool
     var body: some View {
-        Text("")
+        VStack(alignment: .leading, spacing: 10) {
+            Group {
+                Text("Assigning Ringers")
+                .font(.headline)
+                .bold()
+                Text("The tower controls includes a list of users presently in the tower, which you can use to assign bells to particular ringers. To assign ringers, tap on the ringer you would like to assign, then tap on the number of the bell you would like to assign them to. Clicking the \"x\" by a bell number will unassign the ringer from that bell.")
+                Text("Assigning a user to a bell will have the effect of automatically rotating that ringer's \"perspective\" on the tower so that the bell is placed in the bottom right position. This will allow it to be rung using large dedicated button at the bottom. If a user is assigned to multiple bells, the lowest-numbered one will be placed in the bottom right position.")
+                Text("There is also a button called 'Fill in'. This will randomly assign users to fill the bell circle if there are enough users.")
+            }
+            Group {
+                Text("Managing towers")
+                .font(.headline)
+                .bold()
+                Text("The Ring tab shows all the towers associated with your account. Managing your towers and sorting by bookmarked, created etc. will be coming in a later version.")
+            }
+            Group {
+                Text("Host and host mode")
+                .font(.headline)
+                .bold()
+                Text("Host Mode is a special mode that can be enabled for towers in order to restrict who can direct the ringing at that tower. To enable Host Mode, you will need to go to the Tower Settings page on the ringingroom.com website and set the \"Permit Host Mode\" feature to \"Yes\".")
+                Text("A tower host is someone who has special privileges at a Ringing Room virtual tower. You can think of this as being like a tower captain or a ringing master: A host is someone who might take charge of a practice. A tower can have multiple hosts who can share responsibility for running practices. You can add hosts to towers that you have created by going to the My Towers page on the ringingroom.com website, finding the tower you want, clicking the Settings button, and entering the email address of the Ringing Room account you want to add as a host in the box at the bottom left. You can remove hosts from a tower by clicking the \"X\" icon in the list of tower hosts. The creator of a tower is always a host there.")
+                Text("If Host Mode is permitted at a tower, hosts have an extra switch in the tower controls, allowing them to enable or disable Host Mode. When a tower is in Host Mode, various restrictions are imposed:")
+                VStack(alignment: .leading) {
+                        bulletLine(text: "Non-hosts may not change the number of bells or switch between handbell and towerbell mode.")
+                        bulletLine(text: "Non-hosts may only make calls when assigned to a bell")
+                        bulletLine(text: "All ringers may only ring bells that they are assigned to.")
+                        bulletLine(text: "Only hosts may assign other ringers to bells.")
+                        bulletLine(text: "Non-hosts may assign themselves to open bells only — that is, they can \"catch hold\" of unused bells, but not displace other ringers.")
+                }
+                Text("Host mode can be activated or deactivated by any hosts currently in the tower. If there are no hosts present, host mode will automatically be disabled so that ringing can proceed normally.")
+            }
+        }
+        .padding()
+
     }
 }
 
@@ -356,8 +403,10 @@ struct AssigningRingersView:View {
     var body: some View {
         ScrollView {
             
-            VStack {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("The tower controls includes a list of users presently in the tower, which you can use to assign bells to particular ringers. To assign ringers, tap on the ringer you would like to assign, then tap on the number of the bell you would like to assign them to. Clicking the \"x\" by a bell number will unassign the ringer from that bell.")
+                Text("Assigning a user to a bell will have the effect of automatically rotating that ringer's \"perspective\" on the tower so that the bell is placed in the bottom right position. This will allow it to be rung using large dedicated button at the bottom. If a user is assigned to multiple bells, the lowest-numbered one will be placed in the bottom right position.")
+                Text("There is also a button called 'Fill in'. This will randomly assign users to fill the bell circle if there are enough users.")
                 Spacer()
             }
         
@@ -371,25 +420,141 @@ struct AssigningRingersView:View {
             }
             
         })
-            .navigationBarTitle("Assigning ringers to bells")
+            .navigationBarTitle("Assigning Ringers to Bells")
     }
 }
-struct FAQsTextView:View {
+
+struct ManagingTowersView:View {
     var asSheet:Bool
     
     @Binding var isPresented:Bool
     var body: some View {
-        Text("")
-            .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
-                if asSheet {
-                    Text("Dismiss")
-                } else {
-                    Text("")
-                }
-                
-            })
+        ScrollView {
+            
+            VStack(alignment: .leading, spacing: 10) {
+                Text("The Ring tab shows all the towers associated with your account. Managing your towers and sorting by bookmarked, created etc. will be coming in a later version.")
+//                VStack(alignment: .leading) {
+//                    bulletLine(text: "Recent: shows a reverse-chronological list of towers that you have visited.")
+//                    bulletLine(text: "Favourite: shows a list of all towers that you have specifically bookmarked.")
+//                    bulletLine(text: "Created:  shows a list of all towers that you have created.")
+//                    bulletLine(text: "Host: shows a list of towers at which you are a host (see below).")
+//                }
+//                Text("On any tower you can press the bookmark icon to add or remove the tower from your list of bookmarked towers. If you are the tower's creator, you can click the Settings button to access the Tower Settings page, where you can change the tower name, enable Host Mode and add or remove hosts (see below), or permanently delete the tower. If you long/hard press on any of the towers, you will see an option to copy the tower ID to your clipboard, and in the recents tab only there will also be an option to remove the tower from your recents.")
+
+                Spacer()
+            }
+        
+        }
+    .padding()
+        .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
+            if asSheet {
+                Text("Dismiss")
+            } else {
+                Text("")
+            }
+            
+        })
+            .navigationBarTitle("Managing Your Towers")
     }
 }
+
+struct HostsAndHostModeView:View {
+    var asSheet:Bool
+    
+    @Binding var isPresented:Bool
+    var body: some View {
+        ScrollView {
+            
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Host Mode is a special mode that can be enabled for towers in order to restrict who can direct the ringing at that tower. To enable Host Mode, you will need to go to the Tower Settings page on the ringingroom.com website and set the \"Permit Host Mode\" feature to \"Yes\".")
+                Text("A tower host is someone who has special privileges at a Ringing Room virtual tower. You can think of this as being like a tower captain or a ringing master: A host is someone who might take charge of a practice. A tower can have multiple hosts who can share responsibility for running practices. You can add hosts to towers that you have created by going to the My Towers page on the ringingroom.com website, finding the tower you want, clicking the Settings button, and entering the email address of the Ringing Room account you want to add as a host in the box at the bottom left. You can remove hosts from a tower by clicking the \"X\" icon in the list of tower hosts. The creator of a tower is always a host there.")
+                Text("If Host Mode is permitted at a tower, hosts have an extra switch in the tower controls, allowing them to enable or disable Host Mode. When a tower is in Host Mode, various restrictions are imposed:")
+                VStack(alignment: .leading) {
+                    bulletLine(text: "Non-hosts may not change the number of bells or switch between handbell and towerbell mode.")
+                    bulletLine(text: "Non-hosts may only make calls when assigned to a bell")
+                    bulletLine(text: "All ringers may only ring bells that they are assigned to.")
+                    bulletLine(text: "Only hosts may assign other ringers to bells.")
+                    bulletLine(text: "Non-hosts may assign themselves to open bells only — that is, they can \"catch hold\" of unused bells, but not displace other ringers.")
+                }
+                Text("Host mode can be activated or deactivated by any hosts currently in the tower. If there are no hosts present, host mode will automatically be disabled so that ringing can proceed normally.")
+                Spacer()
+            }
+        
+        }
+    .padding()
+        .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
+            if asSheet {
+                Text("Dismiss")
+            } else {
+                Text("")
+            }
+            
+        })
+            .navigationBarTitle("Hosts and Host Mode")
+    }
+}
+
+struct ListenerLinksView:View {
+    var asSheet:Bool
+    
+    @Binding var isPresented:Bool
+    var body: some View {
+        ScrollView {
+            
+            VStack(alignment: .leading, spacing: 10) {
+                Text("If you append \"/listen\" to the link of any tower, the resulting page will be a \"listen-only\" version of the tower appropriate for sending to anyone who wishes to observe the ringing without risking disturbing the band. (For example, if you have the tower ID '1234' and name 'Example', then the link \"ringingroom.com/1234/example/listen\" will go to the listen-only page.)") + Text(" Currently the iOS App does not support listener-only mode. Coming soon in a later version.").bold()
+                Spacer()
+            }
+        
+        }
+    .padding()
+        .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
+            if asSheet {
+                Text("Dismiss")
+            } else {
+                Text("")
+            }
+            
+        })
+            .navigationBarTitle("Listener Links")
+    }
+}
+
+//struct FAQsTextView:View {
+//    var asSheet:Bool
+//
+//    @Binding var isPresented:Bool
+//    var body: some View {
+//        NavigationView {
+//            Form {
+//                Section {
+//
+//                }
+//                Section {
+//
+//                }
+//            }
+//
+//            .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
+//                if asSheet {
+//                    Text("Dismiss")
+//                } else {
+//                    Text("")
+//                }
+//
+//            })
+//        }
+//    }
+//}
+//
+//struct FAQsTextView:View {
+//    var asSheet:Bool
+//
+//    @Binding var isPresented:Bool
+//    var body: some View {
+//        Text("")
+//    }
+//}
 
 struct HelpTextView:View {
     var asSheet:Bool
@@ -406,10 +571,10 @@ struct HelpTextView:View {
                     .font(.title)
                     .bold()
                 AdvancedFeaturesTextView(asSheet: self.asSheet, isPresented: self.$isPresented)
-                Text("FAQs")
-                    .font(.title)
-                    .bold()
-                FAQsTextView(asSheet: self.asSheet, isPresented: self.$isPresented)
+//                Text("FAQs")
+//                    .font(.title)
+//                    .bold()
+//                FAQsTextView(asSheet: self.asSheet, isPresented: self.$isPresented)
             }
             .padding(.vertical)
         }
