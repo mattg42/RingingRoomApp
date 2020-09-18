@@ -22,6 +22,11 @@ class User:ObservableObject {
                 UserDefaults.standard.set(savedTowerID, forKey: "selectedTower")
             }
         }
+        willSet {
+            if newValue == "0" {
+                savedTowerID = ""
+            }
+        }
     }
     
     @Published var myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
