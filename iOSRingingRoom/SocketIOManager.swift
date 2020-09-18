@@ -14,111 +14,121 @@ class SocketIOManager: NSObject {
     
     var manager:SocketManager!
     
-    var ringingroomView:RingingRoomView!
+    var bellCircle = BellCircle.current
     
-    init(server_ip:String, ringingRoomView:RingingRoomView) {
+    var ringingroomView:RingingRoomView!
+    var towerControlsView:TowerControlsView!
+    var chatView:ChatView!
+    
+    init(server_ip:String, ringingRoomView:RingingRoomView, towerControlsView:TowerControlsView) {
         super.init()
-        self.ringingroomView = ringingRoomView
         manager = SocketManager(socketURL: URL(string: server_ip)!, config: [.log(false), .compress])
         socket = manager.defaultSocket
+        self.ringingroomView = ringingRoomView
         addListeners()
     }
     
     func addListeners() {
         socket.onAny() { data in
             if !(data.event == "ping" || data.event == "pong") {
-                print("received socketio event: ", data.event)
+//                print("received socketio event: ", data.event)
             }
         }
         
         socket.on(clientEvent: .connect) { data, ack in
             print(self.socket.status)
-        }
-    
-        socket.on("s_bell_rung") { data, ack in
-            print("received bell rung")
-            self.ringingroomView.bellCircle.bells[self.getDict(data)["who_rang"] as! Int].stroke.toggle()
-            self.ringingroomView.bellRang(number: self.getDict(data)["who_rang"] as! Int)
-        }
-
-        socket.on("s_set_userlist") { data, ack in
-            self.ringingroomView.users = self.getDict(data)["user_list"] as! [String]
-        }
-//
-        // User entered the room
-        socket.on("s_user_entered") { data, ack in
-            self.ringingroomView.users.append(self.getDict(data)["user_name"] as! String)
-        }
-//
-//        // User left the room
-//        socket.on("s_user_left", function(msg, cb){
-//            console.log(msg.user_name + " left")
-//            bell_circle.$refs.users.remove_user(msg.user_name)
-//            bell_circle.$refs.bells.forEach((bell,index)=>
-//                {
-//                    if (bell.assigned_user === msg.user_name) {
-//                        bell.assigned_user = ""
-//                    }
-//                })
-//        })
-//
-//        // Number of observers changed
-//        socket.on("s_set_observers", function(msg, cb){
-//            console.log("observers: " + msg.observers)
-//            bell_circle.$refs.users.observers = msg.observers
-//        })
-//
-        // User was assigned to a bell
-        socket.on("s_assign_user") { data, ack in
-            var assignments = self.ringingroomView.bellCircle.assignments
-            assignments[self.getDict(data)["bell"] as! Int - 1] = self.getDict(data)["user"] as! String
-            self.ringingroomView.bellCircle.assignments = assignments
-        }
-//
-//        // A call was made
-//        socket.on("s_call",function(msg,cb){
-//            console.log("Received call: " + msg.call)
-//            bell_circle.$refs.display.make_call(msg.call)
-//        })
-//
-//        // The server told us the number of bells in the tower
-//        socket.on("s_size_change", function(msg,cb){
-//            var new_size = msg.size
-//            bell_circle.number_of_bells = new_size
-//        })
-//
-//
-        // The server sent us the global state set all bells accordingly
-        socket.on("s_global_state") { data, ack in
-            for (index, state) in (self.getDict(data)["global_bell_state"] as! [Bool]).enumerated() {
-                self.ringingroomView.bellCircle.bells[index].stroke = state ? .handstroke : .backstroke
+            if self.socket.status == .connected {
+                self.ringingroomView.joinTower()
             }
         }
-//
+        
+        socket.on("s_set_userlist") { data, ack in
+            print("received userlist")
+            print(self.getDict(data)["user_list"] as! [String])
+            var userList = self.getDict(data)["user_list"] as! [String]
+            BellCircle.current.users = userList
+            self.ringingroomView.gotUserList = true
+        }
+        
+        // The server told us the number of bells in the tower
+        socket.on("s_size_change") { data, ack in
+            BellCircle.current.size = self.getDict(data)["size"] as! Int
+            if self.ringingroomView.gotSize == false {
+                self.socket.emit("c_request_global_state", ["tower_id":BellCircle.current.towerID])
+            }
+            self.ringingroomView.gotSize = true
+        }
+        
+        socket.on("s_bell_rung") { data, ack in
+//            print("received bell rung")
+            self.ringingroomView.bellRang(number: String((self.getDict(data)["who_rang"] as! Int) - 1))
+        }
+        
+        // A call was made
+        socket.on("s_call") { data, ack in
+            print("call made")
+            self.ringingroomView.callMade(self.getDict(data)["call"] as! String)
+        }
+        
+        // User entered the room
+        socket.on("s_user_entered") { data, ack in
+            if !BellCircle.current.users.contains(self.getDict(data)["user_name"] as! String) {
+                BellCircle.current.users.append(self.getDict(data)["user_name"] as! String)
+            }
+            self.ringingroomView.gotUserEntered = true
+        }
+
+        // User left the room
+        socket.on("s_user_left") { data, ack in
+            if BellCircle.current.users.contains(self.getDict(data)["user_name"] as! String) {
+                BellCircle.current.users.remove(at: BellCircle.current.users.firstIndex(of: self.getDict(data)["user_name"] as! String)!)
+            }
+            
+            for (index, user) in BellCircle.current.assignments.enumerated() {
+                if user == self.getDict(data)["user_name"] as! String {
+                    BellCircle.current.setAssignment(user: "", to: index+1)
+                }
+            }
+        }
+        //
+        //        // Number of observers changed
+        //        socket.on("s_set_observers", function(msg, cb){
+        //            console.log("observers: " + msg.observers)
+        //            bell_circle.$refs.users.observers = msg.observers
+        //        })
+        //
+        // User was assigned to a bell
+        socket.on("s_assign_user") { data, ack in
+            print(BellCircle.current.assignments.count, self.getDict(data)["bell"] as! Int - 1)
+            BellCircle.current.setAssignment(user: self.getDict(data)["user"] as! String, to: self.getDict(data)["bell"] as! Int)
+            self.ringingroomView.gotAssignments = true
+        }
+
+        // The server sent us the global state set all bells accordingly
+        socket.on("s_global_state") { data, ack in
+            BellCircle.current.bellStates = self.getDict(data)["global_bell_state"] as! [Bool]
+        }
+
         // The server told us whether to use handbells or towerbells
         socket.on("s_audio_change") { data, ack in
             print("changing audio to: \(self.getDict(data)["new_audio"])")
             if self.getDict(data)["new_audio"] as! String == "Tower" {
-                self.ringingroomView.bellCircle.bellType = .tower
+                BellCircle.current.bellType = .tower
             } else {
-                self.ringingroomView.bellCircle.bellType = .hand
+                BellCircle.current.bellType = .hand
             }
+            self.ringingroomView.gotBellType = true
         }
-//
-//        // A chat message was received
-//        socket.on("s_msg_sent", function(msg,cb){
-//            bell_circle.$refs.chatbox.messages.push(msg)
-//            if(msg.email != window.tower_parameters.cur_user_email && !$("#chat_input_box").is(":focus")) {
-//                bell_circle.unread_messages++
-//            }
-//            bell_circle.$nextTick(function()
-//                $("#chat_messages").scrollTop($("#chat_messages")[0].scrollHeight)
-//            })
-//        })
-//
+
+        // A chat message was received
+        socket.on("s_msg_sent") { data, ack in
+            self.chatView.chatManager.newMessage(user: (self.getDict(data)["user"] as! String), message: (self.getDict(data)["msg"] as! String))
+        }
+
         // Host mode was changed
         socket.on("s_host_mode") { data, ack in
-            self.ringingroomView.hostModeEnabled = self.getDict(data)["new_mode"] as! Bool
+            BellCircle.current.hostModeEnabled = self.getDict(data)["new_mode"] as! Bool
+            self.ringingroomView.gotHostMode = true
         }
     }
     
