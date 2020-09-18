@@ -25,12 +25,13 @@ struct resetPasswordView: View {
                     .disableAutocorrection(true)
                 }
                 Section {
-                    Button("Request Password Reset") {
+                    Button("Not Available Yet") {
                         self.resetPassword()
                     }
                     .alert(isPresented: $isPresentingAlert) {
                         Alert(title: Text("Email not valid"), message: Text("Please enter a valid email"))
                     }
+                .disabled(true)
                 }
             }
             .navigationBarTitle("Reset Password", displayMode: .inline)
