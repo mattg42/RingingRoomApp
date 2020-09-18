@@ -191,7 +191,7 @@ struct WelcomeLoginScreen: View {
         print(responseData)
         if statusCode! == 401 {
             print("unauth")
-            alertTitle = Text("Your username or password is incorrect")
+            alertTitle = Text("Your email or password is incorrect")
             self.showingAlert = true
         } else {
             comController.getUserDetails()

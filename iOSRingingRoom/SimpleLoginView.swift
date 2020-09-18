@@ -118,7 +118,7 @@ struct SimpleLoginView: View {
     func receivedResponse(statusCode:Int?, responseData:[String:Any]?) {
         if statusCode! == 401 {
             print(responseData)
-            alertTitle = Text("Your username or password is incorrect")
+            alertTitle = Text("Your email or password is incorrect")
             self.showingAlert = true
         } else {
             DispatchQueue.main.async {
