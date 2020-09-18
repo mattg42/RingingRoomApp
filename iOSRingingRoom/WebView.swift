@@ -58,7 +58,7 @@ class WebviewController: UIViewController, UIScrollViewDelegate {
 
         webview.scrollView.delegate = self
         webview.scrollView.showsHorizontalScrollIndicator = false
-        webview.scrollView.bounces = false
+     //   webview.scrollView.bounces = false
                         
         self.progressbar.progress = 0.1
         webview.addObserver(self, forKeyPath: "estimatedProgress", options: .new, context: nil)
