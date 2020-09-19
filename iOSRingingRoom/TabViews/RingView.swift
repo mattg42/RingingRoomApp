@@ -143,24 +143,24 @@ struct RingView: View {
             self.comController = CommunicationController(sender: self)
         })
             .padding()
-            .offset(y: viewOffset)
-            .onReceive(Publishers.keyboardHeight) {
-                self.keyboardHeight = $0
-                print(self.keyboardHeight)
-                let offset = self.keyboardHeight - self.joinTowerYPosition
-                print("offset: ",offset)
-                if offset <= 0 {
-                    withAnimation(.easeIn(duration: 0.16)) {
-                        self.viewOffset = 0
-                    }
-                } else {
-                    if self.textFieldSelected {
-                        withAnimation(.easeOut(duration: 0.16)) {
-                            self.viewOffset = -offset
-                        }
-                    }
-                }
-        }
+//            .offset(y: viewOffset)
+//            .onReceive(Publishers.keyboardHeight) {
+//                self.keyboardHeight = $0
+//                print(self.keyboardHeight)
+//                let offset = self.keyboardHeight - self.joinTowerYPosition
+//                print("offset: ",offset)
+//                if offset <= 0 {
+//                    withAnimation(.easeIn(duration: 0.16)) {
+//                        self.viewOffset = 0
+//                    }
+//                } else {
+//                    if self.textFieldSelected {
+//                        withAnimation(.easeOut(duration: 0.16)) {
+//                            self.viewOffset = -offset
+//                        }
+//                    }
+//                }
+//        }
         
     }
     
