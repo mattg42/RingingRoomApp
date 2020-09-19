@@ -18,15 +18,16 @@ struct AutoLogin: View {
     var body: some View {
         ZStack {
             Color.main
-            .edgesIgnoringSafeArea(.all)
             HStack {
                 Spacer(minLength: 55)
                 Image("rrLogo").resizable()
                     .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: 512, maxHeight: 512)
                 Spacer(minLength: 55)
             }
-            .padding(.top, -20)
+            
         }
+        .edgesIgnoringSafeArea(.all)
         .alert(isPresented: $showingAlert) {
         //present welcome login screen
             Alert(title: Text("Error"), message: Text("There was an error trying to log you in."), dismissButton: .cancel(Text("OK"), action: {
