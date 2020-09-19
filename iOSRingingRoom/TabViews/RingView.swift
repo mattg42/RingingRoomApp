@@ -96,7 +96,6 @@ struct RingView: View {
 //                    }
                 }
             }
-            HStack {
                 TextField("Tower name or id", text: .init(get: {
                     return self.user.savedTowerID
                 }, set: { newValue in
@@ -109,13 +108,6 @@ struct RingView: View {
                 })
                 .disabled(!User.shared.loggedIn)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                Button("Hide keyboard") {
-                    self.hideKeyboard()
-                }
-                .foregroundColor((keyboardHeight > 0) ? Color.main : Color.secondary)
-                .opacity((keyboardHeight > 0) ? 1 : 0.4)
-                .disabled(keyboardHeight == 0)
-            }
             GeometryReader { geo in
                 Button(action: self.joinTower) {
                     ZStack {
