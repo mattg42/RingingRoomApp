@@ -15,6 +15,9 @@ struct AutoLogin: View {
     
     @State var comController:CommunicationController!
     
+    @State var autoJoinTower = false
+    @State var autoJoinTowerID = 0
+    
     var body: some View {
         ZStack {
             Color.main
@@ -26,6 +29,11 @@ struct AutoLogin: View {
                 Spacer(minLength: 55)
             }
             
+        }
+        .onOpenURL { url in
+            guard let towerID = url.towerID else { return }
+            self.autoJoinTower = true
+            self.autoJoinTowerID = towerID
         }
         .edgesIgnoringSafeArea(.all)
         .alert(isPresented: $showingAlert) {
@@ -57,7 +65,7 @@ struct AutoLogin: View {
         } else {
             DispatchQueue.main.async {
                 self.viewControllerHolder?.present(style: .fullScreen, name: "Main", animated: false) {
-                    MainApp()
+                    MainApp(autoJoinTower: autoJoinTower, autoJoinTowerID: autoJoinTowerID)
                 }
             }
         }

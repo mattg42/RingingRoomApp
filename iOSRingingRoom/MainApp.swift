@@ -11,41 +11,66 @@ import SocketIO
 
 struct MainApp: View {
     
+    @State var selectedTab = TabViewType.ring
+    
     @State var isPresentingHelpView = true
         
+    @State var autoJoinTower = false
+    @State var autoJoinTowerID = 0
+
+    var ringView = RingView()
+    
     var body: some View {
-        TabView {
-            RingView()
+        TabView(selection: $selectedTab) {
+            ringView
+                .tag(TabViewType.ring)
                 .tabItem {
                     Image(systemName: "bell")
                         .font(.title)
                     Text("Ring")
-            }
+                }
             StoreView()
+                .tag(TabViewType.store)
                 .tabItem {
                     Image(systemName: "cart")
                         .font(.title)
                     Text("Store")
-            }
+                }
             HelpView(asSheet: false, isPresented: self.$isPresentingHelpView)
+                .tag(TabViewType.help)
                 .tabItem {
                     Image(systemName: "questionmark.circle")
                         .font(.title)
                     Text("Help")
-            }
+                }
             SettingsView()
+                .tag(TabViewType.settings)
                 .tabItem {
                     Image(systemName: "gear")
                         .font(.title)
                     Text("Settings")
+                }
+        }
+        .onAppear {
+            if autoJoinTower {
+                User.shared.savedTowerID = String(autoJoinTowerID)
+                self.ringView.joinTower()
             }
         }
+        .onOpenURL { url in
+            guard let towerID = url.towerID else { return }
+            self.selectedTab = TabViewType.ring
+            User.shared.savedTowerID = String(towerID)
+            self.ringView.ringingRoomView.leaveTower()
+            self.ringView.joinTower()
+        }
         .accentColor(Color.main)
-        .onAppear(perform: {
-//            UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
-        })
         
     }
+}
+
+enum TabViewType:Hashable {
+    case ring, help, store, settings
 }
 
 extension Color {
