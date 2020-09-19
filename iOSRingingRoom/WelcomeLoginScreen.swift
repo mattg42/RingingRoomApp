@@ -21,7 +21,17 @@ struct WelcomeLoginScreen: View {
     @State var password = ""
     @State var stayLoggedIn = false
     
-    @State var loginDisabled = true
+    @State var autoJoinTower = false
+    @State var autoJoinTowerID = 0
+    
+    @State var validEmail = false
+    @State var validPassword = false
+    
+    var loginDisabled:Bool {
+        get {
+            !(validEmail && validPassword)
+        }
+    }
     
     @State var showingAccountCreationView = false
     @State var showingResetPasswordView = false
@@ -66,36 +76,25 @@ struct WelcomeLoginScreen: View {
                     .scaledToFit()
                 Spacer(minLength: 13)
                 VStack(spacing: 10) {
-                    TextField("Email", text: $email, onEditingChanged: { selected in
-                        if !selected {
-                            self.emailTextfieldChanged()
-                        }
-                    })
+                    TextField("Email", text: $email)
+                        .onChange(of: email, perform: { _ in
+                            validEmail = email.trimmingCharacters(in: .whitespaces).isValidEmail()
+                        })
                         .textContentType(.emailAddress)
                         .keyboardType(.emailAddress)
                         .disableAutocorrection(true)
                         .padding(8)
                         .background(Color.white)
                         .cornerRadius(5.0)
-                    GeometryReader { geo in
-                        SecureField("Password", text: self.$password)
-                            .textContentType(.password)
-                            .disableAutocorrection(true)
-                            .padding(8)
-                            .background(Color.white)
-                            .cornerRadius(5.0)
-                            .onAppear(perform: {
-                                var pos = geo.frame(in: .global).midY
-                                pos += geo.frame(in: .global).height*2
-                                pos = UIScreen.main.bounds.height - pos
-                                print("performed", pos)
-                                
-                                self.passwordFieldYPosition = pos
-                            })
-                    }
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 10)
-                    .padding(.bottom, 12)
+                    SecureField("Password", text: self.$password)
+                        .onChange(of: password, perform: { _ in
+                            validPassword = password.count > 0
+                        })
+                        .textContentType(.password)
+                        .disableAutocorrection(true)
+                        .padding(8)
+                        .background(Color.white)
+                        .cornerRadius(5.0)
                     
                 }
                 
@@ -140,7 +139,7 @@ struct WelcomeLoginScreen: View {
                     Button(action: { self.showingAccountCreationView = true; self.loginScreenIsActive = false} ) {
                         Text("Create an account")
                             .font(.footnote)
-                    }.sheet(isPresented: $showingAccountCreationView, onDismiss: {self.loginScreenIsActive = true; if self.accountCreated {self.login()} else {self.emailTextfieldChanged()}}) {
+                    }.sheet(isPresented: $showingAccountCreationView, onDismiss: {self.loginScreenIsActive = true; if self.accountCreated {self.login()}}) {
                         AccountCreationView(isPresented: self.$showingAccountCreationView, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
                     }
                 }
@@ -150,20 +149,17 @@ struct WelcomeLoginScreen: View {
             }
             .padding(.horizontal, 15)
         }
+        .onOpenURL { url in
+            guard let towerID = url.towerID else { return }
+            self.autoJoinTower = true
+            self.autoJoinTowerID = towerID
+        }
     .onAppear(perform: {
         self.comController = CommunicationController(sender: self, loginType: .welcome)
     })
         .offset(y: loginScreenIsActive ? getOffset() : 0)
         .onReceive(Publishers.keyboardHeight) { self.keyboardHeight = $0 }
         .animation(.easeOut(duration: 0.16))
-    }
-    
-    func emailTextfieldChanged() {
-        if !email.isNotValidEmail() {
-            loginDisabled = false
-        } else {
-            loginDisabled = true
-        }
     }
     
     func getOffset() -> CGFloat {
@@ -217,7 +213,7 @@ struct WelcomeLoginScreen: View {
         //present main ringingroom view
 
         self.viewControllerHolder?.present(style: .fullScreen, name: "Main") {
-            MainApp()
+            MainApp(autoJoinTower: autoJoinTower, autoJoinTowerID: autoJoinTowerID)
         }
     }
     

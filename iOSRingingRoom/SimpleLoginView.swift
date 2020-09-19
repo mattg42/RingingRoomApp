@@ -19,7 +19,14 @@ struct SimpleLoginView: View {
     
     @Binding var loggedIn:Bool
     
-    @State var loginDisabled = true
+    @State var validEmail = false
+    @State var validPassword = false
+    
+    var loginDisabled:Bool {
+        get {
+            !(validEmail && validPassword)
+        }
+    }
     
     @State var showingAccountCreationView = false
     @State var showingResetPasswordView = false
@@ -34,19 +41,19 @@ struct SimpleLoginView: View {
         NavigationView {
             VStack {
                 Spacer()
-                TextField("Email", text: $email, onEditingChanged: { selected in
-                    if !selected {
-                        self.textFieldCommitted()
-                    }
+                TextField("Email", text: $email)
+                .onChange(of: email, perform: { _ in
+                    validEmail = email.trimmingCharacters(in: .whitespaces).isValidEmail()
                 })
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
                     .disableAutocorrection(true)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                 
-                SecureField("Password", text: self.$password, onCommit: {
-                    self.textFieldCommitted()
-                })
+                SecureField("Password", text: self.$password)
+                    .onChange(of: password, perform: { _ in
+                        validPassword = password.count > 0
+                    })
                     .textContentType(.password)
                     .disableAutocorrection(true)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -81,7 +88,7 @@ struct SimpleLoginView: View {
                     Button(action: { self.showingAccountCreationView = true } ) {
                         Text("Create an account")
                             .font(.footnote)
-                    }.sheet(isPresented: $showingAccountCreationView, onDismiss: {if self.accountCreated {self.login()} else {self.textFieldCommitted()}}) {
+                    }.sheet(isPresented: $showingAccountCreationView, onDismiss: {if self.accountCreated {self.login()}}) {
                         AccountCreationView(isPresented: self.$showingAccountCreationView, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
                     }
                 }
@@ -96,21 +103,10 @@ struct SimpleLoginView: View {
     })
     }
     
-    func textFieldCommitted() {
-        if !email.isNotValidEmail() {
-            if !(self.password == "") {
-                loginDisabled = false
-            } else {
-                loginDisabled = true
-            }
-        } else {
-            loginDisabled = true
-        }
-    }
-
+    
     
     func login() {
-        comController.login(email: self.email, password: self.password)
+        comController.login(email: self.email.trimmingCharacters(in: .whitespaces), password: self.password)
         //send login request to server
   //     presentMainApp()
     }

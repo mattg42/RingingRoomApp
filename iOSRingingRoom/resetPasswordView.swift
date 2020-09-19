@@ -41,7 +41,7 @@ struct resetPasswordView: View {
     }
     
     func resetPassword() {
-        if email.trimmingCharacters(in: .whitespaces).isNotValidEmail() {
+        if !email.trimmingCharacters(in: .whitespaces).isValidEmail() {
             isPresentingAlert = true
             return
         } else {
