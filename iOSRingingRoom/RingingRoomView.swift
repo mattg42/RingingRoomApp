@@ -144,9 +144,12 @@ struct RingingRoomView: View {
                             .onAppear(perform: {
                                 let height = geo.frame(in: .global).height
                                 let width = geo.frame(in: .global).width
-                                
-                                self.bellCircle.baseRadius = width/2
-                                
+                                if width/2 > 340 {
+                                    self.bellCircle.baseRadius = 340
+                                } else {
+                                    self.bellCircle.baseRadius = width/2
+                                }
+                                print(self.bellCircle.baseRadius)
                                 self.bellCircle.center = CGPoint(x: width/2, y: height/2)
                              })
                         }
