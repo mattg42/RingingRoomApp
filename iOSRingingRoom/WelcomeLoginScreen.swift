@@ -157,8 +157,8 @@ struct WelcomeLoginScreen: View {
     .onAppear(perform: {
         self.comController = CommunicationController(sender: self, loginType: .welcome)
     })
-        .offset(y: loginScreenIsActive ? getOffset() : 0)
-        .onReceive(Publishers.keyboardHeight) { self.keyboardHeight = $0 }
+//        .offset(y: loginScreenIsActive ? getOffset() : 0)
+//        .onReceive(Publishers.keyboardHeight) { self.keyboardHeight = $0 }
         .animation(.easeOut(duration: 0.16))
     }
     
