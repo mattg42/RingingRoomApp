@@ -12,7 +12,13 @@ class ChatManager:ObservableObject {
     @Published var messages = [""]
     @Published var newMessages = 0
     
-    var canSeeMessages = false
+    var canSeeMessages = false {
+        didSet {
+            if canSeeMessages == true {
+                newMessages = 0
+            }
+        }
+    }
     
     static var shared = ChatManager()
     
@@ -24,6 +30,7 @@ class ChatManager:ObservableObject {
         var newMessagesArray = messages
         if firstMessage {
             newMessagesArray[0] = "\(user): \(message)"
+            firstMessage = false
         } else {
             newMessagesArray.append("\(user): \(message)")
         }
@@ -32,6 +39,7 @@ class ChatManager:ObservableObject {
             newMessages += 1
         }
         messages = newMessagesArray
+        print(messages.count)
     }
 }
 

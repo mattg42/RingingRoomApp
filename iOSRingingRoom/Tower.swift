@@ -32,7 +32,9 @@ class Tower:Identifiable, Hashable {
         if visited != "" {
             lastVisited = String(visited[visited.startIndex..<visited.index(visited.endIndex, offsetBy: -4)])
         }
-        let date = dateFormatter.date(from: lastVisited)
+        
+        print(lastVisited)
+//        let date = dateFormatter.date(from: lastVisited)
         
         self.tower_id = id
         self.tower_name = name

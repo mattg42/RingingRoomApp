@@ -34,7 +34,7 @@ enum Stroke:Bool {
 class BellCircle: ObservableObject {
     var towerID:Int = 0
     
-    @Published var users:[String] = [String]()
+    @Published var users = [Ringer]()
     
     static var current = BellCircle()
     
@@ -74,13 +74,13 @@ class BellCircle: ObservableObject {
         }
     }
     
-    @Published var assignments:[String] {
+    @Published var assignments:[Ringer] {
         didSet {
             if assignments.count == size {
                 var newPerspective = 1
                 print(self.assignments.count)
                 for i in 0..<self.size {
-                    if self.assignments[i] == User.shared.name {
+                    if self.assignments[i].name == User.shared.name {
                         newPerspective = i+1
                         break
                     }
@@ -117,7 +117,7 @@ class BellCircle: ObservableObject {
             } else if size > oldValue {
                 for _ in 0..<size-oldValue {
                     print("added empty assignment")
-                    assignments.append("")
+                    assignments.append(Ringer(name: "", id: 0))
                 }
             }
             bellStates = Array.init(repeating: true, count: self.size)
@@ -128,13 +128,13 @@ class BellCircle: ObservableObject {
     init(number:Int = 0) {
         self.size = number
         bells = [Bell]()
-        assignments = [String]()
+        assignments = [Ringer]()
         bellStates = [Bool]()
         //change to .tower to test tower bells
         bellType = .hand
         if number > 0 {
             for i in 1...number {
-                assignments.append("")
+                assignments.append(Ringer(name: "", id: 0))
                 bells.append(Bell(number: i, side: ((2...size/2).contains(i)) ? .left : .right))
                 bellStates.append(true)
             }
@@ -170,31 +170,62 @@ class BellCircle: ObservableObject {
         return newBellPoints
     }
     
-    func setAssignment(user:String, to bell:Int) {
+    func setAssignment(user:Ringer, to bell:Int) {
         var newAssignments = self.assignments
         newAssignments[bell-1] = user
         self.assignments = newAssignments
-        
+        print(self.assignments.names)
     }
     
     func sortUsers() {
-        var newUsers = [String]()
-        for user in assignments {
-            if user != "" {
-                if !newUsers.contains(user) {
-                    newUsers.append(user)
+        var newUsers = [Ringer]()
+    
+        for ringer in assignments {
+            if ringer.name != "" {
+                if !newUsers.containsRingerForID(ringer.userID) {
+                    newUsers.append(ringer)
                 }
             }
         }
-        users.sort()
-        for user in users {
-            if !newUsers.contains(user) {
-                newUsers.append(user)
+        users.sort { (first: Ringer, second:Ringer) -> Bool in
+            return first.name < second.name
+        }
+        for ringer in users {
+            if !newUsers.containsRingerForID(ringer.userID) {
+                newUsers.append(ringer)
             }
         }
         users = newUsers
     }
     
+
+    
+    func ringerForId(_ id:Int) -> Ringer? {
+        for ringer in users {
+            if ringer.userID == id {
+                return ringer
+            }
+        }
+        return nil
+    }
+    
+    func ringerForName(_ name:String) -> Ringer? {
+        for ringer in users {
+            if ringer.name == name {
+                return ringer
+            }
+        }
+        return nil
+    }
+    
+    func removeRinger(for id:Int) {
+        users.removeRingerForID(id)
+        for (index, ringer) in BellCircle.current.assignments.enumerated() {
+            if ringer.userID == id {
+               setAssignment(user: Ringer(name: "", id: 0), to: index+1)
+            }
+        }
+    }
     
 }
 
@@ -233,4 +264,68 @@ extension NSNotification.Name {
     public static let strokeChanged = NSNotification.Name(rawValue: "strokeChanged")
     public static let sizeChanged = NSNotification.Name(rawValue: "sizeChanged")
     public static let loggedOut = NSNotification.Name(rawValue: "loggedOut")
+}
+
+extension Array where Element == Ringer {
+    func containsRingerForID(_ id:Int) -> Bool {
+        var isContained = false
+        for ringer in self {
+            if ringer.userID == id {
+                isContained = true
+            }
+        }
+        return isContained
+    }
+    
+    func containsRingerForName(_ name:String) -> Bool {
+        var isContained = false
+        for ringer in self {
+            if ringer.name == name {
+                isContained = true
+            }
+        }
+        return isContained
+    }
+    
+    func allIndecesForID(_ id:Int) -> [Int]? {
+        //  init outputArray
+        print(self.names)
+        print("getting indeces for \(id)")
+        var outputArray = [Int]()
+        //  step through array, comparing the element at each index with the input element
+        for (index, element) in self.enumerated() {
+            //  if they are the same, add index to output array
+            if element.userID == id {
+                outputArray.append(index)
+            }
+        }
+        // return output array or nil if array is empty
+        print(outputArray)
+        return (outputArray.count > 0) ? outputArray : nil
+    }
+    
+    mutating func removeRingerForID(_ id:Int) {
+        for (index, ringer) in self.enumerated() {
+            if ringer.userID == id {
+                self.remove(at: index)
+            }
+        }
+    }
+    
+    var names:[String] {
+        var output = [String]()
+        for ringer in self {
+            output.append(ringer.name)
+        }
+        return output
+    }
+    
+    var IDs:[Int] {
+        var output = [Int]()
+        for ringer in self {
+            output.append(ringer.userID)
+        }
+        return output
+    }
+    
 }

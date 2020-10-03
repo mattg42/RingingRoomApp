@@ -16,7 +16,7 @@ struct RingingRoomApp: App {
             if UserDefaults.standard.bool(forKey: "keepMeLoggedIn") {
                 AutoLogin()
             } else {
-                WelcomeLoginScreen().colorScheme(.light)
+                WelcomeLoginScreen()
             }
         }
     }

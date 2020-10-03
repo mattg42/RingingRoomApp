@@ -14,6 +14,17 @@ import NotificationCenter
 
 struct WelcomeLoginScreen: View {
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
+    @Environment(\.colorScheme) var colorScheme
+
+    var backgroundColor:Color {
+        get {
+            if colorScheme == .light {
+                return Color(red: 211/255, green: 209/255, blue: 220/255)
+            } else {
+                return Color(white: 0.07)
+            }
+        }
+    }
     
     @State var comController:CommunicationController!
     
@@ -36,10 +47,10 @@ struct WelcomeLoginScreen: View {
     @State var showingAccountCreationView = false
     @State var showingResetPasswordView = false
     
-    @State var passwordFieldYPosition:CGFloat = 0
-    @State var keyboardHeight:CGFloat = 0
+    @State var buffer:CGFloat = 0
     
     let screenHeight = UIScreen.main.bounds.height
+    @State var imageSize = 0
     
     @State var loginScreenIsActive = true
     
@@ -52,30 +63,37 @@ struct WelcomeLoginScreen: View {
     
     var body: some View {
         ZStack {
-            Color(red: 211/255, green: 209/255, blue: 220/255)
-                .edgesIgnoringSafeArea(.all) //background view
-            VStack(spacing: 0) {
+            backgroundColor.edgesIgnoringSafeArea(.all) //background view
+            VStack {
+                Group {
                 Spacer()
-                VStack() {
-                    Text("Welcome to")
-                        .font(.headline)
-                        .fontWeight(.light)
-                        .padding(.bottom, -7)
-                    Text("Ringing Room")
-                        .font(Font.custom("Simonetta-Regular", size: 55))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                        .padding(.bottom, 5)
-                    Text("A virtual belltower")
-                        .font(.headline)
-                        .fontWeight(.light)
+//                ScrollView {
+                    VStack {
+                        Text("Welcome to")
+                        //                            .font(.headline)
+                        //                            .fontWeight(.light)
+                        Text("Ringing Room")
+                            .font(Font.custom("Simonetta-Regular", size: 55, relativeTo: .title))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .padding(.bottom, 1)
+                        Text("A virtual belltower")
+                        //                            .font(.headline)
+                        //                            .fontWeight(.light)
+                    }
+//                    Image("dncbLogo").resizable()
+//                        .frame(minWidth: 170, idealWidth: 350, minHeight: 170, idealHeight: 350)
+//                        .layoutPriority(2)
+//                        .scaledToFit()
                 }
-                Spacer(minLength: 13)
-                Image("dncbLogo").resizable()
-                    .frame(minWidth: 170, maxWidth: 350, minHeight: 170, maxHeight: 350)
-                    .scaledToFit()
-                Spacer(minLength: 13)
-                VStack(spacing: 10) {
+                Spacer()
+                
+//            }
+//                .disabled(true)
+//            VStack {
+//                Spacer()
+//                GeometryReader { geo in
+//                    VStack {
                     TextField("Email", text: $email)
                         .onChange(of: email, perform: { _ in
                             validEmail = email.trimmingCharacters(in: .whitespaces).isValidEmail()
@@ -83,98 +101,74 @@ struct WelcomeLoginScreen: View {
                         .textContentType(.emailAddress)
                         .keyboardType(.emailAddress)
                         .disableAutocorrection(true)
-                        .padding(8)
-                        .background(Color.white)
-                        .cornerRadius(5.0)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     SecureField("Password", text: self.$password)
                         .onChange(of: password, perform: { _ in
                             validPassword = password.count > 0
                         })
                         .textContentType(.password)
                         .disableAutocorrection(true)
-                        .padding(8)
-                        .background(Color.white)
-                        .cornerRadius(5.0)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     
-                }
-                
-                Toggle(isOn: $stayLoggedIn) {
-                    Text("Keep me logged in")
-                }
-                .padding(.vertical, 7)
-                Button(action: login) {
-                    ZStack {
-                        Color.main
-                            .cornerRadius(5)
-                            .opacity(loginDisabled ? 0.35 : 1)
-                        Text("Login")
-                            .foregroundColor(Color(.white))
+                    Toggle(isOn: $stayLoggedIn) {
+                        Text("Keep me logged in")
                     }
-                }
-                .frame(height: 43)
-                .disabled(loginDisabled)
-                .alert(isPresented: $showingAlert) {
-                    Alert(title: self.alertTitle, message: self.alertMessage, dismissButton: .cancel(Text("Ok")))
-
-                }
-                Button(action: presentMainApp) {
-                    ZStack {
-                        Color(red: 178/255, green: 39/255, blue: 110/255)
-                            .cornerRadius(5)
-                        Text("Continue as listener only")
-                            .foregroundColor(Color(.white))
+                    Button(action: login) {
+                        ZStack {
+                            Color.main
+                                .cornerRadius(5)
+                                .opacity(loginDisabled ? 0.35 : 1)
+                            Text("Login")
+                                .foregroundColor(Color(.white))
+                                .padding(10)
+                        }
                     }
-                }
-                .frame(height: 32)
-                .padding(.vertical, 8)
-                HStack(alignment: .center, spacing: 0.0) {
-                    Button(action: {self.showingResetPasswordView = true; self.loginScreenIsActive = false}) {
-                        Text("Forgot password?")
-                            .font(.footnote)
-                    }.sheet(isPresented: $showingResetPasswordView, onDismiss: {self.loginScreenIsActive = true}) {
-                        resetPasswordView(isPresented: self.$showingResetPasswordView, email: self.$email)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .disabled(loginDisabled)
+                    .alert(isPresented: $showingAlert) {
+                        Alert(title: self.alertTitle, message: self.alertMessage, dismissButton: .cancel(Text("Ok")))
                     }
-                    
-                    Spacer()
-                    Button(action: { self.showingAccountCreationView = true; self.loginScreenIsActive = false} ) {
-                        Text("Create an account")
-                            .font(.footnote)
-                    }.sheet(isPresented: $showingAccountCreationView, onDismiss: {self.loginScreenIsActive = true; if self.accountCreated {self.login()}}) {
-                        AccountCreationView(isPresented: self.$showingAccountCreationView, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
+                    Button(action: presentMainApp) {
+                        ZStack {
+                            Color(red: 178/255, green: 39/255, blue: 110/255)
+                                .cornerRadius(5)
+                            Text("Continue as listener only")
+                                .foregroundColor(Color(.white))
+                                .padding(4)
+                        }
                     }
-                }
-                .foregroundColor(Color(red: 178/255, green: 39/255, blue: 110/255))
-                .padding(.bottom, 10)
-                
-            }
-            .padding(.horizontal, 15)
+                    .fixedSize(horizontal: false, vertical: true)
+                    HStack {
+                        Button(action: {self.showingResetPasswordView = true; self.loginScreenIsActive = false}) {
+                            Text("Forgot password?")
+                                .font(.footnote)
+                        }.sheet(isPresented: $showingResetPasswordView, onDismiss: {self.loginScreenIsActive = true}) {
+                            resetPasswordView(isPresented: self.$showingResetPasswordView, email: self.$email)
+                        }
+                        
+                        Spacer()
+                        Button(action: { self.showingAccountCreationView = true; self.loginScreenIsActive = false} ) {
+                            Text("Create an account")
+                                .font(.footnote)
+                        }.sheet(isPresented: $showingAccountCreationView, onDismiss: {self.loginScreenIsActive = true; if self.accountCreated {self.login()}}) {
+                            AccountCreationView(isPresented: self.$showingAccountCreationView, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
+                        }
+                    }
+                    .foregroundColor(Color(red: 178/255, green: 39/255, blue: 110/255))
+                    }
+            .padding()
         }
         .onOpenURL { url in
             guard let towerID = url.towerID else { return }
             self.autoJoinTower = true
             self.autoJoinTowerID = towerID
         }
-    .onAppear(perform: {
-        self.comController = CommunicationController(sender: self, loginType: .welcome)
-    })
-//        .offset(y: loginScreenIsActive ? getOffset() : 0)
-//        .onReceive(Publishers.keyboardHeight) { self.keyboardHeight = $0 }
-        .animation(.easeOut(duration: 0.16))
+        .onAppear(perform: {
+            self.comController = CommunicationController(sender: self, loginType: .welcome)
+        })
     }
     
-    func getOffset() -> CGFloat {
-        if keyboardHeight < 260 { //to stop the view being offset on launch when launced from spotlight
-            return 0
-        } else {
-            let offset = keyboardHeight - passwordFieldYPosition
-            print("offset: ",offset)
-            if offset <= 0 {
-                return 0
-            } else {
-                return -offset
-            }
-        }
-    }
+
     
     func login() {
         comController.login(email: self.email, password: self.password)
@@ -183,8 +177,8 @@ struct WelcomeLoginScreen: View {
     }
     
     func receivedResponse(statusCode:Int?, responseData:[String:Any]?) {
-        print("status code: \(statusCode)")
-        print(responseData)
+        print("status code: \(String(describing: statusCode))")
+        print(responseData ?? 0)
         if statusCode! == 401 {
             print("unauth")
             alertTitle = Text("Your email or password is incorrect")

@@ -16,19 +16,6 @@ class User:ObservableObject {
     var email:String = ""
     var host = false
     
-    @Published var savedTowerID = UserDefaults.standard.string(forKey: "selectedTower") ?? "" {
-        didSet {
-            if UserDefaults.standard.bool(forKey: "keepMeLoggedIn") {
-                UserDefaults.standard.set(savedTowerID, forKey: "selectedTower")
-            }
-        }
-        willSet {
-            if newValue == "0" {
-                savedTowerID = ""
-            }
-        }
-    }
-    
     @Published var myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
     
     var firstTower = true
@@ -40,14 +27,27 @@ class User:ObservableObject {
                 self.myTowers[0] = tower
                 self.firstTower = false
             } else {
-                self.objectWillChange.send()
                 self.myTowers.append(tower)
-                self.myTowers.sort(by: { $0.tower_name <
-                    $1.tower_name } )
-//                self.myTowers = self.myTowers.sorted(by: {
-//                    $0.visited.compare($1.visited) == .orderedDescending
-//                })
+                self.sortTowers()
             }
         }
+    }
+    
+    func sortTowers() {
+        self.objectWillChange.send()
+        self.myTowers.sort(by: { $0.tower_name <
+            $1.tower_name } )
+    }
+}
+
+class Ringer:Identifiable {
+    var id = UUID()
+    
+    var name:String
+    var userID:Int
+    
+    init(name:String, id:Int) {
+        self.name = name
+        self.userID = id
     }
 }

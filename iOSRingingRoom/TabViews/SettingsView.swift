@@ -31,8 +31,9 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationView {
-            if loggedIn {
-                Form {
+            ZStack {
+            Form {
+                if loggedIn {
                     Section(header: Text("Username")) {
                         Text("Current username: \(User.shared.name)")
                     }
@@ -44,9 +45,8 @@ struct SettingsView: View {
                             Alert(title: Text("Are you sure you want to log out?"), message: nil, primaryButton: .destructive(Text("Yes"), action: self.logout), secondaryButton: .cancel(Text("Cancel"), action: {self.presentingAlert = false}))
                         }
                     }
-                }.navigationBarTitle("Settings")
-            } else {
-                Form {
+                    
+                } else {
                     Section {
                         Button("Log in") {
                             self.presentingLogin = true
@@ -69,22 +69,35 @@ struct SettingsView: View {
                             AccountCreationView(isPresented: self.$presentingCreateAccount, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
                         }
                     }
-                }.navigationBarTitle("Settings")
+                    
+                }
             }
+                VStack {
+                    Spacer()
+                    Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String) (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String))")
+                        .font(.footnote)
+                    Text("By Matthew Goodship   ")
+                        .font(.footnote)
+                }
+                .padding()
+                .foregroundColor(.secondary)
+            }.navigationBarTitle("Settings")
+            
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .alert(isPresented: $showingAlert) {
             Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .cancel(Text("OK")))
         }
-    .onAppear(perform: {
-        self.comController = CommunicationController(sender: self, loginType: .settings)
-    })
+        .onAppear(perform: {
+            self.comController = CommunicationController(sender: self, loginType: .settings)
+        })
     }
     
     func receivedResponse(statusCode:Int?, responseData:[String:Any]?) {
-        print("status code: \(statusCode)")
-        print(responseData)
+        print("status code: \(String(describing: statusCode))")
+        print(responseData!)
         if statusCode! == 401 {
-            print(responseData)
+            print(responseData ?? "0")
             alertTitle = "Error logging in"
             self.showingAlert = true
         } else {
@@ -115,7 +128,7 @@ struct SettingsView: View {
         User.shared.host = false
         User.shared.myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
         User.shared.firstTower = true
-        User.shared.savedTowerID = ""
+        
         
         CommunicationController.token = nil
         UserDefaults.standard.set("", forKey: "userEmail")
@@ -123,6 +136,14 @@ struct SettingsView: View {
         UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
         self.loggedIn = false
         print("logged out")
+    }
+}
+
+struct AboutView:View {
+    
+    
+    var body: some View {
+        Spacer()
     }
 }
 

@@ -22,26 +22,25 @@ struct RingView: View {
     @State var towerListSelection:Int = 0
     var towerLists = ["Recents", "Favourites", "Created", "Host"]
 
-        
+    @State var towerID = UserDefaults.standard.string(forKey: "\(User.shared.email)savedTower") ?? ""
+    
     @State var showingAlert = false
     @State var alertTitle = Text("")
     @State var alertMessage:Text? = nil
     
     @ObservedObject var user = User.shared
     
-    @State var ringingRoomView:RingingRoomView = RingingRoomView(towerName: "", serverURL: "")
+    @State var ringingRoomView = RingingRoomView(towerName: "", serverURL: "")
     
     @State var joinTowerYPosition:CGFloat = 0
     @State var keyboardHeight:CGFloat = 0
     
     @State var viewOffset:CGFloat = 0
-    @State var textFieldSelected = false
     
     @State var isRelevant = false
     
     var body: some View {
         VStack(spacing: 20) {
-            
 //            Picker("Tower list selection", selection: $towerListSelection) {
 //                ForEach(0 ..< towerLists.count) {
 //                    Text(self.towerLists[$0])
@@ -54,9 +53,9 @@ struct RingView: View {
                         ForEach(User.shared.myTowers) { tower in
 
                             if tower.tower_id != 0 {
-                                Button(action: {self.user.savedTowerID = String(tower.tower_id)}) {
+                                Button(action: {self.towerID = String(tower.tower_id)}) {
                                     Text(String(tower.tower_id))
-                                        .towerButtonStyle(isSelected: (String(tower.tower_id) == self.user.savedTowerID), name: tower.tower_name)
+                                        .towerButtonStyle(isSelected: (String(tower.tower_id) == self.towerID), name: tower.tower_name)
                                 }
                                 .frame(height: 40)
                                 .padding(.horizontal)
@@ -96,29 +95,24 @@ struct RingView: View {
 //                    }
                 }
             }
-                TextField("Tower name or id", text: .init(get: {
-                    return self.user.savedTowerID
-                }, set: { newValue in
-                    if self.user.savedTowerID != newValue {
-                       self.user.savedTowerID = newValue
-                    }
-                }), onEditingChanged: { selected in
-                    self.textFieldSelected = selected
-                    print(User.shared.myTowers.count)
-                })
-                .disabled(!User.shared.loggedIn)
+                TextField("Tower name or id", text: $towerID)
+                    .onChange(of: towerID, perform: { _ in
+                        UserDefaults.standard.set(towerID, forKey: "\(User.shared.email)savedTower")
+                    })
+                    .disabled(!User.shared.loggedIn)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .disableAutocorrection(true)
             GeometryReader { geo in
                 Button(action: self.joinTower) {
                     ZStack {
                         Color.main
                             .cornerRadius(5)
-                        Text(!User.shared.loggedIn ? "Please log in to join or create a tower" : self.isID(str: self.user.savedTowerID) ? "Join Tower" : "Create Tower")
+                        Text(!User.shared.loggedIn ? "Please log in to join or create a tower" : self.isID(str: self.towerID) ? "Join Tower" : "Create Tower")
                             .foregroundColor(.white)
                     }
                 }
-                .opacity(!User.shared.loggedIn ? 0.35 : !(self.user.savedTowerID.count == 0) ? 1 : 0.35)
-                .disabled(!User.shared.loggedIn ? true : self.user.savedTowerID.count == 0)
+                .opacity(User.shared.loggedIn ? towerID.count != 0 ? 1 : 0.35 : 0.35)
+                .disabled((User.shared.loggedIn ? towerID.count != 0 ? false : true : true))
                 .onAppear(perform: {
                     var pos = geo.frame(in: .global).midY
                     pos += geo.frame(in: .global).height/2 + 10
@@ -135,33 +129,9 @@ struct RingView: View {
             
         }
         .onAppear(perform: {
-            if self.user.savedTowerID == ""  && (User.shared.myTowers[0].tower_id) != 0 {
-                if self.user.loggedIn {
-                    self.user.savedTowerID = String(User.shared.myTowers[0].tower_id)
-                }
-            }
             self.comController = CommunicationController(sender: self)
         })
             .padding()
-//            .offset(y: viewOffset)
-//            .onReceive(Publishers.keyboardHeight) {
-//                self.keyboardHeight = $0
-//                print(self.keyboardHeight)
-//                let offset = self.keyboardHeight - self.joinTowerYPosition
-//                print("offset: ",offset)
-//                if offset <= 0 {
-//                    withAnimation(.easeIn(duration: 0.16)) {
-//                        self.viewOffset = 0
-//                    }
-//                } else {
-//                    if self.textFieldSelected {
-//                        withAnimation(.easeOut(duration: 0.16)) {
-//                            self.viewOffset = -offset
-//                        }
-//                    }
-//                }
-//        }
-        
     }
     
     func getOffset() -> CGFloat {
@@ -185,34 +155,35 @@ struct RingView: View {
     }
     
     func joinTower() {
-        if isID(str: self.user.savedTowerID) {
+        print("joined tower")
+        if isID(str: self.towerID) {
             self.getTowerConnectionDetails()
             return
         }
         
         //create new tower
-        comController.createTower(name: self.user.savedTowerID)
+        comController.createTower(name: self.towerID)
         
         
     }
     
     func getTowerConnectionDetails() {
-        comController.getTowerDetails(id: Int(self.user.savedTowerID)!)
+        comController.getTowerDetails(id: Int(self.towerID)!)
     }
     
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
-//        print(statusCode)
         if statusCode == 404 {
             self.alertTitle = Text("There is no tower with that ID")
             self.showingAlert = true
         } else {
-        
+            print("init rr values")
             self.ringingRoomView.setupComplete = false
+            SocketIOManager.shared.ringingroomView = self.ringingRoomView
             self.ringingRoomView.serverURL = response["server_address"]! as! String
             self.ringingRoomView.towerName = response["tower_name"]! as! String
             BellCircle.current.towerID = response["tower_id"]! as! Int
-            
-            DispatchQueue.main.async {
+            print("presenting rrView")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
                     self.ringingRoomView
                 }

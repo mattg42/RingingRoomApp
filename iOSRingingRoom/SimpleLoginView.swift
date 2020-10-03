@@ -113,7 +113,7 @@ struct SimpleLoginView: View {
     
     func receivedResponse(statusCode:Int?, responseData:[String:Any]?) {
         if statusCode! == 401 {
-            print(responseData)
+            print(responseData ?? 0)
             alertTitle = Text("Your email or password is incorrect")
             self.showingAlert = true
         } else {

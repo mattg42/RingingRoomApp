@@ -53,14 +53,14 @@ struct MainApp: View {
         }
         .onAppear {
             if autoJoinTower {
-                User.shared.savedTowerID = String(autoJoinTowerID)
+                self.ringView.towerID = String(autoJoinTowerID)
                 self.ringView.joinTower()
             }
         }
         .onOpenURL { url in
             guard let towerID = url.towerID else { return }
             self.selectedTab = TabViewType.ring
-            User.shared.savedTowerID = String(towerID)
+            self.ringView.towerID = String(towerID)
             self.ringView.ringingRoomView.leaveTower()
             self.ringView.joinTower()
         }
