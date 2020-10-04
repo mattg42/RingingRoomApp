@@ -61,7 +61,6 @@ struct MainApp: View {
             guard let towerID = url.towerID else { return }
             self.selectedTab = TabViewType.ring
             self.ringView.towerID = String(towerID)
-            self.ringView.ringingRoomView.leaveTower()
             self.ringView.joinTower()
         }
         .accentColor(Color.main)

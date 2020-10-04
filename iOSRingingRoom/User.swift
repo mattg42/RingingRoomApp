@@ -14,14 +14,12 @@ class User:ObservableObject {
     var loggedIn:Bool = false
     var name:String = ""
     var email:String = ""
-    var host = false
     
     @Published var myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
     
     var firstTower = true
     
     func addTower(_ tower:Tower) {
-        DispatchQueue.main.async {
             if self.firstTower {
                 self.objectWillChange.send()
                 self.myTowers[0] = tower
@@ -30,7 +28,6 @@ class User:ObservableObject {
                 self.myTowers.append(tower)
                 self.sortTowers()
             }
-        }
     }
     
     func sortTowers() {
@@ -42,6 +39,8 @@ class User:ObservableObject {
 
 class Ringer:Identifiable {
     var id = UUID()
+    
+    static var blank = Ringer(name: "", id: 0)
     
     var name:String
     var userID:Int

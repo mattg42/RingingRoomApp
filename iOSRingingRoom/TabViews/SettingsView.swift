@@ -125,7 +125,6 @@ struct SettingsView: View {
         User.shared.loggedIn = false
         User.shared.name = ""
         User.shared.email = ""
-        User.shared.host = false
         User.shared.myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
         User.shared.firstTower = true
         

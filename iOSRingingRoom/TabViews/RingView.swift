@@ -30,7 +30,7 @@ struct RingView: View {
     
     @ObservedObject var user = User.shared
     
-    @State var ringingRoomView = RingingRoomView(towerName: "", serverURL: "")
+    @State var ringingRoomView = RingingRoomView()
     
     @State var joinTowerYPosition:CGFloat = 0
     @State var keyboardHeight:CGFloat = 0
@@ -176,14 +176,8 @@ struct RingView: View {
             self.alertTitle = Text("There is no tower with that ID")
             self.showingAlert = true
         } else {
-            print("init rr values")
-            self.ringingRoomView.setupComplete = false
-            SocketIOManager.shared.ringingroomView = self.ringingRoomView
-            self.ringingRoomView.serverURL = response["server_address"]! as! String
-            self.ringingRoomView.towerName = response["tower_name"]! as! String
-            BellCircle.current.towerID = response["tower_id"]! as! Int
             print("presenting rrView")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            DispatchQueue.main.async {
                 self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
                     self.ringingRoomView
                 }
