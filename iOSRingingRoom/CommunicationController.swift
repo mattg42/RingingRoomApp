@@ -149,7 +149,6 @@ class CommunicationController {
 //            case .deleteTowerFromRecents:
             case .connectToTower:
                 (self.sender as! RingView).receivedResponse(statusCode: statusCode, response: dataDict)
-                print("after connecting to tower")
             case .createTower:
                 self.getTowerDetails(id: dataDict["tower_id"] as! Int)
 //            case .deleteTower:

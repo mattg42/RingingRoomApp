@@ -18,10 +18,12 @@ class SocketIOManager: NSObject {
     
     var bellCircle = BellCircle.current
     
-    func initManager(server_ip:String) {
+    func connectSocket(server_ip:String) {
         manager = SocketManager(socketURL: URL(string: server_ip)!, config: [.log(false), .compress])
         socket = manager.defaultSocket
         addListeners()
+        socket.connect()
+        print(bellCircle.towerID)
     }
     
     func addListeners() {
@@ -33,26 +35,29 @@ class SocketIOManager: NSObject {
         
         socket.on(clientEvent: .connect) { data, ack in
             print(self.socket.status)
-
+            self.socket.emit("c_join", ["tower_id": self.bellCircle.towerID, "user_token": CommunicationController.token!, "anonymous_user": false])
+        }
+        
+        socket.on("s_bell_rung") { data, ack in
+            print(self.bellCircle.counter)
+            self.bellCircle.bellRang(number: self.getDict(data)["who_rang"] as! Int, bellStates: self.getDict(data)["global_bell_state"] as! [Bool])
+        }
+        
+        socket.on("s_call") { data, ack in
+            print(self.getDict(data)["call"] as! String)
+            self.bellCircle.callMade(self.getDict(data)["call"] as! String)
         }
     }
     
     func getDict(_ array:[Any]) -> [String:Any] {
         let data = array[0] as! [String:Any]
-//        for key in data.keys {
-//            data[key] = data[key] as! [Any]
-//            for (index, element) in (data[key] as! [Any]).enumerated() {
-//                data[key]
-//            }
-////            data[key] = data[key]![0] as!
-////            print(data[key])
-//        }
 
         return data
     }
     
-    func connectSocket() {
-        socket.connect()
+    func leaveTower() {
+        socket.emit("c_user_left", ["user_name":User.shared.name, "user_token":CommunicationController.token!, "anonymous_user":false, "tower_id":bellCircle.towerID])
+        socket.disconnect()
     }
     
     func getStatus() {

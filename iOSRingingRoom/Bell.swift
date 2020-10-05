@@ -22,19 +22,28 @@ enum BellType:String {
 class BellCircle: ObservableObject {
     static var current = BellCircle()
     
+    var towerID = 0
+    var towerName = ""
+    
+    var isHost = false
+    var hostModeEnabled = false
+    
     var audioController = AudioController()
     
-    var size = 1
+    @Published var size = 1
     
     var perspective = 1
     
     @Published var setupComplete = false
     
-    @Published var bellType:BellType = BellType.hand
+    @Published var bellType:BellType = BellType.tower
     
-    var baseRadius = 0
+    var baseRadius:CGFloat = 0
     
     var center = CGPoint(x: 0, y: 0)
+    
+    var timer = Timer()
+    var counter = 0.000
     
     var radius:CGFloat {
         get {
@@ -58,29 +67,28 @@ class BellCircle: ObservableObject {
     
     var users = [Ringer]()
     
+    var currentCall = ""
+    
     var assignments = [Ringer]()
     
     var bellPositions = [BellPosition]()
     
-    var bellStates = [Bool]()
+    @Published var bellStates = [Bool]()
     
-    func getNewPositions(radius:Double, center:CGPoint) {
+    func getNewPositions(radius:CGFloat, center:CGPoint) {
         let angleIncrement:Double = 360/Double(size)
         let startAngle:Double = 360 - (-angleIncrement/2 + angleIncrement*Double(perspective))
         
         var newPositions = [BellPosition]()
         
         var currentAngle = startAngle
-        for i in 0..<size {
-            
-            let x = -CGFloat(sin(Angle(degrees: currentAngle).radians) * radius)
-            let y = CGFloat(cos(Angle(degrees: currentAngle).radians) * radius)
+        for _ in 0..<size {
+            let x = -CGFloat(sin(Angle(degrees: currentAngle).radians)) * radius
+            let y = CGFloat(cos(Angle(degrees: currentAngle).radians)) * radius
             
             let bellPos = BellPosition(pos: CGPoint(x: center.x + x, y: center.y + y), side: .right)
-            print(currentAngle)
             if (0..<180).contains(currentAngle) {
                 bellPos.side = .left
-                print("changed")
             }
             newPositions.append(bellPos)
             currentAngle += angleIncrement
@@ -89,23 +97,39 @@ class BellCircle: ObservableObject {
             }
         }
         
-        for position in newPositions {
-            print(position.side)
+        print(center)
+        for pos in newPositions {
+            print(pos.pos)
         }
-        
+        print("got new positions")
         bellPositions = newPositions
         setupComplete = true
     }
     
-    func bellRang(number:Int) {
+    func bellRang(number:Int, bellStates:[Bool]) {
+        print(counter)
         var fileName = String(number)
-        fileName.prefix(bellType.rawValue.first)
+        fileName = fileName.prefix(String(bellType.rawValue.first!))
         audioController.play(fileName)
-        bellStates[number - 1].toggle()
+//        objectWillChange.send()
+        self.bellStates = bellStates
+    }
+    
+    func callMade(_ call:String) {
+        audioController.play("C" + call)
     }
     
     func newSize(_ newSize:Int) {
-        assignments = 
+        if newSize > size {
+            for _ in 0..<(newSize - size) {
+                assignments.append(Ringer.blank)
+            }
+        } else if newSize < size {
+            assignments = Array(assignments[..<newSize])
+        }
+        bellStates = Array(repeating: true, count: newSize)
+        size = newSize
+        getNewPositions(radius: radius, center: center)
     }
     
 }

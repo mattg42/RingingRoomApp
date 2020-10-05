@@ -43,46 +43,180 @@ struct RingingRoomView: View {
     
     @ObservedObject var chatManager = ChatManager.shared
     
+    var showingTowerControls = false
+    
+//    var towerControlsView:TowerControlsView!
+    
     var body: some View {
         ZStack {
             backgroundColor.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-            GeometryReader { geo in
-                ZStack {
-                    if bellCircle.setupComplete {      
-                        ForEach(0..<bellCircle.size, id: \.self) { bellNumber in
-                            Button(action: {
-                                print("ring")
-                            }) {
-                                HStack(spacing: 0) {
-                                    Text(String(bellNumber+1))
-                                        .opacity(bellCircle.bellPositions[bellNumber].side == .left ? 0 : 1)
-                                    Image("t-handstroke").resizable()
-                                    .frame(width: 25, height: 75)
-                                    Text(String(bellNumber+1))
-                                        .opacity(bellCircle.bellPositions[bellNumber].side == .right ? 0 : 1)
-                                }
-                            }
-                            .foregroundColor(.primary)
-                            .position(bellCircle.bellPositions[bellNumber].pos)
+            VStack(spacing: 0.0) {
+                Text(bellCircle.towerName)
+                    .font(Font.custom("Simonetta-Black", size: 35))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .scaleEffect(0.9)
+                    .padding(.top, -5)
+//                    .fixedSize()
+                //                HStack {
+                //                    Spacer()
+                //                    Button(action: {
+                //                        withAnimation {
+                //                            self.showingTowerControls.toggle()
+                //                        }
+                //                    }) {
+                //                        Image(systemName: "line.horizontal.3")
+                //                            .font(.title)
+                //                            .bold()
+                //                            .foregroundColor(.primary)
+                //                            .padding(5)
+                //                    }
+                //                }
+//                Spacer()
+
+                RopeCircle()
+                Spacer()
+                VStack(spacing: 11.0) {
+                    HStack {
+                        Button(action: {
+                            makeCall("Bob")
+                        }) {
+                            CallButton(call: "Bob")
+
                         }
-                        
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Single")
+                        }) {
+                            CallButton(call: "Single")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("That's all")
+                        }) {
+                            CallButton(call: "That's all")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                    }
+                    HStack {
+                        Button(action: {
+                            makeCall("Look to")
+                        }) {
+                            CallButton(call: "Look to")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Go")
+                        }) {
+                            CallButton(call: "Go")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Stand next")
+                        }) {
+                            CallButton(call: "Stand")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
                     }
                 }
-                .onAppear {
-                    let center = CGPoint(x: geo.frame(in: .global).midX, y: geo.frame(in: .global).midY)
-                    bellCircle.getNewPositions(radius: Double(UIScreen.main.bounds.width/2 - 20), center: center)
-                }
+                .padding(.horizontal)
             }
-            VStack {
-                Spacer()
-                Button("Leave Tower") {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "dismissRingingRoom"), object: nil)
-                }
-            }
+            .padding(.bottom)
         }
+        //        .onAppear {
+        //            self.towerControlsView = TowerControlsView()
+        //        }
+        
+    }
+    
+    func makeCall(_ call:String) {
+        manager.socket.emit("c_call", ["call":call, "tower_id":bellCircle.towerID])
 
     }
 }
+
+struct CallButton:View {
+    
+    var call:String
+    
+    var body: some View {
+        ZStack {
+            Color.primary.colorInvert().cornerRadius(5)
+            Text(call)
+                .foregroundColor(.primary)
+                
+        }
+        .frame(maxHeight: 35)
+    }
+}
+
+struct RopeCircle:View {
+    
+    @ObservedObject var bellCircle:BellCircle = BellCircle.current
+    
+    @State var manager = SocketIOManager.shared
+    
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                if bellCircle.setupComplete {
+                    ForEach(0..<bellCircle.size, id: \.self) { bellNumber in
+                        Button(action: {
+                            self.ringBell(bellNumber+1)
+                        }) {
+                            HStack(spacing: 0) {
+                                Text(String(bellNumber+1))
+                                    .opacity(bellCircle.bellPositions[bellNumber].side == .left ? 0 : 1)
+                                Image(bellCircle.bellType.rawValue.first!.lowercased() + "-" + (bellCircle.bellStates[bellNumber] ? "handstroke" : "backstroke")).resizable()
+                                    .frame(width: 25, height: 75)
+                                Text(String(bellNumber+1))
+                                    .opacity(bellCircle.bellPositions[bellNumber].side == .right ? 0 : 1)
+                            }
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        .foregroundColor(.primary)
+                        .position(bellCircle.bellPositions[bellNumber].pos)
+                    }
+                    .onAppear {
+                        let center = CGPoint(x: geo.frame(in: .global).midX, y: geo.frame(in: .local).midY)
+                        bellCircle.center = center
+                        bellCircle.baseRadius = CGFloat(UIScreen.main.bounds.width/2 - 20)
+                        bellCircle.getNewPositions(radius: bellCircle.radius, center: bellCircle.center)
+                    }
+                }
+            }
+        }
+    }
+    
+    func ringBell(_ number:Int) {
+        manager.socket.emit("c_bell_rung", ["bell": number, "stroke": (bellCircle.bellStates[number - 1]), "tower_id": bellCircle.towerID])
+//        bellCircle.timer.tolerance = 0
+//        bellCircle.timer = Timer.scheduledTimer(withTimeInterval: 0.001, repeats: true, block: { _ in
+//            bellCircle.counter += 1
+//        })
+    }
+}
+
+struct TouchDown: PrimitiveButtonStyle {
+    var isAvailible:Bool
+
+  func makeBody(configuration: Configuration) -> some View {
+    configuration
+      .label
+      .onLongPressGesture(
+        minimumDuration: 0,
+        perform: configuration.trigger
+      )
+        .opacity(isAvailible ? 1 : 0.35)
+        .disabled(!isAvailible)
+  }
+}
+
 
 extension CGFloat {
     func radians() -> CGFloat {
@@ -91,7 +225,7 @@ extension CGFloat {
 }
 
 extension String {
-    mutating func prefix(_ prefix:String) -> String {
+    func prefix(_ prefix:String) -> String {
         return prefix + self
     }
 }
@@ -121,7 +255,7 @@ extension String {
 //
 //    @State var newAssigment = false
 //
-//    @State var usersView:UsersView? = nil
+////    @State var usersView:UsersView? = nil
 //    @State var chatView:ChatView? = nil
 //
 //    @State var selectedView = 1
@@ -151,7 +285,7 @@ extension String {
 //                    }
 //                    .foregroundColor(.main)
 //                }
-//                if User.shared.host && self.permitHostMode {
+//                if bellCircle.isHost && self.permitHostMode {
 //                    Toggle(isOn: .init(get: {self.bellCircle.hostModeEnabled}, set: {
 //                        SocketIOManager.shared.socket.emit("c_host_mode", ["new_mode":$0, "tower_id":self.bellCircle.towerID])
 //                    }) ) {
@@ -159,7 +293,7 @@ extension String {
 //                    }
 //                    .padding(.horizontal)
 //                }
-//                if !self.bellCircle.hostModeEnabled || User.shared.host {
+//                if !self.bellCircle.hostModeEnabled || bellCircle.isHost {
 //                    HStack {
 //                        Picker(selection: .init(get: {self.bellTypes.firstIndex(of: self.bellCircle.bellType)!}, set: {self.bellTypeChanged(value:$0)}), label: Text("Bell type picker")) {
 //                            ForEach(0..<2) { i in
@@ -186,35 +320,38 @@ extension String {
 //                    .padding(.top, 5)
 //                    .padding(.bottom, -6)
 //                }
-//                if self.usersView != nil && self.chatView != nil {
-//                    TabView(selection: $selectedView) {
-//                        self.usersView
-//                            .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
-//                            .padding()
-//                            .padding(.bottom, 35)
-//                            .tag(1)
-//                        self.chatView
-//                            .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
-//                            .padding()
-//                            .padding(.bottom, 35)
-//                            .tag(2)
-//                    }
-//                    .onChange(of: selectedView, perform: { _ in
-//                        if selectedView == 1 {
-//                            ChatManager.shared.canSeeMessages = false
-//                        } else {
-//                            withAnimation {
-//                                ChatManager.shared.canSeeMessages = true
-//                            }
-//                        }
-//                    })
-//                    .tabViewStyle(PageTabViewStyle())
-//                    .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+//                if self.chatView != nil { // self.usersView != nil &&
+////                    TabView(selection: $selectedView) {
+////                        self.usersView
+////                            .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
+////                            .padding()
+////                            .padding(.bottom, 35)
+////                            .tag(1)
+////                        self.chatView
+////                            .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
+////                            .padding()
+////                            .padding(.bottom, 35)
+////                            .tag(2)
+////                    }
+////                    .onChange(of: selectedView, perform: { _ in
+////                        if selectedView == 1 {
+////                            ChatManager.shared.canSeeMessages = false
+////                        } else {
+////                            withAnimation {
+////                                ChatManager.shared.canSeeMessages = true
+////                            }
+////                        }
+////                    })
+////                    .tabViewStyle(PageTabViewStyle())
+////                    .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+//                    self.chatView
+//                        .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
+//                        .padding()
+//                        .padding(.bottom, 35)
 //                }
-//                //                    Spacer()
 //            }
 //            .onAppear(perform: {
-//                self.usersView = UsersView(selectedView: self.$selectedView)
+////                self.usersView = UsersView(selectedView: self.$selectedView)
 //                self.chatView = ChatView(selectedView: self.$selectedView, messageFieldYPosition: self.$messageFieldYPosition)
 //            })
 //            VStack {
@@ -266,12 +403,7 @@ extension String {
 //    }
 //
 //    func leaveTower() {
-//        SocketIOManager.shared.socket.emit("c_user_left",
-//                            ["user_name": User.shared.name,
-//                             "user_token": CommunicationController.token!,
-//                             "anonymous_user": false,
-//                             "tower_id": self.bellCircle.towerID])
-//        SocketIOManager.shared.socket.disconnect()
+//        SocketIOManager.shared.leaveTower()
 //        NotificationCenter.default.post(name: Notification.Name(rawValue: "dismissRingingRoom"), object: nil)
 //    }
 //
@@ -429,7 +561,7 @@ extension String {
 //    }
 //
 //    func available() -> Bool {
-//        return User.shared.host || !self.bellCircle.hostModeEnabled
+//        return bellCircle.isHost || !self.bellCircle.hostModeEnabled
 //    }
 //
 //    func assign(_ id:Int, to bell:Int) -> () -> () {
@@ -485,9 +617,9 @@ extension String {
 //}
 
 //struct ChatView:View {
-//        
+//
 //    @State var updateView = false
-//    
+//
 ////    @State var showingChat = false {
 ////        didSet {
 ////            self.chatManager.canSeeMessages = self.showingChat
@@ -497,17 +629,17 @@ extension String {
 ////            hideKeyboard()
 ////        }
 ////    }
-//    
+//
 ////    @State var arrowDown = false
-//    
+//
 //    @ObservedObject var chatManager = ChatManager.shared
-//        
+//
 //    @State var currentMessage = ""
-//    
+//
 //    @Binding var selectedView:Int
-//    
+//
 //    @Binding var messageFieldYPosition:CGFloat
-//    
+//
 //    var body: some View {
 //        VStack {
 //            HStack {
@@ -583,7 +715,7 @@ extension String {
 //        .padding(.vertical, 7)
 //        .background(Color.primary.colorInvert().cornerRadius(5))
 //    }
-//    
+//
 //    func sendMessage() {
 //        //send message
 //        SocketIOManager.shared.socket.emit("c_msg_sent", ["user":User.shared.name, "email":User.shared.email, "msg":currentMessage, "tower_id":BellCircle.current.towerID])

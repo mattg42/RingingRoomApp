@@ -103,24 +103,23 @@ class AudioController: NSObject, AVAudioPlayerDelegate {
         for type in SoundAsset.allCases {
             if type.rawValue == file {
                 if type.rawValue.first == "C" {
-                    print("call played")
                     self.callPlayer = type.player
                     self.callPlayer.play()
                 } else {
                     let player = type.player
                     player.delegate = self
                     player.play()
+                    BellCircle.current.timer.invalidate()
+                    print(BellCircle.current.counter)
+                    BellCircle.current.counter = 0
                     audioPlayers.append(player)
-                    print(audioPlayers.count)
                 }
             }
         }
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        print("audio finished")
         audioPlayers.remove(at: audioPlayers.firstIndex(of: player)!)
-        print(self.audioPlayers.count)
     }
 }
 

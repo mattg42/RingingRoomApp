@@ -176,11 +176,20 @@ struct RingView: View {
             self.alertTitle = Text("There is no tower with that ID")
             self.showingAlert = true
         } else {
-            print("presenting rrView")
-            DispatchQueue.main.async {
-                self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
-                    self.ringingRoomView
-                }
+            BellCircle.current.towerName = response["tower_name"] as! String
+            BellCircle.current.towerID = response["tower_id"] as! Int
+            
+            SocketIOManager.shared.connectSocket(server_ip: response["server_address"] as! String)
+            print("set size")
+            BellCircle.current.newSize(8)
+            presentRingingRoomView()
+        }
+    }
+    
+    func presentRingingRoomView() {
+        DispatchQueue.main.async {
+            self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
+                self.ringingRoomView
             }
         }
     }
