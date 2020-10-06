@@ -22,6 +22,23 @@ enum BellType:String {
 class BellCircle: ObservableObject {
     static var current = BellCircle()
     
+    static var sounds = [
+        BellType.tower : [
+        4: ["5","6","7","8"],
+        6: ["3","4","5","6","7","8"],
+        8: ["1","2sharp","3","4","5","6","7","8"],
+        10: ["3","4","5","6","7","8","9","0","E","T"],
+        12: ["1","2","3","4","5","6","7","8","9","0","E","T"]
+        ],
+        BellType.hand : [
+        4: ["5","6","7","8"],
+        6: ["7","8","9","0","E","T"],
+        8: ["5","6","7","8","9","0","E","T"],
+        10: ["3","4","5","6","7","8","9","0","E","T"],
+        12: ["1","2","3","4","5","6","7","8","9","0","E","T"]
+        ]
+    ]
+    
     var towerID = 0
     var towerName = ""
     
@@ -108,7 +125,7 @@ class BellCircle: ObservableObject {
     
     func bellRang(number:Int, bellStates:[Bool]) {
         print(counter)
-        var fileName = String(number)
+        var fileName = BellCircle.sounds[bellType]![size]![number-1]
         fileName = fileName.prefix(String(bellType.rawValue.first!))
         audioController.play(fileName)
 //        objectWillChange.send()
