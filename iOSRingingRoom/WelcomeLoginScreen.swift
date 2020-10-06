@@ -21,7 +21,7 @@ struct WelcomeLoginScreen: View {
             if colorScheme == .light {
                 return Color(red: 211/255, green: 209/255, blue: 220/255)
             } else {
-                return Color(white: 0.07)
+                return Color(white: 0.085)
             }
         }
     }

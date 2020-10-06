@@ -19,7 +19,7 @@ struct RingingRoomView: View {
             if colorScheme == .light {
                 return Color(red: 211/255, green: 209/255, blue: 220/255)
             } else {
-                return Color(white: 0.07)
+                return Color(white: 0.085)
             }
         }
     }
@@ -156,6 +156,18 @@ struct CallButton:View {
 }
 
 struct RopeCircle:View {
+    
+    @Environment(\.colorScheme) var colorScheme
+
+    var backgroundColor:Color {
+        get {
+            if colorScheme == .light {
+                return Color(red: 211/255, green: 209/255, blue: 220/255)
+            } else {
+                return Color(white: 0.085)
+            }
+        }
+    }
     
     @ObservedObject var bellCircle:BellCircle = BellCircle.current
     
