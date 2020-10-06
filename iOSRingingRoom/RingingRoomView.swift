@@ -188,6 +188,19 @@ struct RopeCircle:View {
                         bellCircle.baseRadius = CGFloat(UIScreen.main.bounds.width/2 - 20)
                         bellCircle.getNewPositions(radius: bellCircle.radius, center: bellCircle.center)
                     }
+                    if bellCircle.currentCall != "" {
+                        ZStack {
+                            backgroundColor
+                                .cornerRadius(15)
+                                .blur(radius: 15, opaque: false)
+                                .shadow(color: backgroundColor, radius: 20, x: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/, y: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/)
+                                .opacity(0.85)
+                            Text(bellCircle.currentCall)
+                                .font(.largeTitle)
+                                .bold()
+                        }
+                        .fixedSize()
+                    }
                 }
             }
         }

@@ -84,7 +84,8 @@ class BellCircle: ObservableObject {
     
     var users = [Ringer]()
     
-    var currentCall = ""
+    @Published var currentCall = ""
+    var callTimer = Timer()
     
     var assignments = [Ringer]()
     
@@ -134,6 +135,11 @@ class BellCircle: ObservableObject {
     
     func callMade(_ call:String) {
         audioController.play("C" + call)
+        currentCall = call
+        callTimer.invalidate()
+        callTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
+            self.currentCall = ""
+        })
     }
     
     func newSize(_ newSize:Int) {
