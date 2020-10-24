@@ -205,6 +205,7 @@ class BellCircle: ObservableObject {
         print("assign", id, bell)
         let ringer = ringerForID(id)!
         assignments[bell-1] = ringer
+        sortUsers()
         objectWillChange.send()
         if ringer.userID == User.shared.ringerID {
             perspective = (assignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
@@ -214,6 +215,7 @@ class BellCircle: ObservableObject {
     func unAssign(at bell:Int) {
         if assignments[bell - 1] != Ringer.blank {
             assignments[bell - 1] = Ringer.blank
+            sortUsers()
             objectWillChange.send()
             perspective = (assignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
         }
@@ -228,6 +230,7 @@ class BellCircle: ObservableObject {
             if !users.containsRingerForID(ringer.userID) {
                 objectWillChange.send()
                 users.append(ringer)
+                print(users.ringers)
             }
         }
     }
@@ -236,12 +239,13 @@ class BellCircle: ObservableObject {
         if !users.containsRingerForID(id) {
             objectWillChange.send()
             users.append(Ringer(name: name, id: id))
+            sortUsers()
         }
     }
     
     func userLeft(id:Int) {
         users.removeRingerForID(id)
-//        sortUsers()
+        sortUsers()
     }
     
     func newAudio(_ audio:String) {
@@ -251,6 +255,26 @@ class BellCircle: ObservableObject {
             }
         }
     }
+    
+    func sortUsers() {
+        print(users.ringers)
+        var tempUsers = users
+        var newUsers = [Ringer]()
+        for assignment in assignments {
+            if assignment.userID != 0 {
+                if !newUsers.containsRingerForID(assignment.userID) {
+                    tempUsers.removeRingerForID(assignment.userID)
+                    newUsers.append(assignment)
+                }
+            }
+        }
+        tempUsers.sortAlphabetically()
+        newUsers += tempUsers
+        print(newUsers.ringers)
+        users = newUsers
+    }
+    
+
 }
 
 extension Ringer:Equatable {
@@ -300,6 +324,22 @@ extension Array where Element == Ringer {
             return output
         } else {
             return nil
+        }
+    }
+    
+    mutating func sortAlphabetically() {
+        self.sort { (first, second) -> Bool in
+            first.name > second.name
+        }
+    }
+    
+    var ringers:[[String:Int]] {
+        get {
+            var desc = [[String:Int]]()
+            for ringer in self {
+                desc.append([ringer.name:ringer.userID])
+            }
+            return desc
         }
     }
 }
