@@ -239,6 +239,11 @@ class BellCircle: ObservableObject {
         }
     }
     
+    func userLeft(id:Int) {
+        users.removeRingerForID(id)
+//        sortUsers()
+    }
+    
     func newAudio(_ audio:String) {
         for type in BellType.allCases {
             if type.rawValue == audio {

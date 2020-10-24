@@ -642,7 +642,7 @@ struct UsersView:View {
                             if self.bellCircle.assignments[i].name == "" {
                                 let index = Int.random(in: 0..<tempUsers.count)
                                 let user = tempUsers[index]
-                                SocketIOManager.shared.socket.emit("c_assign_user", ["user":user.name, "bell":i+1, "tower_id":self.bellCircle.towerID])
+                                SocketIOManager.shared.socket.emit("c_assign_user", ["user":user.userID, "bell":i+1, "tower_id":self.bellCircle.towerID])
                                 tempUsers.remove(at: index)
                             }
                         }

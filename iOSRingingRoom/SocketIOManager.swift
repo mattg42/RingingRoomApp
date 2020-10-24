@@ -121,6 +121,10 @@ class SocketIOManager: NSObject {
         socket.on("s_msg_sent") { data, ack in
             ChatManager.shared.newMessage(user: self.getDict(data)["user"] as! String, message: self.getDict(data)["msg"] as! String)
         }
+        
+        socket.on("s_user_left") { data, ack in
+            self.bellCircle.userLeft(id: self.getDict(data)["user_id"] as! Int)
+        }
     }
     
     func getDict(_ array:[Any]) -> [String:Any] {
