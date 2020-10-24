@@ -17,27 +17,31 @@ struct RingView: View {
     
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     
-    @State var comController:CommunicationController!
+    @State private var comController:CommunicationController!
 
-    @State var towerListSelection:Int = 0
+    @State private var towerListSelection:Int = 0
     var towerLists = ["Recents", "Favourites", "Created", "Host"]
 
     @State var towerID = UserDefaults.standard.string(forKey: "\(User.shared.email)savedTower") ?? ""
     
-    @State var showingAlert = false
-    @State var alertTitle = Text("")
-    @State var alertMessage:Text? = nil
+    @State private var showingAlert = false
+    @State private var alertTitle = Text("")
+    @State private var alertMessage:Text? = nil
     
     @ObservedObject var user = User.shared
     
-    @State var ringingRoomView = RingingRoomView()
+    @State private var ringingRoomView = RingingRoomView()
     
-    @State var joinTowerYPosition:CGFloat = 0
-    @State var keyboardHeight:CGFloat = 0
+    @State var presentingRingingRoomView = false
     
-    @State var viewOffset:CGFloat = 0
+    @State private var joinTowerYPosition:CGFloat = 0
+    @State private var keyboardHeight:CGFloat = 0
     
-    @State var isRelevant = false
+    @State private var viewOffset:CGFloat = 0
+    
+    @State private var isRelevant = false
+    
+    @State var sink:AnyCancellable!
     
     var body: some View {
         VStack(spacing: 20) {
@@ -130,8 +134,25 @@ struct RingView: View {
         }
         .onAppear(perform: {
             self.comController = CommunicationController(sender: self)
+            sink = BellCircle.current.setupPublisher.sink { _ in
+                print("received combine")
+                if !BellCircle.current.ringingroomIsPresented {
+                    print("checked values")
+                    for (key, value) in BellCircle.current.setupComplete {
+                        print(key, value)
+                        if !value {
+                            return
+                        }
+                    }
+                    self.presentRingingRoomView()
+                }
+            }
         })
             .padding()
+
+//        .onReceive(BellCircle.current.objectWillChange, perform: { _ in
+//            
+//        })
     }
     
     func getOffset() -> CGFloat {
@@ -160,7 +181,7 @@ struct RingView: View {
             self.getTowerConnectionDetails()
             return
         }
-        
+
         //create new tower
         comController.createTower(name: self.towerID)
         
@@ -178,18 +199,17 @@ struct RingView: View {
         } else {
             BellCircle.current.towerName = response["tower_name"] as! String
             BellCircle.current.towerID = response["tower_id"] as! Int
-            
+    
             SocketIOManager.shared.connectSocket(server_ip: response["server_address"] as! String)
-            print("set size")
-            BellCircle.current.newSize(8)
-            presentRingingRoomView()
         }
     }
     
     func presentRingingRoomView() {
-        DispatchQueue.main.async {
-            self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
-                self.ringingRoomView
+        if BellCircle.current.ringingroomIsPresented == false {
+            DispatchQueue.main.async {
+                self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
+                    self.ringingRoomView
+                }
             }
         }
     }

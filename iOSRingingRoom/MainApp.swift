@@ -11,9 +11,9 @@ import SocketIO
 
 struct MainApp: View {
     
-    @State var selectedTab = TabViewType.ring
+    @State private var selectedTab = TabViewType.ring
     
-    @State var isPresentingHelpView = true
+    @State private var isPresentingHelpView = true
         
     @State var autoJoinTower = false
     @State var autoJoinTowerID = 0

@@ -13,7 +13,7 @@ struct resetPasswordView: View {
     @Binding var isPresented:Bool
     @Binding var email:String
         
-    @State var isPresentingAlert = false
+    @State private var isPresentingAlert = false
     
     var body: some View {
         NavigationView {

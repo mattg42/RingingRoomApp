@@ -9,7 +9,7 @@
 import Foundation
 
 class ChatManager:ObservableObject {
-    @Published var messages = [""]
+    @Published var messages = [String]() //[""]
     @Published var newMessages = 0
     
     var canSeeMessages = false {
@@ -22,18 +22,18 @@ class ChatManager:ObservableObject {
     
     static var shared = ChatManager()
     
-    var firstMessage = true
+//    var firstMessage = true
     
     func newMessage(user:String, message:String) {
        // self.objectWillChange.send()
         print("appended new message")
         var newMessagesArray = messages
-        if firstMessage {
-            newMessagesArray[0] = "\(user): \(message)"
-            firstMessage = false
-        } else {
+//        if firstMessage {
+//            newMessagesArray[0] = "\(user): \(message)"
+//            firstMessage = false
+//        } else {
             newMessagesArray.append("\(user): \(message)")
-        }
+//        }
         if !canSeeMessages {
             self.objectWillChange.send()
             newMessages += 1

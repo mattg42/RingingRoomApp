@@ -11,6 +11,7 @@ import Foundation
 class User:ObservableObject {
     static var shared = User()
     
+    var ringerID = 0
     var loggedIn:Bool = false
     var name:String = ""
     var email:String = ""
@@ -40,10 +41,22 @@ class User:ObservableObject {
 class Ringer:Identifiable {
     var id = UUID()
     
-    static var blank = Ringer(name: "", id: 0)
-    
+    static var blank:Ringer {
+        get {
+            Ringer(name: "", id: 0)
+        }
+    }
+
     var name:String
     var userID:Int
+    
+    var assignments = [Int]()
+    
+    var description:String {
+        get {
+            "\(name), \(userID)"
+        }
+    }
     
     init(name:String, id:Int) {
         self.name = name

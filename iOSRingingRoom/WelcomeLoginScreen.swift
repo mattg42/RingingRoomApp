@@ -26,17 +26,17 @@ struct WelcomeLoginScreen: View {
         }
     }
     
-    @State var comController:CommunicationController!
+    @State private var comController:CommunicationController!
     
-    @State var email = ""
-    @State var password = ""
-    @State var stayLoggedIn = false
+    @State private var email = ""
+    @State private var password = ""
+    @State private var stayLoggedIn = false
     
-    @State var autoJoinTower = false
-    @State var autoJoinTowerID = 0
+    @State private var autoJoinTower = false
+    @State private var autoJoinTowerID = 0
     
-    @State var validEmail = false
-    @State var validPassword = false
+    @State private var validEmail = false
+    @State private var validPassword = false
     
     var loginDisabled:Bool {
         get {
@@ -44,21 +44,21 @@ struct WelcomeLoginScreen: View {
         }
     }
     
-    @State var showingAccountCreationView = false
-    @State var showingResetPasswordView = false
+    @State private var showingAccountCreationView = false
+    @State private var showingResetPasswordView = false
     
-    @State var buffer:CGFloat = 0
+    @State private var buffer:CGFloat = 0
     
     let screenHeight = UIScreen.main.bounds.height
-    @State var imageSize = 0
+    @State private var imageSize = 0
     
-    @State var loginScreenIsActive = true
+    @State private var loginScreenIsActive = true
     
     @State private var accountCreated = false
     
-    @State var showingAlert = false
-    @State var alertTitle = Text("")
-    @State var alertMessage:Text? = nil
+    @State private var showingAlert = false
+    @State private var alertTitle = Text("")
+    @State private var alertMessage:Text? = nil
     
     
     var body: some View {
@@ -265,11 +265,20 @@ extension UIViewController {
             builder()
                 .environment(\.viewController, toPresent)
         )
-        print()
+        print("blank")
         NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "dismiss\(name)"), object: nil, queue: nil) { [weak toPresent] _ in
             toPresent?.dismiss(animated: false, completion: nil)
         }
+        if name == "RingingRoom" {
+            if BellCircle.current.ringingroomIsPresented == false {
+                BellCircle.current.ringingroomIsPresented = true
+            print("\n-=-=-=-=-=-=-=-Presented RR-=-=-=-=-=-=-=-=-=-=-=\n")
+            } else {
+                return
+            }
+        }
         self.present(toPresent, animated: animated, completion: nil)
+        print("presented \(name)")
     }
 }
 

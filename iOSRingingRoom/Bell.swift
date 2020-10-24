@@ -14,12 +14,15 @@ enum Side {
     case left, right
 }
 
-enum BellType:String {
+enum BellType:String, CaseIterable {
     case tower = "Tower", hand = "Hand"
 }
 
 
 class BellCircle: ObservableObject {
+    
+    var ringingroomIsPresented = false
+    
     static var current = BellCircle()
     
     static var sounds = [
@@ -47,17 +50,35 @@ class BellCircle: ObservableObject {
     
     var audioController = AudioController()
     
-    @Published var size = 1
+    @Published var size = 0
     
-    var perspective = 1
+    var perspective = 1 {
+        didSet {
+            print("from perspective")
+            getNewPositions(radius: radius, center: center)
+        }
+    }
     
-    @Published var setupComplete = false
+    var setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false]
     
-    @Published var bellType:BellType = BellType.tower
+    static let setup = Notification.Name("setup")
+    
+    let setupPublisher = NotificationCenter.default.publisher(for: BellCircle.setup)
+    
+    @Published var bellType:BellType = BellType.hand
     
     var baseRadius:CGFloat = 0
     
-    var center = CGPoint(x: 0, y: 0)
+    var center = CGPoint(x: 0, y: 0) {
+        didSet(oldCenter) {
+//            if BellCircle.current.ringingroomIsPresented {
+//                if oldCenter != CGPoint(x: 0, y: 0) || oldCenter != center {
+//                    center = oldCenter
+//                }
+//            }
+            print("center changed")
+        }
+    }
     
     var timer = Timer()
     var counter = 0.000
@@ -70,6 +91,8 @@ class BellCircle: ObservableObject {
                 switch self.size {
                 case 6:
                     returnValue -= 20
+//                case 8:
+//                    returnValue -= 10
                 case 10:
                     returnValue -= 10
                 case 12:
@@ -82,14 +105,17 @@ class BellCircle: ObservableObject {
         }
     }
     
+    var gotBellPositions = false
+    
     var users = [Ringer]()
     
     @Published var currentCall = ""
     var callTimer = Timer()
+    @Published var callTextOpacity = 0.0
     
     var assignments = [Ringer]()
     
-    var bellPositions = [BellPosition]()
+    @Published var bellPositions = [BellPosition]()
     
     @Published var bellStates = [Bool]()
     
@@ -120,12 +146,12 @@ class BellCircle: ObservableObject {
             print(pos.pos)
         }
         print("got new positions")
+        objectWillChange.send()
         bellPositions = newPositions
-        setupComplete = true
+        gotBellPositions = true
     }
     
     func bellRang(number:Int, bellStates:[Bool]) {
-        print(counter)
         var fileName = BellCircle.sounds[bellType]![size]![number-1]
         fileName = fileName.prefix(String(bellType.rawValue.first!))
         audioController.play(fileName)
@@ -136,25 +162,141 @@ class BellCircle: ObservableObject {
     func callMade(_ call:String) {
         audioController.play("C" + call)
         currentCall = call
+        callTextOpacity  = 1
         callTimer.invalidate()
         callTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
-            self.currentCall = ""
+            withAnimation {
+                self.callTextOpacity = 0
+            }
         })
     }
     
     func newSize(_ newSize:Int) {
+        print("new size from socketio")
+        if setupComplete["gotSize"] == false {
+            assignments = Array(repeating: Ringer.blank, count: newSize)
+            bellStates = Array(repeating: true, count: newSize)
+            size = newSize
+            getNewPositions(radius: radius, center: center)
+        } else {
         if newSize > size {
-            for _ in 0..<(newSize - size) {
+            for i in 0..<(newSize - assignments.count) {
                 assignments.append(Ringer.blank)
             }
         } else if newSize < size {
             assignments = Array(assignments[..<newSize])
         }
-        bellStates = Array(repeating: true, count: newSize)
-        size = newSize
-        getNewPositions(radius: radius, center: center)
+            bellStates = Array(repeating: true, count: newSize)
+            size = newSize
+            getNewPositions(radius: radius, center: center)
+        }
     }
     
+    func ringerForID(_ id:Int) -> Ringer? {
+        for ringer in users {
+            if ringer.userID == id {
+                return ringer
+            }
+        }
+        return nil
+    }
+    
+    func assign(_ id:Int, to bell: Int) {
+        print("assign", id, bell)
+        let ringer = ringerForID(id)!
+        assignments[bell-1] = ringer
+        objectWillChange.send()
+        if ringer.userID == User.shared.ringerID {
+            perspective = (assignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+        }
+    }
+    
+    func unAssign(at bell:Int) {
+        if assignments[bell - 1] != Ringer.blank {
+            assignments[bell - 1] = Ringer.blank
+            objectWillChange.send()
+            perspective = (assignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+        }
+    }
+    
+    func newUserlist(_ newUsers:[[String:Any]]) {
+        for newRinger in newUsers {
+            let ringer = Ringer.blank
+            ringer.userID = newRinger["user_id"] as! Int
+            ringer.name = newRinger["username"] as! String
+            print(ringer.userID)
+            if !users.containsRingerForID(ringer.userID) {
+                objectWillChange.send()
+                users.append(ringer)
+            }
+        }
+    }
+    
+    func newUser(id:Int, name:String) {
+        if !users.containsRingerForID(id) {
+            objectWillChange.send()
+            users.append(Ringer(name: name, id: id))
+        }
+    }
+    
+    func newAudio(_ audio:String) {
+        for type in BellType.allCases {
+            if type.rawValue == audio {
+                bellType = type
+            }
+        }
+    }
+}
+
+extension Ringer:Equatable {
+    static func == (lhs: Ringer, rhs: Ringer) -> Bool {
+        return
+            lhs.name == rhs.name &&
+            lhs.userID == rhs.userID
+    }
+}
+
+extension Array where Element == Ringer {
+    func containsRingerForID(_ id:Int) -> Bool {
+        for ringer in self {
+            if ringer.userID == id {
+                return true
+            }
+        }
+        return false
+    }
+    
+    func indexOfRingerForID(_ id:Int) -> Int? {
+        for (index, ringer) in self.enumerated() {
+            if ringer.userID == id {
+                return index
+            }
+        }
+        return nil
+    }
+    
+    mutating func removeRingerForID(_ id:Int) {
+        for (index, ringer) in self.enumerated() {
+            if ringer.userID == id {
+                self.remove(at: index)
+                return
+            }
+        }
+    }
+    
+    func allIndecesOfRingerForID(_ id:Int) -> [Int]? {
+        var output = [Int]()
+        if self.containsRingerForID(id) {
+            for (index, ringer) in self.enumerated() {
+                if ringer.userID == id {
+                    output.append(index)
+                }
+            }
+            return output
+        } else {
+            return nil
+        }
+    }
 }
 
 class BellPosition {

@@ -11,9 +11,9 @@ import MessageUI
 
 struct privacyPolicyView: View {
     
-    @State var result: Result<MFMailComposeResult, Error>? = nil
-    @State var isShowingMailView = false
-    @State var noMailAlert = false
+    @State private var result: Result<MFMailComposeResult, Error>? = nil
+    @State private var isShowingMailView = false
+    @State private var noMailAlert = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8.5) {

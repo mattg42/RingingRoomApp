@@ -11,16 +11,16 @@ import SwiftUI
 struct SimpleLoginView: View {
     @Environment(\.presentationMode) var presentationMode
     
-    @State var comController:CommunicationController!
+    @State private var comController:CommunicationController!
 
-    @State var email = ""
-    @State var password = ""
-    @State var stayLoggedIn = false
+    @State private var email = ""
+    @State private var password = ""
+    @State private var stayLoggedIn = false
     
     @Binding var loggedIn:Bool
     
-    @State var validEmail = false
-    @State var validPassword = false
+    @State private var validEmail = false
+    @State private var validPassword = false
     
     var loginDisabled:Bool {
         get {
@@ -28,14 +28,14 @@ struct SimpleLoginView: View {
         }
     }
     
-    @State var showingAccountCreationView = false
-    @State var showingResetPasswordView = false
+    @State private var showingAccountCreationView = false
+    @State private var showingResetPasswordView = false
                 
     @State private var accountCreated = false
     
-    @State var showingAlert = false
-    @State var alertTitle = Text("")
-    @State var alertMessage:Text? = nil
+    @State private var showingAlert = false
+    @State private var alertTitle = Text("")
+    @State private var alertMessage:Text? = nil
         
     var body: some View {
         NavigationView {

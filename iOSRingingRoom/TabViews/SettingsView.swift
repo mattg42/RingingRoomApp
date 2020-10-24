@@ -10,23 +10,23 @@ import SwiftUI
 
 struct SettingsView: View {
     
-    @State var presentingLogin = false
-    @State var presentingCreateAccount = false
-    @State var presentingAlert = false
+    @State private var presentingLogin = false
+    @State private var presentingCreateAccount = false
+    @State private var presentingAlert = false
     
-    @State var accountCreated = false
+    @State private var accountCreated = false
     
     @ObservedObject var user = User.shared
     
-    @State var comController:CommunicationController!
+    @State private var comController:CommunicationController!
 
-    @State var email = User.shared.email
-    @State var password = User.shared.email
-    @State var loggedIn = User.shared.loggedIn
+    @State private var email = User.shared.email
+    @State private var password = User.shared.email
+    @State private var loggedIn = User.shared.loggedIn
     
-    @State var showingAlert = false
-    @State var alertTitle = ""
-    @State var alertMessage = ""
+    @State private var showingAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
     
     
     var body: some View {

@@ -11,25 +11,25 @@ import SwiftUI
 struct AccountCreationView: View {
     @Environment(\.presentationMode) var presentationMode
     
-    @State var comController:CommunicationController!
+    @State private var comController:CommunicationController!
 
     @Binding var isPresented:Bool
-    @State var isShowingPrivacyPolicy = false
+    @State private var isShowingPrivacyPolicy = false
     
-    @State var agreedToPrivacyPolicy = false
+    @State private var agreedToPrivacyPolicy = false
     
     @Binding var email:String
-    @State var username = ""
+    @State private var username = ""
     @Binding var password:String
-    @State var repeatedPassword = ""
+    @State private var repeatedPassword = ""
     
-    @State var presentingAlert = false
-    @State var alertTitle = ""
-    @State var alertMessage = ""
+    @State private var presentingAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
 
     @Binding var accountCreated:Bool
     
-    @State var privacyPolicyButtonText = "Read and agree to the privacy policy"
+    @State private var privacyPolicyButtonText = "Read and agree to the privacy policy"
     
     var body: some View {
         NavigationView {

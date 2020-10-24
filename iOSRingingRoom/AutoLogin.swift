@@ -11,12 +11,12 @@ import SwiftUI
 struct AutoLogin: View {
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
 
-    @State var showingAlert = false
+    @State private var showingAlert = false
     
-    @State var comController:CommunicationController!
+    @State private var comController:CommunicationController!
     
-    @State var autoJoinTower = false
-    @State var autoJoinTowerID = 0
+    @State private var autoJoinTower = false
+    @State private var autoJoinTowerID = 0
     
     var body: some View {
         ZStack {
