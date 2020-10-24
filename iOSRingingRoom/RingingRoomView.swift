@@ -26,14 +26,6 @@ struct RingingRoomView: View {
     
     init() {
         print("new ringingroom view")
-        let audioSession = AVAudioSession.sharedInstance()
-        
-        do {
-            try audioSession.setPreferredIOBufferDuration(0.002)
-            try audioSession.setCategory(.playback)
-        } catch {
-                print("error")
-        }
     }
     
     @ObservedObject var bellCircle:BellCircle = BellCircle.current

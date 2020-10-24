@@ -98,6 +98,18 @@ class AudioController: NSObject, AVAudioPlayerDelegate {
     var audioPlayers = [AVAudioPlayer]()
     var callPlayer:AVAudioPlayer!
     
+    override init() {
+        super.init()
+        let audioSession = AVAudioSession.sharedInstance()
+        
+        do {
+            try audioSession.setPreferredIOBufferDuration(0.002)
+            try audioSession.setCategory(.playback)
+        } catch {
+                print("error")
+        }
+    }
+    
     func play(_ file:String) {
         
         for type in SoundAsset.allCases {
