@@ -586,6 +586,7 @@ struct TowerControlsView:View {
                     }) {
                         Text("Help")
                             .bold()
+                            .foregroundColor(Color.main)
                     }
                     .sheet(isPresented: self.$presentingHelp) {
                         HelpView(asSheet: true, isPresented: self.$presentingHelp)
