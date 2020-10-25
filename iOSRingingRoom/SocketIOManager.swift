@@ -139,7 +139,7 @@ class SocketIOManager: NSObject {
             NotificationCenter.default.post(name: Notification.Name(rawValue: "dismissRingingRoom"), object: nil)
             bellCircle.ringingroomIsPresented = false
         }
-        bellCircle.setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false]
+        bellCircle.setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false, "gotAssignments":false]
         socket.disconnect()
         ChatManager.shared.messages = [String]()
         ChatManager.shared.newMessages = 0

@@ -47,17 +47,13 @@ struct RingingRoomView: View {
     var body: some View {
         ZStack {
             backgroundColor.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-            ringingView
-                .padding(.top, titleHeight)
 
+            ringingView
             Color.primary.colorInvert().edgesIgnoringSafeArea(.all)
                 .offset(x: showingTowerControls ? 0 : -UIScreen.main.bounds.width, y: 0)
-            towerControls
-                .padding(.top, titleHeight)
-                .padding(.horizontal, 5)
-                .offset(x: showingTowerControls ? 0 : -UIScreen.main.bounds.width, y: 0)
+
             VStack(spacing: 3) {
-                GeometryReader { geo in
+//                GeometryReader { geo in
                     ZStack {
                         Rectangle()
                             .fill(Color.main)
@@ -74,42 +70,76 @@ struct RingingRoomView: View {
                     .fixedSize(horizontal: false, vertical: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
                     .padding(.horizontal, 5)
                     .padding(.bottom, 5)
-                    .onAppear {
-                        self.titleHeight = geo.frame(in: .global).midY * 2
-                    }
-                }
-                .fixedSize(horizontal: false, vertical: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
-                Spacer()
-            }
-            VStack {
-                HStack {
-                    Spacer()
-                    if chatManager.newMessages > 0 {
-                        ZStack {
-                            Circle()
-                                .fill(Color.main)
-                                .frame(width: 27, height: 27)
-                            Text(String(chatManager.newMessages))
-                                .foregroundColor(.white)
-                                .bold()
+//                    .onAppear {
+//                        self.titleHeight = geo.frame(in: .global).midY * 2
+//                    }
+//                }
+//                .fixedSize(horizontal: false, vertical: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
+                ZStack {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            if chatManager.newMessages > 0 {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.main)
+                                        .frame(width: 27, height: 27)
+                                    Text(String(chatManager.newMessages))
+                                        .foregroundColor(.white)
+                                        .bold()
+                                }
+                            }
+                            Button(action: {
+                                withAnimation {
+                                    self.showingTowerControls.toggle()
+                                    if !self.showingTowerControls {
+                                        hideKeyboard()
+                                    }
+                                }
+                            }) {
+                                Image(systemName: "line.horizontal.3")
+                                    .font(.largeTitle)
+                                    //                                            .bold()
+                                    .foregroundColor(.primary)
+                                    .padding(5)
+                            }
                         }
+                        Spacer()
                     }
-                    Button(action: {
-                        withAnimation {
-                            self.showingTowerControls.toggle()
-                        }
-                    }) {
-                        Image(systemName: "line.horizontal.3")
-                            .font(.largeTitle)
-                            //                                            .bold()
-                            .foregroundColor(.primary)
-                            .padding(5)
-                    }
+                    towerControls
+                        .padding(.horizontal, 5)
+                        .offset(x: showingTowerControls ? 0 : -UIScreen.main.bounds.width, y: 0)
                 }
-                Spacer()
-
             }
-            .padding(.top, titleHeight)
+//            VStack {
+//                HStack {
+//                    Spacer()
+//                    if chatManager.newMessages > 0 {
+//                        ZStack {
+//                            Circle()
+//                                .fill(Color.main)
+//                                .frame(width: 27, height: 27)
+//                            Text(String(chatManager.newMessages))
+//                                .foregroundColor(.white)
+//                                .bold()
+//                        }
+//                    }
+//                    Button(action: {
+//                        withAnimation {
+//                            self.showingTowerControls.toggle()
+//                        }
+//                    }) {
+//                        Image(systemName: "line.horizontal.3")
+//                            .font(.largeTitle)
+//                            //                                            .bold()
+//                            .foregroundColor(.primary)
+//                            .padding(5)
+//                    }
+//                }
+//                Spacer()
+//
+//            }
+//            .padding(.top, titleHeight)
 
         }
     }
@@ -365,7 +395,7 @@ struct RopeCircle:View {
             }
             .onAppear {
                 var center = CGPoint(x: geo.frame(in: .global).midX, y: geo.frame(in: .local).midY)
-                center.y -= 23
+                center.y += 20
                 if center.y > 100 && center.x > 100 {
                     print(bellCircle.assignments)
                     if !bellCircle.assignments.containsRingerForID(User.shared.ringerID) {

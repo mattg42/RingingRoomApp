@@ -59,7 +59,7 @@ class BellCircle: ObservableObject {
         }
     }
     
-    var setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false]
+    var setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false, "gotAssignments":false]
     
     static let setup = Notification.Name("setup")
     
@@ -82,6 +82,8 @@ class BellCircle: ObservableObject {
     
     var timer = Timer()
     var counter = 0.000
+    
+    var sortTimer = Timer()
     
     var radius:CGFloat {
         get {
@@ -114,6 +116,8 @@ class BellCircle: ObservableObject {
     @Published var callTextOpacity = 0.0
     
     var assignments = [Ringer]()
+    
+    var assignmentsBuffer = [Ringer?]()
     
     @Published var bellPositions = [BellPosition]()
     
@@ -175,6 +179,7 @@ class BellCircle: ObservableObject {
         print("new size from socketio")
         if setupComplete["gotSize"] == false {
             assignments = Array(repeating: Ringer.blank, count: newSize)
+            assignmentsBuffer = Array(repeating: nil, count: newSize)
             bellStates = Array(repeating: true, count: newSize)
             size = newSize
             getNewPositions(radius: radius, center: center)
@@ -182,9 +187,11 @@ class BellCircle: ObservableObject {
         if newSize > size {
             for i in 0..<(newSize - assignments.count) {
                 assignments.append(Ringer.blank)
+                assignmentsBuffer.append(nil)
             }
         } else if newSize < size {
             assignments = Array(assignments[..<newSize])
+            assignmentsBuffer = Array(assignmentsBuffer[..<newSize])
         }
             bellStates = Array(repeating: true, count: newSize)
             size = newSize
@@ -204,21 +211,30 @@ class BellCircle: ObservableObject {
     func assign(_ id:Int, to bell: Int) {
         print("assign", id, bell)
         let ringer = ringerForID(id)!
-        assignments[bell-1] = ringer
-        sortUsers()
-        objectWillChange.send()
+        assignmentsBuffer[bell-1] = ringer
+        sortTimer = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
         if ringer.userID == User.shared.ringerID {
             perspective = (assignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
         }
     }
     
-    func unAssign(at bell:Int) {
-        if assignments[bell - 1] != Ringer.blank {
-            assignments[bell - 1] = Ringer.blank
-            sortUsers()
-            objectWillChange.send()
-            perspective = (assignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+    @objc func updateAssignments() {
+        for (index, assignment) in assignmentsBuffer.enumerated() {
+            if assignment != nil {
+                assignments[index] = assignment!
+            }
         }
+        assignmentsBuffer = Array(repeating: nil, count: size)
+        sortUserArray()
+    }
+    
+    
+    func unAssign(at bell:Int) {
+//        if assignments[bell - 1] != Ringer.blank {
+            assignmentsBuffer[bell - 1] = Ringer.blank
+            sortTimer = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
+            perspective = (assignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+//        }
     }
     
     func newUserlist(_ newUsers:[[String:Any]]) {
@@ -257,6 +273,11 @@ class BellCircle: ObservableObject {
     }
     
     func sortUsers() {
+//        sortTimer.invalidate()
+        sortTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(sortUserArray), userInfo: nil, repeats: false)
+    }
+    
+    @objc func sortUserArray() {
         print(users.ringers)
         var tempUsers = users
         var newUsers = [Ringer]()
@@ -271,9 +292,13 @@ class BellCircle: ObservableObject {
         tempUsers.sortAlphabetically()
         newUsers += tempUsers
         print(newUsers.ringers)
+        objectWillChange.send()
         users = newUsers
+        if !setupComplete["gotAssignments"]! {
+            setupComplete["gotAssignments"] = true
+            NotificationCenter.default.post(name: BellCircle.setup, object: nil )
+        }
     }
-    
 
 }
 
@@ -329,7 +354,7 @@ extension Array where Element == Ringer {
     
     mutating func sortAlphabetically() {
         self.sort { (first, second) -> Bool in
-            first.name > second.name
+            first.name.lowercased() < second.name.lowercased()
         }
     }
     
