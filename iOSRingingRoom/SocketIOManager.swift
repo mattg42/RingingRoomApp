@@ -69,19 +69,16 @@ class SocketIOManager: NSObject {
         }
         
         socket.on("s_set_userlist") { data, ack in
-            print(self.getDict(data)["user_list"])
             if self.bellCircle.setupComplete["gotUserList"] == false {
                 print("set true")
                 self.bellCircle.setupComplete["gotUserList"] = true
-                print(self.bellCircle.setupComplete["gotUserList"])
                 NotificationCenter.default.post(name: BellCircle.setup, object: nil )
             }
             self.bellCircle.newUserlist(self.getDict(data)["user_list"] as! [[String:Any]])
         }
         
         socket.on("s_assign_user") { data, ack in
-            var id = self.getDict(data)["user"] as? Int
-            print(id)
+            let id = self.getDict(data)["user"] as? Int
             let bell = self.getDict(data)["bell"] as! Int
             if id != nil {
                 if id == 0 {
