@@ -185,7 +185,7 @@ class BellCircle: ObservableObject {
             getNewPositions(radius: radius, center: center)
         } else {
         if newSize > size {
-            for i in 0..<(newSize - assignments.count) {
+            for _ in 0..<(newSize - assignments.count) {
                 assignments.append(Ringer.blank)
                 assignmentsBuffer.append(nil)
             }
