@@ -92,7 +92,7 @@ struct SimpleLoginView: View {
                         AccountCreationView(isPresented: self.$showingAccountCreationView, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
                     }
                 }
-                .foregroundColor(Color(red: 178/255, green: 39/255, blue: 110/255))
+                .accentColor(Color.main)
             }
             .padding()
             .navigationBarItems(leading: Button("Back") {self.presentationMode.wrappedValue.dismiss()})

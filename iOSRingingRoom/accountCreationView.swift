@@ -77,6 +77,7 @@ struct AccountCreationView: View {
             }.navigationBarTitle("Create Account", displayMode: .inline)
                 .navigationBarItems(trailing: Button(action: {self.presentationMode.wrappedValue.dismiss()}) {Text("Back").bold()})
         }
+        .accentColor(.main)
     .navigationViewStyle(StackNavigationViewStyle())
     .onAppear(perform: {
         self.comController = CommunicationController(sender: self)

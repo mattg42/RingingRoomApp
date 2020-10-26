@@ -32,6 +32,7 @@ struct agreeToPrivacyPolicyView: View {
             .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {Text("Back").bold()})
             
         }
+        .accentColor(.main)
     .navigationViewStyle(StackNavigationViewStyle())
     }
 }

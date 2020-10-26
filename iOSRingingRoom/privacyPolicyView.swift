@@ -145,6 +145,7 @@ struct privacyPolicyView: View {
                 Text("Should you wish to report a complaint or if you feel that Ringing Room has not addressed your concern in a satisfactory manner, you may contact the Information Commissioner's Office at https://ico.org.uk")
             }
         }
+        .accentColor(.main)
         .padding()
     }
 }
