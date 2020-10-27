@@ -49,6 +49,42 @@ struct RingingRoomView: View {
             backgroundColor.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
 
             ringingView
+            VStack {
+//                GeometryReader { geo in
+                    ZStack {
+                        Rectangle()
+                            .fill(Color.main)
+                            .cornerRadius(5)
+                        Text(bellCircle.towerName)
+                        .colorInvert()
+                        .font(Font.custom("Simonetta-Black", size: 30))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .scaleEffect(0.9)
+                        .padding(.vertical, 4)
+                    }
+//                    .padding(.top, -5)
+                    .fixedSize(horizontal: false, vertical: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
+                    .padding(.horizontal, 5)
+                    .opacity(0)
+//                    .onAppear {
+//                        self.titleHeight = geo.frame(in: .global).midY * 2
+//                    }
+//                }
+//                .fixedSize(horizontal: false, vertical: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
+                ZStack {
+
+                    VStack {
+                        HStack {
+                            HelpButton()
+                                .padding(.leading, 5)
+                            Spacer()
+                        }
+                        Spacer()
+                    }
+                }
+            }
+  
             Color.primary.colorInvert().edgesIgnoringSafeArea(.all)
                 .offset(x: showingTowerControls ? 0 : -UIScreen.main.bounds.width, y: 0)
 
@@ -76,6 +112,7 @@ struct RingingRoomView: View {
 //                }
 //                .fixedSize(horizontal: false, vertical: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
                 ZStack {
+
                     VStack {
                         HStack {
                             Spacer()
@@ -144,6 +181,31 @@ struct RingingRoomView: View {
         }
     }
     
+}
+
+struct HelpButton:View {
+    @State var presentingHelp = false
+    
+    var body: some View {
+        Button(action:  {
+            self.presentingHelp = true
+        }) {
+            ZStack {
+                Color.main.cornerRadius(5)
+//                    .fixedSize()
+                Text("Help")
+                .bold()
+                    .padding(3)
+                    .padding(.horizontal, 5)
+                    .foregroundColor(Color.white)
+            }
+            .fixedSize()
+        }
+        .sheet(isPresented: self.$presentingHelp) {
+            HelpView(asSheet: true, isPresented: self.$presentingHelp)
+                .accentColor(.main)
+        }
+    }
 }
 
 struct RingingView:View {
@@ -376,18 +438,18 @@ struct RopeCircle:View {
                         }) {
                             ZStack {
                                 Color.main.cornerRadius(5)
-                                VStack {
-                                    Text("Set at")
+//                                 VStack {
+                                    Text("Set at hand")
                                         .bold()
-                                    Text("hand")
-                                        .bold()
-                                }
+//                                    Text("hand")
+//                                        .bold()
+//                                }
                                 .foregroundColor(.white)
                                     .padding(3)
                             }
                             .fixedSize()
                         }
-                        .padding(.bottom, -2)
+//                        .padding(.bottom, -2)
                         .padding(.leading, 5)
                         Spacer()
                     }
@@ -459,8 +521,6 @@ extension String {
 }
 
 struct TowerControlsView:View {
-    @State private var presentingHelp = false
-
     @ObservedObject var bellCircle = BellCircle.current
 
     @State private var permitHostMode:Bool = false
@@ -483,9 +543,9 @@ struct TowerControlsView:View {
 
     @State private var showingUsers = false
 
-    @State private var viewOffset:CGFloat = 0
-    @State private var keyboardHeight:CGFloat = 0
-    @State private var messageFieldYPosition:CGFloat = 0
+//    @State private var viewOffset:CGFloat = 0
+//    @State private var keyboardHeight:CGFloat = 0
+//    @State private var messageFieldYPosition:CGFloat = 0
 
     init() {
         print("new towerControls")
@@ -517,8 +577,8 @@ struct TowerControlsView:View {
                 .padding(.bottom, 3)
                 if !self.bellCircle.hostModeEnabled || bellCircle.isHost {
                     HStack {
-
-
+                        
+                        
                         Picker(selection: .init(get: {(self.bellCircle.size-4)/2}, set: {self.sizeChanged(value:$0)}), label: Text("Tower size picker")) {
                             ForEach(0..<5) { i in
                                 Text(String(self.towerSizes[i]))
@@ -528,7 +588,7 @@ struct TowerControlsView:View {
                         //                            .padding(.horizontal)
                         //                                .padding(.top, 10)
                         .pickerStyle(SegmentedPickerStyle())
-
+                        
                     }
                     .padding(.top, 5)
                     .padding(.bottom, -6)
@@ -540,34 +600,34 @@ struct TowerControlsView:View {
                         Text("Enable host mode")
                     }
                 }
-
-                    TabView(selection: $selectedView) {
-                        UsersView(selectedView: $selectedView)
-                            .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
-                            .padding(.vertical)
-                            .padding(.bottom, 35)
-                            .tag(1)
-                            .padding(.horizontal, 5)
-
-                        ChatView(selectedView: $selectedView)
-                            .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical)
-                            .padding(.bottom, 35)
-                            .tag(2)
-                    }
-                    .padding(.horizontal, -5)
-                    .onChange(of: selectedView, perform: { _ in
-                        if selectedView == 1 {
-                            ChatManager.shared.canSeeMessages = false
-                        } else {
-                            withAnimation {
-                                ChatManager.shared.canSeeMessages = true
-                            }
+                
+                TabView(selection: $selectedView) {
+                    UsersView(selectedView: $selectedView)
+                        .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
+                        .padding(.vertical)
+                        .padding(.bottom, 35)
+                        .tag(1)
+                        .padding(.horizontal, 5)
+                    
+                    ChatView(selectedView: $selectedView)
+                        .shadow(color: Color.gray.opacity(0.4), radius: 7, x: 0, y: 0)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical)
+                        .padding(.bottom, 35)
+                        .tag(2)
+                }
+                .padding(.horizontal, -5)
+                .onChange(of: selectedView, perform: { _ in
+                    if selectedView == 1 {
+                        ChatManager.shared.canSeeMessages = false
+                    } else {
+                        withAnimation {
+                            ChatManager.shared.canSeeMessages = true
                         }
-                    })
-                    .tabViewStyle(PageTabViewStyle())
-                    .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+                    }
+                })
+                .tabViewStyle(PageTabViewStyle())
+                .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
             }
             VStack {
                 Spacer()
@@ -581,34 +641,25 @@ struct TowerControlsView:View {
                     }
                     .background(Color.main.cornerRadius(5))
                     Spacer()
-                    Button(action:  {
-                        self.presentingHelp = true
-                    }) {
-                        Text("Help")
-                            .bold()
-                            .foregroundColor(Color.main)
-                    }
-                    .sheet(isPresented: self.$presentingHelp) {
-                        HelpView(asSheet: true, isPresented: self.$presentingHelp)
-                    }
+                    HelpButton()
                 }
             }
             .padding(.bottom, 12)
-//            .onReceive(Publishers.keyboardHeight) {
-//                self.keyboardHeight = $0
-//                print(self.keyboardHeight)
-//                let offset = self.keyboardHeight - self.messageFieldYPosition
-//                print("offset: ",offset)
-//                if offset <= 0 {
-//                    withAnimation(.easeIn(duration: 0.24)) {
-//                        self.viewOffset = 0
-//                    }
-//                } else {
-//                    withAnimation(.easeOut(duration: 0.35)) {
-//                        self.viewOffset = -offset
-//                    }
-//                }
-//            }
+            //            .onReceive(Publishers.keyboardHeight) {
+            //                self.keyboardHeight = $0
+            //                print(self.keyboardHeight)
+            //                let offset = self.keyboardHeight - self.messageFieldYPosition
+            //                print("offset: ",offset)
+            //                if offset <= 0 {
+            //                    withAnimation(.easeIn(duration: 0.24)) {
+            //                        self.viewOffset = 0
+            //                    }
+            //                } else {
+            //                    withAnimation(.easeOut(duration: 0.35)) {
+            //                        self.viewOffset = -offset
+            //                    }
+            //                }
+            //            }
         }
     }
 
