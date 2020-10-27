@@ -76,7 +76,7 @@ struct SettingsView: View {
                     Spacer()
                     Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String) (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String))")
                         .font(.footnote)
-                    Text("By Matthew Goodship   ")
+                    Text("By Matthew Goodship")
                         .font(.footnote)
                 }
                 .padding()
