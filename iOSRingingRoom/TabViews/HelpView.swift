@@ -60,7 +60,6 @@ struct QuickStartGuideView:View {
     var body: some View {
         Form {
             Section {
-                NavigationLink("Computing set-up", destination: ComputingSetUpView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Creating an account", destination: CreatingAnAccountView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Creating or joining a tower", destination: CreatingOrJoiningATowerView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Ringing the Bells", destination: RingingTheBellsView(asSheet: self.asSheet, isPresented: self.$isPresented))
@@ -91,41 +90,6 @@ struct QuickStartGuideView:View {
             
         })
             .navigationBarTitle("Quick Start Guide", displayMode: .inline)
-    }
-}
-
-struct ComputingSetUpView:View {
-    
-    var asSheet:Bool
-    
-    @Binding var isPresented:Bool
-    
-    var body:some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("The ideal computing set-up for using the Ringing Room website is:")
-                VStack(alignment: .leading) {
-                    bulletLine(text: "Hardware: A laptop or desktop computer")
-                    bulletLine(text: "Operating System: any modern operating system")
-                    bulletLine(text: "Browser: Google Chrome or the latest version of Microsoft Edge (Other browsers may be OK)")
-                    bulletLine(text: "Voice Chat: There is text chat in Ringing Room, but voice chat is often preferred. We suggest Zoom or Discord.")
-                    bulletLine(text: "Headphones: Ideal to reduce echo and double-clappering")
-                    bulletLine(text: "Internet Connection: Use a wired connection where wireless is too slow.")
-                }
-                Text("Alternatively, if you use an iPhone, you can download the free Ringing Room app from the App Store")
-                Spacer()
-            }
-        }
-        .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
-            if asSheet {
-                Text("Dismiss")
-            } else {
-                Text("")
-            }
-            
-        })
-            .padding()
-            .navigationBarTitle("Computing set-up", displayMode: .inline)
     }
 }
 
@@ -261,21 +225,6 @@ struct QuickStartGuideTextView:View {
     @Binding var isPresented:Bool
     var body: some View {
             VStack(alignment: .leading, spacing: 10) {
-                Group {
-                    Text("Computing set-up")
-                        .font(.headline)
-                        .bold()
-                    Text("The ideal computing set-up for using the Ringing Room website is:")
-                    VStack(alignment: .leading) {
-                        bulletLine(text: "Hardware: A laptop or desktop computer")
-                        bulletLine(text: "Operating System: any modern operating system")
-                        bulletLine(text: "Browser: Google Chrome or the latest version of Microsoft Edge (Other browsers may be OK)")
-                        bulletLine(text: "Voice Chat: There is text chat in Ringing Room, but voice chat is often preferred. We suggest Zoom or Discord.")
-                        bulletLine(text: "Headphones: Ideal to reduce echo and double-clappering")
-                        bulletLine(text: "Internet Connection: Use a wired connection where wireless is too slow.")
-                    }
-                    Text("Alternatively, if you use an iPhone, you can download the free Ringing Room app from the App Store.")
-                }
                 Group {
                     Text("Creating an account")
                         .font(.headline)
