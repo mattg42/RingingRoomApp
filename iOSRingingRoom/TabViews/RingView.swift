@@ -52,51 +52,60 @@ struct RingView: View {
 //            }
 //            .pickerStyle(SegmentedPickerStyle())
             ScrollView {
-                VStack {
-//                    if User.shared.myTowers[0].tower_id != 0 {
-                        ForEach(User.shared.myTowers) { tower in
+                ScrollViewReader { value in
+                    VStack {
+    //                    if User.shared.myTowers[0].tower_id != 0 {
+                            ForEach(User.shared.myTowers) { tower in
 
-                            if tower.tower_id != 0 {
-                                Button(action: {self.towerID = String(tower.tower_id)}) {
-                                    Text(String(tower.tower_id))
-                                        .towerButtonStyle(isSelected: (String(tower.tower_id) == self.towerID), name: tower.tower_name)
+                                if tower.tower_id != 0 {
+                                    Button(action: {self.towerID = String(tower.tower_id)}) {
+                                        Text(String(tower.tower_id))
+                                            .towerButtonStyle(isSelected: (String(tower.tower_id) == self.towerID), name: tower.tower_name)
+                                    }
+                                    .frame(height: 40)
+                                    .padding(.horizontal)
+                                    .buttonStyle(CustomButtonStyle())
+                                    .cornerRadius(10)
+                                    .id(tower.tower_id)
+                                } else {
+                                    /*@START_MENU_TOKEN@*/EmptyView()/*@END_MENU_TOKEN@*/
                                 }
-                                .frame(height: 40)
-                                .padding(.horizontal)
-                                .buttonStyle(CustomButtonStyle())
-                                .cornerRadius(10)
-                            } else {
-                                /*@START_MENU_TOKEN@*/EmptyView()/*@END_MENU_TOKEN@*/
+                                //                        .contextMenu {
+                                //                            Button(action: {
+                                //                                print("")
+                                //                            }) {
+                                //                                HStack {
+                                //                                    Image(systemName: "bookmark")
+                                //                                    Text("Favourite")
+                                //                                }
+                                //                            }
+                                //
+                                //                            Button(action: {
+                                //                                print("")
+                                //                            }) {
+                                //                                HStack {
+                                //                                    Image(systemName: "gear")
+                                //                                    Text("Settings")
+                                //                                }
+                                //                            }
+                                //
+                                //                            Button(action: {
+                                //                                print("")
+                                //                            }) {
+                                //                                Image(systemName: "minus.circle")
+                                //                                    .accentColor(.red)
+                                //                                Text("Remove")
+                                //                            }
+                                //                        }
                             }
-                            //                        .contextMenu {
-                            //                            Button(action: {
-                            //                                print("")
-                            //                            }) {
-                            //                                HStack {
-                            //                                    Image(systemName: "bookmark")
-                            //                                    Text("Favourite")
-                            //                                }
-                            //                            }
-                            //
-                            //                            Button(action: {
-                            //                                print("")
-                            //                            }) {
-                            //                                HStack {
-                            //                                    Image(systemName: "gear")
-                            //                                    Text("Settings")
-                            //                                }
-                            //                            }
-                            //
-                            //                            Button(action: {
-                            //                                print("")
-                            //                            }) {
-                            //                                Image(systemName: "minus.circle")
-                            //                                    .accentColor(.red)
-                            //                                Text("Remove")
-                            //                            }
-                            //                        }
-                        }
-//                    }
+    //                    }
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: Notification.Name.gotMyTowers)) { _ in
+                        value.scrollTo(user.myTowers.last!.tower_id)
+                    }
+                    .onAppear {
+                        value.scrollTo(user.myTowers.last!.tower_id)
+                    }
                 }
             }
                 TextField("Tower name or id", text: $towerID)
@@ -144,6 +153,7 @@ struct RingView: View {
                             return
                         }
                     }
+                    comController.getMyTowers()
                     self.presentRingingRoomView()
                 }
             }
@@ -204,6 +214,16 @@ struct RingView: View {
         }
     }
     
+    func updatedMyTowers() {
+        NotificationCenter.default.post(name: Notification.Name("gotMyTowers"), object: nil)
+//        BellCircle.current.towerName = response["tower_name"] as! String
+//        BellCircle.current.towerID = response["tower_id"] as! Int
+////        BellCircle.current.isHost = user.myTowers.towerForID(response["tower_id"] as! Int)!.host
+//
+////            comController.getHostModePermitted(BellCircle.current.towerID)
+//        SocketIOManager.shared.connectSocket(server_ip: response["server_address"] as! String)
+    }
+    
     func presentRingingRoomView() {
         if BellCircle.current.ringingroomIsPresented == false {
             DispatchQueue.main.async {
@@ -252,3 +272,7 @@ extension View {
     }
 }
 #endif
+
+extension Notification.Name {
+    static let gotMyTowers = Notification.Name("gotMyTowers")
+}

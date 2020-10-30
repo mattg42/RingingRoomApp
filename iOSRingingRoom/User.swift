@@ -33,8 +33,8 @@ class User:ObservableObject {
     
     func sortTowers() {
         self.objectWillChange.send()
-        self.myTowers.sort(by: { $0.tower_name <
-            $1.tower_name } )
+        self.myTowers.sort(by: { $0.visited <
+            $1.visited } )
     }
 }
 
