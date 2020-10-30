@@ -256,6 +256,9 @@ class BellCircle: ObservableObject {
     }
     
     func newUserlist(_ newUsers:[[String:Any]]) {
+        users = [Ringer]()
+        assignments = [Ringer]()
+        
         for newRinger in newUsers {
             let ringer = Ringer.blank
             ringer.userID = newRinger["user_id"] as! Int
