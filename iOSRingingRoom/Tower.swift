@@ -26,6 +26,7 @@ class Tower:Identifiable, Hashable {
     init(id:Int, name:String, host:Int, recent:Int, visited:String, creator:Int, bookmark:Int) {
         var date = Date()
         if visited != "" {
+            print(name, host)
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "E, dd MMM y hh:mm:ss a"
             
@@ -34,7 +35,6 @@ class Tower:Identifiable, Hashable {
             lastVisited = String(visited[visited.startIndex..<visited.index(visited.endIndex, offsetBy: -4)])
             
             
-            print(lastVisited)
             var temp1Array = lastVisited.split(separator: ":")
             var temp2Array = String(temp1Array[0]).split(separator: " ")
             let tempStr = temp2Array[temp2Array.count-1]
@@ -48,9 +48,7 @@ class Tower:Identifiable, Hashable {
             } else {
                 lastVisited.append(" am")
             }
-            print(lastVisited)
             date = dateFormatter.date(from: lastVisited) ?? Date()
-            print(date)
         }
         
         self.tower_id = id
