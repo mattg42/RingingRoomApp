@@ -286,6 +286,8 @@ struct RingingView:View {
                     }
                 }
             }
+            .disabled(!canCall())
+            .opacity(canCall() ? 1 : 0.35)
             .padding(.horizontal, 5)
             .padding(.bottom, 5)
             
@@ -309,6 +311,20 @@ struct RingingView:View {
 //        bellCircle.timer = Timer.scheduledTimer(withTimeInterval: 0.001, repeats: true, block: { _ in
 //            bellCircle.counter += 1
 //        })
+    }
+    
+    func canCall() -> Bool {
+        if bellCircle.isHost {
+            return true
+        } else if bellCircle.hostModeEnabled {
+            if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return true
+        }
     }
     
 }
@@ -390,6 +406,8 @@ struct RopeCircle:View {
                                 Text(String(bellNumber+1))
                                     .opacity(bellCircle.bellPositions[bellNumber].side == .right ? 0 : 1)
                             }
+                            .disabled(!canRing(bellNumber))
+                            .opacity(canRing(bellNumber) ? 1 : 0.35)
                         }
                         .buttonStyle(TouchDown(isAvailible: true))
                         .foregroundColor(.primary)
@@ -490,6 +508,20 @@ struct RopeCircle:View {
         return imageName
     }
     
+    func canRing(_ number:Int) -> Bool {
+        if bellCircle.isHost {
+            return true
+        } else if bellCircle.hostModeEnabled {
+            if bellCircle.assignments[number].userID == User.shared.ringerID {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return true
+        }
+    }
+    
 }
 
 struct TouchDown: PrimitiveButtonStyle {
@@ -555,6 +587,7 @@ struct TowerControlsView:View {
         ZStack {
             VStack(spacing: 0) {
                 HStack {
+                    if hasPermissions() {
                     Picker(selection: .init(get: {self.bellTypes.firstIndex(of: self.bellCircle.bellType)!}, set: {self.bellTypeChanged(value:$0)}), label: Text("Bell type picker")) {
                         ForEach(0..<2) { i in
                             Text(self.bellTypes[i].rawValue)
@@ -564,18 +597,30 @@ struct TowerControlsView:View {
                     //                            .padding(.horizontal)
                     //                            .padding(.top, 7)
                     .pickerStyle(SegmentedPickerStyle())
+                    }
+                    Spacer()
                     Text(String(bellCircle.towerID))
+                        .padding(.top, hasPermissions() ? 0 : 4)
                     Button(action: {
                         let pasteboard = UIPasteboard.general
                         pasteboard.string = String(self.bellCircle.towerID)
                     }) {
                         Text("Copy")
                     }
+                    .padding(.top, hasPermissions() ? 0 : 4)
                     .foregroundColor(.main)
                     Spacer()
+                    if hasPermissions() {
+                    Image(systemName: "line.horizontal.3")
+                        .font(.largeTitle)
+                        //                                            .bold()
+                        .foregroundColor(.primary)
+                        .padding(5)
+                        .opacity(0)
+                    }
                 }
                 .padding(.bottom, 3)
-                if !self.bellCircle.hostModeEnabled || bellCircle.isHost {
+                if hasPermissions() {
                     HStack {
                         
                         
@@ -593,13 +638,13 @@ struct TowerControlsView:View {
                     .padding(.top, 5)
                     .padding(.bottom, -6)
                 }
-                if bellCircle.isHost && self.permitHostMode {
-                    Toggle(isOn: .init(get: {self.bellCircle.hostModeEnabled}, set: { newValue in
-                        SocketIOManager.shared.socket.emit("c_host_mode", ["new_mode":newValue, "tower_id":self.bellCircle.towerID])
-                    }) ) {
-                        Text("Enable host mode")
-                    }
-                }
+//                if bellCircle.isHost && bellCircle.hostModePermitted {
+//                    Toggle(isOn: .init(get: {self.bellCircle.hostModeEnabled}, set: { newValue in
+//                        SocketIOManager.shared.socket.emit("c_host_mode", ["new_mode":newValue, "tower_id":self.bellCircle.towerID])
+//                    }) ) {
+//                        Text("Enable host mode")
+//                    }
+//                }
                 
                 TabView(selection: $selectedView) {
                     UsersView(selectedView: $selectedView)
@@ -663,6 +708,16 @@ struct TowerControlsView:View {
         }
     }
 
+    func hasPermissions() -> Bool {
+        if bellCircle.isHost {
+            return true
+        } else if bellCircle.hostModeEnabled {
+            return false
+        } else {
+            return true
+        }
+    }
+    
     func update() {
         self.updateView.toggle()
         print("updated tower controls")
@@ -780,7 +835,7 @@ struct UsersView:View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 9)
                         VStack(alignment: .trailing, spacing: -7) {
-                            ForEach(0..<self.bellCircle.size, id: \.self) { number in
+                            ForEach(0..<self.bellCircle.assignments.count, id: \.self) { number in
                                 HStack(alignment: .top) {
                                     if self.canUnassign(number)  {
                                         Button(action: {

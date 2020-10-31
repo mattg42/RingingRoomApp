@@ -113,6 +113,8 @@ class SocketIOManager: NSObject {
                 self.bellCircle.setupComplete["gotHostMode"] = true
                 NotificationCenter.default.post(name: BellCircle.setup, object: nil )
             }
+            self.bellCircle.objectWillChange.send()
+            self.bellCircle.hostModeEnabled = self.getDict(data)["new_mode"] as! Bool
         }
         
         socket.on("s_msg_sent") { data, ack in

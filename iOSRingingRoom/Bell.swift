@@ -50,7 +50,7 @@ class BellCircle: ObservableObject {
     
     var audioController = AudioController()
     
-    @Published var size = 0
+    var size = 0
     
     var perspective = 1 {
         didSet {
@@ -65,7 +65,7 @@ class BellCircle: ObservableObject {
     
     let setupPublisher = NotificationCenter.default.publisher(for: BellCircle.setup)
     
-    @Published var bellType:BellType = BellType.hand
+    var bellType:BellType = BellType.hand
     
     var baseRadius:CGFloat = 0
     
@@ -111,17 +111,17 @@ class BellCircle: ObservableObject {
     
     var users = [Ringer]()
     
-    @Published var currentCall = ""
+    var currentCall = ""
     var callTimer = Timer()
-    @Published var callTextOpacity = 0.0
+    var callTextOpacity = 0.0
     
     var assignments = [Ringer]()
     
     var assignmentsBuffer = [Ringer?]()
     
-    @Published var bellPositions = [BellPosition]()
+    var bellPositions = [BellPosition]()
     
-    @Published var bellStates = [Bool]()
+    var bellStates = [Bool]()
     
     func getNewPositions(radius:CGFloat, center:CGPoint) {
         let angleIncrement:Double = 360/Double(size)
@@ -159,7 +159,7 @@ class BellCircle: ObservableObject {
         var fileName = BellCircle.sounds[bellType]![size]![number-1]
         fileName = fileName.prefix(String(bellType.rawValue.first!))
         audioController.play(fileName)
-//        objectWillChange.send()
+        objectWillChange.send()
         self.bellStates = bellStates
     }
     
@@ -167,9 +167,11 @@ class BellCircle: ObservableObject {
         audioController.play("C" + call)
         currentCall = call
         callTextOpacity  = 1
+        objectWillChange.send()
         callTimer.invalidate()
         callTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
             withAnimation {
+                self.objectWillChange.send()
                 self.callTextOpacity = 0
             }
         })
@@ -197,6 +199,7 @@ class BellCircle: ObservableObject {
             size = newSize
             getNewPositions(radius: radius, center: center)
         }
+        objectWillChange.send()
     }
     
     func ringerForID(_ id:Int) -> Ringer? {
@@ -220,6 +223,7 @@ class BellCircle: ObservableObject {
                     tempAssignments[index] = assignment!
                 }
             }
+            objectWillChange.send()
             perspective = (tempAssignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
         }
     }
@@ -265,16 +269,15 @@ class BellCircle: ObservableObject {
             ringer.name = newRinger["username"] as! String
             print(ringer.userID)
             if !users.containsRingerForID(ringer.userID) {
-                objectWillChange.send()
                 users.append(ringer)
                 print(users.ringers)
             }
         }
+        objectWillChange.send()
     }
     
     func newUser(id:Int, name:String) {
         if !users.containsRingerForID(id) {
-            objectWillChange.send()
             users.append(Ringer(name: name, id: id))
             sortUsers()
         }
@@ -288,6 +291,7 @@ class BellCircle: ObservableObject {
     func newAudio(_ audio:String) {
         for type in BellType.allCases {
             if type.rawValue == audio {
+                objectWillChange.send()
                 bellType = type
             }
         }

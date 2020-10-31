@@ -43,6 +43,8 @@ struct RingView: View {
     
     @State var sink:AnyCancellable!
     
+    @State var response = [String:Any]()
+    
     var body: some View {
         VStack(spacing: 20) {
 //            Picker("Tower list selection", selection: $towerListSelection) {
@@ -153,7 +155,6 @@ struct RingView: View {
                             return
                         }
                     }
-                    comController.getMyTowers()
                     self.presentRingingRoomView()
                 }
             }
@@ -187,6 +188,7 @@ struct RingView: View {
     
     func joinTower() {
         print("joined tower")
+
         if isID(str: self.towerID) {
             self.getTowerConnectionDetails()
             return
@@ -207,25 +209,27 @@ struct RingView: View {
             self.alertTitle = Text("There is no tower with that ID")
             self.showingAlert = true
         } else {
-            BellCircle.current.towerName = response["tower_name"] as! String
-            BellCircle.current.towerID = response["tower_id"] as! Int
-    
-            SocketIOManager.shared.connectSocket(server_ip: response["server_address"] as! String)
+//            if user.myTowers.towerForID(response["tower_id"] as! Int) == nil {
+//                self.response = response
+//                comController.getMyTowers()
+//            } else {
+                BellCircle.current.towerName = response["tower_name"] as! String
+                BellCircle.current.towerID = response["tower_id"] as! Int
+                BellCircle.current.isHost = user.myTowers.towerForID(response["tower_id"] as! Int)?.host ?? false
+                
+    //            comController.getHostModePermitted(BellCircle.current.towerID)
+                SocketIOManager.shared.connectSocket(server_ip: response["server_address"] as! String)
+//            }
         }
     }
     
     func updatedMyTowers() {
         NotificationCenter.default.post(name: Notification.Name("gotMyTowers"), object: nil)
-//        BellCircle.current.towerName = response["tower_name"] as! String
-//        BellCircle.current.towerID = response["tower_id"] as! Int
-////        BellCircle.current.isHost = user.myTowers.towerForID(response["tower_id"] as! Int)!.host
-//
-////            comController.getHostModePermitted(BellCircle.current.towerID)
-//        SocketIOManager.shared.connectSocket(server_ip: response["server_address"] as! String)
     }
     
     func presentRingingRoomView() {
         if BellCircle.current.ringingroomIsPresented == false {
+            comController.getMyTowers()
             DispatchQueue.main.async {
                 self.viewControllerHolder?.present(style: .fullScreen, name: "RingingRoom") {
                     self.ringingRoomView
