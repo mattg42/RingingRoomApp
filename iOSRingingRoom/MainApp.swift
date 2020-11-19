@@ -53,14 +53,14 @@ struct MainApp: View {
         }
         .onAppear {
             if autoJoinTower {
-                self.ringView.towerID = String(autoJoinTowerID)
+                User.shared.towerID = String(autoJoinTowerID)
                 self.ringView.joinTower()
             }
         }
         .onOpenURL { url in
             guard let towerID = url.towerID else { return }
             self.selectedTab = TabViewType.ring
-            self.ringView.towerID = String(towerID)
+            User.shared.towerID = String(towerID)
             self.ringView.joinTower()
         }
         .accentColor(Color.main)

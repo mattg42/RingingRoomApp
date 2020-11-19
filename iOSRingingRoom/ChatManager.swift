@@ -14,7 +14,7 @@ class ChatManager:ObservableObject {
     
     var canSeeMessages = false {
         didSet {
-            if canSeeMessages == true {
+            if canSeeMessages {
                 newMessages = 0
             }
         }

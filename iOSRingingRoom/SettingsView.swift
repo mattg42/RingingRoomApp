@@ -28,15 +28,34 @@ struct SettingsView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     
+    @State private var newUsername = ""
+    
+    @State private var changesAlert = false
     
     var body: some View {
         NavigationView {
             ZStack {
             Form {
                 if loggedIn {
-                    Section(header: Text("Username")) {
-                        Text("Current username: \(User.shared.name)")
+                    Section(header: Text("Current username: \(User.shared.name)")) {
+                        Button("Change username", action: {})
+//                        Text("Current username: \(User.shared.name)")
+//                        TextField("New username", text: $newUsername)
+                            
                     }
+                    Section {
+                        Button(action: {
+                            self.changesAlert = true
+                        }) {
+                            Text("Save changes")
+                        }
+                        
+//                        .alert(isPresented: self.$changesAlert, content: {
+//
+//                            Alert(title: "New username", message: <#T##Text?#>, primaryButton: <#T##Alert.Button#>, secondaryButton: <#T##Alert.Button#>)
+//                        })
+                    }
+//                    Spacer()
                     Section {
                         Button("Log out") {
                             self.presentingAlert = true
@@ -122,17 +141,16 @@ struct SettingsView: View {
     
     func logout() {
         
-        User.shared.loggedIn = false
-        User.shared.name = ""
-        User.shared.email = ""
-        User.shared.myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
-        User.shared.firstTower = true
-        
+        User.shared.objectWillChange.send()
+        User.shared.reset()
         
         CommunicationController.token = nil
         UserDefaults.standard.set("", forKey: "userEmail")
         UserDefaults.standard.set("", forKey: "userPassword")
         UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
+        
+        UserDefaults.standard.set("", forKey: "savedTower")
+        
         self.loggedIn = false
         print("logged out")
     }

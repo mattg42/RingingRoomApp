@@ -9,6 +9,8 @@
 import Foundation
 import Combine
 import SwiftUI
+import AVKit
+import AVFoundation
 
 enum Side {
     case left, right
@@ -88,13 +90,13 @@ class BellCircle: ObservableObject {
     var radius:CGFloat {
         get {
             var returnValue = self.baseRadius
-            returnValue -= 20
+            returnValue -= 25
             if bellType == .hand {
                 switch self.size {
                 case 6:
                     returnValue -= 20
-//                case 8:
-//                    returnValue -= 10
+                case 8:
+                    returnValue -= 5
                 case 10:
                     returnValue -= 10
                 case 12:
@@ -102,7 +104,21 @@ class BellCircle: ObservableObject {
                 default:
                     returnValue -= 0
                 }
+            } else {
+                switch self.size {
+                case 6:
+                    returnValue -= 20
+                case 8:
+                    returnValue -= 10
+                case 10:
+                    returnValue -= 5
+//                case 12:
+//                    returnValue -= 5
+                default:
+                    returnValue -= 0
+                }
             }
+            
             return returnValue
         }
     }
@@ -122,6 +138,35 @@ class BellCircle: ObservableObject {
     var bellPositions = [BellPosition]()
     
     var bellStates = [Bool]()
+        
+    var halfMuffled = false
+    
+    @Published var keyboardShowing = false
+    
+    init() {
+        let session = AVAudioSession()
+        do {
+            try session.setCategory(.playback)
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            print("audio error")
+        }
+        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+    }
+    
+    @objc func keyBoardWillShow(notification:Notification) {
+        withAnimation {
+            keyboardShowing = true
+        }
+    }
+    
+    @objc func keyBoardWillHide(notification:Notification) {
+        withAnimation {
+            keyboardShowing = false
+        }
+    }
     
     func getNewPositions(radius:CGFloat, center:CGPoint) {
         let angleIncrement:Double = 360/Double(size)
@@ -157,7 +202,16 @@ class BellCircle: ObservableObject {
     
     func bellRang(number:Int, bellStates:[Bool]) {
         var fileName = BellCircle.sounds[bellType]![size]![number-1]
-        fileName = fileName.prefix(String(bellType.rawValue.first!))
+        fileName.prefix(String(bellType.rawValue.first!))
+        print(fileName)
+        if bellType == .tower {
+            if halfMuffled {
+                if bellStates[number-1] {
+                    fileName += "-muf"
+                }
+            }
+        }
+        print(fileName)
         audioController.play(fileName)
         objectWillChange.send()
         self.bellStates = bellStates
@@ -186,19 +240,22 @@ class BellCircle: ObservableObject {
             size = newSize
             getNewPositions(radius: radius, center: center)
         } else {
-        if newSize > size {
-            for _ in 0..<(newSize - assignments.count) {
-                assignments.append(Ringer.blank)
-                assignmentsBuffer.append(nil)
+            if newSize > size {
+                for _ in 0..<(newSize - assignments.count) {
+                    assignments.append(Ringer.blank)
+                    assignmentsBuffer.append(nil)
+                }
+            } else if newSize < size {
+                assignments = Array(assignments[..<newSize])
+                assignmentsBuffer = Array(assignmentsBuffer[..<newSize])
+            } else {
+                
             }
-        } else if newSize < size {
-            assignments = Array(assignments[..<newSize])
-            assignmentsBuffer = Array(assignmentsBuffer[..<newSize])
-        }
             bellStates = Array(repeating: true, count: newSize)
             size = newSize
             getNewPositions(radius: radius, center: center)
         }
+        print("assignments", assignments)
         objectWillChange.send()
     }
     
@@ -226,6 +283,14 @@ class BellCircle: ObservableObject {
             objectWillChange.send()
             perspective = (tempAssignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
         }
+    }
+    
+    func ringBell(_ number:Int) {
+            SocketIOManager.shared.socket.emit("c_bell_rung", ["bell": number, "stroke": (bellStates[number - 1]), "tower_id": towerID])
+//        bellCircle.timer.tolerance = 0
+//        bellCircle.timer = Timer.scheduledTimer(withTimeInterval: 0.001, repeats: true, block: { _ in
+//            bellCircle.counter += 1
+//        })
     }
     
     @objc func updateAssignments() {
@@ -261,7 +326,6 @@ class BellCircle: ObservableObject {
     
     func newUserlist(_ newUsers:[[String:Any]]) {
         users = [Ringer]()
-        assignments = [Ringer]()
         
         for newRinger in newUsers {
             let ringer = Ringer.blank
@@ -303,7 +367,7 @@ class BellCircle: ObservableObject {
     }
     
     @objc func sortUserArray() {
-        print(users.ringers)
+//        print(users.ringers)
         var tempUsers = users
         var newUsers = [Ringer]()
         for assignment in assignments {
@@ -311,12 +375,12 @@ class BellCircle: ObservableObject {
                 if !newUsers.containsRingerForID(assignment.userID) {
                     tempUsers.removeRingerForID(assignment.userID)
                     newUsers.append(assignment)
-                }
+                }                                                                                                                                                                                                                                                                                
             }
         }
         tempUsers.sortAlphabetically()
         newUsers += tempUsers
-        print(newUsers.ringers)
+//        print(newUsers.ringers)
         objectWillChange.send()
         users = newUsers
         if !setupComplete["gotAssignments"]! {

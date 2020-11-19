@@ -108,6 +108,9 @@ class CommunicationController {
             case .getUserDetails:
                 User.shared.name = dataDict["username"] as! String
                 User.shared.email = dataDict["email"] as! String
+                DispatchQueue.main.async {
+                    User.shared.towerID = UserDefaults.standard.string(forKey: "\(User.shared.email)savedTower") ?? ""
+                }
             case .registerNewUser:
                 (self.sender as! AccountCreationView).receivedResponse(statusCode: statusCode, response: dataDict)
 //            case .modifyUserDetails:
@@ -123,6 +126,7 @@ class CommunicationController {
 //                        "error converting response to a dictionary"
 //                    }
 //                }
+                print(towersDict)
                 DispatchQueue.main.async {
                     User.shared.myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
                     User.shared.firstTower = true
@@ -136,7 +140,7 @@ class CommunicationController {
                     
                 }
                 
-//                User.shared.sortTowers()
+                User.shared.sortTowers()
                 switch self.loginType {
                 case .auto:
                     (self.sender as! AutoLogin).receivedMyTowers(statusCode: statusCode, response: dataDict)
@@ -148,8 +152,6 @@ class CommunicationController {
                     (self.sender as! SettingsView).receivedMyTowers(statusCode: statusCode, responseData: dataDict)
                 case nil:
                     (self.sender as! RingView).updatedMyTowers()
-                default:
-                    fatalError("enum error")
                 }
             //    {"928134567": {"bookmark": 0,"creator": 1,"host": 1,"recent": 1,"tower_id": 928134567,"tower_name": "Advent","visited": "Mon, 31 Aug 2020 15:45:54 GMT"}, "987654321": {"bookmark": 0,"creator": 0,"host": 0,"recent": 1,"tower_id": 987654321,"tower_name": "Old North","visited": "Mon, 31 Aug 2020 15:44:40 GMT"}}
                 

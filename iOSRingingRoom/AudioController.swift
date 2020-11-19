@@ -43,6 +43,20 @@ enum SoundAsset : String, CaseIterable {
     case T0  = "T0"
     case TE  = "TE"
     case TT  = "TT"
+    
+    case T1M  = "T1-muf"
+    case T2M  = "T2-muf"
+    case T2SM = "T2sharp-muf"
+    case T3M  = "T3-muf"
+    case T4M  = "T4-muf"
+    case T5M  = "T5-muf"
+    case T6M  = "T6-muf"
+    case T7M  = "T7-muf"
+    case T8M  = "T8-muf"
+    case T9M  = "T9-muf"
+    case T0M  = "T0-muf"
+    case TEM  = "TE-muf"
+    case TTM  = "TT-muf"
 }
 
 extension SoundAsset {
@@ -95,60 +109,72 @@ class AudioController: NSObject, AVAudioPlayerDelegate {
     var tEPlayer:AVAudioPlayer!       = SoundAsset.TE.player
     var tTPlayer:AVAudioPlayer!       = SoundAsset.TT.player
     
+    var t1MPlayer:AVAudioPlayer!       = SoundAsset.T1M.player
+    var t2MPlayer:AVAudioPlayer!       = SoundAsset.T2M.player
+    var t2SMPlayer:AVAudioPlayer!      = SoundAsset.T2SM.player
+    var t3MPlayer:AVAudioPlayer!       = SoundAsset.T3M.player
+    var t4MPlayer:AVAudioPlayer!       = SoundAsset.T4M.player
+    var t5MPlayer:AVAudioPlayer!       = SoundAsset.T5M.player
+    var t6MPlayer:AVAudioPlayer!       = SoundAsset.T6M.player
+    var t7MPlayer:AVAudioPlayer!       = SoundAsset.T7M.player
+    var t8MPlayer:AVAudioPlayer!       = SoundAsset.T8M.player
+    var t9MPlayer:AVAudioPlayer!       = SoundAsset.T9M.player
+    var t0MPlayer:AVAudioPlayer!       = SoundAsset.T0M.player
+    var tEMPlayer:AVAudioPlayer!       = SoundAsset.TEM.player
+    var tTMPlayer:AVAudioPlayer!       = SoundAsset.TTM.player
+    
     var audioPlayers = [AVAudioPlayer]()
+    
+    var callPlayer:AVAudioPlayer!
+    
+    let starling = Starling()
+    
+    override init() {
+        super.init()
+        loadSounds()
+    }
+    
+    func loadSounds() {
+        for sound in SoundAsset.allCases {
+            starling.load(resource: sound.rawValue, type: "aifc", for: SoundIdentifier(sound.rawValue))
+        }
+    }
     
     func play(_ file:String) {
         
-        for type in SoundAsset.allCases {
-            if type.rawValue == file {
-                let player = type.player
-                player.delegate = self
-                player.play()
-                audioPlayers.append(player)
-                print(audioPlayers.count)
-            }
+        
+        var fileName = file
+        var isCall = false
+        
+        if file.first! == "C" {
+            fileName.removeFirst()
+            isCall = true
         }
         
-//        switch file {
-//        case SoundAsset.BOB.rawValue:           print("playing bob");bobPlayer.play()
-//        case SoundAsset.GO.rawValue:            goPlayer.play()
-//        case SoundAsset.LOOKTO.rawValue:        lookToPlayer.play()
-//        case SoundAsset.SINGLE.rawValue:        singlePlayer.play()
-//        case SoundAsset.STAND.rawValue:         standPlayer.play()
-//        case SoundAsset.THATSALL.rawValue:      thatsAllPlayer.play()
-//
-//        case SoundAsset.H1.rawValue:            h1Player.play()
-//        case SoundAsset.H2.rawValue:            h2Player.play()
-//        case SoundAsset.H3.rawValue:            h3Player.play()
-//        case SoundAsset.H4.rawValue:            h4Player.play()
-//        case SoundAsset.H5.rawValue:            h5Player.play()
-//        case SoundAsset.H6.rawValue:            h6Player.play()
-//        case SoundAsset.H7.rawValue:            h7Player.play()
-//        case SoundAsset.H8.rawValue:            h8Player.play()
-//        case SoundAsset.H9.rawValue:            h9Player.play()
-//        case SoundAsset.H0.rawValue:            h0Player.play()
-//        case SoundAsset.HE.rawValue:            hEPlayer.play()
-//        case SoundAsset.HT.rawValue:            hTPlayer.play()
-//
-//        case SoundAsset.T1.rawValue:            t1Player.play()
-//        case SoundAsset.T2.rawValue:            t2Player.play()
-//        case SoundAsset.T2S.rawValue:           t2SPlayer.play()
-//        case SoundAsset.T3.rawValue:            t3Player.play()
-//        case SoundAsset.T4.rawValue:            t4Player.play()
-//        case SoundAsset.T5.rawValue:
-//            let newPlayer = SoundAsset.T5.player
-//            newPlayer.play()
-//            audioPlayers.append(newPlayer)
-//        case SoundAsset.T6.rawValue:            t6Player.play(atTime: 0)
-//        case SoundAsset.T7.rawValue:            t7Player.play()
-//        case SoundAsset.T8.rawValue:            t8Player.play()
-//        case SoundAsset.T9.rawValue:            t9Player.play()
-//        case SoundAsset.T0.rawValue:            t0Player.play()
-//        case SoundAsset.TE.rawValue:            tEPlayer.play()
-//        case SoundAsset.TT.rawValue:            tTPlayer.play()
-//
-//        default: print("Trying to play non-existant sound file")
+        starling.play(SoundIdentifier(fileName))
+            
+//        for type in SoundAsset.allCases {
+//            if type.rawValue == fileName {
+//                let player = type.player
+//                player.delegate = self
+//                player.play()
+//                if isCall {
+//                    callPlayer = player
+//                    callPlayer.delegate = nil
+//                } else {
+//                    audioPlayers.append(player)
+//                    print(audioPlayers.count)
+//                }
+//            }
 //        }
+        
+    }
+    
+    func playBlank() {
+//        let player = bobPlayer!
+//        player.delegate = self
+//        player.play(atTime: player.duration)
+//        audioPlayers.append(player)
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {

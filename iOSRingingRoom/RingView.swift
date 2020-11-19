@@ -21,8 +21,6 @@ struct RingView: View {
 
     @State private var towerListSelection:Int = 0
     var towerLists = ["Recents", "Favourites", "Created", "Host"]
-
-    @State var towerID = UserDefaults.standard.string(forKey: "\(User.shared.email)savedTower") ?? ""
     
     @State private var showingAlert = false
     @State private var alertTitle = Text("")
@@ -60,9 +58,12 @@ struct RingView: View {
                             ForEach(User.shared.myTowers) { tower in
 
                                 if tower.tower_id != 0 {
-                                    Button(action: {self.towerID = String(tower.tower_id)}) {
+                                    Button(action: {
+                                        User.shared.towerID = String(tower.tower_id)
+                                        UserDefaults.standard.set(String(tower.tower_id), forKey: "\(User.shared.email)savedTower")
+                                    }) {
                                         Text(String(tower.tower_id))
-                                            .towerButtonStyle(isSelected: (String(tower.tower_id) == self.towerID), name: tower.tower_name)
+                                            .towerButtonStyle(isSelected: (String(tower.tower_id) == User.shared.towerID), name: tower.tower_name)
                                     }
                                     .frame(height: 40)
                                     .padding(.horizontal)
@@ -110,24 +111,29 @@ struct RingView: View {
                     }
                 }
             }
-                TextField("Tower name or id", text: $towerID)
-                    .onChange(of: towerID, perform: { _ in
-                        UserDefaults.standard.set(towerID, forKey: "\(User.shared.email)savedTower")
-                    })
+            TextField("Tower name or id", text: .init(
+                        get: {
+                            User.shared.towerID
+                        },
+                        set: {
+                            UserDefaults.standard.set($0, forKey: "\(User.shared.email)savedTower")
+                            User.shared.towerID = $0
+                        }))
                     .disabled(!User.shared.loggedIn)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .disableAutocorrection(true)
+                .padding(.vertical, -10)
             GeometryReader { geo in
                 Button(action: self.joinTower) {
                     ZStack {
                         Color.main
                             .cornerRadius(5)
-                        Text(!User.shared.loggedIn ? "Please log in to join or create a tower" : self.isID(str: self.towerID) ? "Join Tower" : "Create Tower")
+                        Text(!User.shared.loggedIn ? "Please log in to join or create a tower" : self.isID(str: User.shared.towerID) ? "Join Tower" : "Create Tower")
                             .foregroundColor(.white)
                     }
                 }
-                .opacity(User.shared.loggedIn ? towerID.count != 0 ? 1 : 0.35 : 0.35)
-                .disabled((User.shared.loggedIn ? towerID.count != 0 ? false : true : true))
+                .opacity(User.shared.loggedIn ? User.shared.towerID.count != 0 ? 1 : 0.35 : 0.35)
+                .disabled((User.shared.loggedIn ? User.shared.towerID.count != 0 ? false : true : true))
                 .onAppear(perform: {
                     var pos = geo.frame(in: .global).midY
                     pos += geo.frame(in: .global).height/2 + 10
@@ -139,6 +145,7 @@ struct RingView: View {
                         Alert(title: self.alertTitle, message: self.alertMessage, dismissButton: .cancel(Text("OK")))
                 }
             }
+            .padding(.bottom, -5)
             .frame(height: 45)
             .fixedSize(horizontal: false, vertical: true)
             
@@ -167,7 +174,6 @@ struct RingView: View {
     }
     
     func getOffset() -> CGFloat {
-        
         let offset = keyboardHeight - joinTowerYPosition
         print("offset: ",offset)
         if offset <= 0 {
@@ -189,19 +195,19 @@ struct RingView: View {
     func joinTower() {
         print("joined tower")
 
-        if isID(str: self.towerID) {
+        if isID(str: User.shared.towerID) {
             self.getTowerConnectionDetails()
             return
         }
 
         //create new tower
-        comController.createTower(name: self.towerID)
+        comController.createTower(name: User.shared.towerID)
         
         
     }
     
     func getTowerConnectionDetails() {
-        comController.getTowerDetails(id: Int(self.towerID)!)
+        comController.getTowerDetails(id: Int(User.shared.towerID)!)
     }
     
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
@@ -224,7 +230,9 @@ struct RingView: View {
     }
     
     func updatedMyTowers() {
-        NotificationCenter.default.post(name: Notification.Name("gotMyTowers"), object: nil)
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: Notification.Name("gotMyTowers"), object: nil)
+        }
     }
     
     func presentRingingRoomView() {

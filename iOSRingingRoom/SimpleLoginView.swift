@@ -106,7 +106,7 @@ struct SimpleLoginView: View {
     
     
     func login() {
-        comController.login(email: self.email.trimmingCharacters(in: .whitespaces), password: self.password)
+        comController.login(email: self.email.trimmingCharacters(in: .whitespaces).lowercased(), password: self.password)
         //send login request to server
   //     presentMainApp()
     }
