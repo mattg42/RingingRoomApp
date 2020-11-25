@@ -37,25 +37,11 @@ struct SettingsView: View {
             ZStack {
             Form {
                 if loggedIn {
-                    Section(header: Text("Current username: \(User.shared.name)")) {
-                        Button("Change username", action: {})
+                    Section() {
+                        Text("Account settings will be availible in a future version.")
 //                        Text("Current username: \(User.shared.name)")
 //                        TextField("New username", text: $newUsername)
-                            
                     }
-                    Section {
-                        Button(action: {
-                            self.changesAlert = true
-                        }) {
-                            Text("Save changes")
-                        }
-                        
-//                        .alert(isPresented: self.$changesAlert, content: {
-//
-//                            Alert(title: "New username", message: <#T##Text?#>, primaryButton: <#T##Alert.Button#>, secondaryButton: <#T##Alert.Button#>)
-//                        })
-                    }
-//                    Spacer()
                     Section {
                         Button("Log out") {
                             self.presentingAlert = true

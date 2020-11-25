@@ -144,11 +144,9 @@ class AudioController: NSObject, AVAudioPlayerDelegate {
         
         
         var fileName = file
-        var isCall = false
         
         if file.first! == "C" {
             fileName.removeFirst()
-            isCall = true
         }
         
         starling.play(SoundIdentifier(fileName))

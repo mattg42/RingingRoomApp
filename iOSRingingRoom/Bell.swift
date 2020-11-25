@@ -23,6 +23,12 @@ enum BellType:String, CaseIterable {
 
 class BellCircle: ObservableObject {
     
+    @Published var towerControlsViewSelection = 1 {
+        didSet {
+            ChatManager.shared.canSeeMessages = towerControlsViewSelection == 2
+        }
+    }
+    
     var ringingroomIsPresented = false
     
     static var current = BellCircle()
@@ -270,18 +276,19 @@ class BellCircle: ObservableObject {
     
     func assign(_ id:Int, to bell: Int) {
         print("assign", id, bell)
-        let ringer = ringerForID(id)!
-        assignmentsBuffer[bell-1] = ringer
-        sortTimer = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
-        if id == User.shared.ringerID {
-            var tempAssignments = assignments
-            for (index, assignment) in assignmentsBuffer.enumerated() {
-                if assignment != nil {
-                    tempAssignments[index] = assignment!
+        if let ringer = ringerForID(id) {
+            assignmentsBuffer[bell-1] = ringer
+            sortTimer = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
+            if id == User.shared.ringerID {
+                var tempAssignments = assignments
+                for (index, assignment) in assignmentsBuffer.enumerated() {
+                    if assignment != nil {
+                        tempAssignments[index] = assignment!
+                    }
                 }
+                objectWillChange.send()
+                perspective = (tempAssignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
             }
-            objectWillChange.send()
-            perspective = (tempAssignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
         }
     }
     
@@ -309,7 +316,6 @@ class BellCircle: ObservableObject {
         if assignments[bell - 1].userID == User.shared.ringerID {
             changePerspective = true
         }
-//        if assignments[bell - 1] != Ringer.blank {
             assignmentsBuffer[bell - 1] = Ringer.blank
             sortTimer = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
         if changePerspective {
@@ -321,7 +327,6 @@ class BellCircle: ObservableObject {
             }
             perspective = (tempAssignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
         }
-//        }
     }
     
     func newUserlist(_ newUsers:[[String:Any]]) {

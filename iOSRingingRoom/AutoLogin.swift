@@ -22,11 +22,11 @@ struct AutoLogin: View {
         ZStack {
             Color.main
             HStack {
-                Spacer(minLength: 55)
+//                Spacer(minLength: 55)
                 Image("rrLogo").resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 512, maxHeight: 512)
-                Spacer(minLength: 55)
+                    .frame(width: 256, height: 265)
+//                Spacer(minLength: 55)
             }
             
         }

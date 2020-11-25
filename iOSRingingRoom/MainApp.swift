@@ -25,9 +25,9 @@ struct MainApp: View {
             ringView
                 .tag(TabViewType.ring)
                 .tabItem {
-                    Image(systemName: "bell")
+                    Image(systemName: "list.bullet")
                         .font(.title)
-                    Text("Ring")
+                    Text("Towers")
                 }
             StoreView()
                 .tag(TabViewType.store)

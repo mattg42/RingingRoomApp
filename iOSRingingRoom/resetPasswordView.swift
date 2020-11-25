@@ -25,7 +25,7 @@ struct resetPasswordView: View {
                     .disableAutocorrection(true)
                 }
                 Section {
-                    Button("Not Available Yet") {
+                    Button("Not Available Yet. Please go to ringingroom.com to change your password.") {
                         self.resetPassword()
                     }
                     .alert(isPresented: $isPresentingAlert) {
