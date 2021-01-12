@@ -62,8 +62,15 @@ struct RingView: View {
                                         User.shared.towerID = String(tower.tower_id)
                                         UserDefaults.standard.set(String(tower.tower_id), forKey: "\(User.shared.email)savedTower")
                                     }) {
-                                        Text(String(tower.tower_id))
-                                            .towerButtonStyle(isSelected: (String(tower.tower_id) == User.shared.towerID), name: tower.tower_name)
+                                        HStack() {
+                                            Text(String(tower.tower_name))
+                                            .fontWeight((String(tower.tower_id) == User.shared.towerID) ? Font.Weight.bold : nil)
+                                            Spacer()
+                                        }
+                                        .foregroundColor((String(tower.tower_id) == User.shared.towerID) ? .main : Color.primary)
+//
+//
+//                                            .towerButtonStyle(isSelected: (String(tower.tower_id) == User.shared.towerID))
                                     }
                                     .frame(height: 40)
                                     .padding(.horizontal)
@@ -248,32 +255,11 @@ struct RingView: View {
     
 }
 
-struct towerButtonModifier:ViewModifier {
-    var isSelected:Bool
-    var name:String
-    
-    func body(content: Content) -> some View {
-            HStack() {
-                Text(name)
-                .fontWeight(isSelected ? Font.Weight.bold : nil)
-                content
-                Spacer()
-            }
-            .foregroundColor(isSelected ? .main : Color.primary)
-    }
-}
-
 struct CustomButtonStyle:ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
         .opacity(1)
         .contentShape(Rectangle())
-    }
-}
-
-extension View {
-    func towerButtonStyle(isSelected:Bool, name:String) -> some View {
-        self.modifier(towerButtonModifier(isSelected: isSelected, name: name))
     }
 }
 

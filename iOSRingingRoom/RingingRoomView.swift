@@ -6,6 +6,7 @@
 //  Copyright © 2020 Matthew Goodship. All rights reserved.
 //
 
+import Foundation
 import SwiftUI
 import AVFoundation
 import Combine
@@ -62,148 +63,206 @@ struct RingingRoomView: View {
     @State var text = ""
     
     @State var towerControls = TowerControlsView()
-        
+    
+    var isSplit:Bool {
+        get {
+            !(horizontalSizeClass == .compact || (interfaceOrientation?.isPortrait ?? true))
+        }
+    }
+    
     var body: some View {
-        ZStack {
-            backgroundColor.edgesIgnoringSafeArea(.all)
-            if horizontalSizeClass == .compact || (interfaceOrientation?.isPortrait ?? true) {
-                ringingView
-                VStack(spacing: 2) {
-                    //                GeometryReader { geo in
-                    ZStack {
-                        Rectangle()
-                            .fill(Color.main)
-                            .cornerRadius(5)
-                        Text(bellCircle.towerName)
-                            .colorInvert()
-                            .font(Font.custom("Simonetta-Black", size: 30))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                            .scaleEffect(0.9)
-                            .padding(.vertical, 4)
-                    }
-                    //                    .padding(.top, -5)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 5)
-                    .opacity(0)
-                    //                    .onAppear {
-                    //                        self.titleHeight = geo.frame(in: .global).midY * 2
-                    //                    }
-                    //                }
-                    //                .fixedSize(horizontal: false, vertical: true)
-                    HStack {
-                        LeaveButton()
-                            .padding(.leading, 5)
-                        Spacer()
-                        HelpButton()
-                        Spacer()
-                        Button(action: {
-                            SocketIOManager.shared.socket.emit("c_set_bells", ["tower_id":bellCircle.towerID])
-                        }) {
+        GeometryReader { geo in
+            ZStack {
+                backgroundColor.edgesIgnoringSafeArea(.all)
+                if isSplit {
+                    HStack(spacing: 0.0) {
+                        towerControls
+                            .padding(5)
+                        VStack(spacing: 0) {
                             ZStack {
-                                Color.main.cornerRadius(5)
-                                //                                 VStack {
-                                Text("Set at hand")
-                                    .bold()
-                                    .padding(.horizontal, 3.5)
-                                    //                                    Text("hand")
-                                    //                                        .bold()
-                                    //                                }
-                                    .foregroundColor(.white)
-                                    .padding(2)
+                                Rectangle()
+                                    .fill(Color.main)
+                                    .cornerRadius(5)
+                                Text(bellCircle.towerName)
+                                    .colorInvert()
+                                    .font(Font.custom("Simonetta-Black", size: 30))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
+                                    .scaleEffect(0.9)
+                                    .padding(.vertical, 4)
                             }
-                            .fixedSize()
-                        }
-                        Spacer()
-                        MenuButton()
-                            .opacity(0)
-                    }
-                    Spacer()
-                }
-                
-                Color.primary.colorInvert().edgesIgnoringSafeArea(.all)
-                    .offset(x: showingTowerControls ? 0 : -(UIApplication.shared.windows.first ?? UIWindow()).frame.width, y: 0)
-                
-                VStack(spacing: 3) {
-                    //                GeometryReader { geo in
-                    ZStack {
-                        Rectangle()
-                            .fill(Color.main)
-                            .cornerRadius(5)
-                        Text(bellCircle.towerName)
-                            .colorInvert()
-                            .font(Font.custom("Simonetta-Black", size: 30))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                            .scaleEffect(0.9)
-                            .padding(.vertical, 4)
-                    }
-                    //                    .padding(.top, -5)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 5)
-                    //                    .onAppear {
-                    //                        self.titleHeight = geo.frame(in: .global).midY * 2
-                    //                    }
-                    //                }
-                    //                .fixedSize(horizontal: false, vertical: true)
-                    ZStack {
-                        
-                        VStack {
-                            HStack(alignment: .top) {
+                            //                    .padding(.top, -5)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.horizontal, 5)
+                            .padding(.bottom, 5)
+                            HStack {
+                                LeaveButton()
+                                    .padding(.leading, 5)
                                 Spacer()
-                                VStack(spacing: 1) {
-                                    
-                                    Button(action: {
-                                        withAnimation {
-                                            self.showingTowerControls.toggle()
-                                            
-                                            
-                                            if !self.showingTowerControls {
-                                                hideKeyboard()
-                                                chatManager.canSeeMessages = false
-                                            } else {
-                                                if bellCircle.towerControlsViewSelection == 2 {
-                                                    chatManager.canSeeMessages = true
-                                                }
-                                            }
-                                        }
-                                    }) {
-                                        MenuButton()
+                                HelpButton()
+                                Spacer()
+                                Button(action: {
+                                    SocketIOManager.shared.socket.emit("c_set_bells", ["tower_id":bellCircle.towerID])
+                                }) {
+                                    ZStack {
+                                        Color.main.cornerRadius(5)
+                                        //                                 VStack {
+                                        Text("Set at hand")
+                                            .bold()
+                                            .padding(.horizontal, 3.5)
+                                            //                                    Text("hand")
+                                            //                                        .bold()
+                                            //                                }
+                                            .foregroundColor(.white)
+                                            .padding(2)
                                     }
-                                    if chatManager.newMessages > 0 {
-                                        Button(action: {
-                                            if !self.showingTowerControls {
-                                                self.showingTowerControls = true
-                                            }
-                                            bellCircle.towerControlsViewSelection = 2
-                                        }) {
-                                            ZStack {
-                                                Circle()
-                                                    .fill(Color.main)
-                                                    .frame(width: 27, height: 27)
-                                                Text(String(chatManager.newMessages))
-                                                    .foregroundColor(.white)
-                                                    .bold()
-                                            }
-                                        }
-                                        //                                .padding(.trailing, 5)
-                                    }
+                                    .fixedSize()
                                 }
+                                .padding(.trailing, 5)
+                            }
+                            ringingView
+                        }
+                    }
+                } else {
+                    VStack(spacing: 2) {
+                        //                GeometryReader { geo in
+                        ZStack {
+                            Rectangle()
+                                .fill(Color.main)
+                                .cornerRadius(5)
+                            Text(bellCircle.towerName)
+                                .colorInvert()
+                                .font(Font.custom("Simonetta-Black", size: 30))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                                .scaleEffect(0.9)
+                                .padding(.vertical, 4)
+                        }
+                        //                    .padding(.top, -5)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 5)
+                        .opacity(0)
+                        //                    .onAppear {
+                        //                        self.titleHeight = geo.frame(in: .global).midY * 2
+                        //                    }
+                        //                }
+                        //                .fixedSize(horizontal: false, vertical: true)
+                        HStack {
+                            LeaveButton()
+                                .padding(.leading, 5)
+                            Spacer()
+                            HelpButton()
+                            Spacer()
+                            Button(action: {
+                                SocketIOManager.shared.socket.emit("c_set_bells", ["tower_id":bellCircle.towerID])
+                            }) {
+                                ZStack {
+                                    Color.main.cornerRadius(5)
+                                    //                                 VStack {
+                                    Text("Set at hand")
+                                        .bold()
+                                        .padding(.horizontal, 3.5)
+                                        //                                    Text("hand")
+                                        //                                        .bold()
+                                        //                                }
+                                        .foregroundColor(.white)
+                                        .padding(2)
+                                }
+                                .fixedSize()
                             }
                             Spacer()
+                            MenuButton()
+                                .opacity(0)
                         }
-                        towerControls
-                            .padding(.horizontal, 5)
-                            .offset(x: showingTowerControls ? 0 : -UIApplication.shared.windows.first!.frame.width, y: 0)
+                        ringingView
+                    }
+                    
+                    Color.primary.colorInvert().edgesIgnoringSafeArea(.all)
+                        .offset(x: showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
+                    
+                    VStack(spacing: 3) {
+                        //                GeometryReader { geo in
+                        ZStack {
+                            Rectangle()
+                                .fill(Color.main)
+                                .cornerRadius(5)
+                            Text(bellCircle.towerName)
+                                .colorInvert()
+                                .font(Font.custom("Simonetta-Black", size: 30))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                                .scaleEffect(0.9)
+                                .padding(.vertical, 4)
+                        }
+                        //                    .padding(.top, -5)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 5)
+                        //                    .onAppear {
+                        //                        self.titleHeight = geo.frame(in: .global).midY * 2
+                        //                    }
+                        //                }
+                        //                .fixedSize(horizontal: false, vertical: true)
+                        ZStack {
+                            
+                            VStack {
+                                HStack(alignment: .top) {
+                                    Spacer()
+                                    VStack(spacing: 1) {
+                                        
+                                        Button(action: {
+                                            withAnimation {
+                                                self.showingTowerControls.toggle()
+                                                
+                                                
+                                                if !self.showingTowerControls {
+                                                    hideKeyboard()
+                                                    chatManager.canSeeMessages = false
+                                                } else {
+                                                    if bellCircle.towerControlsViewSelection == 2 {
+                                                        chatManager.canSeeMessages = true
+                                                    }
+                                                }
+                                            }
+                                        }) {
+                                            MenuButton()
+                                        }
+                                        if chatManager.newMessages > 0 {
+                                            Button(action: {
+                                                if !self.showingTowerControls {
+                                                    self.showingTowerControls = true
+                                                }
+                                                bellCircle.towerControlsViewSelection = 2
+                                            }) {
+                                                ZStack {
+                                                    Circle()
+                                                        .fill(Color.main)
+                                                        .frame(width: 27, height: 27)
+                                                    Text(String(chatManager.newMessages))
+                                                        .foregroundColor(.white)
+                                                        .bold()
+                                                }
+                                            }
+                                            //                                .padding(.trailing, 5)
+                                        }
+                                    }
+                                }
+                                Spacer()
+                            }
+                            towerControls
+                                .padding(.horizontal, 5)
+                                .offset(x: showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
+                        }
                     }
                 }
-            } else {
-                HStack {
-                    towerControls
-                        .padding()
-                    ringingView
-                }
             }
+            .onAppear {
+                if bellCircle.autoRotate {
+                    if !bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
+                        bellCircle.perspective = 1
+                    }
+                
+                }
+        }
         }
     }
     
@@ -276,6 +335,8 @@ struct RingingView:View {
     }
     
     var ropeCircle = RopeCircle()
+    
+
     
     var body: some View {
         VStack {
@@ -418,7 +479,7 @@ struct RingButton:View {
                 .font(horizontalSizeClass == .regular ? .largeTitle : .title3)
                 .bold()
         }
-        .frame(maxHeight: horizontalSizeClass == .regular ? 150 : 90)
+        .frame(maxHeight: horizontalSizeClass == .regular ? 150 : 70)
     }
 }
 
@@ -451,51 +512,114 @@ struct RopeCircle:View {
     
     @State private var manager = SocketIOManager.shared
     
-    var test = 1
-        
+    var ropeSize:CGFloat {
+        get {
+            if horizontalSizeClass == .regular && interfaceOrientation ?? .portrait == .portrait {
+                return 75
+            } else {
+                switch bellCircle.size {
+                case 14:
+                    return 69
+                case 16:
+                    return 63
+                default:
+                    return 75
+                }
+            }
+        }
+    }
+    var handBellSize:CGFloat {
+        get {
+            switch bellCircle.size {
+            case 16:
+                return 48
+            default:
+                return 60
+            }
+        }
+    }
+    
+    var imageWidth:CGFloat {
+        get {
+            if bellCircle.bellType == .tower {
+                return ropeSize/3
+            } else {
+                return handBellSize
+            }
+        }
+    }
+    
+    var imageHeight:CGFloat {
+        get {
+            if bellCircle.bellType == .tower {
+                return ropeSize
+            } else {
+                return handBellSize
+            }
+        }
+    }
+    
+    var interfaceOrientation: UIInterfaceOrientation? {
+        get {
+            guard let orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation else {
+                #if DEBUG
+                fatalError("Could not obtain UIInterfaceOrientation from a valid windowScene")
+                #else
+                return nil
+                #endif
+            }
+            return orientation
+        }
+    }
+    
+    var isSplit:Bool {
+        get {
+            !(horizontalSizeClass == .compact || (interfaceOrientation?.isPortrait ?? true))
+        }
+    }
+    
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                if bellCircle.gotBellPositions {
-                    ForEach(0..<bellCircle.size, id: \.self) { bellNumber in
-                        Button(action: {
+//                                if bellCircle.gotBellPositions {
+                ForEach(0..<bellCircle.size, id: \.self) { bellNumber in
+                    //                        Text("Hi")
+                    Button(action: {
+                        if self.bellCircle.bellMode == .ring {
                             self.bellCircle.ringBell(bellNumber+1)
-                        }) {
-                            HStack(spacing: 0) {
-                                Text(String(bellNumber+1))
-                                    .opacity(bellCircle.bellPositions[bellNumber].side == .left ? 0 : 1)
-                                if horizontalSizeClass == .compact {
-                                Image(self.getImage(bellNumber)).resizable()
-                                    .frame(width: (bellCircle.bellType == .tower) ? 25 : 60, height: (bellCircle.bellType == .tower) ? 75 : 60)
-                                    .rotation3DEffect(
-                                        .degrees( (bellCircle.bellType == .tower) ? 0 : bellCircle.bellPositions[bellNumber].side == .left ? 180 : 0),
-                                        axis: (x: 0.0, y: 1.0, z: 0.0),
-                                        anchor: .center,
-                                        perspective: 1.0
-                                    )
-                                    .padding(.horizontal, (bellCircle.bellType == .tower) ? 0 : -5)
-                                } else {
-                                    Image(self.getImage(bellNumber)).resizable()
-                                        .frame(width: (bellCircle.bellType == .tower) ? 35 : 84, height: (bellCircle.bellType == .tower) ? 105 : 84)
-                                        .rotation3DEffect(
-                                            .degrees( (bellCircle.bellType == .tower) ? 0 : bellCircle.bellPositions[bellNumber].side == .left ? 180 : 0),
-                                            axis: (x: 0.0, y: 1.0, z: 0.0),
-                                            anchor: .center,
-                                            perspective: 1.0
-                                        )
-                                        .padding(.horizontal, (bellCircle.bellType == .tower) ? 0 : -5)
-                                }
-                                Text(String(bellNumber+1))
-                                    .opacity(bellCircle.bellPositions[bellNumber].side == .right ? 0 : 1)
-                            }
-                            .disabled(!canRing(bellNumber))
-                            .opacity(canRing(bellNumber) ? 1 : 0.35)
+                        } else {
+                            self.bellCircle.perspective = bellNumber+1
+                            self.bellCircle.bellMode = .ring
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
-                        .foregroundColor(.primary)
-                        .position(bellCircle.bellPositions[bellNumber].pos)
+                    }) {
+                        HStack(spacing: 0) {
+                            Text(String(bellNumber+1))
+                                .opacity(isLeft(bellNumber) ? 0 : 1)
+                                .font(bellCircle.size > 13 ? .callout : .body)
+                            Image(self.getImage(bellNumber)).resizable()
+                                .frame(width: imageWidth, height: imageHeight)
+                                .rotation3DEffect(
+                                    .degrees((bellCircle.bellType == .tower) ? 0 : isLeft(bellNumber) ? 180 : 0),
+                                    axis: (x: 0.0, y: 1.0, z: 0.0),
+                                    anchor: .center,
+                                    perspective: 1.0
+                                )
+                                .padding(.horizontal, (bellCircle.bellType == .tower) ? 0 : -5)
+
+                            Text(String(bellNumber+1))
+                                .opacity(isLeft(bellNumber) ? 1 : 0)
+                                .font(bellCircle.size > 13 ? .callout : .body)
+                        }
+                        .disabled(!canRing(bellNumber))
+                        .opacity(canRing(bellNumber) ? 1 : 0.35)
                     }
-                    VStack {
+                    .buttonStyle(TouchDown(isAvailible: true))
+                    .foregroundColor(.primary)
+                    .position(self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber]) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
+                    //                        .position(self.bellCircle.getNewPositions(radius: geo.frame(in: .local).height/2 - imageHeight/2, center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber].pos) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
+                }
+                if bellCircle.bellMode == .ring {
+                    ScrollView {
                         ForEach(0..<bellCircle.assignments.count, id: \.self) { i in
                             HStack {
                                 Text("\(i+1)")
@@ -509,63 +633,90 @@ struct RopeCircle:View {
 
                         }
                     }
-                    .position(bellCircle.center)
-                    ZStack {
-                        backgroundColor
-                            .cornerRadius(15)
-                            .blur(radius: 15, opaque: false)
-                            .shadow(color: backgroundColor, radius: 10, x: 0.0, y: 0.0)
-                            //                                .opacity(bellCircle.currentCall != "" ? 0.9 : 0)
-                            .opacity(0.9)
-                        //                            if bellCircle.currentCall != "" {
-                        
-                        Text(bellCircle.currentCall)
-                            .font(.largeTitle)
-                            .bold()
-                            .padding()
-                        //                                .opacity(bellCircle.currentCall != "" ? 1 : 0)
-                        //                                .background(backgroundColor)
-                        //                                                    }
-                    }
-                    .opacity(bellCircle.callTextOpacity)
+                    .disabled(bellCircle.size > 11 ? false : true)
+                    .frame(maxHeight: getHeight()
+                    )
                     .fixedSize()
-                    .position(bellCircle.center)
+
+                    .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                } else {
+                    Text("Tap the bell that you would like to be positioned bottom right, or tap the rotate button again to cancel.")
+                        .multilineTextAlignment(.center)
+                        .frame(width: 180)
+                        .font(.title2)
+                        .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                        .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
                 }
-            }
-            .onAppear {
-                var center = CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
-                center.y += 35
-                if center.y > 100 && center.x > 100 {
-                    if !bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
-//                        print("reduced")
-                        if horizontalSizeClass == .compact {
-                            center.y -= 45
-                        } else {
-                            center.y -= 75
+                ZStack {
+                    backgroundColor
+                        .cornerRadius(15)
+                        .blur(radius: 15, opaque: false)
+                        .shadow(color: backgroundColor, radius: 10, x: 0.0, y: 0.0)
+                        //                                .opacity(bellCircle.currentCall != "" ? 0.9 : 0)
+                        .opacity(0.9)
+                    //                            if bellCircle.currentCall != "" {
+
+                    Text(bellCircle.currentCall)
+                        .font(.largeTitle)
+                        .bold()
+                        .padding()
+                    //                                .opacity(bellCircle.currentCall != "" ? 1 : 0)
+                    //                                .background(backgroundColor)
+                    //                                                    }
+                }
+                .opacity(bellCircle.callTextOpacity)
+                .fixedSize()
+                .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+//                                }
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            self.bellCircle.bellMode.toggle()
+                            //put into change perspective mode
+                        }) {
+                            //                            Text("Rotate bell circle")
+                            ZStack {
+                                Color.main.cornerRadius(10)
+                                //                    .fixedSize()
+                                Image("Arrow.4.circle.white").resizable()
+                                    .frame(width: 45, height: 45)
+                                //                                VStack(spacing: -5) {
+                                //                                    Text("Rotate")
+                                //                                    Text("perspective")
+                                //                                }
+                                ////                                .bold()
+                                //                                .padding(1.5)
+                                //                                    .padding(.horizontal, 3)
+                                //                                    .foregroundColor(Color.white)
+                            }
+                            .fixedSize()
+                            //                            Text("Set at hand")
                         }
                     }
-                    print("from .onappear")
-                    bellCircle.center = center
-                    bellCircle.baseRadius = geo.frame(in: .local).width/2
-                    bellCircle.baseRadius = min(bellCircle.baseRadius, 340)
-                    if horizontalSizeClass == .regular {
-                        bellCircle.baseRadius -= 30
-                    }
-                    bellCircle.getNewPositions(radius: bellCircle.radius, center: bellCircle.center)
                 }
+                .padding(.horizontal, 5)
             }
         }
+//        .background (Color.green)
         .onReceive(orientationChanged, perform: { _ in
             bellCircle.objectWillChange.send()
         })
     }
     
-    func getImage(_ number:Int) -> String {
-           var imageName = bellCircle.bellType.rawValue.first!.lowercased() + "-" + (bellCircle.bellStates[number] ? "handstroke" : "backstroke")
-        if imageName.first! == "t" && number == 0 && bellCircle.bellStates[number] {
-            imageName += "-treble"
+    func getHeight() -> CGFloat {
+        return bellCircle.gotBellPositions ? (bellCircle.perspective <= Int(bellCircle.size/2) ?
+                                                            bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y :
+                                                            bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - imageHeight - CGFloat(15) : 20
+    }
+    
+    func isLeft(_ num:Int) -> Bool {
+        if bellCircle.perspective <= Int(bellCircle.size/2) {
+            return (bellCircle.perspective..<bellCircle.perspective+Int(bellCircle.size/2)).contains(num)
+        } else {
+            return !(bellCircle.perspective-Int(bellCircle.size/2)..<bellCircle.perspective).contains(num)
         }
-        return imageName
     }
     
     func canRing(_ number:Int) -> Bool {
@@ -582,7 +733,43 @@ struct RopeCircle:View {
         }
     }
     
+    func getImage(_ number:Int) -> String {
+           var imageName = bellCircle.bellType.rawValue.first!.lowercased() + "-" + (bellCircle.bellStates[number] ? "handstroke" : "backstroke")
+        if imageName.first! == "t" && number == 0 && bellCircle.bellStates[number] {
+            imageName += "-treble"
+        }
+        return imageName
+    }
+    
 }
+
+enum BellMode {
+    case ring, rotate
+    
+    mutating func toggle() {
+        if self == .ring {
+            self = .rotate
+        } else {
+            self = .ring
+        }
+    }
+}
+
+//struct Bells:View {
+//
+//    @ObservedObject var bellCircle = BellCircle.current
+//
+//    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+//    @Environment(\.verticalSizeClass) var verticalSizeClass
+//
+//    @Environment(\.colorScheme) var colorScheme
+//
+//    var body: some View {
+//
+//    }
+//
+//
+//}
 
 struct TouchDown: PrimitiveButtonStyle {
     var isAvailible:Bool
@@ -646,8 +833,10 @@ struct TowerControlsView:View {
     @State private var bellTypeSelectionCount = 0
 
     var bellTypes = [BellType.tower, BellType.hand]
-    var towerSizes = [4, 6, 8, 10, 12]
+    var towerSizes = [4, 5, 6, 8, 10, 12, 14, 16]
 
+    
+    
     @State private var showingUsers = false
 
     init() {
@@ -706,8 +895,8 @@ struct TowerControlsView:View {
                         HStack {
                             
                             
-                            Picker(selection: .init(get: {(self.bellCircle.size-4)/2}, set: {self.sizeChanged(value:$0)}), label: Text("Tower size picker")) {
-                                ForEach(0..<5) { i in
+                            Picker(selection: .init(get: { towerSizes.firstIndex(of: bellCircle.size) ?? 6 }, set: {self.sizeChanged(value:$0)}), label: Text("Tower size picker")) {
+                                ForEach(0..<towerSizes.count) { i in
                                     Text(String(self.towerSizes[i]))
                                 }
                             }
@@ -798,7 +987,7 @@ struct TowerControlsView:View {
     }
 
     func sizeChanged(value:Int) {
-        SocketIOManager.shared.socket.emit("c_size_change", ["new_size":value*2+4, "tower_id":self.bellCircle.towerID])
+        SocketIOManager.shared.socket.emit("c_size_change", ["new_size":towerSizes[value], "tower_id":self.bellCircle.towerID])
     //    self.size = self.towerSizes[self.towerSizeSelection]
 //        if self.usersView != nil {
 //            print("trying to update")
@@ -819,6 +1008,9 @@ struct UsersView:View {
     @State private var selectedUser = 0
 
     @State private var updateView = false
+    
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
     
     var body: some View {
         VStack {
@@ -872,9 +1064,7 @@ struct UsersView:View {
                 }
                 Spacer()
                 Button(action: {
-                    withAnimation {
                         self.bellCircle.towerControlsViewSelection = 2
-                    }
                 }) {
                     Text("Chat")
                     Image(systemName: "chevron.right")
@@ -939,7 +1129,7 @@ struct UsersView:View {
         })
         .clipped()
         .padding(7)
-        .background(Color(white: colorScheme == .light ? 0.94 : 0.045).cornerRadius(5))
+        .background(horizontalSizeClass == .regular ? Color(white: colorScheme == .light ? 1 : 0.08).cornerRadius(5) : Color(white: colorScheme == .light ? 0.94 : 0.08).cornerRadius(5))
         .onDisappear {
             print("users view disappeared")
         }
@@ -1047,9 +1237,7 @@ struct ChatView:View {
                     .opacity(0)
                 Spacer()
                 Button(action: {
-                    withAnimation {
-                        BellCircle.current.towerControlsViewSelection = 1
-                    }
+                    BellCircle.current.towerControlsViewSelection = 1
                 }) {
                     Image(systemName: "chevron.left")
                     Text("Users")

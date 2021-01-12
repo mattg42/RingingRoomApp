@@ -40,7 +40,7 @@ At the top-left of the ringing view, there is a button called 'Leave tower'. Pre
 """
     
     static let assinging = """
-The tower controls includes a list of users presently in the tower, which you can use to assign bells to particular ringers. To assign ringers, tap on the ringer you would like to assign, then tap on the number of the bell you would like to assign them to. Clicking the \"x\" on the left a bell number will unassign the ringer from that bell.
+The tower controls includes a list of users presently in the tower, which you can use to assign bells to particular ringers. To assign ringers, tap on the name of ringer you would like to assign, then tap on the number of the bell you would like to assign them to. Clicking the \"x\" on the left a bell number will unassign the ringer from that bell.
 
 Assigning a user to a bell will have the effect of automatically rotating that ringer's \"perspective\" on the tower so that the bell is placed in the bottom right position. This will also make a large dedicated button for each assigned bell at the bottom. If a user is assigned to multiple bells, the lowest-numbered one will be placed in the bottom right position.
 

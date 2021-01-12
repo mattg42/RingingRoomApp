@@ -43,6 +43,14 @@ struct SettingsView: View {
 //                        TextField("New username", text: $newUsername)
                     }
                     Section {
+                        Toggle("Auto-rotate bell circle", isOn: .init(get: {
+                            return UserDefaults.standard.optionalBool(forKey: "autoRotate") ?? true
+                        }, set: {
+                            UserDefaults.standard.set($0, forKey: "autoRotate")
+                            BellCircle.current.autoRotate = $0
+                        }))
+                    }
+                    Section {
                         Button("Log out") {
                             self.presentingAlert = true
                         }
@@ -153,5 +161,24 @@ struct AboutView:View {
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         SettingsView()
+    }
+}
+
+extension UserDefaults {
+
+    public func optionalInt(forKey defaultName: String) -> Int? {
+        let defaults = self
+        if let value = defaults.value(forKey: defaultName) {
+            return value as? Int
+        }
+        return nil
+    }
+
+    public func optionalBool(forKey defaultName: String) -> Bool? {
+        let defaults = self
+        if let value = defaults.value(forKey: defaultName) {
+            return value as? Bool
+        }
+        return nil
     }
 }

@@ -25,7 +25,7 @@ struct AutoLogin: View {
 //                Spacer(minLength: 55)
                 Image("rrLogo").resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 256, height: 265)
+                    .frame(width: 256, height: 256)
 //                Spacer(minLength: 55)
             }
             

@@ -45,6 +45,7 @@ struct SimpleLoginView: View {
                 .onChange(of: email, perform: { _ in
                     validEmail = email.trimmingCharacters(in: .whitespaces).isValidEmail()
                 })
+                    .autocapitalization(.none)
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
                     .disableAutocorrection(true)
@@ -54,6 +55,7 @@ struct SimpleLoginView: View {
                     .onChange(of: password, perform: { _ in
                         validPassword = password.count > 0
                     })
+                    .autocapitalization(.none)
                     .textContentType(.password)
                     .disableAutocorrection(true)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
