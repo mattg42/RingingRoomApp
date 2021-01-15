@@ -122,6 +122,7 @@ struct RingingRoomView: View {
                             }
                             ringingView
                         }
+                        .ignoresSafeArea(.keyboard, edges: .all)
                     }
                 } else {
                     VStack(spacing: 2) {
@@ -327,6 +328,8 @@ struct RingingView:View {
     @ObservedObject var bellCircle:BellCircle = BellCircle.current
     
 
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
     
     var manager = SocketIOManager.shared
     
@@ -336,81 +339,163 @@ struct RingingView:View {
     
     var ropeCircle = RopeCircle()
     
-
+    var interfaceOrientation: UIInterfaceOrientation {
+        get {
+            guard let orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation else {
+                #if DEBUG
+                fatalError("Could not obtain UIInterfaceOrientation from a valid windowScene")
+                #else
+                return UIInterfaceOrientation.portrait
+                #endif
+            }
+            return orientation
+        }
+    }
     
     var body: some View {
         VStack {
             Spacer()
             ropeCircle
             Spacer()
-            if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
-                HStack(spacing: 5.0) {
-                    ForEach(0..<bellCircle.size, id: \.self) { i in
-                        if bellCircle.assignments[bellCircle.size-1-i].userID == User.shared.ringerID {
-                            Button(action: {
-                                self.bellCircle.ringBell(bellCircle.size-i)
-                            }) {
-                                RingButton(number: String(bellCircle.size-i))
+            if interfaceOrientation == .portrait && horizontalSizeClass == .compact {
+                if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
+                    HStack(spacing: 5.0) {
+                        ForEach(0..<bellCircle.size, id: \.self) { i in
+                            if bellCircle.assignments[bellCircle.size-1-i].userID == User.shared.ringerID {
+                                Button(action: {
+                                    self.bellCircle.ringBell(bellCircle.size-i)
+                                }) {
+                                    RingButton(number: String(bellCircle.size-i))
+                                }
+                                .buttonStyle(TouchDown(isAvailible: true))
                             }
-                            .buttonStyle(TouchDown(isAvailible: true))
                         }
                     }
+                    .padding(.horizontal, 5)
+
                 }
+                VStack(spacing: 5) {
+                    HStack(spacing: 5) {
+                        Button(action: {
+                            makeCall("Bob")
+                        }) {
+                            CallButton(call: "Bob")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Single")
+                        }) {
+                            CallButton(call: "Single")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("That's all")
+                        }) {
+                            CallButton(call: "That's all")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                    }
+                    HStack(spacing: 5.0) {
+                        Button(action: {
+                            makeCall("Look to")
+                        }) {
+                            CallButton(call: "Look to")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Go")
+                        }) {
+                            CallButton(call: "Go")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Stand next")
+                        }) {
+                            CallButton(call: "Stand")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                    }
+                }
+                .disabled(!canCall())
+                .opacity(canCall() ? 1 : 0.35)
                 .padding(.horizontal, 5)
+                .padding(.bottom, 5)
+            } else {
+                VStack(spacing: 5) {
+                    HStack(spacing: 5) {
+                        Button(action: {
+                            makeCall("Bob")
+                        }) {
+                            CallButton(call: "Bob")
 
-            }
-            VStack(spacing: 5) {
-                HStack(spacing: 5) {
-                    Button(action: {
-                        makeCall("Bob")
-                    }) {
-                        CallButton(call: "Bob")
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Single")
+                        }) {
+                            CallButton(call: "Single")
 
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("That's all")
+                        }) {
+                            CallButton(call: "That's all")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
                     }
-                    .buttonStyle(TouchDown(isAvailible: true))
-                    Button(action: {
-                        makeCall("Single")
-                    }) {
-                        CallButton(call: "Single")
+                    HStack(spacing: 5.0) {
+                        Button(action: {
+                            makeCall("Look to")
+                        }) {
+                            CallButton(call: "Look to")
 
-                    }
-                    .buttonStyle(TouchDown(isAvailible: true))
-                    Button(action: {
-                        makeCall("That's all")
-                    }) {
-                        CallButton(call: "That's all")
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Go")
+                        }) {
+                            CallButton(call: "Go")
 
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Stand next")
+                        }) {
+                            CallButton(call: "Stand")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
                     }
-                    .buttonStyle(TouchDown(isAvailible: true))
                 }
-                HStack(spacing: 5.0) {
-                    Button(action: {
-                        makeCall("Look to")
-                    }) {
-                        CallButton(call: "Look to")
-
+                .disabled(!canCall())
+                .opacity(canCall() ? 1 : 0.35)
+                .padding(.horizontal, 5)
+                .padding(.bottom, 5)
+                if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
+                    HStack(spacing: 5.0) {
+                        ForEach(0..<bellCircle.size, id: \.self) { i in
+                            if bellCircle.assignments[bellCircle.size-1-i].userID == User.shared.ringerID {
+                                Button(action: {
+                                    self.bellCircle.ringBell(bellCircle.size-i)
+                                }) {
+                                    RingButton(number: String(bellCircle.size-i))
+                                }
+                                .buttonStyle(TouchDown(isAvailible: true))
+                            }
+                        }
                     }
-                    .buttonStyle(TouchDown(isAvailible: true))
-                    Button(action: {
-                        makeCall("Go")
-                    }) {
-                        CallButton(call: "Go")
+                    .padding(.horizontal, 5)
 
-                    }
-                    .buttonStyle(TouchDown(isAvailible: true))
-                    Button(action: {
-                        makeCall("Stand next")
-                    }) {
-                        CallButton(call: "Stand")
-
-                    }
-                    .buttonStyle(TouchDown(isAvailible: true))
                 }
             }
-            .disabled(!canCall())
-            .opacity(canCall() ? 1 : 0.35)
-            .padding(.horizontal, 5)
-            .padding(.bottom, 5)
             
         }
         .onAppear {
@@ -706,9 +791,15 @@ struct RopeCircle:View {
     }
     
     func getHeight() -> CGFloat {
+        print(bellCircle.perspective, bellCircle.bellPositions.count, bellCircle.size)
+
+        if bellCircle.bellPositions.count == bellCircle.size {
         return bellCircle.gotBellPositions ? (bellCircle.perspective <= Int(bellCircle.size/2) ?
                                                             bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y :
                                                             bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - imageHeight - CGFloat(15) : 20
+        } else {
+            return 0
+        }
     }
     
     func isLeft(_ num:Int) -> Bool {
@@ -1217,6 +1308,9 @@ struct ChatView:View {
 
 //    @State private var arrowDown = false
 
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    
     @ObservedObject var chatManager = ChatManager.shared
 
     @State private var currentMessage = ""
@@ -1296,7 +1390,7 @@ struct ChatView:View {
         .clipped()
         .padding(.horizontal, 7)
         .padding(.vertical, 7)
-        .background(Color(white: colorScheme == .light ? 0.94 : 0.045).cornerRadius(5))
+        .background(horizontalSizeClass == .regular ? Color(white: colorScheme == .light ? 1 : 0.08).cornerRadius(5) : Color(white: colorScheme == .light ? 0.94 : 0.08).cornerRadius(5))
         .onAppear {
             print("chat view appeared")
         }
