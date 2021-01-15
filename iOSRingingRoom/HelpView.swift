@@ -40,12 +40,19 @@ At the top-left of the ringing view, there is a button called 'Leave tower'. Pre
 """
     
     static let assinging = """
-The tower controls includes a list of users presently in the tower, which you can use to assign bells to particular ringers. To assign ringers, tap on the name of ringer you would like to assign, then tap on the number of the bell you would like to assign them to. Clicking the \"x\" on the left a bell number will unassign the ringer from that bell.
+The tower controls includes a list of users presently in the tower, which you can use to assign bells to particular ringers. To assign ringers, tap on the name of the ringer you would like to assign, then tap on the number of the bell you would like to assign them to. Clicking the \"x\" on the left a bell number will unassign the ringer from that bell.
 
-Assigning a user to a bell will have the effect of automatically rotating that ringer's \"perspective\" on the tower so that the bell is placed in the bottom right position. This will also make a large dedicated button for each assigned bell at the bottom. If a user is assigned to multiple bells, the lowest-numbered one will be placed in the bottom right position.
+Assigning a user to a bell will have the effect of automatically rotating that ringer's \"perspective\" on the tower so that the bell is placed in the bottom right position. There is more about changing your perspetive in the section "Rotating the perspective of the bell circle". This will also make a large dedicated button for each assigned bell at the bottom. If a user is assigned to multiple bells, the lowest-numbered one will be placed in the bottom right position.
 
 There is also a button called 'Fill in'. This will randomly assign unassigned ringers to availible bells, if there are enough free ringers.
 """
+    
+    static let rotating = """
+By default, whenever you are assigned a bell, that bell will appear in the bottom right corner of the bell circle. However, if you would like to have control over your perspective of the bell circle, the is a button in the bottom right corner of the bell circle with four arrows in a circle. Pressing this will enter you into Rotate mode. When in Rotate mode, if you press a bell, instead of it ringing, it will change your perspective so that bell will be in the bottom right corner, and you will exit Rotate mode. To cancel Rotate mode, press the button with four arrows in a circle again.
+
+In addition, in the Settings tab, there is an option to disable the automatic rotation of the bell circle when you are assigned a bell.
+"""
+    
     
     static let managingTowers = """
 The Towers tab shows all the towers associated with your account. They are sorted by last visited, with the most recent at the bottom.
@@ -325,8 +332,10 @@ struct AdvancedFeaturesView:View {
         Form {
             Section {
                 NavigationLink("Assigning Ringers to Bells", destination: AssigningRingersView(asSheet: self.asSheet, isPresented: self.$isPresented))
+                NavigationLink("Rotating your Perspective of the Bell Circle", destination: RotateBellCircleView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Managing Your Towers", destination: ManagingTowersView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Hosts and Host Mode", destination: HostsAndHostModeView(asSheet: self.asSheet, isPresented: self.$isPresented))
+                
 //                NavigationLink("Listener links", destination: ListenerLinksView(asSheet: self.asSheet, isPresented: self.$isPresented))
 //            NavigationLink("Handbell and Towerbell Simulators", destination: )
             }
@@ -369,6 +378,12 @@ struct AdvancedFeaturesTextView:View {
                 Text(HelpDocumention.assinging)
             }
             Group {
+                Text("\n\nRotating your perspective of the bell circle\n")
+                .font(.headline)
+                .bold()
+                Text(HelpDocumention.rotating)
+            }
+            Group {
                 Text("\n\nManaging towers\n")
                 .font(.headline)
                 .bold()
@@ -409,6 +424,32 @@ struct AssigningRingersView:View {
             
         })
             .navigationBarTitle("Assigning Ringers to Bells")
+    }
+}
+
+struct RotateBellCircleView:View {
+    var asSheet:Bool
+    
+    @Binding var isPresented:Bool
+    var body: some View {
+        ScrollView {
+            
+            VStack(alignment: .leading, spacing: 0) {
+                Text(HelpDocumention.rotating)
+                Spacer()
+            }
+        
+        }
+    .padding()
+        .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
+            if asSheet {
+                Text("Dismiss")
+            } else {
+                Text("")
+            }
+            
+        })
+            .navigationBarTitle("Rotating your Perspective of the Bell Circle")
     }
 }
 
