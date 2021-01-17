@@ -188,6 +188,8 @@ class BellCircle: ObservableObject {
         }
     }
     
+    var newImages = false
+    
     func getNewPositions(radius:CGFloat, center:CGPoint) -> [CGPoint] {
         let angleIncrement:Double = 360/Double(size)
         let startAngle:Double = 360 - (-angleIncrement/2 + angleIncrement*Double(perspective))
@@ -222,8 +224,9 @@ class BellCircle: ObservableObject {
         if !gotBellPositions {
             gotBellPositions = true
         }
-        if changedPerspective {
+        if changedPerspective || newImages {
             changedPerspective = false
+            newImages = false
             objectWillChange.send()
         }
         return newPositions
@@ -386,6 +389,7 @@ class BellCircle: ObservableObject {
             if type.rawValue == audio {
                 objectWillChange.send()
                 bellType = type
+                newImages = true
             }
         }
     }
