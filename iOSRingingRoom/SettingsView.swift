@@ -35,56 +35,55 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-            Form {
-                if loggedIn {
-                    Section() {
-                        Text("Account settings will be availible in a future version.")
-//                        Text("Current username: \(User.shared.name)")
-//                        TextField("New username", text: $newUsername)
-                    }
-                    Section {
-                        Toggle("Auto-rotate bell circle", isOn: .init(get: {
-                            return UserDefaults.standard.optionalBool(forKey: "autoRotate") ?? true
-                        }, set: {
-                            UserDefaults.standard.set($0, forKey: "autoRotate")
-                            BellCircle.current.autoRotate = $0
-                        }))
-                    }
-                    Section {
-                        Button("Log out") {
-                            self.presentingAlert = true
+                Form {
+                    if loggedIn {
+                        Section() {
+                            Text("Account settings will be availible in a future version.")
+                            //                        Text("Current username: \(User.shared.name)")
+                            //                        TextField("New username", text: $newUsername)
                         }
-                        .alert(isPresented: $presentingAlert) {
-                            Alert(title: Text("Are you sure you want to log out?"), message: nil, primaryButton: .destructive(Text("Yes"), action: self.logout), secondaryButton: .cancel(Text("Cancel"), action: {self.presentingAlert = false}))
+                        Section {
+                            Toggle("Auto-rotate bell circle", isOn: .init(get: {
+                                return UserDefaults.standard.optionalBool(forKey: "autoRotate") ?? true
+                            }, set: {
+                                UserDefaults.standard.set($0, forKey: "autoRotate")
+                                BellCircle.current.autoRotate = $0
+                            }))
                         }
-                    }
-                    
-                } else {
-                    Section {
-                        Button("Log in") {
-                            self.presentingLogin = true
-                        }
-                        .sheet(isPresented: $presentingLogin, onDismiss: {
-                            print("login is dissmissed", self.presentingLogin)
-                        }) {
-                            SimpleLoginView(loggedIn: self.$loggedIn)
-                        }
-                    }
-                    Section {
-                        Button("Create account") {
-                            self.presentingCreateAccount = true
-                        }
-                        .sheet(isPresented: $presentingCreateAccount, onDismiss: {
-                            if self.accountCreated {
-                                self.comController.login(email: self.email, password: self.password)
+                        Section {
+                            Button("Log out") {
+                                self.presentingAlert = true
                             }
-                        }) {
-                            AccountCreationView(isPresented: self.$presentingCreateAccount, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
+                            .alert(isPresented: $presentingAlert) {
+                                Alert(title: Text("Are you sure you want to log out?"), message: nil, primaryButton: .destructive(Text("Yes"), action: self.logout), secondaryButton: .cancel(Text("Cancel"), action: {self.presentingAlert = false}))
+                            }
                         }
+                    } else {
+                        Section {
+                            Button("Log in") {
+                                self.presentingLogin = true
+                            }
+                            .sheet(isPresented: $presentingLogin, onDismiss: {
+                                print("login is dissmissed", self.presentingLogin)
+                            }) {
+                                SimpleLoginView(loggedIn: self.$loggedIn)
+                            }
+                        }
+                        Section {
+                            Button("Create account") {
+                                self.presentingCreateAccount = true
+                            }
+                            .sheet(isPresented: $presentingCreateAccount, onDismiss: {
+                                if self.accountCreated {
+                                    self.comController.login(email: self.email, password: self.password)
+                                }
+                            }) {
+                                AccountCreationView(isPresented: self.$presentingCreateAccount, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
+                            }
+                        }
+                        
                     }
-                    
                 }
-            }
                 VStack {
                     Spacer()
                     Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String) (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String))")
