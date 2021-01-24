@@ -1156,8 +1156,8 @@ struct UsersView:View {
                             .lineLimit(1)
                     }
                     .background(Color.main.cornerRadius(5))
-                    .disabled(self.bellCircle.users.count < self.bellCircle.size)
-                    .opacity(self.bellCircle.users.count < self.bellCircle.size ? 0.35 : 1)
+                    .disabled(!fillInAvailable())
+                    .opacity(fillInAvailable() ? 1 : 0.35)
                     .foregroundColor(.white)
 
                     Button(action: {
@@ -1271,6 +1271,23 @@ struct UsersView:View {
         SocketIOManager.shared.socket.emit("c_assign_user", ["user":0, "bell":bell, "tower_id":self.bellCircle.towerID])
     }
 
+    func fillInAvailable() -> Bool {
+        return numberOfAvailableRingers() >= numberOfAvailableBells()
+    }
+    
+    func numberOfAvailableRingers() -> Int {
+        var number = 0
+        for ringer in bellCircle.users {
+            if !bellCircle.assignments.containsRingerForID(ringer.userID) {
+                number += 1
+            }
+        }
+        return number
+    }
+    
+    func numberOfAvailableBells() -> Int {
+        return (bellCircle.assignments.allIndecesOfRingerForID(Ringer.blank.userID) ?? [Int]()).count
+    }
 
 
 }
