@@ -29,6 +29,8 @@ class BellCircle: ObservableObject {
         }
     }
     
+    @Published var showingTowerControls = false
+    
     var ringingroomIsPresented = false
     
     static var current = BellCircle()
@@ -117,17 +119,29 @@ class BellCircle: ObservableObject {
                 default:
                     returnValue -= 0
                 }
+            } else {
+                switch size {
+                case 4,5,8,12:
+                    returnValue += 5
+                default:
+                    returnValue += 0
+                }
             }
-            if returnValue > 300 {
-                returnValue = 300
+        } else {
+            if bellType == .tower {
+                switch size {
+                case 5:
+                    returnValue -= 40
+                default:
+                    returnValue += 0
+                }
+            } else {
+                returnValue += 10
             }
         }
-        if bellType == .hand {
-            if iPad {
-                returnValue += 10
-            } else {
-                returnValue += 5
-            }
+
+        if returnValue > 300 {
+            returnValue = 300
         }
         return returnValue
     }
@@ -171,7 +185,6 @@ class BellCircle: ObservableObject {
         }
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        
     }
     
 
@@ -190,11 +203,27 @@ class BellCircle: ObservableObject {
     
     var newImages = false
     
+    var oldRadius:CGFloat = 0
+    var oldCenter:CGPoint = CGPoint(x: 0, y: 0)
+    var oldSize = 0
+    var oldPerpespective = 0
+    
     func getNewPositions(radius:CGFloat, center:CGPoint) -> [CGPoint] {
+        if radius == oldRadius {
+            if center == oldCenter {
+                if size == oldSize {
+                    if perspective == oldPerpespective {
+                        return bellPositions
+                    }
+                }
+            }
+        }
         let angleIncrement:Double = 360/Double(size)
         let startAngle:Double = 360 - (-angleIncrement/2 + angleIncrement*Double(perspective))
         
         var newPositions = [CGPoint]()
+        
+        print("calculating")
         
         var currentAngle = startAngle
         for _ in 0..<size {
@@ -214,6 +243,10 @@ class BellCircle: ObservableObject {
             objectWillChange.send()
         }
         bellPositions = newPositions
+        oldRadius = radius
+        oldCenter = center
+        oldSize = size
+        oldPerpespective = perspective
         print(size, bellPositions.count)
 //        print(center)
 //        for pos in newPositions {
@@ -282,6 +315,8 @@ class BellCircle: ObservableObject {
                 if perspective > newSize {
                     perspective = 1
                 }
+            } else {
+                perspective = (assignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
             }
             bellStates = Array(repeating: true, count: newSize)
             size = newSize
@@ -358,7 +393,7 @@ class BellCircle: ObservableObject {
     
     func newUserlist(_ newUsers:[[String:Any]]) {
         users = [Ringer]()
-        
+
         for newRinger in newUsers {
             let ringer = Ringer.blank
             ringer.userID = newRinger["user_id"] as! Int

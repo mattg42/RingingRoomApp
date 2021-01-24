@@ -53,9 +53,7 @@ struct RingingRoomView: View {
     var manager = SocketIOManager.shared
     
     @ObservedObject var chatManager = ChatManager.shared
-    
-    @State var showingTowerControls = false
-    
+        
     @State var titleHeight:CGFloat = 0
     
     var ringingView = RingingView()
@@ -77,7 +75,7 @@ struct RingingRoomView: View {
                 if isSplit {
                     HStack(spacing: 0.0) {
                         towerControls
-                            .padding(5)
+                            .padding([.horizontal, .top], 5)
                         VStack(spacing: 0) {
                             TowerNameView()
                             .padding(.bottom, 5)
@@ -105,7 +103,7 @@ struct RingingRoomView: View {
                             Spacer(minLength: 0)
                             SetAtHandButton()
                             Spacer(minLength: 0)
-                            MenuButton(showingTowerControls: .constant(false))
+                            MenuButton(keepSize: true)
                                 .opacity(0)
                                 .disabled(true)
                         }
@@ -114,7 +112,7 @@ struct RingingRoomView: View {
                     }
                     
                     Color.primary.colorInvert().edgesIgnoringSafeArea(.all)
-                        .offset(x: showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
+                        .offset(x: bellCircle.showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
                     
                     VStack(spacing: 0) {
                         TowerNameView()
@@ -122,7 +120,7 @@ struct RingingRoomView: View {
                         ZStack {
                             towerControls
                                 .padding(.horizontal, 5)
-                                .offset(x: showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
+                                .offset(x: bellCircle.showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
                             VStack {
                                 HStack(spacing: 0) {
                                     HelpButton()
@@ -135,28 +133,15 @@ struct RingingRoomView: View {
                                         .opacity(0)
                                         .disabled(true)
                                     Spacer(minLength: 0)
-                                    MenuButton(showingTowerControls: $showingTowerControls)
+                                    MenuButton(keepSize: false)
                                 }
                                 .padding(.horizontal, 5)
 
                                 HStack {
                                     Spacer()
                                     if chatManager.newMessages > 0 {
-                                        Button(action: {
-                                            if !self.showingTowerControls {
-                                                self.showingTowerControls = true
-                                            }
-                                            bellCircle.towerControlsViewSelection = 2
-                                        }) {
-                                            ZStack {
-                                                Circle()
-                                                    .fill(Color.main)
-                                                    .frame(width: 27, height: 27)
-                                                Text(String(chatManager.newMessages))
-                                                    .foregroundColor(.white)
-                                                    .bold()
-                                            }
-                                        }
+                                        ChatNotificationButton()
+                                        
                                         //                                .padding(.trailing, 5)
                                     }
                                 }
@@ -179,6 +164,31 @@ struct RingingRoomView: View {
         }
     }
     
+}
+
+struct ChatNotificationButton:View {
+    
+    @ObservedObject var bellCircle:BellCircle = BellCircle.current
+    
+    @ObservedObject var chatManager = ChatManager.shared
+    
+    var body: some View {
+        Button(action: {
+            if !bellCircle.showingTowerControls {
+                bellCircle.showingTowerControls = true
+            }
+            bellCircle.towerControlsViewSelection = 2
+        }) {
+            ZStack {
+                Circle()
+                    .fill(Color.main)
+                    .frame(width: 27, height: 27)
+                Text(String(chatManager.newMessages))
+                    .foregroundColor(.white)
+                    .bold()
+            }
+        }
+    }
 }
 
 struct SetAtHandButton:View {
@@ -218,7 +228,7 @@ struct TowerNameView:View {
                 .fill(Color.main)
                 .cornerRadius(5)
             Text(bellCircle.towerName)
-                .colorInvert()
+                .foregroundColor(.white)
                 .font(Font.custom("Simonetta-Black", size: 30))
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
@@ -232,20 +242,20 @@ struct TowerNameView:View {
 }
 
 struct MenuButton:View {
-    
-    @Binding var showingTowerControls:Bool
-    
+        
     @ObservedObject var bellCircle:BellCircle = BellCircle.current
     
     @ObservedObject var chatManager = ChatManager.shared
         
+    var keepSize:Bool
+    
     var body: some View {
         Button(action: {
             withAnimation {
-                self.showingTowerControls.toggle()
+                bellCircle.showingTowerControls.toggle()
                 
                 
-                if !self.showingTowerControls {
+                if !bellCircle.showingTowerControls {
                     hideKeyboard()
                     chatManager.canSeeMessages = false
                 } else {
@@ -259,11 +269,15 @@ struct MenuButton:View {
                 Color.main.cornerRadius(5)
     //                    .fixedSize()
                 
-                if showingTowerControls {
-                    ToRing()
-
-                } else {
+                if keepSize {
                     ToControls()
+                } else {
+                    if bellCircle.showingTowerControls {
+                        ToRing()
+
+                    } else {
+                        ToControls()
+                    }
                 }
             }
             .clipped()
@@ -636,7 +650,9 @@ struct RopeCircle:View {
         get {
             switch bellCircle.size {
             case 16:
-                return 48
+                return 42
+            case 14:
+                return 50
             default:
                 return 60
             }
@@ -699,7 +715,7 @@ struct RopeCircle:View {
                         HStack(spacing: 0) {
                             Text(String(bellNumber+1))
                                 .opacity(isLeft(bellNumber) ? 0 : 1)
-                                .font(bellCircle.size > 13 ? .callout : .body)
+                                .font(getFont())
                             Image(self.getImage(bellNumber)).resizable()
                                 .frame(width: imageWidth, height: imageHeight)
                                 .rotation3DEffect(
@@ -712,7 +728,7 @@ struct RopeCircle:View {
 
                             Text(String(bellNumber+1))
                                 .opacity(isLeft(bellNumber) ? 1 : 0)
-                                .font(bellCircle.size > 13 ? .callout : .body)
+                                .font(getFont())
                         }
                         
                     }
@@ -724,7 +740,7 @@ struct RopeCircle:View {
                     //                        .position(self.bellCircle.getNewPositions(radius: geo.frame(in: .local).height/2 - imageHeight/2, center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber].pos) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
                 }
                 if bellCircle.bellMode == .ring {
-                    ScrollView {
+                    ScrollView(showsIndicators: false) {
                         ForEach(0..<bellCircle.assignments.count, id: \.self) { i in
                             HStack {
                                 Text("\(i+1)")
@@ -732,14 +748,14 @@ struct RopeCircle:View {
                                     .frame(width: 25, height:18, alignment: .trailing)
                                 Text(" \(self.bellCircle.assignments[i].name)")
                                     .font(.callout)
-                                    .frame(width: 165, height:18, alignment: .leading)
+                                    .frame(width: 160, height:18, alignment: .leading)
                             }
                             .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
 
                         }
                     }
                     .disabled(bellCircle.size > 11 ? false : true)
-                    .frame(maxHeight: getHeight())
+                    .frame(maxHeight: getHeight(geo: geo))
                     .fixedSize()
 
                     .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
@@ -786,19 +802,11 @@ struct RopeCircle:View {
                                 //                    .fixedSize()
                                 Image("Arrow.4.circle.white").resizable()
                                     .frame(width: 37, height: 37)
-                                //                                VStack(spacing: -5) {
-                                //                                    Text("Rotate")
-                                //                                    Text("perspective")
-                                //                                }
-                                ////                                .bold()
-                                //                                .padding(1.5)
-                                //                                    .padding(.horizontal, 3)
-                                //                                    .foregroundColor(Color.white)
                             }
                             .fixedSize()
                         }
                         //                            Text("Set at hand")
-                        .position(x: (UIApplication.shared.windows.first?.frame.width ?? UIScreen.main.bounds.width) - 40, y: bellCircle.bellPositions.count == bellCircle.size ? bellCircle.bellPositions[bellCircle.perspective-1].y: 0)
+                        .position(x: geo.frame(in: .local).width - 40, y: bellCircle.bellPositions.count == bellCircle.size ? bellCircle.bellPositions[bellCircle.perspective-1].y: 0)
                         .animation(nil)
                     }
                 }
@@ -811,16 +819,45 @@ struct RopeCircle:View {
         })
     }
     
-    func getHeight() -> CGFloat {
+    func getHeight(geo:GeometryProxy) -> CGFloat {
+        self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
         print(bellCircle.perspective, bellCircle.bellPositions.count, bellCircle.size)
-
+        var returnValue:CGFloat = 0
         if bellCircle.bellPositions.count == bellCircle.size {
-        return bellCircle.gotBellPositions ? (bellCircle.perspective <= Int(bellCircle.size/2) ?
-                                                            bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y :
-                                                            bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - imageHeight - CGFloat(15) : 20
-        } else {
-            return 0
+            if bellCircle.gotBellPositions {
+                if bellCircle.perspective <= Int(bellCircle.size/2) {
+                    returnValue = bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y
+                } else {
+                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - imageHeight - CGFloat(15)
+                }
+            }
         }
+        
+        if bellCircle.bellType == .hand {
+            if bellCircle.size > 13 {
+        returnValue = returnValue - 100
+            }
+        } else {
+            if bellCircle.size == 16 {
+                returnValue -= 80
+            }
+        }
+        
+        
+        return returnValue
+    }
+    
+    func getFont() -> Font {
+        if horizontalSizeClass == .compact &&  verticalSizeClass == .compact {
+            if bellCircle.size > 13 {
+                return .footnote
+            }
+           
+        }
+        
+        return .body
+    
+            
     }
     
     func isLeft(_ num:Int) -> Bool {
@@ -1124,6 +1161,27 @@ struct UsersView:View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
     
+    var interfaceOrientation: UIInterfaceOrientation? {
+        get {
+            guard let orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation else {
+                #if DEBUG
+                fatalError("Could not obtain UIInterfaceOrientation from a valid windowScene")
+                #else
+                return nil
+                #endif
+            }
+            return orientation
+        }
+    }
+    
+    var isSplit:Bool {
+        get {
+            !(horizontalSizeClass == .compact || (interfaceOrientation?.isPortrait ?? true))
+        }
+    }
+    
+    @ObservedObject var chatManager = ChatManager.shared
+    
     var body: some View {
         VStack {
             HStack(alignment: .center) {
@@ -1175,6 +1233,9 @@ struct UsersView:View {
 
                 }
                 Spacer()
+                if chatManager.newMessages > 0 {
+                    ChatNotificationButton()
+                }
                 Button(action: {
                         self.bellCircle.towerControlsViewSelection = 2
                 }) {
@@ -1187,7 +1248,7 @@ struct UsersView:View {
                 ScrollView(showsIndicators: false) {
 
                     HStack(alignment: .top) {
-                        VStack(spacing: 7) {
+                        VStack(spacing: 14) {
                             ForEach(self.bellCircle.users) { user in
                                 RingerView(user: user, selectedUser: (self.selectedUser == user.userID))
                                     .opacity(self.available() ? 1 : (user.userID == self.selectedUser) ? 1 : 0.35)
@@ -1200,32 +1261,57 @@ struct UsersView:View {
                             }
                         }
                         .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, 9)
-                        VStack(alignment: .trailing, spacing: -7) {
+                        .padding(.top, 10)
+                        VStack(alignment: .trailing, spacing: 7) {
                             ForEach(0..<self.bellCircle.assignments.count, id: \.self) { number in
-                                HStack(alignment: .top) {
+                                HStack(alignment: .center, spacing: 5) {
                                     if self.canUnassign(number)  {
                                         Button(action: {
                                             self.unAssign(bell: number+1)
                                             self.updateView.toggle()
                                         }) {
-                                            Text("x")
+                                            Text("X")
                                                 .foregroundColor(.primary)
-                                                .font(.title)
+                                                .font(.title3)
+                                                .fixedSize()
+                                                .padding(.vertical, -4)
                                         }
-                                        .padding(.top, 1)
+//                                        .background(Color.green)
                                     }
                                     Button(action: self.assign(self.selectedUser, to: number + 1)) {
-                                        Text(String(number + 1))
+                                        ZStack {
+                                            ZStack {
+                                                Circle().fill(Color.main)
+
+                                                Text("1")
+                                                    .font(.callout)
+                                                    .bold()
+                                                    .opacity(0)
+                                                    .padding(.horizontal, 10)
+                                                    .padding(.vertical, 4)
+                                            }
+//                                            .fixedSize()
+
+
+                                            Text(String(number + 1))
                                             .font(.callout)
                                             .bold()
+                                                .foregroundColor(Color.white)
+
+                                        }
+                                        .fixedSize()
                                     }
-                                    .modifier(BellAssigmentViewModifier(isAvailible: (self.bellCircle.assignments[number].name == "")))
+                                    .disabled(!(self.bellCircle.assignments[number].name == ""))
+                                    .opacity((self.bellCircle.assignments[number].name == "") ? 1 : 0.35)
+                                    .fixedSize(horizontal: true, vertical: true)
                                     //.background(.black)
                                 }
                             }
+                            
+
                         }
-                        .padding(.horizontal, 7)
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 6)
                         .background(Color(white: (self.colorScheme == .light) ? 0.86 : 0.13).cornerRadius(5))
                     }
                 }
@@ -1241,7 +1327,7 @@ struct UsersView:View {
         })
         .clipped()
         .padding(7)
-        .background(horizontalSizeClass == .regular ? Color(white: colorScheme == .light ? 1 : 0.08).cornerRadius(5) : Color(white: colorScheme == .light ? 0.94 : 0.08).cornerRadius(5))
+        .background(isSplit ? Color(white: colorScheme == .light ? 1 : 0.08).cornerRadius(5) : Color(white: colorScheme == .light ? 0.94 : 0.08).cornerRadius(5))
         .onDisappear {
             print("users view disappeared")
         }
@@ -1352,6 +1438,25 @@ struct ChatView:View {
     @ObservedObject var chatManager = ChatManager.shared
 
     @State private var currentMessage = ""
+    
+    var interfaceOrientation: UIInterfaceOrientation? {
+        get {
+            guard let orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation else {
+                #if DEBUG
+                fatalError("Could not obtain UIInterfaceOrientation from a valid windowScene")
+                #else
+                return nil
+                #endif
+            }
+            return orientation
+        }
+    }
+    
+    var isSplit:Bool {
+        get {
+            !(horizontalSizeClass == .compact || (interfaceOrientation?.isPortrait ?? true))
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0.0) {
@@ -1428,7 +1533,7 @@ struct ChatView:View {
         .clipped()
         .padding(.horizontal, 7)
         .padding(.vertical, 7)
-        .background(horizontalSizeClass == .regular ? Color(white: colorScheme == .light ? 1 : 0.08).cornerRadius(5) : Color(white: colorScheme == .light ? 0.94 : 0.08).cornerRadius(5))
+        .background(isSplit ? Color(white: colorScheme == .light ? 1 : 0.08).cornerRadius(5) : Color(white: colorScheme == .light ? 0.94 : 0.08).cornerRadius(5))
         .onAppear {
             print("chat view appeared")
         }
@@ -1461,6 +1566,7 @@ struct GeometryGetter: View {
 
 struct BellAssigmentViewModifier:ViewModifier {
     var isAvailible:Bool
+    
     func body(content: Content) -> some View {
         ZStack {
             Text("1")
