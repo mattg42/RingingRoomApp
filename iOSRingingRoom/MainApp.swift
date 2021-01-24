@@ -52,16 +52,11 @@ struct MainApp: View {
                 }
         }
         .onAppear {
+            print("+=+=+=++++===++==++", UserDefaults.standard.string(forKey: "oh no"))
             if autoJoinTower {
                 User.shared.towerID = String(autoJoinTowerID)
                 self.ringView.joinTower()
             }
-        }
-        .onOpenURL { url in
-            guard let towerID = url.towerID else { return }
-            self.selectedTab = TabViewType.ring
-            User.shared.towerID = String(towerID)
-            self.ringView.joinTower()
         }
         .accentColor(Color.main)
         

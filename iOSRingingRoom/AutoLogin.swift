@@ -30,11 +30,6 @@ struct AutoLogin: View {
             }
             
         }
-        .onOpenURL { url in
-            guard let towerID = url.towerID else { return }
-            self.autoJoinTower = true
-            self.autoJoinTowerID = towerID
-        }
         .edgesIgnoringSafeArea(.all)
         .alert(isPresented: $showingAlert) {
         //present welcome login screen

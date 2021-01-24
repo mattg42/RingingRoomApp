@@ -160,11 +160,6 @@ struct WelcomeLoginScreen: View {
                     }
             .padding()
         }
-        .onOpenURL { url in
-            guard let towerID = url.towerID else { return }
-            self.autoJoinTower = true
-            self.autoJoinTowerID = towerID
-        }
         .onAppear(perform: {
             self.comController = CommunicationController(sender: self, loginType: .welcome)
         })
