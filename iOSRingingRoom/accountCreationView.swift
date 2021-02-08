@@ -115,7 +115,6 @@ struct AccountCreationView: View {
     
     func receivedResponse(statusCode:Int? = nil, response:[String:Any]) {
         if statusCode == 500 {
-            print("whoops")
             alertTitle = "Email already registered"
             alertMessage = "There is already an account with that email address"
             self.presentingAlert = true

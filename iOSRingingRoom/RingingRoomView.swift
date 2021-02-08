@@ -10,12 +10,20 @@ import Foundation
 import SwiftUI
 import AVFoundation
 import Combine
+import Network
 
 struct RingingRoomView: View {
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
+    
+    var monitor = NWPathMonitor()
+    
+    @State private var showingAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var alertCancelButton = Alert.Button.cancel()
     
     var backgroundColor:Color {
         get {
@@ -120,6 +128,7 @@ struct RingingRoomView: View {
                         ZStack {
                             towerControls
                                 .padding(.horizontal, 5)
+                                .padding(.bottom, 5)
                                 .offset(x: bellCircle.showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
                             VStack {
                                 HStack(spacing: 0) {
@@ -153,6 +162,9 @@ struct RingingRoomView: View {
                     }
                 }
             }
+            .alert(isPresented: $showingAlert) {
+                Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
+            }
             .onAppear {
                 if bellCircle.autoRotate {
                     if !bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
@@ -160,8 +172,29 @@ struct RingingRoomView: View {
                     }
                 
                 }
+                monitor.start(queue: DispatchQueue.monitor)
+                monitor.pathUpdateHandler = { path in
+                    if path.status == .unsatisfied {
+                        noInternetAlert()
+                    }
+                }
+            }
         }
-        }
+    }
+    
+    func noInternetAlert() {
+        alertTitle = "Connection error"
+        alertMessage = "Your device is not connected to the internet. Please check your internet connection and try again."
+        alertCancelButton = .cancel(Text("Reconnect"), action: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+                if monitor.currentPath.status == .unsatisfied {
+                    noInternetAlert()
+                } else {
+                    manager.socket.connect()
+                }
+            })
+        })
+        showingAlert = true
     }
     
 }
@@ -632,8 +665,9 @@ struct RopeCircle:View {
     
     var ropeSize:CGFloat {
         get {
+//            return 150
             if horizontalSizeClass == .regular && interfaceOrientation ?? .portrait == .portrait {
-                return 75
+                return 150
             } else {
                 switch bellCircle.size {
                 case 14:
@@ -641,7 +675,7 @@ struct RopeCircle:View {
                 case 16:
                     return 63
                 default:
-                    return 75
+                    return 80
                 }
             }
         }
@@ -819,8 +853,13 @@ struct RopeCircle:View {
         })
     }
     
+//    func getBellPositionsAndSizes(radius:CGFloat, center:CGPoint) -> [CGPoint] {
+//        self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min((geo.frame(in: .local).width - imageWidth)/2, (geo.frame(in: .local).height  +  imageWidth)/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
+//
+//    }
+    
     func getHeight(geo:GeometryProxy) -> CGFloat {
-        self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
+
         print(bellCircle.perspective, bellCircle.bellPositions.count, bellCircle.size)
         var returnValue:CGFloat = 0
         if bellCircle.bellPositions.count == bellCircle.size {

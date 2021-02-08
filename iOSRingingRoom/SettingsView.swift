@@ -118,6 +118,8 @@ struct SettingsView: View {
         }
     }
     
+    @State var i = 1
+    
     func receivedMyTowers(statusCode:Int?, responseData:[String:Any]?) {
         if statusCode! == 401 {
             alertTitle = "Error logging in"
@@ -129,6 +131,25 @@ struct SettingsView: View {
                 UserDefaults.standard.set(self.password, forKey: "userPassword")
                 self.loggedIn = true
             }
+        }
+    }
+    
+    func runShortcut() {
+        if i == 1 {
+            var shortcutName = "shortcuts://import-shortcut?url=https://www.icloud.com/shortcuts/04566978207b47b2a99b7b878028d431&name=Start%20Practice&silent=true"
+
+            let url = URL(string: shortcutName)!
+            UIApplication.shared.open(url,
+                                      options: [:],
+                                      completionHandler: nil)
+            i += 1
+        } else {
+            var shortcutName = "shortcuts://run-shortcut?name=Start%20Practice&silent=true"
+
+            let url = URL(string: shortcutName)!
+            UIApplication.shared.open(url,
+                                      options: [:],
+                                      completionHandler: nil)
         }
     }
     

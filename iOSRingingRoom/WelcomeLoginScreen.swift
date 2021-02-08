@@ -11,6 +11,7 @@
 import SwiftUI
 import Combine
 import NotificationCenter
+import Network
 
 struct WelcomeLoginScreen: View {
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
@@ -57,9 +58,11 @@ struct WelcomeLoginScreen: View {
     @State private var accountCreated = false
     
     @State private var showingAlert = false
-    @State private var alertTitle = Text("")
-    @State private var alertMessage:Text? = nil
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var alertCancelButton = Alert.Button.cancel()
     
+    @State private var monitor = NWPathMonitor()
     
     var body: some View {
         ZStack {
@@ -128,7 +131,7 @@ struct WelcomeLoginScreen: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .disabled(loginDisabled)
                     .alert(isPresented: $showingAlert) {
-                        Alert(title: self.alertTitle, message: self.alertMessage, dismissButton: .cancel(Text("Ok")))
+                        Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
                     }
                     Button(action: presentMainApp) {
                         ZStack {
@@ -162,41 +165,46 @@ struct WelcomeLoginScreen: View {
         }
         .onAppear(perform: {
             self.comController = CommunicationController(sender: self, loginType: .welcome)
+            let queue = DispatchQueue.monitor
+            monitor.start(queue: queue)
         })
     }
     
-
-    
     func login() {
-        comController.login(email: self.email, password: self.password)
-        //send login request to server
-  //     presentMainApp()
+        if monitor.currentPath.status == .satisfied || monitor.currentPath.status == .requiresConnection {
+            print("sent login request")
+            comController.login(email: self.email.trimmingCharacters(in: .whitespaces), password: self.password)
+        } else {
+            print("path unsatisfied")
+            noInternetAlert()
+        }
     }
     
     func receivedResponse(statusCode:Int?, responseData:[String:Any]?) {
         print("status code: \(String(describing: statusCode))")
         print(responseData ?? 0)
         if statusCode! == 401 {
-            print("unauth")
-            alertTitle = Text("Your email or password is incorrect")
-            self.showingAlert = true
-        } else {
+            incorrectCredentialsAlert()
+        } else if statusCode! == 200 {
             comController.getUserDetails()
             comController.getMyTowers()
+        } else {
+            unknownErrorAlert()
         }
     }
     
     func receivedMyTowers(statusCode:Int?, responseData:[String:Any]?) {
         if statusCode! == 401 {
-            alertTitle = Text("Error")
-            self.showingAlert = true
-        } else {
+            incorrectCredentialsAlert()
+        } else if statusCode! == 200 {
             DispatchQueue.main.async {
                 UserDefaults.standard.set(self.stayLoggedIn, forKey: "keepMeLoggedIn")
                 UserDefaults.standard.set(self.email, forKey: "userEmail")
                 UserDefaults.standard.set(self.password, forKey: "userPassword")
                 self.presentMainApp()
             }
+        } else {
+            unknownErrorAlert()
         }
     }
     
@@ -206,6 +214,29 @@ struct WelcomeLoginScreen: View {
         self.viewControllerHolder?.present(style: .fullScreen, name: "Main") {
             MainApp(autoJoinTower: autoJoinTower, autoJoinTowerID: autoJoinTowerID)
         }
+    }
+    
+    func unknownErrorAlert() {
+        alertTitle = "Error"
+        alertMessage = "An unknown error occured."
+        alertCancelButton = .cancel(Text("OK"))
+        showingAlert = true
+    }
+    
+    func incorrectCredentialsAlert() {
+        alertTitle = "Credentials error"
+        alertMessage = "Your username or password is incorrect."
+        alertCancelButton = .cancel(Text("OK"))
+        self.showingAlert = true
+    }
+    
+    func noInternetAlert() {
+        alertTitle = "Connection error"
+        alertMessage = "Your device is not connected to the internet. Please check your internet connection and try again."
+        alertCancelButton = .cancel(Text("Try again"), action: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: login)
+        })
+        showingAlert = true
     }
     
     
