@@ -163,7 +163,7 @@ class SocketIOManager: NSObject {
         ChatManager.shared.messages = [String]()
         ChatManager.shared.newMessages = 0
         ChatManager.shared.canSeeMessages = false
-//        manager = nil
+        manager = nil
         ignoreSetup = false
     }
     

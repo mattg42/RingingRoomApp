@@ -29,24 +29,32 @@ class BellCircle: ObservableObject {
         }
     }
     
+    @Published var showingTowerControls = false
+    
     var ringingroomIsPresented = false
     
     static var current = BellCircle()
     
     static var sounds = [
         BellType.tower : [
-        4: ["5","6","7","8"],
-        6: ["3","4","5","6","7","8"],
-        8: ["1","2sharp","3","4","5","6","7","8"],
-        10: ["3","4","5","6","7","8","9","0","E","T"],
-        12: ["1","2","3","4","5","6","7","8","9","0","E","T"]
+            4: ["5","6","7","8"],
+            5: ["4","5","6","7","8"],
+            6: ["3","4","5","6","7","8"],
+            8: ["1","2sharp","3","4","5","6","7","8"],
+            10: ["3","4","5","6","7","8","9","0","E","T"],
+            12: ["1","2","3","4","5","6","7","8","9","0","E","T"],
+            14: ["e3", "e4", "1","2","3","4","5","6","7","8","9","0","E","T"],
+            16: ["e1","e2","e3","e4","1","2","3","4","5","6","7","8","9","0","E","T"]
         ],
         BellType.hand : [
-        4: ["5","6","7","8"],
-        6: ["7","8","9","0","E","T"],
-        8: ["5","6","7","8","9","0","E","T"],
-        10: ["3","4","5","6","7","8","9","0","E","T"],
-        12: ["1","2","3","4","5","6","7","8","9","0","E","T"]
+            4: ["9","0","E","T"],
+            5: ["8","9","0","E","T"],
+            6: ["7", "8", "9", "0", "E", "T"],
+            8: ["5", "6", "7", "8", "9", "0", "E", "T"],
+            10: ["3", "4", "5", "6", "7", "8", "9", "0", "E", "T"],
+            12: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "E", "T"],
+            14: ["3", "4", "5", "6f", "7", "8", "9", "0", "E", "T", "A", "B", "C", "D"],
+            16: ["1", "2", "3", "4", "5", "6f", "7", "8", "9", "0", "E", "T", "A", "B", "C", "D"],
         ]
     ]
     
@@ -62,10 +70,13 @@ class BellCircle: ObservableObject {
     
     var perspective = 1 {
         didSet {
+            changedPerspective = true
             print("from perspective")
-            getNewPositions(radius: radius, center: center)
+//            getNewPositions(radius: radius, center: center)
         }
     }
+    
+    var changedPerspective = false
     
     var setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false, "gotAssignments":false]
     
@@ -74,8 +85,6 @@ class BellCircle: ObservableObject {
     let setupPublisher = NotificationCenter.default.publisher(for: BellCircle.setup)
     
     var bellType:BellType = BellType.hand
-    
-    var baseRadius:CGFloat = 0
     
     var center = CGPoint(x: 0, y: 0) {
         didSet(oldCenter) {
@@ -93,43 +102,55 @@ class BellCircle: ObservableObject {
     
     var sortTimer = Timer()
     
-    var radius:CGFloat {
-        get {
-            var returnValue = self.baseRadius
-            returnValue -= 25
-            if bellType == .hand {
+    func getRadius(baseRadius:CGFloat, iPad:Bool) -> CGFloat {
+        var returnValue = baseRadius
+        if !iPad {
+            if bellType == .tower {
                 switch self.size {
-                case 6:
-                    returnValue -= 20
-                case 8:
-                    returnValue -= 5
+                case 5, 6:
+                    returnValue -= 15
+    //            case 8:
+    //                returnValue -= 10
                 case 10:
                     returnValue -= 10
-                case 12:
-                    returnValue -= 5
+                    case 12, 14:
+                        returnValue -= 5
+            
                 default:
                     returnValue -= 0
                 }
             } else {
-                switch self.size {
-                case 6:
-                    returnValue -= 20
-                case 8:
-                    returnValue -= 10
-                case 10:
-                    returnValue -= 5
-//                case 12:
-//                    returnValue -= 5
+                switch size {
+                case 4,5,8,12:
+                    returnValue += 5
                 default:
-                    returnValue -= 0
+                    returnValue += 0
                 }
             }
-            
-            return returnValue
+        } else {
+            if bellType == .tower {
+                switch size {
+                case 5:
+                    returnValue -= 40
+                default:
+                    returnValue += 0
+                }
+            } else {
+                returnValue += 10
+            }
         }
+
+        if returnValue > 300 {
+            returnValue = 300
+        }
+        return returnValue
     }
     
-    var gotBellPositions = false
+    var gotBellPositions = false {
+        willSet {
+            objectWillChange.send()
+        }
+    }
     
     var users = [Ringer]()
     
@@ -141,26 +162,32 @@ class BellCircle: ObservableObject {
     
     var assignmentsBuffer = [Ringer?]()
     
-    var bellPositions = [BellPosition]()
+    var bellPositions = [CGPoint]()
     
     var bellStates = [Bool]()
         
     var halfMuffled = false
+    
+    var autoRotate = UserDefaults.standard.optionalBool(forKey: "autoRotate") ?? true
+    
+    @Published var bellMode = BellMode.ring
     
     @Published var keyboardShowing = false
     
     init() {
         let session = AVAudioSession()
         do {
-            try session.setCategory(.playback)
+            try session.setCategory(.playback, mode: AVAudioSession.Mode.default, options: [AVAudioSession.CategoryOptions.mixWithOthers])
+            try session.setPreferredIOBufferDuration(0.002)
             try session.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
             print("audio error")
         }
-        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        
+//        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
+    
+
     
     @objc func keyBoardWillShow(notification:Notification) {
         withAnimation {
@@ -174,21 +201,37 @@ class BellCircle: ObservableObject {
         }
     }
     
-    func getNewPositions(radius:CGFloat, center:CGPoint) {
+    var newImages = false
+    
+    var oldRadius:CGFloat = 0
+    var oldCenter:CGPoint = CGPoint(x: 0, y: 0)
+    var oldSize = 0
+    var oldPerpespective = 0
+    
+    func getNewPositions(radius:CGFloat, center:CGPoint) -> [CGPoint] {
+        if radius == oldRadius {
+            if center == oldCenter {
+                if size == oldSize {
+                    if perspective == oldPerpespective {
+                        return bellPositions
+                    }
+                }
+            }
+        }
         let angleIncrement:Double = 360/Double(size)
         let startAngle:Double = 360 - (-angleIncrement/2 + angleIncrement*Double(perspective))
         
-        var newPositions = [BellPosition]()
+        var newPositions = [CGPoint]()
+        
+        print("calculating")
         
         var currentAngle = startAngle
         for _ in 0..<size {
             let x = -CGFloat(sin(Angle(degrees: currentAngle).radians)) * radius
             let y = CGFloat(cos(Angle(degrees: currentAngle).radians)) * radius
             
-            let bellPos = BellPosition(pos: CGPoint(x: center.x + x, y: center.y + y), side: .right)
-            if (0..<180).contains(currentAngle) {
-                bellPos.side = .left
-            }
+            let bellPos = CGPoint(x: center.x + x, y: center.y + y)
+
             newPositions.append(bellPos)
             currentAngle += angleIncrement
             if currentAngle > 360 {
@@ -196,20 +239,35 @@ class BellCircle: ObservableObject {
             }
         }
         
-        print(center)
-        for pos in newPositions {
-            print(pos.pos)
+        if bellPositions.count != newPositions.count {
+            objectWillChange.send()
         }
-        print("got new positions")
-        objectWillChange.send()
         bellPositions = newPositions
-        gotBellPositions = true
+        oldRadius = radius
+        oldCenter = center
+        oldSize = size
+        oldPerpespective = perspective
+        print(size, bellPositions.count)
+//        print(center)
+//        for pos in newPositions {
+//            print(pos.pos)
+//        }
+//        print("got new positions")
+//        objectWillChange.send()
+        if !gotBellPositions {
+            gotBellPositions = true
+        }
+        if changedPerspective || newImages {
+            changedPerspective = false
+            newImages = false
+            objectWillChange.send()
+        }
+        return newPositions
     }
     
     func bellRang(number:Int, bellStates:[Bool]) {
         var fileName = BellCircle.sounds[bellType]![size]![number-1]
         fileName.prefix(String(bellType.rawValue.first!))
-        print(fileName)
         if bellType == .tower {
             if halfMuffled {
                 if bellStates[number-1] {
@@ -217,7 +275,6 @@ class BellCircle: ObservableObject {
                 }
             }
         }
-        print(fileName)
         audioController.play(fileName)
         objectWillChange.send()
         self.bellStates = bellStates
@@ -244,7 +301,6 @@ class BellCircle: ObservableObject {
             assignmentsBuffer = Array(repeating: nil, count: newSize)
             bellStates = Array(repeating: true, count: newSize)
             size = newSize
-            getNewPositions(radius: radius, center: center)
         } else {
             if newSize > size {
                 for _ in 0..<(newSize - assignments.count) {
@@ -254,12 +310,16 @@ class BellCircle: ObservableObject {
             } else if newSize < size {
                 assignments = Array(assignments[..<newSize])
                 assignmentsBuffer = Array(assignmentsBuffer[..<newSize])
+            }
+            if !autoRotate {
+                if perspective > newSize {
+                    perspective = 1
+                }
             } else {
-                
+                perspective = (assignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
             }
             bellStates = Array(repeating: true, count: newSize)
             size = newSize
-            getNewPositions(radius: radius, center: center)
         }
         print("assignments", assignments)
         objectWillChange.send()
@@ -279,15 +339,17 @@ class BellCircle: ObservableObject {
         if let ringer = ringerForID(id) {
             assignmentsBuffer[bell-1] = ringer
             sortTimer = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
-            if id == User.shared.ringerID {
-                var tempAssignments = assignments
-                for (index, assignment) in assignmentsBuffer.enumerated() {
-                    if assignment != nil {
-                        tempAssignments[index] = assignment!
+            if autoRotate {
+                if id == User.shared.ringerID {
+                    var tempAssignments = assignments
+                    for (index, assignment) in assignmentsBuffer.enumerated() {
+                        if assignment != nil {
+                            tempAssignments[index] = assignment!
+                        }
                     }
+                    objectWillChange.send()
+                    perspective = (tempAssignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
                 }
-                objectWillChange.send()
-                perspective = (tempAssignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
             }
         }
     }
@@ -318,7 +380,7 @@ class BellCircle: ObservableObject {
         }
             assignmentsBuffer[bell - 1] = Ringer.blank
             sortTimer = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
-        if changePerspective {
+        if changePerspective && autoRotate {
             var tempAssignments = assignments
             for (index, assignment) in assignmentsBuffer.enumerated() {
                 if assignment != nil {
@@ -331,7 +393,7 @@ class BellCircle: ObservableObject {
     
     func newUserlist(_ newUsers:[[String:Any]]) {
         users = [Ringer]()
-        
+
         for newRinger in newUsers {
             let ringer = Ringer.blank
             ringer.userID = newRinger["user_id"] as! Int
@@ -362,6 +424,7 @@ class BellCircle: ObservableObject {
             if type.rawValue == audio {
                 objectWillChange.send()
                 bellType = type
+                newImages = true
             }
         }
     }
@@ -460,15 +523,5 @@ extension Array where Element == Ringer {
             }
             return desc
         }
-    }
-}
-
-class BellPosition {
-    var pos:CGPoint
-    var side:Side
-    
-    init(pos:CGPoint, side:Side) {
-        self.pos = pos
-        self.side = side
     }
 }

@@ -96,9 +96,9 @@ class Tower:Identifiable, Hashable {
         
         self.tower_id = id
         self.tower_name = name
-        self.host = Bool(integerLiteral: host)
-        self.recent = Bool(integerLiteral: recent)
-        self.creator = Bool(integerLiteral: creator)
+        self.host = Bool(host)
+        self.recent = Bool(recent)
+        self.creator = Bool(creator)
 //        if visited == "" {
 //            self.visited = Date()
 //        } else {
@@ -158,5 +158,11 @@ class VisitedComponents {
         output += minute!
         output += second!
         return output
+    }
+}
+
+extension Bool {
+    init(_ num: Int) {
+        self.init(num != 0)
     }
 }

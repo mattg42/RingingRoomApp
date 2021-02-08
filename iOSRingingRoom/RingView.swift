@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import Network
 
 struct RingView: View {
     
@@ -23,8 +24,9 @@ struct RingView: View {
     var towerLists = ["Recents", "Favourites", "Created", "Host"]
     
     @State private var showingAlert = false
-    @State private var alertTitle = Text("")
-    @State private var alertMessage:Text? = nil
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var alertCancelButton = Alert.Button.cancel()
     
     @ObservedObject var user = User.shared
     
@@ -42,6 +44,8 @@ struct RingView: View {
     @State var sink:AnyCancellable!
     
     @State var response = [String:Any]()
+    
+    @State var monitor = NWPathMonitor()
     
     var body: some View {
         VStack(spacing: 20) {
@@ -62,8 +66,15 @@ struct RingView: View {
                                         User.shared.towerID = String(tower.tower_id)
                                         UserDefaults.standard.set(String(tower.tower_id), forKey: "\(User.shared.email)savedTower")
                                     }) {
-                                        Text(String(tower.tower_id))
-                                            .towerButtonStyle(isSelected: (String(tower.tower_id) == User.shared.towerID), name: tower.tower_name)
+                                        HStack() {
+                                            Text(String(tower.tower_name))
+                                            .fontWeight((String(tower.tower_id) == User.shared.towerID) ? Font.Weight.bold : nil)
+                                            Spacer()
+                                        }
+                                        .foregroundColor((String(tower.tower_id) == User.shared.towerID) ? .main : Color.primary)
+//
+//
+//                                            .towerButtonStyle(isSelected: (String(tower.tower_id) == User.shared.towerID))
                                     }
                                     .frame(height: 40)
                                     .padding(.horizontal)
@@ -142,7 +153,7 @@ struct RingView: View {
                     self.joinTowerYPosition = pos
                 })
                     .alert(isPresented: self.$showingAlert) {
-                        Alert(title: self.alertTitle, message: self.alertMessage, dismissButton: .cancel(Text("OK")))
+                        Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
                 }
             }
             .padding(.bottom, -5)
@@ -152,6 +163,8 @@ struct RingView: View {
         }
         .onAppear(perform: {
             self.comController = CommunicationController(sender: self)
+            let queue = DispatchQueue.monitor
+            monitor.start(queue: queue)
             sink = BellCircle.current.setupPublisher.sink { _ in
                 print("received combine")
                 if !BellCircle.current.ringingroomIsPresented {
@@ -193,16 +206,21 @@ struct RingView: View {
     }
     
     func joinTower() {
-        print("joined tower")
+        DispatchQueue.global(qos: .userInteractive).async {
+        if monitor.currentPath.status == .satisfied {
+            print("joined tower")
 
-        if isID(str: User.shared.towerID) {
-            self.getTowerConnectionDetails()
-            return
+            if isID(str: User.shared.towerID) {
+                self.getTowerConnectionDetails()
+                return
+            }
+
+            //create new tower
+            comController.createTower(name: User.shared.towerID)
+        } else {
+            noInternetAlert()
         }
-
-        //create new tower
-        comController.createTower(name: User.shared.towerID)
-        
+        }
         
     }
     
@@ -212,9 +230,8 @@ struct RingView: View {
     
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
         if statusCode == 404 {
-            self.alertTitle = Text("There is no tower with that ID")
-            self.showingAlert = true
-        } else {
+            noTowerAlert()
+        } else if statusCode == 200 {
 //            if user.myTowers.towerForID(response["tower_id"] as! Int) == nil {
 //                self.response = response
 //                comController.getMyTowers()
@@ -226,6 +243,8 @@ struct RingView: View {
     //            comController.getHostModePermitted(BellCircle.current.towerID)
                 SocketIOManager.shared.connectSocket(server_ip: response["server_address"] as! String)
 //            }
+        } else {
+            unknownErrorAlert()
         }
     }
     
@@ -246,21 +265,31 @@ struct RingView: View {
         }
     }
     
-}
-
-struct towerButtonModifier:ViewModifier {
-    var isSelected:Bool
-    var name:String
-    
-    func body(content: Content) -> some View {
-            HStack() {
-                Text(name)
-                .fontWeight(isSelected ? Font.Weight.bold : nil)
-                content
-                Spacer()
-            }
-            .foregroundColor(isSelected ? .main : Color.primary)
+    func noTowerAlert() {
+        alertTitle = "No tower found"
+        alertMessage = "There is no tower with that ID."
+        alertCancelButton = .cancel(Text("OK"))
+        showingAlert = true
     }
+    
+    func unknownErrorAlert() {
+        alertTitle = "Error"
+        alertMessage = "An unknown error occured."
+        alertCancelButton = .cancel(Text("OK"))
+        showingAlert = true
+    }
+    
+    func noInternetAlert() {
+        alertTitle = "Connection error"
+        alertMessage = "Your device is not connected to the internet. Please check your internet connection and try again."
+        
+        alertCancelButton = .cancel(Text("Try again."), action: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: joinTower)
+        })
+
+        showingAlert = true
+    }
+    
 }
 
 struct CustomButtonStyle:ButtonStyle {
@@ -268,12 +297,6 @@ struct CustomButtonStyle:ButtonStyle {
         configuration.label
         .opacity(1)
         .contentShape(Rectangle())
-    }
-}
-
-extension View {
-    func towerButtonStyle(isSelected:Bool, name:String) -> some View {
-        self.modifier(towerButtonModifier(isSelected: isSelected, name: name))
     }
 }
 
@@ -287,4 +310,89 @@ extension View {
 
 extension Notification.Name {
     static let gotMyTowers = Notification.Name("gotMyTowers")
+}
+
+extension DispatchQueue {
+    static let monitor = DispatchQueue(label: "Monitor", qos: .background)
+}
+
+
+public struct TextAlert {
+  public var title: String // Title of the dialog
+  public var message: String // Dialog message
+  public var placeholder: String = "" // Placeholder text for the TextField
+  public var accept: String = "OK" // The left-most button label
+  public var cancel: String? = "Cancel" // The optional cancel (right-most) button label
+  public var secondaryActionTitle: String? = nil // The optional center button label
+  public var keyboardType: UIKeyboardType = .default // Keyboard tzpe of the TextField
+  public var action: (String?) -> Void // Triggers when either of the two buttons closes the dialog
+  public var secondaryAction: (() -> Void)? = nil // Triggers when the optional center button is tapped
+}
+
+extension UIAlertController {
+  convenience init(alert: TextAlert) {
+    self.init(title: alert.title, message: alert.message, preferredStyle: .alert)
+    addTextField {
+       $0.placeholder = alert.placeholder
+       $0.keyboardType = alert.keyboardType
+    }
+    if let cancel = alert.cancel {
+      addAction(UIAlertAction(title: cancel, style: .cancel) { _ in
+        alert.action(nil)
+      })
+    }
+    if let secondaryActionTitle = alert.secondaryActionTitle {
+       addAction(UIAlertAction(title: secondaryActionTitle, style: .default, handler: { _ in
+         alert.secondaryAction?()
+       }))
+    }
+    let textField = self.textFields?.first
+    addAction(UIAlertAction(title: alert.accept, style: .default) { _ in
+      alert.action(textField?.text)
+    })
+  }
+}
+
+struct AlertWrapper<Content: View>: UIViewControllerRepresentable {
+  @Binding var isPresented: Bool
+  let alert: TextAlert
+  let content: Content
+
+  func makeUIViewController(context: UIViewControllerRepresentableContext<AlertWrapper>) -> UIHostingController<Content> {
+    UIHostingController(rootView: content)
+  }
+
+  final class Coordinator {
+    var alertController: UIAlertController?
+    init(_ controller: UIAlertController? = nil) {
+       self.alertController = controller
+    }
+  }
+
+  func makeCoordinator() -> Coordinator {
+    return Coordinator()
+  }
+
+  func updateUIViewController(_ uiViewController: UIHostingController<Content>, context: UIViewControllerRepresentableContext<AlertWrapper>) {
+    uiViewController.rootView = content
+    if isPresented && uiViewController.presentedViewController == nil {
+      var alert = self.alert
+      alert.action = {
+        self.isPresented = false
+        self.alert.action($0)
+      }
+      context.coordinator.alertController = UIAlertController(alert: alert)
+      uiViewController.present(context.coordinator.alertController!, animated: true)
+    }
+    if !isPresented && uiViewController.presentedViewController == context.coordinator.alertController {
+      uiViewController.dismiss(animated: true)
+    }
+  }
+}
+
+
+extension View {
+  public func alert(isPresented: Binding<Bool>, _ alert: TextAlert) -> some View {
+    AlertWrapper(isPresented: isPresented, alert: alert, content: self)
+  }
 }

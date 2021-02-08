@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Network
 
 struct SimpleLoginView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -34,9 +35,12 @@ struct SimpleLoginView: View {
     @State private var accountCreated = false
     
     @State private var showingAlert = false
-    @State private var alertTitle = Text("")
-    @State private var alertMessage:Text? = nil
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var alertCancelButton = Alert.Button.cancel()
         
+    var monitor = NWPathMonitor()
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -45,6 +49,7 @@ struct SimpleLoginView: View {
                 .onChange(of: email, perform: { _ in
                     validEmail = email.trimmingCharacters(in: .whitespaces).isValidEmail()
                 })
+                    .autocapitalization(.none)
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
                     .disableAutocorrection(true)
@@ -54,6 +59,7 @@ struct SimpleLoginView: View {
                     .onChange(of: password, perform: { _ in
                         validPassword = password.count > 0
                     })
+                    .autocapitalization(.none)
                     .textContentType(.password)
                     .disableAutocorrection(true)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -71,7 +77,7 @@ struct SimpleLoginView: View {
                     }
                 }
                 .alert(isPresented: $showingAlert) {
-                    Alert(title: self.alertTitle, message: self.alertMessage, dismissButton: .default(Text("OK")))
+                    Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
                 }
                 .frame(height: 43)
                 .disabled(loginDisabled)
@@ -100,35 +106,62 @@ struct SimpleLoginView: View {
         }
     .onAppear(perform: {
         self.comController = CommunicationController(sender: self, loginType: .simple)
+        monitor.start(queue: DispatchQueue.monitor)
     })
     }
     
     
+    func unknownErrorAlert() {
+        alertTitle = "Error"
+        alertMessage = "An unknown error occured."
+        alertCancelButton = .cancel(Text("OK"))
+        showingAlert = true
+    }
+    
+    func incorrectCredentialsAlert() {
+        alertTitle = "Credentials error"
+        alertMessage = "Your username or password is incorrect."
+        alertCancelButton = .cancel(Text("OK"))
+        self.showingAlert = true
+    }
+    
+    func noInternetAlert() {
+        alertTitle = "Connection error"
+        alertMessage = "Your device is not connected to the internet. Please check your internet connection and try again."
+        alertCancelButton = .cancel(Text("Try again"), action: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: login)
+        })
+        showingAlert = true
+    }
     
     func login() {
-        comController.login(email: self.email.trimmingCharacters(in: .whitespaces).lowercased(), password: self.password)
-        //send login request to server
-  //     presentMainApp()
+        hideKeyboard()
+        if monitor.currentPath.status == .satisfied || monitor.currentPath.status == .requiresConnection {
+            print("sent login request")
+            comController.login(email: self.email.trimmingCharacters(in: .whitespaces), password: self.password)
+        } else {
+            print("path unsatisfied")
+            noInternetAlert()
+        }
     }
     
     func receivedResponse(statusCode:Int?, responseData:[String:Any]?) {
         if statusCode! == 401 {
-            print(responseData ?? 0)
-            alertTitle = Text("Your email or password is incorrect")
-            self.showingAlert = true
-        } else {
+            incorrectCredentialsAlert()
+        } else if statusCode == 200 {
             DispatchQueue.main.async {
                 self.comController.getUserDetails()
                 self.comController.getMyTowers()
                 self.presentationMode.wrappedValue.dismiss()
             }
+        } else {
+            unknownErrorAlert()
         }
     }
     
     func receivedMyTowers(statusCode:Int?, responseData:[String:Any]?) {
         if statusCode! == 401 {
-            alertTitle = Text("Error")
-            self.showingAlert = true
+            unknownErrorAlert()
         } else {
             UserDefaults.standard.set(self.stayLoggedIn, forKey: "keepMeLoggedIn")
             UserDefaults.standard.set(self.email, forKey: "userEmail")

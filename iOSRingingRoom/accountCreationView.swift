@@ -34,15 +34,15 @@ struct AccountCreationView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(footer: Text("You'll use your email address to log in. We will never share it with anyone.")) {
-                    TextField("Email", text: $email)
-                        .textContentType(.emailAddress)
-                        .keyboardType(.emailAddress)
-                    .disableAutocorrection(true)
-                }
                 Section(footer: Text("This is the name that will appear in the tower when you're ringing. You can change it later.")) {
                     TextField("Username", text: $username)
-                        .textContentType(.nickname)
+                    .disableAutocorrection(true)
+                }
+                Section(footer: Text("You'll use your email address to log in. We will never share it with anyone.")) {
+                    TextField("Email", text: $email)
+                        .textContentType(.username)
+                        .keyboardType(.emailAddress)
+                        .autocapitalization(.none)
                     .disableAutocorrection(true)
                 }
                 Section() {
@@ -115,7 +115,6 @@ struct AccountCreationView: View {
     
     func receivedResponse(statusCode:Int? = nil, response:[String:Any]) {
         if statusCode == 500 {
-            print("whoops")
             alertTitle = "Email already registered"
             alertMessage = "There is already an account with that email address"
             self.presentingAlert = true
