@@ -6,15 +6,24 @@
 //  Copyright © 2020 Matthew Goodship. All rights reserved.
 //
 
+import Foundation
 import SwiftUI
 import AVFoundation
 import Combine
+import Network
 
 struct RingingRoomView: View {
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
+    
+    var monitor = NWPathMonitor()
+    
+    @State private var showingAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var alertCancelButton = Alert.Button.cancel()
     
     var backgroundColor:Color {
         get {
@@ -52,9 +61,7 @@ struct RingingRoomView: View {
     var manager = SocketIOManager.shared
     
     @ObservedObject var chatManager = ChatManager.shared
-    
-    @State var showingTowerControls = false
-    
+        
     @State var titleHeight:CGFloat = 0
     
     var ringingView = RingingView()
@@ -62,160 +69,279 @@ struct RingingRoomView: View {
     @State var text = ""
     
     @State var towerControls = TowerControlsView()
-        
+    
+    var isSplit:Bool {
+        get {
+            !(horizontalSizeClass == .compact || (interfaceOrientation?.isPortrait ?? true))
+        }
+    }
+    
     var body: some View {
-        ZStack {
-            backgroundColor.edgesIgnoringSafeArea(.all)
-            if horizontalSizeClass == .compact || (interfaceOrientation?.isPortrait ?? true) {
-                ringingView
-                VStack(spacing: 2) {
-                    //                GeometryReader { geo in
-                    ZStack {
-                        Rectangle()
-                            .fill(Color.main)
-                            .cornerRadius(5)
-                        Text(bellCircle.towerName)
-                            .colorInvert()
-                            .font(Font.custom("Simonetta-Black", size: 30))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                            .scaleEffect(0.9)
-                            .padding(.vertical, 4)
-                    }
-                    //                    .padding(.top, -5)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 5)
-                    .opacity(0)
-                    //                    .onAppear {
-                    //                        self.titleHeight = geo.frame(in: .global).midY * 2
-                    //                    }
-                    //                }
-                    //                .fixedSize(horizontal: false, vertical: true)
-                    HStack {
-                        LeaveButton()
-                            .padding(.leading, 5)
-                        Spacer()
-                        HelpButton()
-                        Spacer()
-                        Button(action: {
-                            SocketIOManager.shared.socket.emit("c_set_bells", ["tower_id":bellCircle.towerID])
-                        }) {
-                            ZStack {
-                                Color.main.cornerRadius(5)
-                                //                                 VStack {
-                                Text("Set at hand")
-                                    .bold()
-                                    .padding(.horizontal, 3.5)
-                                    //                                    Text("hand")
-                                    //                                        .bold()
-                                    //                                }
-                                    .foregroundColor(.white)
-                                    .padding(2)
-                            }
-                            .fixedSize()
-                        }
-                        Spacer()
-                        MenuButton()
-                            .opacity(0)
-                    }
-                    Spacer()
-                }
-                
-                Color.primary.colorInvert().edgesIgnoringSafeArea(.all)
-                    .offset(x: showingTowerControls ? 0 : -(UIApplication.shared.windows.first ?? UIWindow()).frame.width, y: 0)
-                
-                VStack(spacing: 3) {
-                    //                GeometryReader { geo in
-                    ZStack {
-                        Rectangle()
-                            .fill(Color.main)
-                            .cornerRadius(5)
-                        Text(bellCircle.towerName)
-                            .colorInvert()
-                            .font(Font.custom("Simonetta-Black", size: 30))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                            .scaleEffect(0.9)
-                            .padding(.vertical, 4)
-                    }
-                    //                    .padding(.top, -5)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 5)
-                    //                    .onAppear {
-                    //                        self.titleHeight = geo.frame(in: .global).midY * 2
-                    //                    }
-                    //                }
-                    //                .fixedSize(horizontal: false, vertical: true)
-                    ZStack {
-                        
-                        VStack {
-                            HStack(alignment: .top) {
+        GeometryReader { geo in
+            ZStack {
+                backgroundColor.edgesIgnoringSafeArea(.all)
+                if isSplit {
+                    HStack(spacing: 0.0) {
+                        towerControls
+                            .padding([.horizontal, .top], 5)
+                        VStack(spacing: 0) {
+                            TowerNameView()
+                            .padding(.bottom, 5)
+                            HStack {
+                                LeaveButton()
                                 Spacer()
-                                VStack(spacing: 1) {
-                                    
-                                    Button(action: {
-                                        withAnimation {
-                                            self.showingTowerControls.toggle()
-                                            
-                                            
-                                            if !self.showingTowerControls {
-                                                hideKeyboard()
-                                                chatManager.canSeeMessages = false
-                                            } else {
-                                                if bellCircle.towerControlsViewSelection == 2 {
-                                                    chatManager.canSeeMessages = true
-                                                }
-                                            }
-                                        }
-                                    }) {
-                                        MenuButton()
-                                    }
+                                HelpButton()
+                                Spacer()
+                                SetAtHandButton()
+                            }
+                            .padding(.horizontal, 5)
+                            ringingView
+                        }
+                        .ignoresSafeArea(.keyboard, edges: .all)
+                    }
+                } else {
+                    VStack(spacing: 0) {
+                        TowerNameView()
+                            .padding(.bottom, 5)
+                            .opacity(0)
+                        HStack(spacing: 0) {
+                            HelpButton()
+                            Spacer(minLength: 0)
+                            LeaveButton()
+                            Spacer(minLength: 0)
+                            SetAtHandButton()
+                            Spacer(minLength: 0)
+                            MenuButton(keepSize: true)
+                                .opacity(0)
+                                .disabled(true)
+                        }
+                        .padding(.horizontal, 5)
+                        ringingView
+                    }
+                    
+                    Color.primary.colorInvert().edgesIgnoringSafeArea(.all)
+                        .offset(x: bellCircle.showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
+                    
+                    VStack(spacing: 0) {
+                        TowerNameView()
+                            .padding(.bottom, 5)
+                        ZStack {
+                            towerControls
+                                .padding(.horizontal, 5)
+                                .padding(.bottom, 5)
+                                .offset(x: bellCircle.showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
+                            VStack {
+                                HStack(spacing: 0) {
+                                    HelpButton()
+                                    Spacer(minLength: 0)
+                                    LeaveButton()
+                                        .opacity(0)
+                                        .disabled(true)
+                                    Spacer(minLength: 0)
+                                    SetAtHandButton()
+                                        .opacity(0)
+                                        .disabled(true)
+                                    Spacer(minLength: 0)
+                                    MenuButton(keepSize: false)
+                                }
+                                .padding(.horizontal, 5)
+
+                                HStack {
+                                    Spacer()
                                     if chatManager.newMessages > 0 {
-                                        Button(action: {
-                                            if !self.showingTowerControls {
-                                                self.showingTowerControls = true
-                                            }
-                                            bellCircle.towerControlsViewSelection = 2
-                                        }) {
-                                            ZStack {
-                                                Circle()
-                                                    .fill(Color.main)
-                                                    .frame(width: 27, height: 27)
-                                                Text(String(chatManager.newMessages))
-                                                    .foregroundColor(.white)
-                                                    .bold()
-                                            }
-                                        }
+                                        ChatNotificationButton()
+                                        
                                         //                                .padding(.trailing, 5)
                                     }
                                 }
+                                .padding(.horizontal, 5)
+                                Spacer()
                             }
-                            Spacer()
+
                         }
-                        towerControls
-                            .padding(.horizontal, 5)
-                            .offset(x: showingTowerControls ? 0 : -UIApplication.shared.windows.first!.frame.width, y: 0)
                     }
                 }
-            } else {
-                HStack {
-                    towerControls
-                        .padding()
-                    ringingView
+            }
+            .alert(isPresented: $showingAlert) {
+                Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
+            }
+            .onAppear {
+                if bellCircle.autoRotate {
+                    if !bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
+                        bellCircle.perspective = 1
+                    }
+                
+                }
+                monitor.start(queue: DispatchQueue.monitor)
+                monitor.pathUpdateHandler = { path in
+                    if path.status == .unsatisfied {
+                        noInternetAlert()
+                    }
                 }
             }
         }
     }
     
+    func noInternetAlert() {
+        alertTitle = "Connection error"
+        alertMessage = "Your device is not connected to the internet. Please check your internet connection and try again."
+        alertCancelButton = .cancel(Text("Reconnect"), action: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+                if monitor.currentPath.status == .unsatisfied {
+                    noInternetAlert()
+                } else {
+                    manager.socket.connect()
+                }
+            })
+        })
+        showingAlert = true
+    }
+    
+}
+
+struct ChatNotificationButton:View {
+    
+    @ObservedObject var bellCircle:BellCircle = BellCircle.current
+    
+    @ObservedObject var chatManager = ChatManager.shared
+    
+    var body: some View {
+        Button(action: {
+            if !bellCircle.showingTowerControls {
+                bellCircle.showingTowerControls = true
+            }
+            bellCircle.towerControlsViewSelection = 2
+        }) {
+            ZStack {
+                Circle()
+                    .fill(Color.main)
+                    .frame(width: 27, height: 27)
+                Text(String(chatManager.newMessages))
+                    .foregroundColor(.white)
+                    .bold()
+            }
+        }
+    }
+}
+
+struct SetAtHandButton:View {
+    
+    @ObservedObject var bellCircle:BellCircle = BellCircle.current
+    
+    var manager = SocketIOManager.shared
+    
+    var body: some View {
+        Button(action: {
+            SocketIOManager.shared.socket.emit("c_set_bells", ["tower_id":bellCircle.towerID])
+        }) {
+            ZStack {
+                Color.main.cornerRadius(5)
+                //                                 VStack {
+                Text("Set at hand")
+                    .bold()
+                    .padding(.horizontal, 3.5)
+                    //                                    Text("hand")
+                    //                                        .bold()
+                    //                                }
+                    .foregroundColor(.white)
+                    .padding(2)
+            }
+            .fixedSize()
+        }
+    }
+}
+
+struct TowerNameView:View {
+
+    @ObservedObject var bellCircle:BellCircle = BellCircle.current
+    
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(Color.main)
+                .cornerRadius(5)
+            Text(bellCircle.towerName)
+                .foregroundColor(.white)
+                .font(Font.custom("Simonetta-Black", size: 30))
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .scaleEffect(0.9)
+                .padding(.vertical, 4)
+        }
+        //                    .padding(.top, -5)
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(.horizontal, 5)
+    }
 }
 
 struct MenuButton:View {
+        
+    @ObservedObject var bellCircle:BellCircle = BellCircle.current
+    
+    @ObservedObject var chatManager = ChatManager.shared
+        
+    var keepSize:Bool
+    
     var body: some View {
-        Image(systemName: "line.horizontal.3")
-            .font(.largeTitle)
-            //                                            .bold()
-            .foregroundColor(.primary)
-            .padding(5)
+        Button(action: {
+            withAnimation {
+                bellCircle.showingTowerControls.toggle()
+                
+                
+                if !bellCircle.showingTowerControls {
+                    hideKeyboard()
+                    chatManager.canSeeMessages = false
+                } else {
+                    if bellCircle.towerControlsViewSelection == 2 {
+                        chatManager.canSeeMessages = true
+                    }
+                }
+            }
+        }) {
+            ZStack {
+                Color.main.cornerRadius(5)
+    //                    .fixedSize()
+                
+                if keepSize {
+                    ToControls()
+                } else {
+                    if bellCircle.showingTowerControls {
+                        ToRing()
+
+                    } else {
+                        ToControls()
+                    }
+                }
+            }
+            .clipped()
+            .fixedSize()
+        }
+    }
+}
+
+struct ToControls:View {
+    var body: some View {
+        HStack {
+            Text("Controls")
+                .bold()
+            Image(systemName: "chevron.right")
+        }
+            .padding(2)
+            .padding(.horizontal, 3.5)
+            .foregroundColor(Color.white)
+    }
+}
+
+struct ToRing:View {
+    var body: some View {
+        HStack {
+            Image(systemName: "chevron.left")
+            Text("Ring")
+                .bold()
+        }
+            .padding(2)
+            .padding(.horizontal, 3.5)
+            .foregroundColor(Color.white)
     }
 }
 
@@ -253,7 +379,7 @@ struct LeaveButton:View {
             ZStack {
                 Color.main.cornerRadius(5)
 //                    .fixedSize()
-                Text("Leave Tower")
+                Text("Leave")
                 .bold()
                     .padding(2)
                     .padding(.horizontal, 3.5)
@@ -268,6 +394,8 @@ struct RingingView:View {
     @ObservedObject var bellCircle:BellCircle = BellCircle.current
     
 
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
     
     var manager = SocketIOManager.shared
     
@@ -277,79 +405,163 @@ struct RingingView:View {
     
     var ropeCircle = RopeCircle()
     
+    var interfaceOrientation: UIInterfaceOrientation {
+        get {
+            guard let orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation else {
+                #if DEBUG
+                fatalError("Could not obtain UIInterfaceOrientation from a valid windowScene")
+                #else
+                return UIInterfaceOrientation.portrait
+                #endif
+            }
+            return orientation
+        }
+    }
+    
     var body: some View {
         VStack {
             Spacer()
             ropeCircle
             Spacer()
-            if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
-                HStack(spacing: 5.0) {
-                    ForEach(0..<bellCircle.size, id: \.self) { i in
-                        if bellCircle.assignments[bellCircle.size-1-i].userID == User.shared.ringerID {
-                            Button(action: {
-                                self.bellCircle.ringBell(bellCircle.size-i)
-                            }) {
-                                RingButton(number: String(bellCircle.size-i))
+            if interfaceOrientation == .portrait && horizontalSizeClass == .compact {
+                if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
+                    HStack(spacing: 5.0) {
+                        ForEach(0..<bellCircle.size, id: \.self) { i in
+                            if bellCircle.assignments[bellCircle.size-1-i].userID == User.shared.ringerID {
+                                Button(action: {
+                                    self.bellCircle.ringBell(bellCircle.size-i)
+                                }) {
+                                    RingButton(number: String(bellCircle.size-i))
+                                }
+                                .buttonStyle(TouchDown(isAvailible: true))
                             }
-                            .buttonStyle(TouchDown(isAvailible: true))
                         }
                     }
+                    .padding(.horizontal, 5)
+
                 }
+                VStack(spacing: 5) {
+                    HStack(spacing: 5) {
+                        Button(action: {
+                            makeCall("Bob")
+                        }) {
+                            CallButton(call: "Bob")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Single")
+                        }) {
+                            CallButton(call: "Single")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("That's all")
+                        }) {
+                            CallButton(call: "That's all")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                    }
+                    HStack(spacing: 5.0) {
+                        Button(action: {
+                            makeCall("Look to")
+                        }) {
+                            CallButton(call: "Look to")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Go")
+                        }) {
+                            CallButton(call: "Go")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Stand next")
+                        }) {
+                            CallButton(call: "Stand")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                    }
+                }
+                .disabled(!canCall())
+                .opacity(canCall() ? 1 : 0.35)
                 .padding(.horizontal, 5)
+                .padding(.bottom, 5)
+            } else {
+                VStack(spacing: 5) {
+                    HStack(spacing: 5) {
+                        Button(action: {
+                            makeCall("Bob")
+                        }) {
+                            CallButton(call: "Bob")
 
-            }
-            VStack(spacing: 5) {
-                HStack(spacing: 5) {
-                    Button(action: {
-                        makeCall("Bob")
-                    }) {
-                        CallButton(call: "Bob")
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Single")
+                        }) {
+                            CallButton(call: "Single")
 
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("That's all")
+                        }) {
+                            CallButton(call: "That's all")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
                     }
-                    .buttonStyle(TouchDown(isAvailible: true))
-                    Button(action: {
-                        makeCall("Single")
-                    }) {
-                        CallButton(call: "Single")
+                    HStack(spacing: 5.0) {
+                        Button(action: {
+                            makeCall("Look to")
+                        }) {
+                            CallButton(call: "Look to")
 
-                    }
-                    .buttonStyle(TouchDown(isAvailible: true))
-                    Button(action: {
-                        makeCall("That's all")
-                    }) {
-                        CallButton(call: "That's all")
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Go")
+                        }) {
+                            CallButton(call: "Go")
 
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
+                        Button(action: {
+                            makeCall("Stand next")
+                        }) {
+                            CallButton(call: "Stand")
+
+                        }
+                        .buttonStyle(TouchDown(isAvailible: true))
                     }
-                    .buttonStyle(TouchDown(isAvailible: true))
                 }
-                HStack(spacing: 5.0) {
-                    Button(action: {
-                        makeCall("Look to")
-                    }) {
-                        CallButton(call: "Look to")
-
+                .disabled(!canCall())
+                .opacity(canCall() ? 1 : 0.35)
+                .padding(.horizontal, 5)
+                .padding(.bottom, 5)
+                if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
+                    HStack(spacing: 5.0) {
+                        ForEach(0..<bellCircle.size, id: \.self) { i in
+                            if bellCircle.assignments[bellCircle.size-1-i].userID == User.shared.ringerID {
+                                Button(action: {
+                                    self.bellCircle.ringBell(bellCircle.size-i)
+                                }) {
+                                    RingButton(number: String(bellCircle.size-i))
+                                }
+                                .buttonStyle(TouchDown(isAvailible: true))
+                            }
+                        }
                     }
-                    .buttonStyle(TouchDown(isAvailible: true))
-                    Button(action: {
-                        makeCall("Go")
-                    }) {
-                        CallButton(call: "Go")
+                    .padding(.horizontal, 5)
 
-                    }
-                    .buttonStyle(TouchDown(isAvailible: true))
-                    Button(action: {
-                        makeCall("Stand next")
-                    }) {
-                        CallButton(call: "Stand")
-
-                    }
-                    .buttonStyle(TouchDown(isAvailible: true))
                 }
             }
-            .disabled(!canCall())
-            .opacity(canCall() ? 1 : 0.35)
-            .padding(.horizontal, 5)
-            .padding(.bottom, 5)
             
         }
         .onAppear {
@@ -418,7 +630,7 @@ struct RingButton:View {
                 .font(horizontalSizeClass == .regular ? .largeTitle : .title3)
                 .bold()
         }
-        .frame(maxHeight: horizontalSizeClass == .regular ? 150 : 90)
+        .frame(maxHeight: horizontalSizeClass == .regular ? 150 : 70)
     }
 }
 
@@ -451,51 +663,118 @@ struct RopeCircle:View {
     
     @State private var manager = SocketIOManager.shared
     
-    var test = 1
-        
+    var ropeSize:CGFloat {
+        get {
+//            return 150
+            if horizontalSizeClass == .regular && interfaceOrientation ?? .portrait == .portrait {
+                return 150
+            } else {
+                switch bellCircle.size {
+                case 14:
+                    return 69
+                case 16:
+                    return 63
+                default:
+                    return 80
+                }
+            }
+        }
+    }
+    var handBellSize:CGFloat {
+        get {
+            switch bellCircle.size {
+            case 16:
+                return 42
+            case 14:
+                return 50
+            default:
+                return 60
+            }
+        }
+    }
+    
+    var imageWidth:CGFloat {
+        get {
+            if bellCircle.bellType == .tower {
+                return ropeSize/3
+            } else {
+                return handBellSize
+            }
+        }
+    }
+    
+    var imageHeight:CGFloat {
+        get {
+            if bellCircle.bellType == .tower {
+                return ropeSize
+            } else {
+                return handBellSize
+            }
+        }
+    }
+    
+    var interfaceOrientation: UIInterfaceOrientation? {
+        get {
+            guard let orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation else {
+                #if DEBUG
+                fatalError("Could not obtain UIInterfaceOrientation from a valid windowScene")
+                #else
+                return nil
+                #endif
+            }
+            return orientation
+        }
+    }
+    
+    var isSplit:Bool {
+        get {
+            !(horizontalSizeClass == .compact || (interfaceOrientation?.isPortrait ?? true))
+        }
+    }
+    
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                if bellCircle.gotBellPositions {
-                    ForEach(0..<bellCircle.size, id: \.self) { bellNumber in
-                        Button(action: {
+//                                if bellCircle.gotBellPositions {
+                ForEach(0..<bellCircle.size, id: \.self) { bellNumber in
+                    //                        Text("Hi")
+                    Button(action: {
+                        if self.bellCircle.bellMode == .ring {
                             self.bellCircle.ringBell(bellNumber+1)
-                        }) {
-                            HStack(spacing: 0) {
-                                Text(String(bellNumber+1))
-                                    .opacity(bellCircle.bellPositions[bellNumber].side == .left ? 0 : 1)
-                                if horizontalSizeClass == .compact {
-                                Image(self.getImage(bellNumber)).resizable()
-                                    .frame(width: (bellCircle.bellType == .tower) ? 25 : 60, height: (bellCircle.bellType == .tower) ? 75 : 60)
-                                    .rotation3DEffect(
-                                        .degrees( (bellCircle.bellType == .tower) ? 0 : bellCircle.bellPositions[bellNumber].side == .left ? 180 : 0),
-                                        axis: (x: 0.0, y: 1.0, z: 0.0),
-                                        anchor: .center,
-                                        perspective: 1.0
-                                    )
-                                    .padding(.horizontal, (bellCircle.bellType == .tower) ? 0 : -5)
-                                } else {
-                                    Image(self.getImage(bellNumber)).resizable()
-                                        .frame(width: (bellCircle.bellType == .tower) ? 35 : 84, height: (bellCircle.bellType == .tower) ? 105 : 84)
-                                        .rotation3DEffect(
-                                            .degrees( (bellCircle.bellType == .tower) ? 0 : bellCircle.bellPositions[bellNumber].side == .left ? 180 : 0),
-                                            axis: (x: 0.0, y: 1.0, z: 0.0),
-                                            anchor: .center,
-                                            perspective: 1.0
-                                        )
-                                        .padding(.horizontal, (bellCircle.bellType == .tower) ? 0 : -5)
-                                }
-                                Text(String(bellNumber+1))
-                                    .opacity(bellCircle.bellPositions[bellNumber].side == .right ? 0 : 1)
-                            }
-                            .disabled(!canRing(bellNumber))
-                            .opacity(canRing(bellNumber) ? 1 : 0.35)
+                        } else {
+                            self.bellCircle.perspective = bellNumber+1
+                            self.bellCircle.bellMode = .ring
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
-                        .foregroundColor(.primary)
-                        .position(bellCircle.bellPositions[bellNumber].pos)
+                    }) {
+                        HStack(spacing: 0) {
+                            Text(String(bellNumber+1))
+                                .opacity(isLeft(bellNumber) ? 0 : 1)
+                                .font(getFont())
+                            Image(self.getImage(bellNumber)).resizable()
+                                .frame(width: imageWidth, height: imageHeight)
+                                .rotation3DEffect(
+                                    .degrees((bellCircle.bellType == .tower) ? 0 : isLeft(bellNumber) ? 180 : 0),
+                                    axis: (x: 0.0, y: 1.0, z: 0.0),
+                                    anchor: .center,
+                                    perspective: 1.0
+                                )
+                                .padding(.horizontal, (bellCircle.bellType == .tower) ? 0 : -5)
+
+                            Text(String(bellNumber+1))
+                                .opacity(isLeft(bellNumber) ? 1 : 0)
+                                .font(getFont())
+                        }
+                        
                     }
-                    VStack {
+                    .disabled(bellCircle.bellMode == .ring ? !canRing(bellNumber) : false)
+                    .opacity(bellCircle.bellMode == .ring ? canRing(bellNumber) ? 1 : 0.35 : 1)
+                    .buttonStyle(TouchDown(isAvailible: true))
+                    .foregroundColor(.primary)
+                    .position(self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber]) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
+                    //                        .position(self.bellCircle.getNewPositions(radius: geo.frame(in: .local).height/2 - imageHeight/2, center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber].pos) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
+                }
+                if bellCircle.bellMode == .ring {
+                    ScrollView(showsIndicators: false) {
                         ForEach(0..<bellCircle.assignments.count, id: \.self) { i in
                             HStack {
                                 Text("\(i+1)")
@@ -503,69 +782,129 @@ struct RopeCircle:View {
                                     .frame(width: 25, height:18, alignment: .trailing)
                                 Text(" \(self.bellCircle.assignments[i].name)")
                                     .font(.callout)
-                                    .frame(width: 165, height:18, alignment: .leading)
+                                    .frame(width: 160, height:18, alignment: .leading)
                             }
                             .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
 
                         }
                     }
-                    .position(bellCircle.center)
-                    ZStack {
-                        backgroundColor
-                            .cornerRadius(15)
-                            .blur(radius: 15, opaque: false)
-                            .shadow(color: backgroundColor, radius: 10, x: 0.0, y: 0.0)
-                            //                                .opacity(bellCircle.currentCall != "" ? 0.9 : 0)
-                            .opacity(0.9)
-                        //                            if bellCircle.currentCall != "" {
-                        
-                        Text(bellCircle.currentCall)
-                            .font(.largeTitle)
-                            .bold()
-                            .padding()
-                        //                                .opacity(bellCircle.currentCall != "" ? 1 : 0)
-                        //                                .background(backgroundColor)
-                        //                                                    }
-                    }
-                    .opacity(bellCircle.callTextOpacity)
+                    .disabled(bellCircle.size > 11 ? false : true)
+                    .frame(maxHeight: getHeight(geo: geo))
                     .fixedSize()
-                    .position(bellCircle.center)
+
+                    .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                } else {
+                    Text("Tap the bell that you would like to be positioned bottom right, or tap the rotate button again to cancel.")
+                        .multilineTextAlignment(.center)
+                        .frame(width: 180)
+                        .font(.title2)
+                        .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                        .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
                 }
-            }
-            .onAppear {
-                var center = CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
-                center.y += 35
-                if center.y > 100 && center.x > 100 {
-                    if !bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
-//                        print("reduced")
-                        if horizontalSizeClass == .compact {
-                            center.y -= 45
-                        } else {
-                            center.y -= 75
+                ZStack {
+                    backgroundColor
+                        .cornerRadius(15)
+                        .blur(radius: 15, opaque: false)
+                        .shadow(color: backgroundColor, radius: 10, x: 0.0, y: 0.0)
+                        //                                .opacity(bellCircle.currentCall != "" ? 0.9 : 0)
+                        .opacity(0.9)
+                    //                            if bellCircle.currentCall != "" {
+
+                    Text(bellCircle.currentCall)
+                        .font(.largeTitle)
+                        .bold()
+                        .padding()
+                    //                                .opacity(bellCircle.currentCall != "" ? 1 : 0)
+                    //                                .background(backgroundColor)
+                    //                                                    }
+                }
+                .opacity(bellCircle.callTextOpacity)
+                .fixedSize()
+                .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+//                                }
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            self.bellCircle.bellMode.toggle()
+                            //put into change perspective mode
+                        }) {
+                            //                            Text("Rotate bell circle")
+                            ZStack {
+                                Color.main.cornerRadius(10)
+                                //                    .fixedSize()
+                                Image("Arrow.4.circle.white").resizable()
+                                    .frame(width: 37, height: 37)
+                            }
+                            .fixedSize()
                         }
+                        //                            Text("Set at hand")
+                        .position(x: geo.frame(in: .local).width - 40, y: bellCircle.bellPositions.count == bellCircle.size ? bellCircle.bellPositions[bellCircle.perspective-1].y: 0)
+                        .animation(nil)
                     }
-                    print("from .onappear")
-                    bellCircle.center = center
-                    bellCircle.baseRadius = geo.frame(in: .local).width/2
-                    bellCircle.baseRadius = min(bellCircle.baseRadius, 340)
-                    if horizontalSizeClass == .regular {
-                        bellCircle.baseRadius -= 30
-                    }
-                    bellCircle.getNewPositions(radius: bellCircle.radius, center: bellCircle.center)
                 }
+                .padding(.horizontal, 5)
             }
         }
+//        .background (Color.green)
         .onReceive(orientationChanged, perform: { _ in
             bellCircle.objectWillChange.send()
         })
     }
     
-    func getImage(_ number:Int) -> String {
-           var imageName = bellCircle.bellType.rawValue.first!.lowercased() + "-" + (bellCircle.bellStates[number] ? "handstroke" : "backstroke")
-        if imageName.first! == "t" && number == 0 && bellCircle.bellStates[number] {
-            imageName += "-treble"
+//    func getBellPositionsAndSizes(radius:CGFloat, center:CGPoint) -> [CGPoint] {
+//        self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min((geo.frame(in: .local).width - imageWidth)/2, (geo.frame(in: .local).height  +  imageWidth)/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
+//
+//    }
+    
+    func getHeight(geo:GeometryProxy) -> CGFloat {
+
+        print(bellCircle.perspective, bellCircle.bellPositions.count, bellCircle.size)
+        var returnValue:CGFloat = 0
+        if bellCircle.bellPositions.count == bellCircle.size {
+            if bellCircle.gotBellPositions {
+                if bellCircle.perspective <= Int(bellCircle.size/2) {
+                    returnValue = bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y
+                } else {
+                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - imageHeight - CGFloat(15)
+                }
+            }
         }
-        return imageName
+        
+        if bellCircle.bellType == .hand {
+            if bellCircle.size > 13 {
+        returnValue = returnValue - 100
+            }
+        } else {
+            if bellCircle.size == 16 {
+                returnValue -= 80
+            }
+        }
+        
+        
+        return returnValue
+    }
+    
+    func getFont() -> Font {
+        if horizontalSizeClass == .compact &&  verticalSizeClass == .compact {
+            if bellCircle.size > 13 {
+                return .footnote
+            }
+           
+        }
+        
+        return .body
+    
+            
+    }
+    
+    func isLeft(_ num:Int) -> Bool {
+        if bellCircle.perspective <= Int(bellCircle.size/2) {
+            return (bellCircle.perspective..<bellCircle.perspective+Int(bellCircle.size/2)).contains(num)
+        } else {
+            return !(bellCircle.perspective-Int(bellCircle.size/2)..<bellCircle.perspective).contains(num)
+        }
     }
     
     func canRing(_ number:Int) -> Bool {
@@ -582,7 +921,43 @@ struct RopeCircle:View {
         }
     }
     
+    func getImage(_ number:Int) -> String {
+           var imageName = bellCircle.bellType.rawValue.first!.lowercased() + "-" + (bellCircle.bellStates[number] ? "handstroke" : "backstroke")
+        if imageName.first! == "t" && number == 0 && bellCircle.bellStates[number] {
+            imageName += "-treble"
+        }
+        return imageName
+    }
+    
 }
+
+enum BellMode {
+    case ring, rotate
+    
+    mutating func toggle() {
+        if self == .ring {
+            self = .rotate
+        } else {
+            self = .ring
+        }
+    }
+}
+
+//struct Bells:View {
+//
+//    @ObservedObject var bellCircle = BellCircle.current
+//
+//    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+//    @Environment(\.verticalSizeClass) var verticalSizeClass
+//
+//    @Environment(\.colorScheme) var colorScheme
+//
+//    var body: some View {
+//
+//    }
+//
+//
+//}
 
 struct TouchDown: PrimitiveButtonStyle {
     var isAvailible:Bool
@@ -646,8 +1021,10 @@ struct TowerControlsView:View {
     @State private var bellTypeSelectionCount = 0
 
     var bellTypes = [BellType.tower, BellType.hand]
-    var towerSizes = [4, 6, 8, 10, 12]
+    var towerSizes = [4, 5, 6, 8, 10, 12, 14, 16]
 
+    
+    
     @State private var showingUsers = false
 
     init() {
@@ -664,9 +1041,9 @@ struct TowerControlsView:View {
                         let pasteboard = UIPasteboard.general
                         pasteboard.string = String(self.bellCircle.towerID)
                     }) {
-                        Text("Copy")
+                        Image(systemName: "doc.on.doc")
                     }
-                    .foregroundColor(.main)
+                    .foregroundColor(.primary)
                     Spacer()
 //                    if hasPermissions() {
 //                    MenuButton()
@@ -706,8 +1083,8 @@ struct TowerControlsView:View {
                         HStack {
                             
                             
-                            Picker(selection: .init(get: {(self.bellCircle.size-4)/2}, set: {self.sizeChanged(value:$0)}), label: Text("Tower size picker")) {
-                                ForEach(0..<5) { i in
+                            Picker(selection: .init(get: { towerSizes.firstIndex(of: bellCircle.size) ?? 6 }, set: {self.sizeChanged(value:$0)}), label: Text("Tower size picker")) {
+                                ForEach(0..<towerSizes.count) { i in
                                     Text(String(self.towerSizes[i]))
                                 }
                             }
@@ -798,7 +1175,7 @@ struct TowerControlsView:View {
     }
 
     func sizeChanged(value:Int) {
-        SocketIOManager.shared.socket.emit("c_size_change", ["new_size":value*2+4, "tower_id":self.bellCircle.towerID])
+        SocketIOManager.shared.socket.emit("c_size_change", ["new_size":towerSizes[value], "tower_id":self.bellCircle.towerID])
     //    self.size = self.towerSizes[self.towerSizeSelection]
 //        if self.usersView != nil {
 //            print("trying to update")
@@ -819,6 +1196,30 @@ struct UsersView:View {
     @State private var selectedUser = 0
 
     @State private var updateView = false
+    
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    
+    var interfaceOrientation: UIInterfaceOrientation? {
+        get {
+            guard let orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation else {
+                #if DEBUG
+                fatalError("Could not obtain UIInterfaceOrientation from a valid windowScene")
+                #else
+                return nil
+                #endif
+            }
+            return orientation
+        }
+    }
+    
+    var isSplit:Bool {
+        get {
+            !(horizontalSizeClass == .compact || (interfaceOrientation?.isPortrait ?? true))
+        }
+    }
+    
+    @ObservedObject var chatManager = ChatManager.shared
     
     var body: some View {
         VStack {
@@ -852,8 +1253,8 @@ struct UsersView:View {
                             .lineLimit(1)
                     }
                     .background(Color.main.cornerRadius(5))
-                    .disabled(self.bellCircle.users.count < self.bellCircle.size)
-                    .opacity(self.bellCircle.users.count < self.bellCircle.size ? 0.35 : 1)
+                    .disabled(!fillInAvailable())
+                    .opacity(fillInAvailable() ? 1 : 0.35)
                     .foregroundColor(.white)
 
                     Button(action: {
@@ -871,10 +1272,11 @@ struct UsersView:View {
 
                 }
                 Spacer()
+                if chatManager.newMessages > 0 {
+                    ChatNotificationButton()
+                }
                 Button(action: {
-                    withAnimation {
                         self.bellCircle.towerControlsViewSelection = 2
-                    }
                 }) {
                     Text("Chat")
                     Image(systemName: "chevron.right")
@@ -885,7 +1287,7 @@ struct UsersView:View {
                 ScrollView(showsIndicators: false) {
 
                     HStack(alignment: .top) {
-                        VStack(spacing: 7) {
+                        VStack(spacing: 14) {
                             ForEach(self.bellCircle.users) { user in
                                 RingerView(user: user, selectedUser: (self.selectedUser == user.userID))
                                     .opacity(self.available() ? 1 : (user.userID == self.selectedUser) ? 1 : 0.35)
@@ -898,32 +1300,57 @@ struct UsersView:View {
                             }
                         }
                         .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, 9)
-                        VStack(alignment: .trailing, spacing: -7) {
+                        .padding(.top, 10)
+                        VStack(alignment: .trailing, spacing: 7) {
                             ForEach(0..<self.bellCircle.assignments.count, id: \.self) { number in
-                                HStack(alignment: .top) {
+                                HStack(alignment: .center, spacing: 5) {
                                     if self.canUnassign(number)  {
                                         Button(action: {
                                             self.unAssign(bell: number+1)
                                             self.updateView.toggle()
                                         }) {
-                                            Text("x")
+                                            Text("X")
                                                 .foregroundColor(.primary)
-                                                .font(.title)
+                                                .font(.title3)
+                                                .fixedSize()
+                                                .padding(.vertical, -4)
                                         }
-                                        .padding(.top, 1)
+//                                        .background(Color.green)
                                     }
                                     Button(action: self.assign(self.selectedUser, to: number + 1)) {
-                                        Text(String(number + 1))
+                                        ZStack {
+                                            ZStack {
+                                                Circle().fill(Color.main)
+
+                                                Text("1")
+                                                    .font(.callout)
+                                                    .bold()
+                                                    .opacity(0)
+                                                    .padding(.horizontal, 10)
+                                                    .padding(.vertical, 4)
+                                            }
+//                                            .fixedSize()
+
+
+                                            Text(String(number + 1))
                                             .font(.callout)
                                             .bold()
+                                                .foregroundColor(Color.white)
+
+                                        }
+                                        .fixedSize()
                                     }
-                                    .modifier(BellAssigmentViewModifier(isAvailible: (self.bellCircle.assignments[number].name == "")))
+                                    .disabled(!(self.bellCircle.assignments[number].name == ""))
+                                    .opacity((self.bellCircle.assignments[number].name == "") ? 1 : 0.35)
+                                    .fixedSize(horizontal: true, vertical: true)
                                     //.background(.black)
                                 }
                             }
+                            
+
                         }
-                        .padding(.horizontal, 7)
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 6)
                         .background(Color(white: (self.colorScheme == .light) ? 0.86 : 0.13).cornerRadius(5))
                     }
                 }
@@ -939,7 +1366,7 @@ struct UsersView:View {
         })
         .clipped()
         .padding(7)
-        .background(Color(white: colorScheme == .light ? 0.94 : 0.045).cornerRadius(5))
+        .background(isSplit ? Color(white: colorScheme == .light ? 1 : 0.08).cornerRadius(5) : Color(white: colorScheme == .light ? 0.94 : 0.08).cornerRadius(5))
         .onDisappear {
             print("users view disappeared")
         }
@@ -969,6 +1396,23 @@ struct UsersView:View {
         SocketIOManager.shared.socket.emit("c_assign_user", ["user":0, "bell":bell, "tower_id":self.bellCircle.towerID])
     }
 
+    func fillInAvailable() -> Bool {
+        return numberOfAvailableRingers() >= numberOfAvailableBells()
+    }
+    
+    func numberOfAvailableRingers() -> Int {
+        var number = 0
+        for ringer in bellCircle.users {
+            if !bellCircle.assignments.containsRingerForID(ringer.userID) {
+                number += 1
+            }
+        }
+        return number
+    }
+    
+    func numberOfAvailableBells() -> Int {
+        return (bellCircle.assignments.allIndecesOfRingerForID(Ringer.blank.userID) ?? [Int]()).count
+    }
 
 
 }
@@ -1027,9 +1471,31 @@ struct ChatView:View {
 
 //    @State private var arrowDown = false
 
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    
     @ObservedObject var chatManager = ChatManager.shared
 
     @State private var currentMessage = ""
+    
+    var interfaceOrientation: UIInterfaceOrientation? {
+        get {
+            guard let orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation else {
+                #if DEBUG
+                fatalError("Could not obtain UIInterfaceOrientation from a valid windowScene")
+                #else
+                return nil
+                #endif
+            }
+            return orientation
+        }
+    }
+    
+    var isSplit:Bool {
+        get {
+            !(horizontalSizeClass == .compact || (interfaceOrientation?.isPortrait ?? true))
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0.0) {
@@ -1047,9 +1513,7 @@ struct ChatView:View {
                     .opacity(0)
                 Spacer()
                 Button(action: {
-                    withAnimation {
-                        BellCircle.current.towerControlsViewSelection = 1
-                    }
+                    BellCircle.current.towerControlsViewSelection = 1
                 }) {
                     Image(systemName: "chevron.left")
                     Text("Users")
@@ -1108,7 +1572,7 @@ struct ChatView:View {
         .clipped()
         .padding(.horizontal, 7)
         .padding(.vertical, 7)
-        .background(Color(white: colorScheme == .light ? 0.94 : 0.045).cornerRadius(5))
+        .background(isSplit ? Color(white: colorScheme == .light ? 1 : 0.08).cornerRadius(5) : Color(white: colorScheme == .light ? 0.94 : 0.08).cornerRadius(5))
         .onAppear {
             print("chat view appeared")
         }
@@ -1141,6 +1605,7 @@ struct GeometryGetter: View {
 
 struct BellAssigmentViewModifier:ViewModifier {
     var isAvailible:Bool
+    
     func body(content: Content) -> some View {
         ZStack {
             Text("1")

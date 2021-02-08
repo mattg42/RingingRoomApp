@@ -10,10 +10,10 @@
 //  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 //  copies of the Software, and to permit persons to whom the Software is
 //  furnished to do so, subject to the following conditions:
-//  
+//
 //  The above copyright notice and this permission notice shall be included in all
 //  copies or substantial portions of the Software.
-//  
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -41,7 +41,7 @@ public class Starling {
     /// during initialization. If more concurrent sounds than this
     /// are requested at any point, Starling will allocate additional
     /// players as needed, up to `maximumTotalPlayers`.
-    private static let defaultStartingPlayerCount = 8
+    private static let defaultStartingPlayerCount = 16
     
     /// Defines the total number of concurrent sounds which Starling
     /// will allow to be played at the same time. If (N) sounds are
@@ -53,7 +53,7 @@ public class Starling {
     
     private var players: [StarlingAudioPlayer]
     private var files: [String: AVAudioFile]
-    private let engine = AVAudioEngine()
+    private let engine:AVAudioEngine = AVAudioEngine()
 
     // MARK: - Initializer
     
@@ -72,6 +72,25 @@ public class Starling {
             try engine.start()
         } catch {
             handleNonFatalError(error)
+        }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(audioOutputChanged), name: Notification.Name.AVAudioEngineConfigurationChange, object: nil)
+
+    }
+    
+    @objc func audioOutputChanged(notification:Notification) {
+        for node in engine.attachedNodes {
+            engine.disconnectNodeOutput(node)
+        }
+        for player in players {
+            engine.connect(player.node, to: engine.mainMixerNode, format: nil)
+        }
+        engine.connect(engine.mainMixerNode, to: engine.outputNode, format: nil)
+        do {
+            engine.prepare()
+            try engine.start()
+        } catch {
+            print("failed to start")
         }
     }
     
@@ -121,10 +140,13 @@ public class Starling {
         
         func performPlaybackOnFirstAvailablePlayer() {
             guard let player = firstAvailablePlayer() else { return }
-            
-            objc_sync_enter(players)
-            player.play(audio, identifier: sound)
-            objc_sync_exit(players)
+            if !engine.isRunning {
+                print("engine not running")
+            } else {
+                objc_sync_enter(players)
+                player.play(audio, identifier: sound)
+                objc_sync_exit(players)
+            }
         }
         
         if allowOverlap {
