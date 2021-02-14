@@ -98,7 +98,7 @@ struct AutoLogin: View {
         alertTitle = "Error"
         alertMessage = "An unknown error occured."
         alertCancelButton = .cancel(Text("OK"), action: {
-            User.shared.loggedIn = true
+            AppController.shared.loginState = .standard
         })
         showingAlert = true
     }
@@ -107,7 +107,7 @@ struct AutoLogin: View {
         alertTitle = "Credentials error"
         alertMessage = "Your username or password is incorrect."
         alertCancelButton = .cancel(Text("OK"), action: {
-            User.shared.loggedIn = true
+            AppController.shared.loginState = .standard
         })
         self.showingAlert = true
     }

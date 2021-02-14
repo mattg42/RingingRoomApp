@@ -225,11 +225,11 @@ struct RingView: View {
         }
     }
     
-    func updatedMyTowers() {
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: Notification.Name("gotMyTowers"), object: nil)
-        }
-    }
+//    func updatedMyTowers() {
+//        DispatchQueue.main.async {
+//            NotificationCenter.default.post(name: Notification.Name("gotMyTowers"), object: nil)
+//        }
+//    }
     
     func presentRingingRoomView() {
         comController.getMyTowers()

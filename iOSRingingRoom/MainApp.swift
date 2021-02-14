@@ -11,6 +11,8 @@ import SocketIO
 
 struct MainApp: View {
         
+    @Environment(\.scenePhase) var scenePhase
+    
     @State private var isPresentingHelpView = true
         
     @State var autoJoinTower = false
@@ -27,7 +29,7 @@ struct MainApp: View {
     var body: some View {
         switch AppController.shared.state {
         case .login:
-            if UserDefaults.standard.bool(forKey: "keepMeLoggedIn") {
+            if AppController.shared.loginState == .auto {
                 AutoLogin()
             } else {
                 WelcomeLoginScreen()
@@ -67,6 +69,9 @@ struct MainApp: View {
                         Text("Settings")
                     }
             }
+            .onChange(of: scenePhase, perform: { value in
+                print("phase changed")
+            })
             .accentColor(Color.main)
         case .ringing:
             RingingRoomView()

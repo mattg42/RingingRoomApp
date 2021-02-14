@@ -12,6 +12,8 @@ class AppController:ObservableObject {
     
     static var shared = AppController()
     
+    @Published var loginState = UserDefaults.standard.bool(forKey: "keepMeLoggedIn") ? LoginState.auto : LoginState.standard
+    
     @Published var selectedTab = TabViewType.ring
     
     @Published var state = AppState.login
@@ -22,4 +24,9 @@ enum AppState {
     case login
     case main
     case ringing
+}
+
+enum LoginState {
+    case auto
+    case standard
 }
