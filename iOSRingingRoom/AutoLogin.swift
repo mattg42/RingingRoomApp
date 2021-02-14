@@ -10,7 +10,7 @@ import SwiftUI
 import Network
 
 struct AutoLogin: View {
-    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
+//    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
 
     @State private var showingAlert = false
     
@@ -82,24 +82,24 @@ struct AutoLogin: View {
     }
     
     func receivedMyTowers(statusCode:Int?, response:[String:Any]) {
-        if statusCode == 200 {
-            DispatchQueue.main.async {
-                self.viewControllerHolder?.present(style: .fullScreen, name: "Main", animated: false) {
-                    MainApp(autoJoinTower: autoJoinTower, autoJoinTowerID: autoJoinTowerID)
-                }
-            }
-        } else {
-            unknownErrorAlert()
-        }
+        AppController.shared.state = .main
+//        if statusCode == 200 {
+//            DispatchQueue.main.async {
+//                self.viewControllerHolder?.present(style: .fullScreen, name: "Main", animated: false) {
+//                    MainApp(autoJoinTower: autoJoinTower, autoJoinTowerID: autoJoinTowerID)
+//                }
+//            }
+//        } else {
+//            unknownErrorAlert()
+//        }
     }
     
     func unknownErrorAlert() {
         alertTitle = "Error"
         alertMessage = "An unknown error occured."
         alertCancelButton = .cancel(Text("OK"), action: {
-            self.viewControllerHolder?.present(style: .fullScreen, name: "", animated: false) {
-                WelcomeLoginScreen()
-            }})
+            User.shared.loggedIn = true
+        })
         showingAlert = true
     }
     
@@ -107,9 +107,8 @@ struct AutoLogin: View {
         alertTitle = "Credentials error"
         alertMessage = "Your username or password is incorrect."
         alertCancelButton = .cancel(Text("OK"), action: {
-            self.viewControllerHolder?.present(style: .fullScreen, name: "", animated: false) {
-                WelcomeLoginScreen()
-            }})
+            User.shared.loggedIn = true
+        })
         self.showingAlert = true
     }
     

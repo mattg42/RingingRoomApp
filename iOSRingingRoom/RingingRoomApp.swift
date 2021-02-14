@@ -13,11 +13,7 @@ import SwiftUI
 struct RingingRoomApp: App {
     var body: some Scene {
         WindowGroup {
-            if UserDefaults.standard.bool(forKey: "keepMeLoggedIn") {
-                AutoLogin()
-            } else {
-                WelcomeLoginScreen()
-            }
+            MainApp()
         }
     }
 }

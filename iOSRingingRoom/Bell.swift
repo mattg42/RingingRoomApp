@@ -31,7 +31,7 @@ class BellCircle: ObservableObject {
     
     @Published var showingTowerControls = false
     
-    var ringingroomIsPresented = false
+    @Published var ringingroomIsPresented = false
     
     static var current = BellCircle()
     

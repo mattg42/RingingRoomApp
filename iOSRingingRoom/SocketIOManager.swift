@@ -154,10 +154,9 @@ class SocketIOManager: NSObject {
     
     func leaveTower() {
         socket.emit("c_user_left", ["user_name":User.shared.name, "user_token":CommunicationController.token!, "anonymous_user":false, "tower_id":bellCircle.towerID])
-        if bellCircle.ringingroomIsPresented {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "dismissRingingRoom"), object: nil)
-            bellCircle.ringingroomIsPresented = false
-        }
+//        if bellCircle.ringingroomIsPresented {
+        AppController.shared.state = .main
+//        }
         bellCircle.setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false, "gotAssignments":false]
         socket.disconnect()
         ChatManager.shared.messages = [String]()

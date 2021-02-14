@@ -137,10 +137,11 @@ class CommunicationController {
                             User.shared.addTower(tower)
                         }
                     }
+                    User.shared.sortTowers()
                     
                 }
                 
-                User.shared.sortTowers()
+                
                 switch self.loginType {
                 case .auto:
                     (self.sender as! AutoLogin).receivedMyTowers(statusCode: statusCode, response: dataDict)
