@@ -10,9 +10,7 @@ import SwiftUI
 import SocketIO
 
 struct MainApp: View {
-    
-    @State private var selectedTab = TabViewType.ring
-    
+        
     @State private var isPresentingHelpView = true
         
     @State var autoJoinTower = false
@@ -20,46 +18,59 @@ struct MainApp: View {
 
     var ringView = RingView()
     
+    @ObservedObject var user = User.shared
+    
+    @ObservedObject var bellCircle = BellCircle.current
+    
+    @ObservedObject var controller = AppController.shared
+    
     var body: some View {
-        TabView(selection: $selectedTab) {
-            ringView
-                .tag(TabViewType.ring)
-                .tabItem {
-                    Image(systemName: "list.bullet")
-                        .font(.title)
-                    Text("Towers")
-                }
-            StoreView()
-                .tag(TabViewType.store)
-                .tabItem {
-                    Image(systemName: "cart")
-                        .font(.title)
-                    Text("Store")
-                }
-            HelpView(asSheet: false, isPresented: self.$isPresentingHelpView)
-                .tag(TabViewType.help)
-                .tabItem {
-                    Image(systemName: "questionmark.circle")
-                        .font(.title)
-                    Text("Help")
-                }
-            SettingsView()
-                .tag(TabViewType.settings)
-                .tabItem {
-                    Image(systemName: "gear")
-                        .font(.title)
-                    Text("Settings")
-                }
-        }
-        .onAppear {
-            print("+=+=+=++++===++==++", UserDefaults.standard.string(forKey: "oh no"))
-            if autoJoinTower {
-                User.shared.towerID = String(autoJoinTowerID)
-                self.ringView.joinTower()
+        switch AppController.shared.state {
+        case .login:
+            if UserDefaults.standard.bool(forKey: "keepMeLoggedIn") {
+                AutoLogin()
+            } else {
+                WelcomeLoginScreen()
             }
+        case .main:
+            TabView(selection: .init(get: {
+                controller.selectedTab
+            }, set: {
+                controller.selectedTab = $0
+            })) {
+                ringView
+                    .tag(TabViewType.ring)
+                    .tabItem {
+                        Image(systemName: "list.bullet")
+                            .font(.title)
+                        Text("Towers")
+                    }
+                StoreView()
+                    .tag(TabViewType.store)
+                    .tabItem {
+                        Image(systemName: "cart")
+                            .font(.title)
+                        Text("Store")
+                    }
+                HelpView(asSheet: false, isPresented: self.$isPresentingHelpView)
+                    .tag(TabViewType.help)
+                    .tabItem {
+                        Image(systemName: "questionmark.circle")
+                            .font(.title)
+                        Text("Help")
+                    }
+                SettingsView()
+                    .tag(TabViewType.settings)
+                    .tabItem {
+                        Image(systemName: "gear")
+                            .font(.title)
+                        Text("Settings")
+                    }
+            }
+            .accentColor(Color.main)
+        case .ringing:
+            RingingRoomView()
         }
-        .accentColor(Color.main)
-        
     }
 }
 

@@ -19,6 +19,7 @@ class User:ObservableObject {
     var name:String = ""
     var email:String = ""
     
+    
     @Published var towerID = ""
     
     @Published var myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
@@ -48,12 +49,13 @@ class User:ObservableObject {
     }
     
     func sortTowers() {
-        DispatchQueue.main.async {
+//        DispatchQueue.main.async {
             self.objectWillChange.send()
 //            print(self.myTowers.dates)
             self.myTowers.sort(by: { $0.visited < $1.visited } )
             print("sorted myTowers")
-        }
+//            NotificationCenter.default.post(name: Notification.Name.gotMyTowers, object: self)
+//        }
     }
 }
 
