@@ -68,8 +68,14 @@ class CommunicationController {
             }
             var dataDict = [String:Any]()
             var towersDict = [String:[String:Any]]()
+//            print(data)
             // Convert HTTP Response Data to a simple String
+
             if let data = data {
+                if let dataString = String(data: data, encoding: .utf8) {
+                    print("Http response")
+                    print(dataString)
+                }
                 // print("Response data string:\n \(dataString)")
                 
                 do {
