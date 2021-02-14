@@ -100,8 +100,10 @@ class CommunicationController {
                     (self.sender as! SimpleLoginView).receivedResponse(statusCode: statusCode, responseData: dataDict)
                 case .settings:
                     (self.sender as! SettingsView).receivedResponse(statusCode: statusCode, responseData: dataDict)
-                case .none:
-                    (self.sender as! RingView).updatedMyTowers()
+                default:
+                    print("not login")
+//                case .none:
+//                    (self.sender as! RingView).updatedMyTowers()
                 }
 //            case .logout:
                 
@@ -132,8 +134,15 @@ class CommunicationController {
                     User.shared.firstTower = true
                     print("added towers")
                     for dict in towersDict {
-                        if dict.value["tower_id"] as! String != "0" {
-                            let tower = Tower(id: Int(dict.value["tower_id"] as! String)!, name: dict.value["tower_name"] as! String, host: dict.value["host"] as! Int, recent: dict.value["recent"] as! Int, visited: dict.value["visited"] as! String, creator: dict.value["creator"] as! Int, bookmark: dict.value["bookmark"] as! Int)
+                        print(dict)
+                        if dict.key != "0" {
+                            var tower = Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)
+                            if let id = dict.value["tower_id"] as? Int {
+                                tower = Tower(id: id, name: dict.value["tower_name"] as! String, host: dict.value["host"] as! Int, recent: dict.value["recent"] as! Int, visited: dict.value["visited"] as! String, creator: dict.value["creator"] as! Int, bookmark: dict.value["bookmark"] as! Int)
+                            } else {
+                                tower = Tower(id: Int(dict.value["tower_id"] as! String)!, name: dict.value["tower_name"] as! String, host: dict.value["host"] as! Int, recent: dict.value["recent"] as! Int, visited: dict.value["visited"] as! String, creator: dict.value["creator"] as! Int, bookmark: dict.value["bookmark"] as! Int)
+
+                            }
                             User.shared.addTower(tower)
                         }
                     }
@@ -151,8 +160,10 @@ class CommunicationController {
                     (self.sender as! SimpleLoginView).receivedMyTowers(statusCode: statusCode, responseData: dataDict)
                 case .settings:
                     (self.sender as! SettingsView).receivedMyTowers(statusCode: statusCode, responseData: dataDict)
-                case nil:
-                    (self.sender as! RingView).updatedMyTowers()
+                default:
+                    print("not login")
+//                case nil:
+//                    (self.sender as! RingView).updatedMyTowers()
                 }
             //    {"928134567": {"bookmark": 0,"creator": 1,"host": 1,"recent": 1,"tower_id": 928134567,"tower_name": "Advent","visited": "Mon, 31 Aug 2020 15:45:54 GMT"}, "987654321": {"bookmark": 0,"creator": 0,"host": 0,"recent": 1,"tower_id": 987654321,"tower_name": "Old North","visited": "Mon, 31 Aug 2020 15:44:40 GMT"}}
                 
