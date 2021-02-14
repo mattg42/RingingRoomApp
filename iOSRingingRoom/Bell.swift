@@ -351,7 +351,7 @@ class BellCircle: ObservableObject {
     }
     
     func ringBell(_ number:Int) {
-            SocketIOManager.shared.socket.emit("c_bell_rung", ["bell": number, "stroke": (bellStates[number - 1]), "tower_id": towerID])
+            SocketIOManager.shared.socket?.emit("c_bell_rung", ["bell": number, "stroke": (bellStates[number - 1]), "tower_id": towerID])
 //        bellCircle.timer.tolerance = 0
 //        bellCircle.timer = Timer.scheduledTimer(withTimeInterval: 0.001, repeats: true, block: { _ in
 //            bellCircle.counter += 1

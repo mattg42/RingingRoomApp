@@ -82,7 +82,9 @@ struct AutoLogin: View {
     }
     
     func receivedMyTowers(statusCode:Int?, response:[String:Any]) {
-        AppController.shared.state = .main
+        DispatchQueue.main.async {
+            AppController.shared.state = .main
+        }
 //        if statusCode == 200 {
 //            DispatchQueue.main.async {
 //                self.viewControllerHolder?.present(style: .fullScreen, name: "Main", animated: false) {

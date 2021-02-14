@@ -19,6 +19,8 @@ struct MainApp: View {
     @State var autoJoinTowerID = 0
 
     var ringView = RingView()
+    var ringingRoomView = RingingRoomView()
+
     
     @ObservedObject var user = User.shared
     
@@ -69,12 +71,18 @@ struct MainApp: View {
                         Text("Settings")
                     }
             }
-            .onChange(of: scenePhase, perform: { value in
-                print("phase changed")
-            })
+            
             .accentColor(Color.main)
         case .ringing:
-            RingingRoomView()
+            ringingRoomView
+                .onChange(of: scenePhase, perform: { phase in
+                    print("new phase: \(phase)")
+                    if phase == .active {
+                        SocketIOManager.shared.socket?.connect()
+                    } else if phase == .background {
+                        SocketIOManager.shared.socket?.disconnect()
+                    }
+                })
         }
     }
 }

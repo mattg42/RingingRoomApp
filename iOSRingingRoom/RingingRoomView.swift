@@ -190,7 +190,7 @@ struct RingingRoomView: View {
                 if monitor.currentPath.status == .unsatisfied {
                     noInternetAlert()
                 } else {
-                    manager.socket.connect()
+                    manager.socket?.connect()
                 }
             })
         })
@@ -232,7 +232,7 @@ struct SetAtHandButton:View {
     
     var body: some View {
         Button(action: {
-            SocketIOManager.shared.socket.emit("c_set_bells", ["tower_id":bellCircle.towerID])
+            SocketIOManager.shared.socket?.emit("c_set_bells", ["tower_id":bellCircle.towerID])
         }) {
             ZStack {
                 Color.main.cornerRadius(5)
@@ -573,7 +573,7 @@ struct RingingView:View {
     }
     
     func makeCall(_ call:String) {
-        manager.socket.emit("c_call", ["call":call, "tower_id":bellCircle.towerID])
+        manager.socket?.emit("c_call", ["call":call, "tower_id":bellCircle.towerID])
 
     }
     
@@ -1098,7 +1098,7 @@ struct TowerControlsView:View {
                     }
     //                if bellCircle.isHost && bellCircle.hostModePermitted {
     //                    Toggle(isOn: .init(get: {self.bellCircle.hostModeEnabled}, set: { newValue in
-    //                        SocketIOManager.shared.socket.emit("c_host_mode", ["new_mode":newValue, "tower_id":self.bellCircle.towerID])
+    //                        SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode":newValue, "tower_id":self.bellCircle.towerID])
     //                    }) ) {
     //                        Text("Enable host mode")
     //                    }
@@ -1170,12 +1170,12 @@ struct TowerControlsView:View {
 
     func bellTypeChanged(value:Int) {
         print("changing belltype")
-        SocketIOManager.shared.socket.emit("c_audio_change", ["new_audio":self.bellTypes[value].rawValue, "tower_id":self.bellCircle.towerID])
+        SocketIOManager.shared.socket?.emit("c_audio_change", ["new_audio":self.bellTypes[value].rawValue, "tower_id":self.bellCircle.towerID])
      //
     }
 
     func sizeChanged(value:Int) {
-        SocketIOManager.shared.socket.emit("c_size_change", ["new_size":towerSizes[value], "tower_id":self.bellCircle.towerID])
+        SocketIOManager.shared.socket?.emit("c_size_change", ["new_size":towerSizes[value], "tower_id":self.bellCircle.towerID])
     //    self.size = self.towerSizes[self.towerSizeSelection]
 //        if self.usersView != nil {
 //            print("trying to update")
@@ -1242,7 +1242,7 @@ struct UsersView:View {
                             if self.bellCircle.assignments[i].name == "" {
                                 let index = Int.random(in: 0..<tempUsers.count)
                                 let user = tempUsers[index]
-                                SocketIOManager.shared.socket.emit("c_assign_user", ["user":user.userID, "bell":i+1, "tower_id":self.bellCircle.towerID])
+                                SocketIOManager.shared.socket?.emit("c_assign_user", ["user":user.userID, "bell":i+1, "tower_id":self.bellCircle.towerID])
                                 tempUsers.remove(at: index)
                             }
                         }
@@ -1387,13 +1387,13 @@ struct UsersView:View {
     func assign(_ id:Int, to bell:Int) -> () -> () {
         return {
             print("assigning")
-            SocketIOManager.shared.socket.emit("c_assign_user", ["user":id, "bell":bell, "tower_id":self.bellCircle.towerID])
+            SocketIOManager.shared.socket?.emit("c_assign_user", ["user":id, "bell":bell, "tower_id":self.bellCircle.towerID])
         }
     }
 
     func unAssign(bell:Int) {
         print("unassigning")
-        SocketIOManager.shared.socket.emit("c_assign_user", ["user":0, "bell":bell, "tower_id":self.bellCircle.towerID])
+        SocketIOManager.shared.socket?.emit("c_assign_user", ["user":0, "bell":bell, "tower_id":self.bellCircle.towerID])
     }
 
     func fillInAvailable() -> Bool {
@@ -1580,7 +1580,7 @@ struct ChatView:View {
 
     func sendMessage() {
         //send message
-        SocketIOManager.shared.socket.emit("c_msg_sent", ["user":User.shared.name, "email":User.shared.email, "msg":currentMessage, "tower_id":BellCircle.current.towerID])
+        SocketIOManager.shared.socket?.emit("c_msg_sent", ["user":User.shared.name, "email":User.shared.email, "msg":currentMessage, "tower_id":BellCircle.current.towerID])
         currentMessage = ""
     }
 }
