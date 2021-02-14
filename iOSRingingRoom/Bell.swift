@@ -257,11 +257,7 @@ class BellCircle: ObservableObject {
         if !gotBellPositions {
             gotBellPositions = true
         }
-        if changedPerspective || newImages {
-            changedPerspective = false
-            newImages = false
-            objectWillChange.send()
-        }
+
         return newPositions
     }
     
