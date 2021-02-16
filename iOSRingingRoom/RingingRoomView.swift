@@ -1233,18 +1233,38 @@ struct UsersView:View {
                 if available() {
                     Button(action: {
                         var tempUsers = self.bellCircle.users
-                        for assignedUser in self.bellCircle.assignments {
-                            if assignedUser.name != "" {
-                                tempUsers.removeRingerForID(assignedUser.userID)
+                        if !tempUsers.containsRingerForID(-1) {
+                            for assignedUser in self.bellCircle.assignments {
+                                if assignedUser.name != "" {
+                                    tempUsers.removeRingerForID(assignedUser.userID)
+                                }
                             }
-                        }
-                        for i in 0..<self.bellCircle.size {
-                            if self.bellCircle.assignments[i].name == "" {
-                                let index = Int.random(in: 0..<tempUsers.count)
-                                let user = tempUsers[index]
-                                SocketIOManager.shared.socket?.emit("c_assign_user", ["user":user.userID, "bell":i+1, "tower_id":self.bellCircle.towerID])
-                                tempUsers.remove(at: index)
+                            for i in 0..<self.bellCircle.size {
+                                if self.bellCircle.assignments[i].name == "" {
+                                    let index = Int.random(in: 0..<tempUsers.count)
+                                    let user = tempUsers[index]
+                                    SocketIOManager.shared.socket?.emit("c_assign_user", ["user":user.userID, "bell":i+1, "tower_id":self.bellCircle.towerID])
+                                    tempUsers.remove(at: index)
+                                }
                             }
+                        } else {
+                            tempUsers.removeRingerForID(-1)
+                            for assignedUser in self.bellCircle.assignments {
+                                if assignedUser.name != "" {
+                                    tempUsers.removeRingerForID(assignedUser.userID)
+                                }
+                            }
+                            var availableBells = self.bellCircle.assignments.allIndecesOfRingerForID(Ringer.blank.userID)!
+                            availableBells.shuffle()
+                            tempUsers.shuffle()
+                            for user in tempUsers {
+                                SocketIOManager.shared.socket?.emit("c_assign_user", ["user":user.userID, "bell":availableBells[0]+1, "tower_id":self.bellCircle.towerID])
+                                availableBells.removeFirst()
+                            }
+                            for bell in availableBells {
+                                SocketIOManager.shared.socket?.emit("c_assign_user", ["user":-1, "bell":bell+1, "tower_id":self.bellCircle.towerID])
+                            }
+                            
                         }
                     }) {
                         Text("Fill In")
@@ -1397,7 +1417,15 @@ struct UsersView:View {
     }
 
     func fillInAvailable() -> Bool {
-        return numberOfAvailableRingers() >= numberOfAvailableBells()
+        if numberOfAvailableBells() <= 0 {
+            return false
+        } else {
+            if bellCircle.users.containsRingerForID(-1) {
+                return true
+            } else {
+                return numberOfAvailableRingers() >= numberOfAvailableBells()
+            }
+        }
     }
     
     func numberOfAvailableRingers() -> Int {

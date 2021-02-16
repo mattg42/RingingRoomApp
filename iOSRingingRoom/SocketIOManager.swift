@@ -10,7 +10,7 @@ import Foundation
 import SocketIO
 import Combine
 
-class SocketIOManager: NSObject {
+class SocketIOManager: NSObject, ObservableObject {
     static var shared = SocketIOManager()
     
     var socket:SocketIOClient?
@@ -23,6 +23,15 @@ class SocketIOManager: NSObject {
     
     var reconnectAttempt = false
     var server_ip = ""
+    
+    var setups = 0 {
+        didSet {
+            if setups >= 7 {
+                AppController.shared.state = .ringing
+                ignoreSetup = true
+            }
+        }
+    }
     
     func connectSocket(server_ip:String) {
         self.server_ip = server_ip
@@ -51,24 +60,15 @@ class SocketIOManager: NSObject {
         
         socket?.on("s_size_change") { data, ack in
             self.bellCircle.newSize(self.getDict(data)["size"] as! Int)
-            if !self.bellCircle.setupComplete["gotSize"]! && !self.ignoreSetup {
-                self.bellCircle.setupComplete["gotSize"] = true
-                NotificationCenter.default.post(name: BellCircle.setup, object: nil )
-                
-                self.bellCircle.objectWillChange.send()
-                
+            if !self.ignoreSetup {
+                self.setups += 1
                 self.socket?.emit("c_request_global_state", ["tower_id":self.bellCircle.towerID])
-            }
-            if self.reconnectAttempt {
-                self.socket?.emit("c_request_global_state", ["tower_id":self.bellCircle.towerID])
-                self.reconnectAttempt = false
             }
         }
         
         socket?.on("s_global_state") { data, ack in
-            if !self.bellCircle.setupComplete["gotBellStates"]! && !self.ignoreSetup {
-                self.bellCircle.setupComplete["gotBellStates"] = true
-                NotificationCenter.default.post(name: BellCircle.setup, object: nil )
+            if !self.ignoreSetup {
+                self.setups += 1
             }
             self.bellCircle.objectWillChange.send()
             self.bellCircle.bellStates = self.getDict(data)["global_bell_state"] as! [Bool]
@@ -85,10 +85,8 @@ class SocketIOManager: NSObject {
         }
         
         socket?.on("s_set_userlist") { data, ack in
-            if !self.bellCircle.setupComplete["gotUserList"]! && !self.ignoreSetup {
-                print("set true")
-                self.bellCircle.setupComplete["gotUserList"] = true
-                NotificationCenter.default.post(name: BellCircle.setup, object: nil )
+            if !self.ignoreSetup {
+                self.setups += 1
             }
             self.bellCircle.newUserlist(self.getDict(data)["user_list"] as! [[String:Any]])
         }
@@ -108,26 +106,23 @@ class SocketIOManager: NSObject {
         }
         
         socket?.on("s_user_entered") { data, ack in
-            if !self.bellCircle.setupComplete["gotUserEntered"]! && !self.ignoreSetup {
+            if !self.ignoreSetup {
                 User.shared.ringerID = self.getDict(data)["user_id"] as! Int
-                self.bellCircle.setupComplete["gotUserEntered"] = true
-                NotificationCenter.default.post(name: BellCircle.setup, object: nil )
+                self.setups += 1
             }
             self.bellCircle.newUser(id: self.getDict(data)["user_id"] as! Int, name: self.getDict(data)["username"] as! String)
         }
         
         socket?.on("s_audio_change") { data, ack in
-            if !self.bellCircle.setupComplete["gotAudioType"]! && !self.ignoreSetup {
-                self.bellCircle.setupComplete["gotAudioType"] = true
-                NotificationCenter.default.post(name: BellCircle.setup, object: nil )
+            if !self.ignoreSetup {
+                self.setups += 1
             }
             self.bellCircle.newAudio(self.getDict(data)["new_audio"] as! String)
         }
         
         socket?.on("s_host_mode") { data, ack in
-            if !self.bellCircle.setupComplete["gotHostMode"]! && !self.ignoreSetup {
-                self.bellCircle.setupComplete["gotHostMode"] = true
-                NotificationCenter.default.post(name: BellCircle.setup, object: nil )
+            if !self.ignoreSetup {
+                self.setups += 1
             }
             self.bellCircle.objectWillChange.send()
             self.bellCircle.hostModeEnabled = self.getDict(data)["new_mode"] as! Bool
@@ -157,7 +152,9 @@ class SocketIOManager: NSObject {
 //        if bellCircle.ringingroomIsPresented {
         AppController.shared.state = .main
 //        }
-        bellCircle.setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false, "gotAssignments":false]
+        setups = 0
+        ignoreSetup = false
+//        bellCircle.setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false, "gotAssignments":false]
         socket?.disconnect()
         ChatManager.shared.messages = [String]()
         ChatManager.shared.newMessages = 0
