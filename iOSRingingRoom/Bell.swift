@@ -78,12 +78,6 @@ class BellCircle: ObservableObject {
     
     var changedPerspective = false
     
-    var setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false, "gotAssignments":false]
-    
-    static let setup = Notification.Name("setup")
-    
-    let setupPublisher = NotificationCenter.default.publisher(for: BellCircle.setup)
-    
     var bellType:BellType = BellType.hand
     
     var center = CGPoint(x: 0, y: 0) {
@@ -253,7 +247,7 @@ class BellCircle: ObservableObject {
 //            print(pos.pos)
 //        }
 //        print("got new positions")
-//        objectWillChange.send()
+        objectWillChange.send()
         if !gotBellPositions {
             gotBellPositions = true
         }
@@ -292,7 +286,7 @@ class BellCircle: ObservableObject {
     
     func newSize(_ newSize:Int) {
         print("new size from socketio")
-        if setupComplete["gotSize"] == false {
+        if SocketIOManager.shared.ignoreSetup == false {
             assignments = Array(repeating: Ringer.blank, count: newSize)
             assignmentsBuffer = Array(repeating: nil, count: newSize)
             bellStates = Array(repeating: true, count: newSize)
@@ -427,7 +421,7 @@ class BellCircle: ObservableObject {
     
     func sortUsers() {
 //        sortTimer.invalidate()
-        sortTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(sortUserArray), userInfo: nil, repeats: false)
+        sortTimer = Timer.scheduledTimer(timeInterval: 0.15, target: self, selector: #selector(sortUserArray), userInfo: nil, repeats: false)
     }
     
     @objc func sortUserArray() {
@@ -447,9 +441,8 @@ class BellCircle: ObservableObject {
 //        print(newUsers.ringers)
         objectWillChange.send()
         users = newUsers
-        if !setupComplete["gotAssignments"]! {
-            setupComplete["gotAssignments"] = true
-            NotificationCenter.default.post(name: BellCircle.setup, object: nil )
+        if !SocketIOManager.shared.ignoreSetup {
+            SocketIOManager.shared.setups += 1
         }
     }
 

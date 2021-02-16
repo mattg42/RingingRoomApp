@@ -27,7 +27,7 @@ struct MainApp: View {
     @ObservedObject var bellCircle = BellCircle.current
     
     @ObservedObject var controller = AppController.shared
-    
+        
     var body: some View {
         switch AppController.shared.state {
         case .login:

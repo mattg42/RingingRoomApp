@@ -30,6 +30,8 @@ struct RingView: View {
     
     @ObservedObject var user = User.shared
     
+    @ObservedObject var manager = SocketIOManager.shared
+    
     @State private var ringingRoomView = RingingRoomView()
     
     @State var presentingRingingRoomView = false
@@ -40,9 +42,7 @@ struct RingView: View {
     @State private var viewOffset:CGFloat = 0
     
     @State private var isRelevant = false
-    
-    @State var sink:AnyCancellable!
-    
+        
     @State var response = [String:Any]()
     
     @State var monitor = NWPathMonitor()
@@ -139,19 +139,6 @@ struct RingView: View {
                 self.comController = CommunicationController(sender: self)
                 let queue = DispatchQueue.monitor
                 monitor.start(queue: queue)
-                sink = BellCircle.current.setupPublisher.sink { _ in
-                    print("received combine")
-                    if !BellCircle.current.ringingroomIsPresented {
-                        print("checked values")
-                        for (key, value) in BellCircle.current.setupComplete {
-                            print(key, value)
-                            if !value {
-                                return
-                            }
-                        }
-                        self.presentRingingRoomView()
-                    }
-                }
             })
             .padding()
 //        } else {
