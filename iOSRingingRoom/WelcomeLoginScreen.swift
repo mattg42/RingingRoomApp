@@ -64,6 +64,8 @@ struct WelcomeLoginScreen: View {
     
     @State private var monitor = NWPathMonitor()
     
+    @State private var isUsingDevServer = UserDefaults.standard.bool(forKey: "useDevServer")
+    
     var body: some View {
         ZStack {
             backgroundColor.edgesIgnoringSafeArea(.all) //background view
@@ -118,6 +120,19 @@ struct WelcomeLoginScreen: View {
                     Toggle(isOn: $stayLoggedIn) {
                         Text("Keep me logged in")
                     }
+                    Toggle(isOn: $isUsingDevServer) {
+                        Text("Use dev server")
+                    }
+                    .onChange(of: isUsingDevServer, perform: { value in
+                        if isUsingDevServer {
+                            CommunicationController.baseUrl = "https:/dev.ringingroom.com/api/"
+                            UserDefaults.standard.setValue(value, forKey: "useDevServer")
+                        } else {
+                            CommunicationController.baseUrl = "https:/ringingroom.com/api/"
+                            UserDefaults.standard.setValue(value, forKey: "useDevServer")
+
+                        }
+                    })
                     Button(action: login) {
                         ZStack {
                             Color.main
