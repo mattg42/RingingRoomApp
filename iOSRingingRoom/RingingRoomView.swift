@@ -68,7 +68,7 @@ struct RingingRoomView: View {
     
     @State var text = ""
     
-    @State var towerControls = TowerControlsView()
+//    @State var towerControls = TowerControlsView()
     
     var isSplit:Bool {
         get {
@@ -82,8 +82,9 @@ struct RingingRoomView: View {
                 backgroundColor.edgesIgnoringSafeArea(.all)
                 if isSplit {
                     HStack(spacing: 0.0) {
-                        towerControls
+                        TowerControlsView(width: geo.size.width * 0.2)
                             .padding([.horizontal, .top], 5)
+                            .frame(width: 350, height: geo.size.height)
                         VStack(spacing: 0) {
                             TowerNameView()
                             .padding(.bottom, 5)
@@ -97,6 +98,7 @@ struct RingingRoomView: View {
                             .padding(.horizontal, 5)
                             ringingView
                         }
+//                        .frame(width: geo.size.width * 0.67, height: geo.size.height)
                         .ignoresSafeArea(.keyboard, edges: .all)
                     }
                 } else {
@@ -126,7 +128,7 @@ struct RingingRoomView: View {
                         TowerNameView()
                             .padding(.bottom, 5)
                         ZStack {
-                            towerControls
+                            TowerControlsView(width: .infinity)
                                 .padding(.horizontal, 5)
                                 .padding(.bottom, 5)
                                 .offset(x: bellCircle.showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
@@ -663,55 +665,29 @@ struct RopeCircle:View {
     
     @State private var manager = SocketIOManager.shared
     
-    var ropeSize:CGFloat {
-        get {
-//            return 150
-            if horizontalSizeClass == .regular && interfaceOrientation ?? .portrait == .portrait {
-                return 150
-            } else {
-                switch bellCircle.size {
-                case 14:
-                    return 69
-                case 16:
-                    return 63
-                default:
-                    return 80
-                }
-            }
-        }
-    }
-    var handBellSize:CGFloat {
-        get {
-            switch bellCircle.size {
-            case 16:
-                return 42
-            case 14:
-                return 50
-            default:
-                return 60
-            }
-        }
-    }
+//    @State private var ropeSize:CGFloat = 0
+//    
+//    @State private var handBellSize:CGFloat = 0
     
-    var imageWidth:CGFloat {
-        get {
-            if bellCircle.bellType == .tower {
-                return ropeSize/3
-            } else {
-                return handBellSize
-            }
-        }
-    }
-    
-    var imageHeight:CGFloat {
-        get {
-            if bellCircle.bellType == .tower {
-                return ropeSize
-            } else {
-                return handBellSize
-            }
-        }
-    }
+//    var imageWidth:CGFloat {
+//        get {
+//            if bellCircle.bellType == .tower {
+//                return ropeSize/3
+//            } else {
+//                return handBellSize
+//            }
+//        }
+//    }
+//
+//    var imageHeight:CGFloat {
+//        get {
+//            if bellCircle.bellType == .tower {
+//                return ropeSize
+//            } else {
+//                return handBellSize
+//            }
+//        }
+//    }
     
     var interfaceOrientation: UIInterfaceOrientation? {
         get {
@@ -737,7 +713,7 @@ struct RopeCircle:View {
             ZStack {
 //                                if bellCircle.gotBellPositions {
                 ForEach(0..<bellCircle.size, id: \.self) { bellNumber in
-                    //                        Text("Hi")
+//                                            Text("Hi")
                     Button(action: {
                         if self.bellCircle.bellMode == .ring {
                             self.bellCircle.ringBell(bellNumber+1)
@@ -751,7 +727,7 @@ struct RopeCircle:View {
                                 .opacity(isLeft(bellNumber) ? 0 : 1)
                                 .font(getFont())
                             Image(self.getImage(bellNumber)).resizable()
-                                .frame(width: imageWidth, height: imageHeight)
+                                .frame(width: getImageWidth(size: geo.size), height: getImageHeight(size: geo.size))
                                 .rotation3DEffect(
                                     .degrees((bellCircle.bellType == .tower) ? 0 : isLeft(bellNumber) ? 180 : 0),
                                     axis: (x: 0.0, y: 1.0, z: 0.0),
@@ -764,14 +740,14 @@ struct RopeCircle:View {
                                 .opacity(isLeft(bellNumber) ? 1 : 0)
                                 .font(getFont())
                         }
-                        
+
                     }
                     .disabled(bellCircle.bellMode == .ring ? !canRing(bellNumber) : false)
                     .opacity(bellCircle.bellMode == .ring ? canRing(bellNumber) ? 1 : 0.35 : 1)
                     .buttonStyle(TouchDown(isAvailible: true))
                     .foregroundColor(.primary)
-                    .position(self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber]) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
-                    //                        .position(self.bellCircle.getNewPositions(radius: geo.frame(in: .local).height/2 - imageHeight/2, center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber].pos) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
+                    .position(self.getBellPositionsAndSizes(frame: geo.frame(in: .local), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
+//                    .position(self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
                 }
                 if bellCircle.bellMode == .ring {
                     ScrollView(showsIndicators: false) {
@@ -840,7 +816,7 @@ struct RopeCircle:View {
                             .fixedSize()
                         }
                         //                            Text("Set at hand")
-                        .position(x: geo.frame(in: .local).width - 40, y: bellCircle.bellPositions.count == bellCircle.size ? bellCircle.bellPositions[bellCircle.perspective-1].y: 0)
+                        .position(x: geo.frame(in: .local).width - 40, y: bellCircle.bellPositions.count == bellCircle.size ? bellCircle.bellPositions[bellCircle.perspective-1].y + CGFloat(bellCircle.imageSize)/2 - 25: 0)
                         .animation(nil)
                     }
                 }
@@ -853,10 +829,169 @@ struct RopeCircle:View {
         })
     }
     
-//    func getBellPositionsAndSizes(radius:CGFloat, center:CGPoint) -> [CGPoint] {
-//        self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min((geo.frame(in: .local).width - imageWidth)/2, (geo.frame(in: .local).height  +  imageWidth)/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)) // bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2) - imageHeight/2, iPad: isSplit)
+    func getImageWidth(size: CGSize) -> CGFloat {
+        if size == bellCircle.oldScreenSize {
+            if bellCircle.size == bellCircle.oldBellCircleSize {
+                if bellCircle.bellType == .tower {
+                    return CGFloat(bellCircle.imageSize)/3
+                } else {
+                    return CGFloat(bellCircle.imageSize) * 0.7
+                }
+
+            }
+        }
+        
+        var newImageSize = 0.0
+        
+        var newRadius = Double(min(size.width/2, size.height/2))
+        
+        newRadius = min(newRadius, 300)
+//        radius *= 0.9
+        
+        let originalRadius = newRadius
+        var theta = Double.pi/Double(bellCircle.size)
+                
+        newImageSize = sin(theta) * newRadius * 2
 //
-//    }
+        (newImageSize, newRadius) = reduceOverlap(width: size.width, height: size.height, imageSize: newImageSize, radius: newRadius, theta: theta)
+        
+        newImageSize = min(newImageSize, originalRadius*0.6)
+        
+        (bellCircle.imageSize, bellCircle.radius) = reduceOverlap(width: size.width, height: size.height, imageSize: newImageSize, radius: newRadius, theta: theta)
+
+        bellCircle.oldScreenSize = size
+        bellCircle.oldBellCircleSize = bellCircle.size
+        
+        if bellCircle.bellType == .tower {
+            return CGFloat(bellCircle.imageSize)/3
+        } else {
+            return CGFloat(bellCircle.imageSize) * 0.7
+        }
+
+    }
+    
+    func getImageHeight(size: CGSize) -> CGFloat {
+        if size == bellCircle.oldScreenSize {
+            if bellCircle.size == bellCircle.oldBellCircleSize {
+                if bellCircle.bellType == .tower {
+                    return CGFloat(bellCircle.imageSize)
+                } else {
+                    return CGFloat(bellCircle.imageSize) * 0.7
+                }
+
+            }
+        }
+        
+        var newImageSize = 0.0
+        
+        var newRadius = Double(min(size.width/2, size.height/2))
+        newRadius = min(newRadius, 300)
+        let originalRadius = newRadius
+
+        var theta = Double.pi/Double(bellCircle.size)
+                
+        newImageSize = sin(theta) * newRadius * 2
+        
+        (newImageSize, newRadius) = reduceOverlap(width: size.width, height: size.height, imageSize: newImageSize, radius: newRadius, theta: theta)
+        
+        newImageSize = min(newImageSize, originalRadius*0.6)
+
+        (bellCircle.imageSize, bellCircle.radius) = reduceOverlap(width: size.width, height: size.height, imageSize: newImageSize, radius: newRadius, theta: theta)
+
+        bellCircle.oldScreenSize = size
+        bellCircle.oldBellCircleSize = bellCircle.size
+        
+//        imageSize *= 1.2
+        if bellCircle.bellType == .tower {
+            return CGFloat(bellCircle.imageSize)
+        } else {
+            return CGFloat(bellCircle.imageSize) * 0.6
+        }
+
+    }
+    
+    func getBellPositionsAndSizes(frame:CGRect, center:CGPoint) -> [CGPoint] {
+
+        return self.bellCircle.getNewPositions(radius: CGFloat(bellCircle.radius), center: center)
+    }
+    
+    func reduceOverlap(width:CGFloat, height:CGFloat, imageSize:Double, radius:Double, theta:Double) -> (Double, Double) {
+        var vOverlap = 0.0
+        var hOverlap = 0.0
+
+        var maxOverlap = 0.0
+        
+        var newRadius = radius
+        var newImageSize = imageSize
+        
+        
+        var a = radius
+        
+        if bellCircle.size % 2 == 0 {
+            a = cos(theta) * newRadius
+        }
+        
+        if bellCircle.bellType == .tower {
+            vOverlap = a + imageSize/2 - Double(height)/2
+        } else {
+            vOverlap = a + (imageSize*0.6)/2 - Double(height)/2
+        }
+        
+        if bellCircle.size % 4 == 0 {
+            vOverlap += 7.5
+        }
+        
+        
+        a = radius
+        if bellCircle.size % 2 == 1 {
+            a =  cos(theta/2) * newRadius
+        } else if bellCircle.size % 4 == 0 {
+            a = cos(theta) * newRadius
+        }
+        if bellCircle.bellType == .tower {
+            hOverlap = a + (imageSize/3)/2 - Double(width)/2
+        } else {
+            hOverlap = a + (imageSize*0.6)/2 - Double(width)/2
+        }
+        
+        maxOverlap = max(vOverlap, hOverlap)
+        print(vOverlap, hOverlap, maxOverlap)
+        
+        if bellCircle.size == 4 {
+            if maxOverlap >= -20 {
+                newRadius = radius - 5
+
+                newImageSize = sin(theta) * newRadius * 2
+                return reduceOverlap(width: width, height: height, imageSize: newImageSize, radius: newRadius, theta: theta)
+            } else if maxOverlap < -25 {
+                
+                newRadius = radius + 5
+                
+                return reduceOverlap(width: width, height: height, imageSize: newImageSize, radius: newRadius, theta: theta)
+                
+                
+            } else {
+                return (newImageSize, newRadius)
+            }
+        } else {
+        
+            if maxOverlap >= -7.5 {
+                newRadius = radius - 5
+
+                newImageSize = sin(theta) * newRadius * 2
+                return reduceOverlap(width: width, height: height, imageSize: newImageSize, radius: newRadius, theta: theta)
+            } else if maxOverlap < -12.5 {
+                
+                newRadius = radius + 5
+                
+                return reduceOverlap(width: width, height: height, imageSize: newImageSize, radius: newRadius, theta: theta)
+                
+                
+            } else {
+                return (newImageSize, newRadius)
+            }
+        }
+    }
     
     func getHeight(geo:GeometryProxy) -> CGFloat {
 
@@ -867,7 +1002,7 @@ struct RopeCircle:View {
                 if bellCircle.perspective <= Int(bellCircle.size/2) {
                     returnValue = bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y
                 } else {
-                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - imageHeight - CGFloat(15)
+                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - CGFloat(15)
                 }
             }
         }
@@ -1027,125 +1162,132 @@ struct TowerControlsView:View {
     
     @State private var showingUsers = false
 
-    init() {
+    init(width:CGFloat) {
         print("new towerControls")
+        self.width = width
     }
     
+    @State var width:CGFloat = 0
+    
     var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                HStack(alignment: .center) {
-                    Spacer()
-                    Text(String(bellCircle.towerID))
-                    Button(action: {
-                        let pasteboard = UIPasteboard.general
-                        pasteboard.string = String(self.bellCircle.towerID)
-                    }) {
-                        Image(systemName: "doc.on.doc")
-                    }
-                    .foregroundColor(.primary)
-                    Spacer()
-//                    if hasPermissions() {
-//                    MenuButton()
-//                        .opacity(0)
-//                    }
-                }
-                .padding(.top, 4)
-                .padding(.bottom, 7)
-//                .padding(.top, -4)
-                HStack {
-                    Picker(selection: .init(get: {
-                        self.bellCircle.halfMuffled
-                    }, set: {
-                        self.bellCircle.halfMuffled = $0
-                    }), label: Text("Half-muffled")){
-                        Text("Half-muffled").tag(true)
-                        Text("Open").tag(false)
-                    }
-                    .fixedSize()
-                    .pickerStyle(SegmentedPickerStyle())
-                    if hasPermissions() {
-                    Picker(selection: .init(get: {self.bellTypes.firstIndex(of: self.bellCircle.bellType)!}, set: {self.bellTypeChanged(value:$0)}), label: Text("Bell type picker")) {
-                        ForEach(0..<2) { i in
-                            Text(self.bellTypes[i].rawValue)
+        GeometryReader { geo in
+            ZStack {
+                VStack(spacing: 0) {
+                    HStack(alignment: .center) {
+                        Spacer()
+                        Text(String(bellCircle.towerID))
+                        Button(action: {
+                            let pasteboard = UIPasteboard.general
+                            pasteboard.string = String(self.bellCircle.towerID)
+                        }) {
+                            Image(systemName: "doc.on.doc")
                         }
-                    }
-                    .fixedSize()
-                    //                            .padding(.horizontal)
-                    //                            .padding(.top, 7)
-                    .pickerStyle(SegmentedPickerStyle())
-                    }
-                    Spacer()
-
-                }
-                .padding(.bottom, 7)
-                    if hasPermissions() {
-                        HStack {
-                            
-                            
-                            Picker(selection: .init(get: { towerSizes.firstIndex(of: bellCircle.size) ?? 6 }, set: {self.sizeChanged(value:$0)}), label: Text("Tower size picker")) {
-                                ForEach(0..<towerSizes.count) { i in
-                                    Text(String(self.towerSizes[i]))
-                                }
-                            }
-                            //                            .fixedSize()
-                            //                            .padding(.horizontal)
-                            //                                .padding(.top, 10)
-                            .pickerStyle(SegmentedPickerStyle())
-                            
-                        }
-                        .padding(.bottom, 7)
-                    }
-    //                if bellCircle.isHost && bellCircle.hostModePermitted {
-    //                    Toggle(isOn: .init(get: {self.bellCircle.hostModeEnabled}, set: { newValue in
-    //                        SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode":newValue, "tower_id":self.bellCircle.towerID])
-    //                    }) ) {
-    //                        Text("Enable host mode")
+                        .foregroundColor(.primary)
+                        Spacer()
+    //                    if hasPermissions() {
+    //                    MenuButton()
+    //                        .opacity(0)
     //                    }
+                    }
+                    .padding(.top, 4)
+                    .padding(.bottom, 7)
+    //                .padding(.top, -4)
+                    HStack {
+                        Picker(selection: .init(get: {
+                            self.bellCircle.halfMuffled
+                        }, set: {
+                            self.bellCircle.halfMuffled = $0
+                        }), label: Text("Half-muffled")){
+                            Text("Half-muffled").tag(true)
+                            Text("Open").tag(false)
+                        }
+                        .fixedSize()
+                        .pickerStyle(SegmentedPickerStyle())
+                        if hasPermissions() {
+                        Picker(selection: .init(get: {self.bellTypes.firstIndex(of: self.bellCircle.bellType)!}, set: {self.bellTypeChanged(value:$0)}), label: Text("Bell type picker")) {
+                            ForEach(0..<2) { i in
+                                Text(self.bellTypes[i].rawValue)
+                            }
+                        }
+                        .fixedSize()
+                        //                            .padding(.horizontal)
+                        //                            .padding(.top, 7)
+                        .pickerStyle(SegmentedPickerStyle())
+                        }
+                        Spacer()
+
+                    }
+                    .padding(.bottom, 7)
+                        if hasPermissions() {
+                            HStack {
+                                
+                                
+                                Picker(selection: .init(get: { towerSizes.firstIndex(of: bellCircle.size) ?? 6 }, set: {self.sizeChanged(value:$0)}), label: Text("Tower size picker")) {
+                                    ForEach(0..<towerSizes.count) { i in
+                                        Text(String(self.towerSizes[i]))
+                                    }
+                                }
+                                //                            .fixedSize()
+                                //                            .padding(.horizontal)
+                                //                                .padding(.top, 10)
+                                .pickerStyle(SegmentedPickerStyle())
+                                
+                            }
+                            .padding(.bottom, 7)
+                        }
+        //                if bellCircle.isHost && bellCircle.hostModePermitted {
+        //                    Toggle(isOn: .init(get: {self.bellCircle.hostModeEnabled}, set: { newValue in
+        //                        SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode":newValue, "tower_id":self.bellCircle.towerID])
+        //                    }) ) {
+        //                        Text("Enable host mode")
+        //                    }
+        //                }
+                    if bellCircle.towerControlsViewSelection == 1 {
+                        UsersView()
+                    } else {
+                        ChatView()
+                    }
+    //                TabView(selection: .init(get: {
+    //                    return bellCircle.towerControlsViewSelection
+    //                }, set: {
+    //                    bellCircle.towerControlsViewSelection = $0
+    //                })) {
+    ////                    Text("df")
+    //                    UsersView()
+    ////                        .padding(.vertical)
+    //                        .padding(.bottom, self.bellCircle.keyboardShowing ? 5 : 102)
+    //                        .tag(1)
+    //                        .padding(.horizontal, 5)
+    //                        .tabItem {
+    //                            Image(systemName: "person")
+    //                            Text("Users")
+    //                        }
+    ////                    Text("tab")
+    ////                        .onAppear {
+    ////                            print("text appeared")
+    ////                        }
+    //                    ChatView()
+    //                        .padding(.horizontal, 5)
+    //                        .padding(.bottom, self.bellCircle.keyboardShowing ? 5 : 102)
+    //                        .tag(2)
+    //                        .tabItem {
+    //                            Image(systemName: "text.bubble")
+    //                            Text("Chat")
+    //                        }
     //                }
-                if bellCircle.towerControlsViewSelection == 1 {
-                    UsersView()
-                } else {
-                    ChatView()
+    ////                .tabViewStyle(PageTabViewStyle())
+    ////                .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+    //                .padding(.top, self.bellCircle.keyboardShowing ? -77 : 0)
+    //                .padding(.bottom, -145)
+    //                .onAppear {
+    //                    print("tab view appeared")
+    //                }
+    //                .padding(.horizontal, -5)
+    //                .accentColor(.main)
                 }
-//                TabView(selection: .init(get: {
-//                    return bellCircle.towerControlsViewSelection
-//                }, set: {
-//                    bellCircle.towerControlsViewSelection = $0
-//                })) {
-////                    Text("df")
-//                    UsersView()
-////                        .padding(.vertical)
-//                        .padding(.bottom, self.bellCircle.keyboardShowing ? 5 : 102)
-//                        .tag(1)
-//                        .padding(.horizontal, 5)
-//                        .tabItem {
-//                            Image(systemName: "person")
-//                            Text("Users")
-//                        }
-////                    Text("tab")
-////                        .onAppear {
-////                            print("text appeared")
-////                        }
-//                    ChatView()
-//                        .padding(.horizontal, 5)
-//                        .padding(.bottom, self.bellCircle.keyboardShowing ? 5 : 102)
-//                        .tag(2)
-//                        .tabItem {
-//                            Image(systemName: "text.bubble")
-//                            Text("Chat")
-//                        }
-//                }
-////                .tabViewStyle(PageTabViewStyle())
-////                .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-//                .padding(.top, self.bellCircle.keyboardShowing ? -77 : 0)
-//                .padding(.bottom, -145)
-//                .onAppear {
-//                    print("tab view appeared")
-//                }
-//                .padding(.horizontal, -5)
-//                .accentColor(.main)
             }
+//            .fixedSize(horizontal: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/, vertical: false)
+//            .frame(minWidth: geo.size.width, maxWidth: width)
         }
     }
 
