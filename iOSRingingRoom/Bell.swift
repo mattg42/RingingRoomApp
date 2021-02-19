@@ -96,49 +96,12 @@ class BellCircle: ObservableObject {
     
     var sortTimer = Timer()
     
-    func getRadius(baseRadius:CGFloat, iPad:Bool) -> CGFloat {
-        var returnValue = baseRadius
-        if !iPad {
-            if bellType == .tower {
-                switch self.size {
-                case 5, 6:
-                    returnValue -= 15
-    //            case 8:
-    //                returnValue -= 10
-                case 10:
-                    returnValue -= 10
-                    case 12, 14:
-                        returnValue -= 5
-            
-                default:
-                    returnValue -= 0
-                }
-            } else {
-                switch size {
-                case 4,5,8,12:
-                    returnValue += 5
-                default:
-                    returnValue += 0
-                }
-            }
-        } else {
-            if bellType == .tower {
-                switch size {
-                case 5:
-                    returnValue -= 40
-                default:
-                    returnValue += 0
-                }
-            } else {
-                returnValue += 10
-            }
-        }
-
-        if returnValue > 300 {
-            returnValue = 300
-        }
-        return returnValue
-    }
+    var oldScreenSize = CGSize(width: 0, height: 0)
+    var oldBellCircleSize = 0
+    
+    var imageSize = 0.0
+    var radius = 0.0
+    
     
     var gotBellPositions = false {
         willSet {
@@ -220,9 +183,19 @@ class BellCircle: ObservableObject {
         print("calculating")
         
         var currentAngle = startAngle
+        
         for _ in 0..<size {
             let x = -CGFloat(sin(Angle(degrees: currentAngle).radians)) * radius
-            let y = CGFloat(cos(Angle(degrees: currentAngle).radians)) * radius
+            var y = CGFloat(cos(Angle(degrees: currentAngle).radians)) * radius
+            
+            if size % 4 == 0 {
+                print("edited")
+                if ((90.0)...(270.0)).contains(currentAngle) {
+                    y -= 7.5
+                } else {
+                    y += 7.5
+                }
+            }
             
             let bellPos = CGPoint(x: center.x + x, y: center.y + y)
 
