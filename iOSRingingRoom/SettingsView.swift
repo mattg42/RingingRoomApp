@@ -154,13 +154,19 @@ struct SettingsView: View {
     }
     
     func logout() {
-        
+        let kcw = KeychainWrapper()
+
+        do {
+            try kcw.deletePasswordFor(account: User.shared.email)
+        } catch {
+            print("error deleting password")
+        }
+
         User.shared.objectWillChange.send()
         User.shared.reset()
         
         CommunicationController.token = nil
         UserDefaults.standard.set("", forKey: "userEmail")
-        UserDefaults.standard.set("", forKey: "userPassword")
         UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
         
         UserDefaults.standard.set("", forKey: "savedTower")
