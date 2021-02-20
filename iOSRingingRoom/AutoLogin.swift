@@ -53,7 +53,7 @@ struct AutoLogin: View {
             let queue = DispatchQueue.monitor
             monitor.start(queue: queue)
             self.comController = CommunicationController(sender: self, loginType: .auto)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                 login()
             }
 
@@ -63,7 +63,28 @@ struct AutoLogin: View {
     func login() {
         if monitor.currentPath.status == .satisfied || monitor.currentPath.status == .requiresConnection {
             print("sent login request")
-            self.comController.login(email: UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces), password: UserDefaults.standard.string(forKey: "userPassword")!)
+            let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
+            //remove in next beta version
+            let savedPassword = UserDefaults.standard.string(forKey: "userPassword") ?? ""
+            let kcw = KeychainWrapper()
+
+            if savedPassword != "" {
+                do {
+                    try kcw.storePasswordFor(account: email, password: savedPassword)
+                } catch {
+                    print("error saving password to keychain")
+                }
+                UserDefaults.standard.setValue("", forKey: "userPassword")
+            }
+            //
+            do {
+                print("got this far")
+                let password = try kcw.getPasswordFor(account: email)
+                print("retrieved password")
+                self.comController.login(email: email, password: password)
+            } catch {
+                unknownErrorAlert()
+            }
         } else {
             print("path unsatisfied")
             noInternetAlert()
@@ -94,6 +115,15 @@ struct AutoLogin: View {
 //        } else {
 //            unknownErrorAlert()
 //        }
+    }
+    
+    func upgradeSecurityAlert() {
+        alertTitle = "Error"
+        alertMessage = "We've upgraded your password security. Sorry, you'll need to login again."
+        alertCancelButton = .cancel(Text("OK"), action: {
+            AppController.shared.loginState = .standard
+        })
+        showingAlert = true
     }
     
     func unknownErrorAlert() {
