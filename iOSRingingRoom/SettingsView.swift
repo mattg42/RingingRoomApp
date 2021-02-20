@@ -172,6 +172,10 @@ struct SettingsView: View {
         UserDefaults.standard.set("", forKey: "savedTower")
         
         self.loggedIn = false
+        
+        AppController.shared.loginState = .standard
+        AppController.shared.state = .login
+        
         print("logged out")
     }
 }
