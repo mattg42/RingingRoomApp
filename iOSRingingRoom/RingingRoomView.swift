@@ -120,6 +120,8 @@ struct RingingRoomView: View {
                         .padding(.horizontal, 5)
                         ringingView
                     }
+                    .ignoresSafeArea(.keyboard, edges: .all)
+
                     
                     Color.primary.colorInvert().edgesIgnoringSafeArea(.all)
                         .offset(x: bellCircle.showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
