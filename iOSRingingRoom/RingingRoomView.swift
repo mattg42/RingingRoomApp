@@ -755,13 +755,14 @@ struct RopeCircle:View {
                             HStack {
                                 Text("\(i+1)")
                                     .font(.callout)
-                                    .frame(width: 25, height:18, alignment: .trailing)
+                                    .frame(width: 20, height:18, alignment: .trailing)
                                 Text(" \(self.bellCircle.assignments[i].name)")
                                     .font(.callout)
                                     .frame(width: 160, height:18, alignment: .leading)
+                                    
+//                                    .minimumScaleFactor(0.9)
                             }
                             .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
-
                         }
                     }
                     .disabled(bellCircle.size > 11 ? false : true)
@@ -975,14 +976,14 @@ struct RopeCircle:View {
             }
         } else {
         
-            if maxOverlap >= -7.5 {
+            if maxOverlap >= -5 {
                 newRadius = radius - 5
 
                 newImageSize = sin(theta) * newRadius * 2
                 return reduceOverlap(width: width, height: height, imageSize: newImageSize, radius: newRadius, theta: theta)
-            } else if maxOverlap < -12.5 {
+            } else if maxOverlap < -7.5 {
                 
-                newRadius = radius + 5
+                newRadius = radius + 2.5
                 
                 return reduceOverlap(width: width, height: height, imageSize: newImageSize, radius: newRadius, theta: theta)
                 
@@ -1000,22 +1001,22 @@ struct RopeCircle:View {
         if bellCircle.bellPositions.count == bellCircle.size {
             if bellCircle.gotBellPositions {
                 if bellCircle.perspective <= Int(bellCircle.size/2) {
-                    returnValue = bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y
+                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y) - CGFloat(bellCircle.imageSize) - 15
                 } else {
-                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - CGFloat(15)
+                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - CGFloat(bellCircle.imageSize) - CGFloat(15)
                 }
             }
         }
         
-        if bellCircle.bellType == .hand {
-            if bellCircle.size > 13 {
-        returnValue = returnValue - 100
-            }
-        } else {
-            if bellCircle.size == 16 {
-                returnValue -= 80
-            }
-        }
+//        if bellCircle.bellType == .hand {
+//            if bellCircle.size > 13 {
+//                returnValue = returnValue - 100
+//            }
+//        } else {
+////            if bellCircle.size == 16 {
+////                returnValue -= 80
+////            }
+//        }
         
         
         return returnValue
