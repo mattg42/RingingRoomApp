@@ -123,6 +123,16 @@ extension Array where Element==Tower {
         return nil
     }
     
+    var names:[String] {
+        get {
+            var arr = [String]()
+            for tower in self {
+                arr.append(tower.tower_name)
+            }
+            return arr
+        }
+    }
+    
 //    var dates:[Date] {
 //        get {
 //            var visiteds = [Date]()
