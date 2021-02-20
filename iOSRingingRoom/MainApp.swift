@@ -18,7 +18,7 @@ struct MainApp: View {
     @State var autoJoinTower = false
     @State var autoJoinTowerID = 0
 
-    var ringView = RingView()
+//    var ringView = RingView()
     var ringingRoomView = RingingRoomView()
 
     
@@ -42,7 +42,7 @@ struct MainApp: View {
             }, set: {
                 controller.selectedTab = $0
             })) {
-                ringView
+                RingView()
                     .tag(TabViewType.ring)
                     .tabItem {
                         Image(systemName: "list.bullet")

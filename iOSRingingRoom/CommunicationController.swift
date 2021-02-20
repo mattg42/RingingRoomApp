@@ -117,7 +117,7 @@ class CommunicationController {
                 User.shared.name = dataDict["username"] as! String
                 User.shared.email = dataDict["email"] as! String
                 DispatchQueue.main.async {
-                    User.shared.towerID = UserDefaults.standard.string(forKey: "\(User.shared.email)savedTower") ?? ""
+                    User.shared.towerID = UserDefaults.standard.integer(forKey: "\(User.shared.email)savedTower") ?? 0
                 }
             case .registerNewUser:
                 (self.sender as! AccountCreationView).receivedResponse(statusCode: statusCode, response: dataDict)
@@ -134,7 +134,6 @@ class CommunicationController {
 //                        "error converting response to a dictionary"
 //                    }
 //                }
-                print(towersDict)
                 DispatchQueue.main.async {
                     User.shared.myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
                     User.shared.firstTower = true
@@ -152,6 +151,7 @@ class CommunicationController {
                             User.shared.addTower(tower)
                         }
                     }
+                    print(User.shared.myTowers.names)
                     User.shared.sortTowers()
                     
                 }
