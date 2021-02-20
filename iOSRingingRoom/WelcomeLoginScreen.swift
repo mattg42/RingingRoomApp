@@ -215,7 +215,12 @@ struct WelcomeLoginScreen: View {
             DispatchQueue.main.async {
                 UserDefaults.standard.set(self.stayLoggedIn, forKey: "keepMeLoggedIn")
                 UserDefaults.standard.set(self.email, forKey: "userEmail")
-                UserDefaults.standard.set(self.password, forKey: "userPassword")
+                let kcw = KeychainWrapper()
+                do {
+                    try kcw.storePasswordFor(account: self.email, password: self.password)
+                } catch {
+                    print("error saving password")
+                }
                 AppController.shared.selectedTab = .ring
                 AppController.shared.state = .main
 //                self.presentMainApp()
