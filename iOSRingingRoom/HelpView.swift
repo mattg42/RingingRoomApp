@@ -10,19 +10,19 @@ import Foundation
 import SwiftUI
 import Combine
 
-class HelpDocumention {
+class HelpDocumentation {
     static let creatingAnAccount = """
 To help Ringing Room give you a safe, secure ringing experience and to help store your preferences, you will need an account to access Ringing Room. You can create an account by clicking the Settings tab at the bottom right of your screen. Your email address and an encrypted version of your password are stored securely on the Ringing Room server. They will not be shared with anyone for any reason.
 
-After you have registered, you will be automatically logged in. In the Settings view, your username will appear at the top of the screen. If you want to manage your account, such as changing your password, you will need to login on the Ringing Room website. These facilites will be added in a future version of the app.
+After you have registered, you will be automatically logged in. In the Settings view, your username will appear at the top of the screen. If you want to manage your account, such as changing your password, you will need to login on the Ringing Room website. These facilities will be added in a future version of the app.
 
 If you ever forget your password, you will need to go to ringingroom.com, where you can use the password reset link on the login page, which will send an email to your address on file with a link to reset your password. Note that this link is only good for 24 hours after being sent. Make sure to check your spam filter for the email if it doesn't arrive promptly.
 """
     
     static let creatingOrJoiningATower = """
-Creating a tower on Ringing Room is simple. Go to the Towers view and type your desired name into the box at the bottom of the page. Once you press Enter, you will be sent to a new tower with that name. Each tower has a unique 9-digit ID which can be shared to allow others to join that same tower.
+Creating a tower on Ringing Room is simple. Go to the Towers view and type your desired name into the box, labeled 'Create new tower', at the bottom of the page. Once you press Create Tower, you will be sent to a new tower with that name. Each tower has a unique 9-digit ID which can be shared to allow others to join that same tower.
 
-To join a tower, you need to know its 9-digit ID number, which you enter into the box at the bottom of the Towers view.
+To join a tower, you need to know its 9-digit ID number, which you enter into the first box at the bottom of the Towers view. Alternatively, if you have visited the tower before, then you can select it from the list of towers in the towers view. Then press Join Tower.
 """
     
     static let ringingTheBells = """
@@ -45,10 +45,10 @@ To prevent notifications from silencing the audio and distracting you while ring
 To stop your device going to sleep between rings because you don't touch the screen for a while, perhaps while chatting on Zoom or sitting out of a touch, you can set the Auto-Lock duration to Never. The Auto-Lock setting is in the Display & Brightness section of the Settings app.
 """
     
-    static let assinging = """
-The tower controls includes a list of users presently in the tower, which you can use to assign bells to particular ringers. To assign ringers, tap on the name of the ringer you would like to assign, then tap on the number of the bell you would like to assign them to. Tapping the \"x\" to the left a bell number will unassign the ringer from that bell. There is also an Unassign All button, which does what it says.
+    static let assigning = """
+The tower controls includes a list of users presently in the tower, which you can use to assign bells to particular ringers. To assign ringers, tap on the name of the ringer you would like to assign, then tap on the number of the bell you would like to assign them to. Tapping the \"x\" to the left a bell number will un-assign the ringer from that bell. There is also an Un-assign All button, which un-assigns every ringer.
 
-Assigning a user to a bell will have the effect of automatically rotating that ringer's \"perspective\" on the tower so that the bell is placed in the bottom right position. There is more about changing your perspetive in the section "Rotating the perspective of the bell circle". This will also make a large dedicated button for each assigned bell near the bottom of the screen. If a user is assigned to multiple bells, the lowest-numbered one will be placed on the right.
+Assigning a user to a bell will have the effect of automatically rotating that ringer's \"perspective\" on the tower so that the bell is placed in the bottom right position. There is more about changing your perspective in the section "Rotating the perspective of the bell circle". This will also make a large dedicated button for each assigned bell near the bottom of the screen. If a user is assigned to multiple bells, the lowest-numbered one will be placed on the right.
 
 There is also a button called 'Fill In'. This will randomly assign unassigned ringers to available bells. The Fill In button is only enabled if there are at least as many unassigned ringers as available bells.
 """
@@ -72,7 +72,7 @@ Host Mode is a special mode that can be enabled for towers in order to restrict 
 A tower host is someone who has special privileges at a Ringing Room virtual tower. You can think of this as being like a tower captain or a ringing master: A host is someone who might take charge of a practice. A tower can have multiple hosts who can share responsibility for running practices. You can add hosts to towers that you have created by going to the My Towers page on the ringingroom.com website, finding the tower you want, clicking the Settings button, and entering the email address of the Ringing Room account you want to add as a host in the box at the bottom left. You can remove hosts from a tower by clicking the \"X\" icon in the list of tower hosts. The creator of a tower is always a host there.
 
 If Host Mode is permitted at a tower, hosts have an extra switch in the tower controls, allowing them to enable or disable Host Mode. When a tower is in Host Mode, various restrictions are imposed:
-    • Only hosts may change the number of bells or switch between handbell and towerbell mode.
+    • Only hosts may change the number of bells or switch between handbell and tower-bell mode.
     • Non-hosts may only make calls when assigned to a bell.
     • Non-hosts may only ring bells that they are assigned to.
     • Only hosts may assign other ringers to bells.
@@ -178,7 +178,7 @@ struct CreatingAnAccountView:View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 10) {
-                Text(HelpDocumention.creatingAnAccount)
+                Text(HelpDocumentation.creatingAnAccount)
                 Spacer()
             }
         }
@@ -203,7 +203,7 @@ struct HintsAndTipsView:View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 10) {
-                Text(HelpDocumention.tips)
+                Text(HelpDocumentation.tips)
                 Spacer()
             }
         }
@@ -229,7 +229,7 @@ struct CreatingOrJoiningATowerView:View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 10) {
-                Text(HelpDocumention.creatingOrJoiningATower)
+                Text(HelpDocumentation.creatingOrJoiningATower)
                 Spacer()
             }
         }
@@ -254,7 +254,7 @@ struct RingingTheBellsView:View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 10) {
-                Text(HelpDocumention.ringingTheBells)
+                Text(HelpDocumentation.ringingTheBells)
                 Spacer()
             }
         }
@@ -279,7 +279,7 @@ struct MakingCallsView:View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 10) {
-                Text(HelpDocumention.makingCalls)
+                Text(HelpDocumentation.makingCalls)
                 Spacer()
             }
         }
@@ -302,7 +302,7 @@ struct LeavingATowerView:View {
     @Binding var isPresented:Bool
     var body:some View {
         VStack {
-            Text(HelpDocumention.leavingATower)
+            Text(HelpDocumentation.leavingATower)
             Spacer()
         }
         .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
@@ -328,37 +328,37 @@ struct QuickStartGuideTextView:View {
                     Text("Creating an account\n")
                         .font(.headline)
                         .bold()
-                    Text(HelpDocumention.creatingAnAccount)
+                    Text(HelpDocumentation.creatingAnAccount)
                 }
                 Group {
                     Text("\n\nCreating or joining a tower\n")
                         .font(.headline)
                         .bold()
-                    Text(HelpDocumention.creatingOrJoiningATower)
+                    Text(HelpDocumentation.creatingOrJoiningATower)
                 }
                 Group {
                     Text("\n\nRinging the bells\n")
                         .font(.headline)
                         .bold()
-                    Text(HelpDocumention.ringingTheBells)
+                    Text(HelpDocumentation.ringingTheBells)
                 }
                 Group {
                     Text("\n\nMaking calls\n")
                         .font(.headline)
                         .bold()
-                    Text(HelpDocumention.makingCalls)
+                    Text(HelpDocumentation.makingCalls)
                 }
                 Group {
                     Text("\n\nLeaving a tower\n")
                         .font(.headline)
                         .bold()
-                    Text(HelpDocumention.leavingATower)
+                    Text(HelpDocumentation.leavingATower)
                 }
                 Group {
                     Text("\n\nTips\n")
                         .font(.headline)
                         .bold()
-                    Text(HelpDocumention.tips)
+                    Text(HelpDocumentation.tips)
                 }
                 
             }
@@ -417,25 +417,25 @@ struct AdvancedFeaturesTextView:View {
                 Text("Assigning Ringers\n")
                 .font(.headline)
                 .bold()
-                Text(HelpDocumention.assinging)
+                Text(HelpDocumentation.assigning)
             }
             Group {
                 Text("\n\nRotating your perspective of the bell circle\n")
                 .font(.headline)
                 .bold()
-                Text(HelpDocumention.rotating)
+                Text(HelpDocumentation.rotating)
             }
             Group {
                 Text("\n\nManaging towers\n")
                 .font(.headline)
                 .bold()
-                Text(HelpDocumention.managingTowers)
+                Text(HelpDocumentation.managingTowers)
             }
             Group {
                 Text("\n\nHost and host mode\n")
                 .font(.headline)
                 .bold()
-                Text(HelpDocumention.hostMode)
+                Text(HelpDocumentation.hostMode)
             }
         }
         .padding()
@@ -451,7 +451,7 @@ struct AssigningRingersView:View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 0) {
-                Text(HelpDocumention.assinging)
+                Text(HelpDocumentation.assigning)
                 Spacer()
             }
         
@@ -477,7 +477,7 @@ struct RotateBellCircleView:View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 0) {
-                Text(HelpDocumention.rotating)
+                Text(HelpDocumentation.rotating)
                 Spacer()
             }
         
@@ -503,7 +503,7 @@ struct ManagingTowersView:View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 10) {
-                Text(HelpDocumention.managingTowers)
+                Text(HelpDocumentation.managingTowers)
                 Spacer()
             }
         
@@ -529,7 +529,7 @@ struct HostsAndHostModeView:View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 10) {
-                Text(HelpDocumention.hostMode )
+                Text(HelpDocumentation.hostMode )
                 Spacer()
             }
         
