@@ -20,7 +20,7 @@ class User:ObservableObject {
     var email:String = ""
     
     
-    @Published var towerID = ""
+    @Published var towerID = 0
     
     @Published var myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
     
@@ -41,7 +41,7 @@ class User:ObservableObject {
         name = ""
         email = ""
         
-        towerID = ""
+        towerID = 0
         
         myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
         

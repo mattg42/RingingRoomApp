@@ -27,6 +27,10 @@ class SocketIOManager: NSObject, ObservableObject {
     var setups = 0 {
         didSet {
             if setups >= 7 {
+                
+                let cc = CommunicationController(sender: self)
+                cc.getMyTowers()
+                
                 AppController.shared.state = .ringing
                 ignoreSetup = true
             }
@@ -150,7 +154,6 @@ class SocketIOManager: NSObject, ObservableObject {
     func leaveTower() {
         socket?.emit("c_user_left", ["user_name":User.shared.name, "user_token":CommunicationController.token!, "anonymous_user":false, "tower_id":bellCircle.towerID])
 //        if bellCircle.ringingroomIsPresented {
-        AppController.shared.state = .main
 //        }
         setups = 0
         ignoreSetup = false
@@ -161,6 +164,11 @@ class SocketIOManager: NSObject, ObservableObject {
         ChatManager.shared.canSeeMessages = false
         manager = nil
         ignoreSetup = false
+        
+        print(User.shared.myTowers.names)
+        
+        AppController.shared.state = .main
+
     }
     
     func getStatus() {
