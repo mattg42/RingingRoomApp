@@ -437,7 +437,7 @@ struct RingingView:View {
                                 }) {
                                     RingButton(number: String(bellCircle.size-i))
                                 }
-                                .buttonStyle(TouchDown(isAvailible: true))
+                                .buttonStyle(TouchDown(isAvailable: true))
                             }
                         }
                     }
@@ -452,21 +452,21 @@ struct RingingView:View {
                             CallButton(call: "Bob")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                         Button(action: {
                             makeCall("Single")
                         }) {
                             CallButton(call: "Single")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                         Button(action: {
                             makeCall("That's all")
                         }) {
                             CallButton(call: "That's all")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                     }
                     HStack(spacing: 5.0) {
                         Button(action: {
@@ -475,21 +475,21 @@ struct RingingView:View {
                             CallButton(call: "Look to")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                         Button(action: {
                             makeCall("Go")
                         }) {
                             CallButton(call: "Go")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                         Button(action: {
                             makeCall("Stand next")
                         }) {
                             CallButton(call: "Stand")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                     }
                 }
                 .disabled(!canCall())
@@ -505,21 +505,21 @@ struct RingingView:View {
                             CallButton(call: "Bob")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                         Button(action: {
                             makeCall("Single")
                         }) {
                             CallButton(call: "Single")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                         Button(action: {
                             makeCall("That's all")
                         }) {
                             CallButton(call: "That's all")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                     }
                     HStack(spacing: 5.0) {
                         Button(action: {
@@ -528,21 +528,21 @@ struct RingingView:View {
                             CallButton(call: "Look to")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                         Button(action: {
                             makeCall("Go")
                         }) {
                             CallButton(call: "Go")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                         Button(action: {
                             makeCall("Stand next")
                         }) {
                             CallButton(call: "Stand")
 
                         }
-                        .buttonStyle(TouchDown(isAvailible: true))
+                        .buttonStyle(TouchDown(isAvailable: true))
                     }
                 }
                 .disabled(!canCall())
@@ -558,7 +558,7 @@ struct RingingView:View {
                                 }) {
                                     RingButton(number: String(bellCircle.size-i))
                                 }
-                                .buttonStyle(TouchDown(isAvailible: true))
+                                .buttonStyle(TouchDown(isAvailable: true))
                             }
                         }
                     }
@@ -746,7 +746,7 @@ struct RopeCircle:View {
                     }
                     .disabled(bellCircle.bellMode == .ring ? !canRing(bellNumber) : false)
                     .opacity(bellCircle.bellMode == .ring ? canRing(bellNumber) ? 1 : 0.35 : 1)
-                    .buttonStyle(TouchDown(isAvailible: true))
+                    .buttonStyle(TouchDown(isAvailable: true))
                     .foregroundColor(.primary)
                     .position(self.getBellPositionsAndSizes(frame: geo.frame(in: .local), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
 //                    .position(self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
@@ -852,7 +852,7 @@ struct RopeCircle:View {
 //        radius *= 0.9
         
         let originalRadius = newRadius
-        var theta = Double.pi/Double(bellCircle.size)
+        let theta = Double.pi/Double(bellCircle.size)
                 
         newImageSize = sin(theta) * newRadius * 2
 //
@@ -891,7 +891,7 @@ struct RopeCircle:View {
         newRadius = min(newRadius, 300)
         let originalRadius = newRadius
 
-        var theta = Double.pi/Double(bellCircle.size)
+        let theta = Double.pi/Double(bellCircle.size)
                 
         newImageSize = sin(theta) * newRadius * 2
         
@@ -1002,14 +1002,16 @@ struct RopeCircle:View {
         var returnValue:CGFloat = 0
         if bellCircle.bellPositions.count == bellCircle.size {
             if bellCircle.gotBellPositions {
-                if bellCircle.perspective <= Int(bellCircle.size/2) {
-                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y) - CGFloat(bellCircle.imageSize) - 15
+                if bellCircle.size == 5 {
+                    returnValue = bellCircle.bellPositions[0].y - bellCircle.bellPositions[3].y
+                } else if bellCircle.perspective <= Int(bellCircle.size/2) {
+                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y) - CGFloat(bellCircle.imageSize)
                 } else {
-                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - CGFloat(bellCircle.imageSize) - CGFloat(15)
+                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - CGFloat(bellCircle.imageSize)
                 }
             }
         }
-        
+        returnValue -= 15
 //        if bellCircle.bellType == .hand {
 //            if bellCircle.size > 13 {
 //                returnValue = returnValue - 100
@@ -1098,7 +1100,7 @@ enum BellMode {
 //}
 
 struct TouchDown: PrimitiveButtonStyle {
-    var isAvailible:Bool
+    var isAvailable:Bool
     
     @State var opacity:Double = 1
     @State var disabled = false
@@ -1125,8 +1127,8 @@ struct TouchDown: PrimitiveButtonStyle {
                 },
                 perform: {}
             )
-            .opacity(isAvailible ? opacity : 0.35)
-            .disabled(isAvailible ? disabled : true)
+            .opacity(isAvailable ? opacity : 0.35)
+            .disabled(isAvailable ? disabled : true)
     }
 }
 
@@ -1776,8 +1778,8 @@ struct GeometryGetter: View {
 
 
 
-struct BellAssigmentViewModifier:ViewModifier {
-    var isAvailible:Bool
+struct BellAssignmentViewModifier:ViewModifier {
+    var isAvailable:Bool
     
     func body(content: Content) -> some View {
         ZStack {
@@ -1788,11 +1790,11 @@ struct BellAssigmentViewModifier:ViewModifier {
                 .background(Circle().fill(Color.main))
                 .foregroundColor(Color.main)
             content
-                .disabled(isAvailible ? false : true)
+                .disabled(isAvailable ? false : true)
                 .animation(.linear(duration: 0.1))
                 .foregroundColor(Color.white)
         }
-        .opacity(isAvailible ? 1 : 0.35)
+        .opacity(isAvailable ? 1 : 0.35)
         .fixedSize(horizontal: true, vertical: true)
         
     }
