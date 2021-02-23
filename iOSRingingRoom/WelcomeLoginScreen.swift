@@ -66,6 +66,8 @@ struct WelcomeLoginScreen: View {
     
     @State private var useNAServer = UserDefaults.standard.bool(forKey: "NA")
     
+    @State private var isUsingDevServer = UserDefaults.standard.bool(forKey: "useDevServer")
+    
     var body: some View {
         ZStack {
             backgroundColor.edgesIgnoringSafeArea(.all) //background view
@@ -124,6 +126,7 @@ struct WelcomeLoginScreen: View {
                     Text("Use NA Server")
                 }.onChange(of: useNAServer) { value in
                     if useNAServer {
+                        isUsingDevServer = false
                         CommunicationController.baseUrl = "https:/na.ringingroom.com/api/"
                     } else {
                         if dev {
