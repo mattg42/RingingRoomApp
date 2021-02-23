@@ -6,6 +6,12 @@
 	<array>
 		<string>webcredentials:ringingroom.com</string>
 		<string>applinks:ringingroom.com</string>
+		<string>webcredentials:www.ringingroom.com</string>
+		<string>applinks:www.ringingroom.com</string>
+		<string>webcredentials:ringingroom.co.uk</string>
+		<string>applinks:ringingroom.co.uk</string>
+		<string>webcredentials:www.ringingroom.co.uk</string>
+		<string>applinks:www.ringingroom.co.uk</string>
 	</array>
 </dict>
 </plist>

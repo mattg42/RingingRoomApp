@@ -12,14 +12,14 @@ import Network
 
 struct RingView: View {
     
-//    init() {
-//         UIScrollView.appearance().bounces = false
-//    }
+    //    init() {
+    //         UIScrollView.appearance().bounces = false
+    //    }
     
-//    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
+    //    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     
     @State private var comController:CommunicationController!
-
+    
     @State private var towerListSelection:Int = 0
     var towerLists = ["Recents", "Favourites", "Created", "Host"]
     
@@ -39,168 +39,195 @@ struct RingView: View {
     @State private var joinTowerYPosition:CGFloat = 0
     @State private var keyboardHeight:CGFloat = 0
     
-    @State private var towerID = (UserDefaults.standard.integer(forKey: "\(User.shared.email)savedTower") == 0) ? "" : String(UserDefaults.standard.integer(forKey: "\(User.shared.email)savedTower"))
+    @State private var towerID = ""
     @State private var towerName = ""
     
     @State private var viewOffset:CGFloat = 0
     
     @State private var isRelevant = false
-        
+    
     @State var response = [String:Any]()
     
     @State var monitor = NWPathMonitor()
     
     @State private var buttonHeight:CGFloat = 0
     
+    @State private var createTowerShowing = false
+    @State private var showingTowerIDField = false
     
     var body: some View {
-//        if !BellCircle.current.ringingroomIsPresented {
+        //        if !BellCircle.current.ringingroomIsPresented {
+        NavigationView {
             VStack(spacing: 8) {
-    //            Picker("Tower list selection", selection: $towerListSelection) {
-    //                ForEach(0 ..< towerLists.count) {
-    //                    Text(self.towerLists[$0])
-    //                }
-    //            }
-    //            .pickerStyle(SegmentedPickerStyle())
+                //            Picker("Tower list selection", selection: $towerListSelection) {
+                //                ForEach(0 ..< towerLists.count) {
+                //                    Text(self.towerLists[$0])
+                //                }
+                //            }
+                //            .pickerStyle(SegmentedPickerStyle())
+                HStack {
+                    Text("Recent towers - tap to join").font(.headline)
+                    Spacer()
+                }
                 ScrollView {
                     ScrollViewReader { reader in
                         VStack {
-        //                    if User.shared.myTowers[0].tower_id != 0 {
-                                ForEach(User.shared.myTowers) { tower in
-
-                                    if tower.tower_id != 0 {
-                                        Button(action: {
-                                            towerID = String(tower.tower_id)
-                                            UserDefaults.standard.set(tower.tower_id, forKey: "\(User.shared.email)savedTower")
-                                        }) {
-                                            HStack() {
-                                                Text(String(tower.tower_name))
-                                                .fontWeight((tower.tower_id == User.shared.towerID) ? Font.Weight.bold : nil)
-                                                Spacer()
-                                            }
-                                            .foregroundColor((tower.tower_id == User.shared.towerID) ? .main : Color.primary)
+                            //                    if User.shared.myTowers[0].tower_id != 0 {
+                            ForEach(User.shared.myTowers) { tower in
+                                
+                                if tower.tower_id != 0 {
+                                    Button(action: {
+                                        joinTower(id: tower.tower_id)
+                                    }) {
+                                        HStack() {
+                                            Text(String(tower.tower_name))
+                                            Spacer()
                                         }
-                                        .frame(height: 40)
-                                        .padding(.horizontal)
-                                        .buttonStyle(CustomButtonStyle())
-                                        .cornerRadius(10)
-                                        .id(tower.tower_id)
-                                    } else {
-                                        /*@START_MENU_TOKEN@*/EmptyView()/*@END_MENU_TOKEN@*/
+                                    }
+                                    .frame(height: 40)
+                                    .padding(.horizontal)
+                                    .contentShape(Rectangle())
+                                    .cornerRadius(10)
+                                    .id(tower.tower_id)
+                                } else {
+                                    /*@START_MENU_TOKEN@*/EmptyView()/*@END_MENU_TOKEN@*/
+                                }
+                            }
+                            //                    }
+                        }
+                        //                        .onChange(of: User.shared.myTowers, perform: { value in
+                        //                            reader.scrollTo(user.myTowers.first!.tower_id)
+                        //                        })
+                        //                        //                    .onReceive(NotificationCenter.default.publisher(for: Notification.Name.gotMyTowers)) { _ in
+                        //                        //                        reader.scrollTo(user.myTowers.last!.tower_id)
+                        //                        //                    }
+                        //                        .onAppear {
+                        //                            reader.scrollTo(user.myTowers.first!.tower_id)
+                        //                        }
+                    }
+                }
+                .padding(.bottom, 5)
+                
+                Delimiter()
+                
+                DisclosureGroup(
+                    isExpanded: $showingTowerIDField,
+                    content: {
+                        HStack {
+                            ZStack {
+                                TextField("Tower ID", text: $towerID)
+                                    .disabled(!User.shared.loggedIn)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .disableAutocorrection(true)
+                                    .autocapitalization(.none)
+                                    .onChange(of: towerID, perform: { value in
+                                        if Int(towerID) == nil || towerID.contains("0") {
+                                            towerID = towerID.filter("123456789".contains)
+                                        }
+                                        print(towerID)
+                                    })
+                                if towerID.count > 0 {
+                                    HStack {
+                                        Spacer()
+                                        Button(action: {
+                                            towerID = ""
+                                        }) {
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    .padding(5)
+                                }
+                            }
+                            GeometryReader { geo in
+                                Button(action: { self.joinTower(id: Int(towerID)!) } ) {
+                                    ZStack {
+                                        Color.main
+                                            .cornerRadius(5)
+                                        Text("Join Tower")
+                                            .foregroundColor(.white)
                                     }
                                 }
-        //                    }
-                        }
-                        .onChange(of: User.shared.myTowers, perform: { value in
-                            reader.scrollTo(user.myTowers.last!.tower_id)
-                        })
-    //                    .onReceive(NotificationCenter.default.publisher(for: Notification.Name.gotMyTowers)) { _ in
-    //                        reader.scrollTo(user.myTowers.last!.tower_id)
-    //                    }
-                        .onAppear {
-                            reader.scrollTo(user.myTowers.last!.tower_id)
-                        }
-                    }
-                }
-                HStack {
-                    Text(getTowerIDHeader())
-                        .foregroundColor(.secondary)
-                        .font(.footnote)
-                    Spacer()
-                }
-                HStack {
-                    ZStack {
-                        TextField("Tower ID", text: $towerID)
-                                .disabled(!User.shared.loggedIn)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .disableAutocorrection(true)
-                            .autocapitalization(.none)
-                            .onChange(of: towerID, perform: {
-                                if Int(towerID) == nil || towerID.contains("0") {
-                                    towerID = towerID.filter("123456789".contains)
+                                .opacity(User.shared.loggedIn ? String(towerID).count != 0 ? 1 : 0.35 : 0.35)
+                                .disabled((User.shared.loggedIn ? String(towerID).count != 0 ? false : true : true))
+                                .onAppear(perform: {
+                                    self.buttonHeight = geo.size.height
+
+                                })
+                                .alert(isPresented: self.$showingAlert) {
+                                    Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
                                 }
-                                print(towerID)
-                                    UserDefaults.standard.set(Int($0), forKey: "\(User.shared.email)savedTower")
-                                    User.shared.towerID = Int(towerID) ?? 0
+                            }
+                            
 
-                            })
-                        if towerID.count > 0 {
+                            //                    .frame(height: 45)
+                            //                    .fixedSize(horizontal: false, vertical: true)
+                        }
+                        
+                        .padding(.vertical, 8)
+                        
+                        .fixedSize(horizontal: false, vertical: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/) },
+                    label: { Button(action: {
+                        withAnimation {
+                            showingTowerIDField.toggle()
+                        }
+                    }) {
                         HStack {
-                            Spacer()
-                            Button(action: {
-                                towerID = ""
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        .padding(5)
-                        }
-                    }
-                    GeometryReader { geo in
-                        Button(action: self.joinTower) {
-                            ZStack {
-                                Color.main
-                                    .cornerRadius(5)
-                                Text("Join Tower")
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        .opacity(User.shared.loggedIn ? String(towerID).count != 0 ? 1 : 0.35 : 0.35)
-                        .disabled((User.shared.loggedIn ? String(towerID).count != 0 ? false : true : true))
-                        .onAppear(perform: {
-                            self.buttonHeight = geo.size.height
-                            var pos = geo.frame(in: .global).midY
-                            pos += geo.frame(in: .global).height/2 + 10
-                            print("pos", pos)
-                            pos = UIScreen.main.bounds.height - pos
-                            self.joinTowerYPosition = pos
-                        })
-                            .alert(isPresented: self.$showingAlert) {
-                                Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
-                        }
-                    }
-//                    .frame(height: 45)
-//                    .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.bottom, 8)
-
-                .fixedSize(horizontal: false, vertical: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
-                HStack {
-                    Text("Create new tower")
-                        .foregroundColor(.secondary)
-                        .font(.footnote)
-                    Spacer()
-                }
-                ZStack {
-                    TextField("Enter name of new tower", text: $towerName).textFieldStyle(RoundedBorderTextFieldStyle())
-                    if towerName.count > 0 {
-                    HStack {
+                        Text("Enter existing tower ID").font(.headline)
                         Spacer()
-                        Button(action: {
-                            towerName = ""
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
                         }
-                    }
-                    .padding(5)
-                    }
-                }
-                ZStack {
-                    Button(action: self.createTower) {
+                    }}
+                )
+                
+                Delimiter()
+                
+                DisclosureGroup(
+                    isExpanded: $createTowerShowing,
+                    content: {
                         ZStack {
-                            Color.main
-                                .cornerRadius(5)
-                            Text("Create Tower")
-                                .foregroundColor(.white)
+                            TextField("Enter name of new tower", text: $towerName).textFieldStyle(RoundedBorderTextFieldStyle())
+
+                            if towerName.count > 0 {
+                            HStack {
+                                Spacer()
+                                Button(action: {
+                                    towerName = ""
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(5)
+                            }
                         }
-                        .frame(height: buttonHeight)
+                        .padding(.top, 8)
+                        ZStack {
+                            Button(action: self.createTower) {
+                                ZStack {
+                                    Color.main
+                                        .cornerRadius(5)
+                                    Text("Create Tower")
+                                        .foregroundColor(.white)
+                                }
+                                .frame(height: 35)
+                            }
+                            .opacity(User.shared.loggedIn ? String(towerName).count != 0 ? 1 : 0.35 : 0.35)
+                            .disabled((User.shared.loggedIn ? String(towerName).count != 0 ? false : true : true))
+                            
+                        }
+                    },
+                    label: { Button(action: {
+                        withAnimation {
+                            createTowerShowing.toggle()
+                        }
+                    }) {
+                        HStack {
+                            Text("Create new tower").font(.headline)
+                            Spacer()
+                        }
                     }
-                    .opacity(User.shared.loggedIn ? String(towerName).count != 0 ? 1 : 0.35 : 0.35)
-                    .disabled((User.shared.loggedIn ? String(towerName).count != 0 ? false : true : true))
-                    
-                }
+                    }
+                )
                 
             }
             .onAppear(perform: {
@@ -209,20 +236,19 @@ struct RingView: View {
                 monitor.start(queue: queue)
             })
             .padding()
-//        } else {
-//            ringingRoomView
-//        }
-
-//        .onReceive(BellCircle.current.objectWillChange, perform: { _ in
-//            
-//        })
+            .navigationBarTitle("Towers")
+        }
+        //        } else {
+        //            ringingRoomView
+        //        }
+        
+        //        .onReceive(BellCircle.current.objectWillChange, perform: { _ in
+        //
+        //        })
     }
     
     func getTowerIDHeader() -> String {
-        if let tower = User.shared.myTowers.towerForID(User.shared.towerID) {
-            return "ID of selected tower (\(tower.tower_name)):"
-        }
-        return "Join an existing tower"
+        return "Enter existing tower ID"
     }
     
     func getOffset() -> CGFloat {
@@ -241,63 +267,85 @@ struct RingView: View {
     
     func createTower() {
         DispatchQueue.global(qos: .userInteractive).async {
-        if monitor.currentPath.status == .satisfied {
-            print("joined tower")
-
-            comController.createTower(name: towerName.trimmingCharacters(in: .whitespaces))
-
-            //create new tower
-        } else {
-            noInternetAlert()
-        }
+            if monitor.currentPath.status == .satisfied {
+                print("joined tower")
+                
+                comController.createTower(name: towerName.trimmingCharacters(in: .whitespaces))
+                
+                //create new tower
+            } else {
+                noInternetAlert()
+            }
         }
     }
     
-    func joinTower() {
+    func joinTower(id: Int) {
         DispatchQueue.global(qos: .userInteractive).async {
-        if monitor.currentPath.status == .satisfied {
-            print("joined tower")
-
-                self.getTowerConnectionDetails()
-
-            //create new tower
-        } else {
-            noInternetAlert()
-        }
+            if monitor.currentPath.status == .satisfied {
+                print("joined tower")
+                
+                self.getTowerConnectionDetails(id: id)
+                
+                //create new tower
+            } else {
+                noInternetAlert()
+            }
         }
         
     }
     
-    func getTowerConnectionDetails() {
-        comController.getTowerDetails(id: User.shared.towerID)
+    func getTowerConnectionDetails(id: Int) {
+        comController.getTowerDetails(id: id)
     }
+    
+    @State var towerInQueue = 0
     
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
         if statusCode == 404 {
             noTowerAlert()
         } else if statusCode == 200 {
-//            if user.myTowers.towerForID(response["tower_id"] as! Int) == nil {
-//                self.response = response
-//                comController.getMyTowers()
-//            } else {
-                towerID = String(response["tower_id"] as! Int)
-                BellCircle.current.towerName = response["tower_name"] as! String
-                BellCircle.current.towerID = response["tower_id"] as! Int
-                BellCircle.current.isHost = user.myTowers.towerForID(response["tower_id"] as! Int)?.host ?? false
-                
-    //            comController.getHostModePermitted(BellCircle.current.towerID)
-                SocketIOManager.shared.connectSocket(server_ip: response["server_address"] as! String)
-//            }
+            //            if user.myTowers.towerForID(response["tower_id"] as! Int) == nil {
+            //                self.response = response
+            //                comController.getMyTowers()
+            //            } else {
+            BellCircle.current.towerName = response["tower_name"] as! String
+            BellCircle.current.towerID = response["tower_id"] as! Int
+            BellCircle.current.serverAddress = response["server_address"] as! String
+            
+            if let tower = user.myTowers.towerForID(BellCircle.current.towerID) {
+                BellCircle.current.isHost = tower.host
+                if !tower.gotSettings {
+                    print("in queue")
+                    towerInQueue = BellCircle.current.towerID
+                } else {
+                    BellCircle.current.hostModeEnabled = tower.hostModePermitted
+                    print(tower.additionalSizes, "additional")
+                    BellCircle.current.additionalSizes = tower.additionalSizes
+                    SocketIOManager.shared.setups += 1
+                }
+            } else {
+                BellCircle.current.needsTowerInfo = true
+            }
+            
+            
+            
+            //            comController.getHostModePermitted(BellCircle.current.towerID)
+            SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
+            //            }
         } else {
             unknownErrorAlert()
         }
     }
     
-//    func updatedMyTowers() {
-//        DispatchQueue.main.async {
-//            NotificationCenter.default.post(name: Notification.Name("gotMyTowers"), object: nil)
-//        }
-//    }
+    func receivedTowerSettings(id: Int) {
+        if id == towerInQueue {
+            let tower = User.shared.myTowers.towerForID(id)!
+            BellCircle.current.hostModeEnabled = tower.hostModePermitted
+            BellCircle.current.additionalSizes = tower.additionalSizes
+            BellCircle.current.needsTowerInfo = false
+            SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
+        }
+    }
     
     func presentRingingRoomView() {
         print("going to ringingroom view")
@@ -323,20 +371,19 @@ struct RingView: View {
         alertTitle = "Connection error"
         alertMessage = "Your device is not connected to the internet. Please check your internet connection and try again."
         
-        alertCancelButton = .cancel(Text("Try again."), action: {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: joinTower)
-        })
-
+        alertCancelButton = .cancel(Text("OK"))
+        
         showingAlert = true
     }
     
 }
 
-struct CustomButtonStyle:ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-        .opacity(1)
-        .contentShape(Rectangle())
+struct Delimiter:View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.secondary)
+            .opacity(0.4)
+            .frame(height: 2)
     }
 }
 

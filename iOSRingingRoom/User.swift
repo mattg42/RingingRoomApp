@@ -20,7 +20,7 @@ class User:ObservableObject {
     var email:String = ""
     
     
-    @Published var towerID = 0
+//    @Published var towerID = 0
     
     @Published var myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
     
@@ -40,9 +40,7 @@ class User:ObservableObject {
         loggedIn = false
         name = ""
         email = ""
-        
-        towerID = 0
-        
+                
         myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
         
         firstTower = true
@@ -52,7 +50,7 @@ class User:ObservableObject {
 //        DispatchQueue.main.async {
             self.objectWillChange.send()
 //            print(self.myTowers.dates)
-            self.myTowers.sort(by: { $0.visited < $1.visited } )
+            self.myTowers.sort(by: { $0.visited > $1.visited } )
             print("sorted myTowers")
 //            NotificationCenter.default.post(name: Notification.Name.gotMyTowers, object: self)
 //        }
