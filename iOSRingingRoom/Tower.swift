@@ -23,6 +23,12 @@ class Tower:Identifiable, Hashable {
     var creator:Bool
     var bookmark:Bool
     
+    var hostModePermitted = false
+    var additionalSizes = false
+    
+    var gotSettings = false
+    var inMyTowers = false
+    
     init(id:Int, name:String, host:Int, recent:Int, visited:String, creator:Int, bookmark:Int) {
         var date = ""
         if visited != "" {
