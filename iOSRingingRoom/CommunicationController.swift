@@ -21,7 +21,7 @@ class CommunicationController {
         self.loginType = loginType
     }
     
-    func sendRequest(method:String, endpoint:String, headers:[String:String]? = nil, json:[String:String]? = nil, type:RequestType) {
+    func sendRequest(method:String, endpoint:String, headers:[String:String]? = nil, json:[String:String]? = nil, type:RequestType, towerID:Int = 0) {
         let baseUrl = "https:/ringingroom.com/api/"
         
         // Create URL Request
@@ -116,9 +116,6 @@ class CommunicationController {
             case .getUserDetails:
                 User.shared.name = dataDict["username"] as! String
                 User.shared.email = dataDict["email"] as! String
-                DispatchQueue.main.async {
-                    User.shared.towerID = UserDefaults.standard.integer(forKey: "\(User.shared.email)savedTower") ?? 0
-                }
             case .registerNewUser:
                 (self.sender as! AccountCreationView).receivedResponse(statusCode: statusCode, response: dataDict)
 //            case .modifyUserDetails:
@@ -148,6 +145,7 @@ class CommunicationController {
                                 tower = Tower(id: Int(dict.value["tower_id"] as! String)!, name: dict.value["tower_name"] as! String, host: dict.value["host"] as! Int, recent: dict.value["recent"] as! Int, visited: dict.value["visited"] as! String, creator: dict.value["creator"] as! Int, bookmark: dict.value["bookmark"] as! Int)
 
                             }
+                            tower.inMyTowers = true
                             User.shared.addTower(tower)
                         }
                     }
@@ -167,6 +165,9 @@ class CommunicationController {
                 case .settings:
                     (self.sender as! SettingsView).receivedMyTowers(statusCode: statusCode, responseData: dataDict)
                 default:
+                    if let sender = self.sender as? SocketIOManager {
+                        sender.gotMyTowers()
+                    }
                     print("not login")
 //                case nil:
 //                    (self.sender as! RingView).updatedMyTowers()
@@ -180,7 +181,16 @@ class CommunicationController {
             case .createTower:
                 self.getTowerDetails(id: dataDict["tower_id"] as! Int)
 //            case .deleteTower:
-//            case .getTowerSettings:
+            case .getTowerSettings:
+                let tower = User.shared.myTowers.towerForID(towerID)!
+                tower.hostModePermitted = dataDict["host_mode_enabled"] as? Bool ?? false
+                tower.additionalSizes = dataDict["additional_sizes_enabled"] as? Bool ?? true
+                tower.gotSettings = true
+                if let ringView = self.sender as? RingView {
+                    ringView.receivedTowerSettings(id: tower.tower_id)
+                } else {
+                    SocketIOManager.shared.receivedTowerSettings(id: tower.tower_id)
+                }
 //            case .modifyTowerSettings:
 //            case .addHost:
 //            case .removeHost:
@@ -227,6 +237,12 @@ class CommunicationController {
         let headers = ["Authorization":"Bearer \(CommunicationController.token!)"]
         
         sendRequest(method: "GET", endpoint: "my_towers", headers: headers, type: .getMyTowers)
+    }
+    
+    func getTowerSettings(id: Int) {
+        let headers = ["Authorization":"Bearer \(CommunicationController.token!)"]
+        
+        sendRequest(method: "GET", endpoint: "tower/\(id)/settings", headers: headers, type: .getTowerSettings, towerID: id)
     }
     
 }

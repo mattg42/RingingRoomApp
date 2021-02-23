@@ -1155,13 +1155,15 @@ struct TowerControlsView:View {
 
     @State private var selectedUser = 0
 
-    @State private var newAssigment = false
+    @State private var newAssignment = false
     
     @State private var towerSelectionCount = 0
     @State private var bellTypeSelectionCount = 0
 
     var bellTypes = [BellType.tower, BellType.hand]
-    var towerSizes = [4, 5, 6, 8, 10, 12, 14, 16]
+    var towerSizes:[Int] {
+        bellCircle.towerSizes
+    }
 
     
     
