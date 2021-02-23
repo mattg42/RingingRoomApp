@@ -122,14 +122,33 @@ struct WelcomeLoginScreen: View {
                     Toggle(isOn: $stayLoggedIn) {
                         Text("Keep me logged in")
                     }
+                Toggle(isOn: $isUsingDevServer) {
+                    Text("Use dev server")
+                }
+                .onChange(of: isUsingDevServer, perform: { value in
+                    UserDefaults.standard.setValue(value, forKey: "useDevServer")
+
+                    if isUsingDevServer {
+                        
+                        CommunicationController.baseUrl = "https:/dev.ringingroom.com/api/"
+                        useNAServer = false
+                    } else {
+                        if useNAServer {
+                            CommunicationController.baseUrl = "https:/na.ringingroom.com/api/"
+                        } else {
+                            CommunicationController.baseUrl = "https:/ringingroom.com/api/"
+                        }
+                    }
+                })
                 Toggle(isOn: $useNAServer) {
                     Text("Use NA Server")
                 }.onChange(of: useNAServer) { value in
+                    UserDefaults.standard.set(useNAServer, forKey: "NA")
                     if useNAServer {
                         isUsingDevServer = false
                         CommunicationController.baseUrl = "https:/na.ringingroom.com/api/"
                     } else {
-                        if dev {
+                        if isUsingDevServer {
                             CommunicationController.baseUrl = "https:/dev.ringingroom.com/api/"
                         } else {
                             CommunicationController.baseUrl = "https:/ringingroom.com/api/"
