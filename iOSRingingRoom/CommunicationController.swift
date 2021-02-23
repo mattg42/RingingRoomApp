@@ -16,7 +16,7 @@ class CommunicationController {
     
     var sender:Any
     
-    static var baseUrl = UserDefaults.standard.bool(forKey: "useDevServer") ? "https:/dev.ringingroom.com/api/" : "https:/ringingroom.com/api/"
+    static var baseUrl = UserDefaults.standard.bool(forKey: "NA") ? "https:/NA.ringingroom.com/api/" : "https:/ringingroom.com/api/"
     
     init(sender:Any, loginType:LoginType? = nil) {
         self.sender = sender
@@ -25,7 +25,7 @@ class CommunicationController {
     
     func sendRequest(method:String, endpoint:String, headers:[String:String]? = nil, json:[String:String]? = nil, type:RequestType, towerID:Int = 0) {
         // Create URL Request
-        guard let requestUrl = URL(string: baseUrl+endpoint) else { return }
+        guard let requestUrl = URL(string: CommunicationController.baseUrl+endpoint) else { return }
         
         var request = URLRequest(url: requestUrl)
         // Specify HTTP Method to use
