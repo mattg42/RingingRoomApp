@@ -64,6 +64,8 @@ struct WelcomeLoginScreen: View {
     
     @State private var monitor = NWPathMonitor()
     
+    @State private var useNAServer = UserDefaults.standard.bool(forKey: "NA")
+    
     var body: some View {
         ZStack {
             backgroundColor.edgesIgnoringSafeArea(.all) //background view
@@ -118,6 +120,19 @@ struct WelcomeLoginScreen: View {
                     Toggle(isOn: $stayLoggedIn) {
                         Text("Keep me logged in")
                     }
+                Toggle(isOn: $useNAServer) {
+                    Text("Use NA Server")
+                }.onChange(of: useNAServer) { value in
+                    if useNAServer {
+                        CommunicationController.baseUrl = "https:/na.ringingroom.com/api/"
+                    } else {
+                        if dev {
+                            CommunicationController.baseUrl = "https:/dev.ringingroom.com/api/"
+                        } else {
+                            CommunicationController.baseUrl = "https:/ringingroom.com/api/"
+                        }
+                    }
+                }
                     Button(action: login) {
                         ZStack {
                             Color.main

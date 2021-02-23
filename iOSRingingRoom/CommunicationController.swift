@@ -21,9 +21,9 @@ class CommunicationController {
         self.loginType = loginType
     }
     
+    static var baseUrl = UserDefaults.standard.bool(forKey: "useDevServer") ? "https:/dev.ringingroom.com/api/" : UserDefaults.standard.bool(forKey: "NA") ? "https:/na.ringingroom.com/api/" : "https:/ringingroom.com/api/"
+    
     func sendRequest(method:String, endpoint:String, headers:[String:String]? = nil, json:[String:String]? = nil, type:RequestType, towerID:Int = 0) {
-        let baseUrl = "https:/ringingroom.com/api/"
-        
         // Create URL Request
         guard let requestUrl = URL(string: baseUrl+endpoint) else { return }
         
