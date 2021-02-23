@@ -24,13 +24,14 @@ class SocketIOManager: NSObject, ObservableObject {
     var reconnectAttempt = false
     var server_ip = ""
     
+    var cc = CommunicationController(sender: self)
+    
     var setups = 0 {
         didSet {
-            if setups >= 7 {
+            if setups == 8 {
                 
-                let cc = CommunicationController(sender: self)
                 cc.getMyTowers()
-                
+                print(setups)
                 AppController.shared.state = .ringing
                 ignoreSetup = true
             }
@@ -44,6 +45,26 @@ class SocketIOManager: NSObject, ObservableObject {
         addListeners()
         socket?.connect()
         print(bellCircle.towerID)
+    }
+    
+    func gotMyTowers() {
+        if let tower = User.shared.myTowers.towerForID(bellCircle.towerID) {
+            cc.getTowerSettings(id: tower.tower_id)
+        } else {
+            if bellCircle.needsTowerInfo {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.cc.getMyTowers()
+                }
+            }
+        }
+    }
+    
+    func receivedTowerSettings(id: Int) {
+        let tower = User.shared.myTowers.towerForID(id)!
+        BellCircle.current.hostModeEnabled = tower.hostModePermitted
+        BellCircle.current.additionalSizes = tower.additionalSizes
+        bellCircle.needsTowerInfo = false
+        setups += 1
     }
     
     func addListeners() {
@@ -60,6 +81,11 @@ class SocketIOManager: NSObject, ObservableObject {
         socket?.on(clientEvent: .connect) { data, ack in
             print(self.socket?.status)
             self.socket?.emit("c_join", ["tower_id": self.bellCircle.towerID, "user_token": CommunicationController.token!, "anonymous_user": false])
+            if self.bellCircle.needsTowerInfo {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.cc.getMyTowers()
+                }
+            }
         }
         
         socket?.on("s_size_change") { data, ack in

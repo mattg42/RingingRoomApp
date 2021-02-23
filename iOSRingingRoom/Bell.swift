@@ -33,6 +33,8 @@ class BellCircle: ObservableObject {
     
     @Published var ringingroomIsPresented = false
     
+    var serverAddress = ""
+    
     static var current = BellCircle()
     
     static var sounds = [
@@ -63,6 +65,7 @@ class BellCircle: ObservableObject {
     
     var isHost = false
     var hostModeEnabled = false
+    var hostModePermitted = false
     
     var audioController = AudioController()
     
@@ -102,6 +105,13 @@ class BellCircle: ObservableObject {
     var imageSize = 0.0
     var radius = 0.0
     
+    var additionalSizes = false
+    
+    var towerSizes:[Int] {
+        additionalSizes ? [4, 5, 6, 8, 10, 12, 14, 16] : [4, 6, 8, 10, 12]
+    }
+    
+    var needsTowerInfo = false
     
     var gotBellPositions = false {
         willSet {
@@ -163,13 +173,13 @@ class BellCircle: ObservableObject {
     var oldRadius:CGFloat = 0
     var oldCenter:CGPoint = CGPoint(x: 0, y: 0)
     var oldSize = 0
-    var oldPerpespective = 0
+    var oldPerspective = 0
     
     func getNewPositions(radius:CGFloat, center:CGPoint) -> [CGPoint] {
         if radius == oldRadius {
             if center == oldCenter {
                 if size == oldSize {
-                    if perspective == oldPerpespective {
+                    if perspective == oldPerspective {
                         return bellPositions
                     }
                 }
@@ -213,7 +223,7 @@ class BellCircle: ObservableObject {
         oldRadius = radius
         oldCenter = center
         oldSize = size
-        oldPerpespective = perspective
+        oldPerspective = perspective
         print(size, bellPositions.count)
 //        print(center)
 //        for pos in newPositions {
