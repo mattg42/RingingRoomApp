@@ -175,7 +175,6 @@ struct SettingsView: View {
         
         AppController.shared.loginState = .standard
         AppController.shared.state = .login
-        
         print("logged out")
     }
 }
