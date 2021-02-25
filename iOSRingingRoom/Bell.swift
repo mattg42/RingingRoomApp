@@ -105,7 +105,7 @@ class BellCircle: ObservableObject {
     var imageSize = 0.0
     var radius = 0.0
     
-    var additionalSizes = false
+    var additionalSizes = true
     
     var towerSizes:[Int] {
         additionalSizes ? [4, 5, 6, 8, 10, 12, 14, 16] : [4, 6, 8, 10, 12]
@@ -388,6 +388,9 @@ class BellCircle: ObservableObject {
     }
     
     func userLeft(id:Int) {
+        for i in assignments.allIndecesOfRingerForID(id) ?? [Int]() {
+            unAssign(at: i+1)
+        }
         users.removeRingerForID(id)
         sortUsers()
     }
