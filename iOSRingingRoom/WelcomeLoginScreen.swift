@@ -65,9 +65,7 @@ struct WelcomeLoginScreen: View {
     @State private var monitor = NWPathMonitor()
     
     @State private var useNAServer = UserDefaults.standard.bool(forKey: "NA")
-    
-    @State private var isUsingDevServer = UserDefaults.standard.bool(forKey: "useDevServer")
-    
+        
     var body: some View {
         ZStack {
             backgroundColor.edgesIgnoringSafeArea(.all) //background view
@@ -141,11 +139,10 @@ struct WelcomeLoginScreen: View {
                     }
                 })
                 Toggle(isOn: $useNAServer) {
-                    Text("Use NA Server")
+                    Text("Use North American Server")
                 }.onChange(of: useNAServer) { value in
                     UserDefaults.standard.set(useNAServer, forKey: "NA")
                     if useNAServer {
-                        isUsingDevServer = false
                         CommunicationController.baseUrl = "https:/na.ringingroom.com/api/"
                     } else {
                         if isUsingDevServer {
@@ -153,6 +150,7 @@ struct WelcomeLoginScreen: View {
                         } else {
                             CommunicationController.baseUrl = "https:/ringingroom.com/api/"
                         }
+
                     }
                 }
                     Button(action: login) {
