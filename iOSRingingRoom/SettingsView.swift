@@ -86,8 +86,13 @@ struct SettingsView: View {
                 }
                 VStack {
                     Spacer()
-                    Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String) (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String))")
-                        .font(.footnote)
+                    #if DEBUG
+                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String) (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)) debug")
+                            .font(.footnote)
+                    #else
+                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String) (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String))")
+                            .font(.footnote)
+                    #endif
                     Text("By Matthew Goodship")
                         .font(.footnote)
                 }
