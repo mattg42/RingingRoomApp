@@ -548,7 +548,7 @@ struct RingingView:View {
                 .disabled(!canCall())
                 .opacity(canCall() ? 1 : 0.35)
                 .padding(.horizontal, 5)
-                .padding(.bottom, 5)
+                
                 if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
                     HStack(spacing: 5.0) {
                         ForEach(0..<bellCircle.size, id: \.self) { i in
@@ -562,6 +562,7 @@ struct RingingView:View {
                             }
                         }
                     }
+                    .padding(.top, 5)
                     .padding(.horizontal, 5)
 
                 }
