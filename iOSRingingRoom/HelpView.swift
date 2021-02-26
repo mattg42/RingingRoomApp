@@ -20,9 +20,9 @@ If you ever forget your password, you will need to go to ringingroom.com, where 
 """
     
     static let creatingOrJoiningATower = """
-Creating a tower on Ringing Room is simple. Go to the Towers view and type your desired name into the box, labeled 'Create new tower', at the bottom of the page. Once you press Create Tower, you will be sent to a new tower with that name. Each tower has a unique 9-digit ID which can be shared to allow others to join that same tower.
+To join a tower, if you have visited it before, you can just press on its name in the list of towers. If you want to join a tower you haven't been to before, then press on 'Enter existing tower ID', to reveal a text box and a Join Tower button. Enter the desired tower's 9 digit ID number in the text box and press Join Tower. The Join Tower button is only enabled when 9 digits are in the text box.
 
-To join a tower, you need to know its 9-digit ID number, which you enter into the first box at the bottom of the Towers view. Alternatively, if you have visited the tower before, then you can select it from the list of towers in the towers view. Then press Join Tower.
+Creating a tower on Ringing Room is simple. Go to the Towers view and press on 'Create new tower' to reveal a text box and the Create Tower button. Next, type the name of the new tower into the text box. Press Create Tower and you will be sent to a new tower with that name.
 """
     
     static let ringingTheBells = """
@@ -137,7 +137,7 @@ struct QuickStartGuideView:View {
         Form {
             Section {
                 NavigationLink("Creating an account", destination: CreatingAnAccountView(asSheet: self.asSheet, isPresented: self.$isPresented))
-                NavigationLink("Creating or joining a tower", destination: CreatingOrJoiningATowerView(asSheet: self.asSheet, isPresented: self.$isPresented))
+                NavigationLink("Joining or creating a tower", destination: CreatingOrJoiningATowerView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Ringing the Bells", destination: RingingTheBellsView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Making calls", destination: MakingCallsView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Leaving a tower", destination: LeavingATowerView(asSheet: self.asSheet, isPresented: self.$isPresented))
@@ -242,7 +242,7 @@ struct CreatingOrJoiningATowerView:View {
             
         })
             .padding()
-            .navigationBarTitle("Creating or joining a tower", displayMode: .inline)
+            .navigationBarTitle("Joining or creating a tower", displayMode: .inline)
     }
 }
 
@@ -331,7 +331,7 @@ struct QuickStartGuideTextView:View {
                     Text(HelpDocumentation.creatingAnAccount)
                 }
                 Group {
-                    Text("\n\nCreating or joining a tower\n")
+                    Text("\n\nJoining or creating a tower\n")
                         .font(.headline)
                         .bold()
                     Text(HelpDocumentation.creatingOrJoiningATower)

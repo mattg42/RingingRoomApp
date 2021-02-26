@@ -237,7 +237,8 @@ struct RingView: View {
             })
             .padding()
             .navigationBarTitle("Towers")
-        }
+        }        .navigationViewStyle(StackNavigationViewStyle())
+
         //        } else {
         //            ringingRoomView
         //        }
