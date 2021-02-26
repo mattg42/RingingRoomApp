@@ -121,7 +121,7 @@ struct WelcomeLoginScreen: View {
                         Text("Keep me logged in")
                     }
                 Toggle(isOn: $useNAServer) {
-                    Text("Use NA Server")
+                    Text("Use North American Server")
                 }.onChange(of: useNAServer) { value in
                     if useNAServer {
                         CommunicationController.baseUrl = "https:/na.ringingroom.com/api/"

@@ -48,10 +48,10 @@ class SocketIOManager: NSObject, ObservableObject {
     }
     
     func gotMyTowers() {
-        if let tower = User.shared.myTowers.towerForID(bellCircle.towerID) {
-            cc.getTowerSettings(id: tower.tower_id)
-        } else {
-            if bellCircle.needsTowerInfo {
+        if bellCircle.needsTowerInfo {
+            if let tower = User.shared.myTowers.towerForID(bellCircle.towerID) {
+                cc.getTowerSettings(id: tower.tower_id)
+            } else {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     self.cc.getMyTowers()
                 }
