@@ -75,7 +75,7 @@ class BellCircle: ObservableObject {
         didSet {
             changedPerspective = true
             print("from perspective")
-//            getNewPositions(radius: radius, center: center)
+//            getNewPositions(radius: radius, centre: centre)
         }
     }
     
@@ -83,14 +83,14 @@ class BellCircle: ObservableObject {
     
     var bellType:BellType = BellType.hand
     
-    var center = CGPoint(x: 0, y: 0) {
-        didSet(oldCenter) {
+    var centre = CGPoint(x: 0, y: 0) {
+        didSet(oldCentre) {
 //            if BellCircle.current.ringingroomIsPresented {
-//                if oldCenter != CGPoint(x: 0, y: 0) || oldCenter != center {
-//                    center = oldCenter
+//                if oldCentre != CGPoint(x: 0, y: 0) || oldCentre != centre {
+//                    centre = oldCentre
 //                }
 //            }
-            print("center changed")
+            print("centre changed")
         }
     }
     
@@ -171,13 +171,13 @@ class BellCircle: ObservableObject {
     var newImages = false
     
     var oldRadius:CGFloat = 0
-    var oldCenter:CGPoint = CGPoint(x: 0, y: 0)
+    var oldCentre:CGPoint = CGPoint(x: 0, y: 0)
     var oldSize = 0
     var oldPerspective = 0
     
-    func getNewPositions(radius:CGFloat, center:CGPoint) -> [CGPoint] {
+    func getNewPositions(radius:CGFloat, centre:CGPoint) -> [CGPoint] {
         if radius == oldRadius {
-            if center == oldCenter {
+            if centre == oldCentre {
                 if size == oldSize {
                     if perspective == oldPerspective {
                         return bellPositions
@@ -207,7 +207,7 @@ class BellCircle: ObservableObject {
                 }
             }
             
-            let bellPos = CGPoint(x: center.x + x, y: center.y + y)
+            let bellPos = CGPoint(x: centre.x + x, y: centre.y + y)
 
             newPositions.append(bellPos)
             currentAngle += angleIncrement
@@ -221,11 +221,11 @@ class BellCircle: ObservableObject {
         }
         bellPositions = newPositions
         oldRadius = radius
-        oldCenter = center
+        oldCentre = centre
         oldSize = size
         oldPerspective = perspective
         print(size, bellPositions.count)
-//        print(center)
+//        print(centre)
 //        for pos in newPositions {
 //            print(pos.pos)
 //        }
