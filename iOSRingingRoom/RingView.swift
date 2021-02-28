@@ -304,6 +304,8 @@ struct RingView: View {
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
         if statusCode == 404 {
             noTowerAlert()
+        } else if statusCode == 403 {
+            unauthorisedAlert()
         } else if statusCode == 200 {
             //            if user.myTowers.towerForID(response["tower_id"] as! Int) == nil {
             //                self.response = response
@@ -329,9 +331,17 @@ struct RingView: View {
             }
             
             
-            
+            SocketIOManager.shared.setups = 0
+            SocketIOManager.shared.ignoreSetup = false
             //            comController.getHostModePermitted(BellCircle.current.towerID)
             SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                if AppController.shared.state != .ringing {
+                    if !showingAlert {
+                        socketFailedAlert()
+                    }
+                }
+            }
             //            }
         } else {
             unknownErrorAlert()
@@ -352,6 +362,20 @@ struct RingView: View {
         print("going to ringingroom view")
         comController.getMyTowers()
         AppController.shared.state = .ringing
+    }
+    
+    func socketFailedAlert() {
+        alertTitle = "Failed to connect socket"
+        alertMessage = "Please try and join the tower again. If the problem persists, restart the app."
+        alertCancelButton = .cancel(Text("OK"))
+        showingAlert = true
+    }
+    
+    func unauthorisedAlert() {
+        alertTitle = "Invalid token"
+        alertTitle = "Please restart the app"
+        alertCancelButton = .cancel(Text("OK"))
+        showingAlert = true
     }
     
     func noTowerAlert() {
