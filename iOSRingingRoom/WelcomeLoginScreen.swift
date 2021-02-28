@@ -65,6 +65,8 @@ struct WelcomeLoginScreen: View {
     @State private var monitor = NWPathMonitor()
     
     @State private var useNAServer = UserDefaults.standard.bool(forKey: "NA")
+    
+    @State private var isUsingDevServer = UserDefaults.standard.bool(forKey: "useDevServer")
         
     var body: some View {
         ZStack {
