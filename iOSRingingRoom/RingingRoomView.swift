@@ -749,8 +749,8 @@ struct RopeCircle:View {
                     .opacity(bellCircle.bellMode == .ring ? canRing(bellNumber) ? 1 : 0.35 : 1)
                     .buttonStyle(TouchDown(isAvailable: true))
                     .foregroundColor(.primary)
-                    .position(self.getBellPositionsAndSizes(frame: geo.frame(in: .local), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
-//                    .position(self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
+                    .position(self.getBellPositionsAndSizes(frame: geo.frame(in: .local), centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
+//                    .position(self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
                 }
                 if bellCircle.bellMode == .ring {
                     ScrollView(showsIndicators: false) {
@@ -914,9 +914,9 @@ struct RopeCircle:View {
 
     }
     
-    func getBellPositionsAndSizes(frame:CGRect, center:CGPoint) -> [CGPoint] {
+    func getBellPositionsAndSizes(frame:CGRect, centre:CGPoint) -> [CGPoint] {
 
-        return self.bellCircle.getNewPositions(radius: CGFloat(bellCircle.radius), center: center)
+            return self.bellCircle.getNewPositions(radius: CGFloat(bellCircle.radius), centre: centre)
     }
     
     func reduceOverlap(width:CGFloat, height:CGFloat, imageSize:Double, radius:Double, theta:Double) -> (Double, Double) {
@@ -956,6 +956,9 @@ struct RopeCircle:View {
             hOverlap = a + (imageSize/3)/2 - Double(width)/2
         } else {
             hOverlap = a + (imageSize*0.6)/2 - Double(width)/2
+        }
+        if bellCircle.size == 4 {
+            hOverlap += 30
         }
         
         maxOverlap = max(vOverlap, hOverlap)
