@@ -131,7 +131,7 @@ class BellCircle: ObservableObject {
     
     var bellPositions = [CGPoint]()
     
-    var bellStates = [Bool]()
+    @Published var bellStates = [Bool]()
         
     var halfMuffled = false
     
@@ -269,7 +269,8 @@ class BellCircle: ObservableObject {
     
     func newSize(_ newSize:Int) {
         print("new size from socketio")
-        if SocketIOManager.shared.ignoreSetup == false {
+        if !SocketIOManager.shared.ignoreSetup && !SocketIOManager.shared.refresh {
+            SocketIOManager.shared.refresh = false
             assignments = Array(repeating: Ringer.blank, count: newSize)
             assignmentsBuffer = Array(repeating: nil, count: newSize)
             bellStates = Array(repeating: true, count: newSize)
@@ -291,8 +292,10 @@ class BellCircle: ObservableObject {
             } else {
                 perspective = (assignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
             }
-            bellStates = Array(repeating: true, count: newSize)
-            size = newSize
+            if newSize != size {
+                bellStates = Array(repeating: true, count: newSize)
+                size = newSize
+            }
         }
         print("assignments", assignments)
         objectWillChange.send()

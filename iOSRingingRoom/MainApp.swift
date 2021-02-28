@@ -78,6 +78,7 @@ struct MainApp: View {
                 .onChange(of: scenePhase, perform: { phase in
                     print("new phase: \(phase)")
                     if phase == .active {
+                        SocketIOManager.shared.refresh = true
                         SocketIOManager.shared.socket?.connect()
                     } else if phase == .background {
                         SocketIOManager.shared.socket?.disconnect()

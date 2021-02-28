@@ -21,7 +21,7 @@ class SocketIOManager: NSObject, ObservableObject {
     
     var ignoreSetup = false
     
-    var reconnectAttempt = false
+    var refresh = false
     var server_ip = ""
     
     var cc = CommunicationController(sender: self)
@@ -73,13 +73,11 @@ class SocketIOManager: NSObject, ObservableObject {
                 print("received socketio event: ", data.event)
             }
         }
-        
-        socket?.on(clientEvent: .reconnect) { data, ack in
-            self.reconnectAttempt = true
-        }
+
 //
         socket?.on(clientEvent: .connect) { data, ack in
             print(self.socket?.status)
+            self.ignoreSetup = false
             self.socket?.emit("c_join", ["tower_id": self.bellCircle.towerID, "user_token": CommunicationController.token!, "anonymous_user": false])
             if self.bellCircle.needsTowerInfo {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -185,6 +183,7 @@ class SocketIOManager: NSObject, ObservableObject {
         ignoreSetup = false
 //        bellCircle.setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false, "gotAssignments":false]
         socket?.disconnect()
+        socket = nil
         ChatManager.shared.messages = [String]()
         ChatManager.shared.newMessages = 0
         ChatManager.shared.canSeeMessages = false
