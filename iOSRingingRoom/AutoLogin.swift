@@ -80,6 +80,8 @@ struct AutoLogin: View {
             do {
                 print("got this far")
                 let password = try kcw.getPasswordFor(account: email)
+                User.shared.email = email
+                User.shared.password = password
                 print("retrieved password")
                 self.comController.login(email: email, password: password)
             } catch {
