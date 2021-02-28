@@ -86,6 +86,12 @@ class SocketIOManager: NSObject, ObservableObject {
                     self.cc.getMyTowers()
                 }
             }
+            DispatchQueue.main.asyncAfter(deadline: .now()+0.1) {
+                if AppController.shared.state != .ringing {
+                    self.socket?.disconnect()
+                    self.socket?.connect()
+                }
+            }
         }
         
         socket?.on("s_size_change") { data, ack in
