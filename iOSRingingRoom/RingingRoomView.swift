@@ -1407,7 +1407,7 @@ struct UsersView:View {
                                     tempUsers.removeRingerForID(assignedUser.userID)
                                 }
                             }
-                            var availableBells = self.bellCircle.assignments.allIndecesOfRingerForID(Ringer.blank.userID)!
+                            var availableBells = self.bellCircle.assignments.allIndicesOfRingerForID(Ringer.blank.userID)!
                             availableBells.shuffle()
                             tempUsers.shuffle()
                             for user in tempUsers {
@@ -1592,7 +1592,7 @@ struct UsersView:View {
     }
     
     func numberOfAvailableBells() -> Int {
-        return (bellCircle.assignments.allIndecesOfRingerForID(Ringer.blank.userID) ?? [Int]()).count
+        return (bellCircle.assignments.allIndicesOfRingerForID(Ringer.blank.userID) ?? [Int]()).count
     }
 
 
@@ -1607,7 +1607,7 @@ struct RingerView:View {
 
     var body: some View {
         HStack {
-            Text(!bellCircle.assignments.containsRingerForID(user.userID) ? "-" : self.getString(indexes: bellCircle.assignments.allIndecesOfRingerForID(user.userID)!))
+            Text(!bellCircle.assignments.containsRingerForID(user.userID) ? "-" : self.getString(indexes: bellCircle.assignments.allIndicesOfRingerForID(user.userID)!))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
             Text(user.name)
