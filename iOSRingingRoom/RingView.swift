@@ -154,9 +154,7 @@ struct RingView: View {
                                     self.buttonHeight = geo.size.height
 
                                 })
-                                .alert(isPresented: self.$showingAlert) {
-                                    Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
-                                }
+
                             }
                             
 
@@ -229,6 +227,8 @@ struct RingView: View {
                     }
                 )
                 
+            }                                .alert(isPresented: self.$showingAlert) {
+                Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
             }
             .onAppear(perform: {
                 self.comController = CommunicationController(sender: self)
@@ -302,11 +302,13 @@ struct RingView: View {
     @State var towerInQueue = 0
     
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
-        if statusCode == 404 {
+        print("received")
+        if statusCode ?? 0 == 404 {
             noTowerAlert()
-        } else if statusCode == 403 {
+        } else if statusCode ?? 0 == 401 {
+            print("koko")
             unauthorisedAlert()
-        } else if statusCode == 200 {
+        } else if statusCode ?? 0 == 200 {
             //            if user.myTowers.towerForID(response["tower_id"] as! Int) == nil {
             //                self.response = response
             //                comController.getMyTowers()
@@ -373,7 +375,7 @@ struct RingView: View {
     
     func unauthorisedAlert() {
         alertTitle = "Invalid token"
-        alertTitle = "Please restart the app"
+        alertMessage = "Please restart the app."
         alertCancelButton = .cancel(Text("OK"))
         showingAlert = true
     }

@@ -22,9 +22,7 @@ struct AutoLogin: View {
     
     @State private var autoJoinTower = false
     @State private var autoJoinTowerID = 0
-    
-    @State private var monitor = NWPathMonitor()
-    
+        
     init() {
         
         print("called login")
@@ -50,18 +48,14 @@ struct AutoLogin: View {
         }
         .onAppear(perform: {
 
-            let queue = DispatchQueue.monitor
-            monitor.start(queue: queue)
+
             self.comController = CommunicationController(sender: self, loginType: .auto)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                 login()
-            }
 
         })
     }
         
     func login() {
-        if monitor.currentPath.status == .satisfied || monitor.currentPath.status == .requiresConnection {
             print("sent login request")
             let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
             //remove in next beta version
@@ -84,13 +78,14 @@ struct AutoLogin: View {
                 User.shared.password = password
                 print("retrieved password")
                 self.comController.login(email: email, password: password)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    if AppController.shared.state == .login {
+                        noInternetAlert()§
+                    }
+                }
             } catch {
                 unknownErrorAlert()
-            }
-        } else {
-            print("path unsatisfied")
-            noInternetAlert()
-        }
+            } 
     }
     
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
