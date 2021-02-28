@@ -289,7 +289,7 @@ class BellCircle: ObservableObject {
                     perspective = 1
                 }
             } else {
-                perspective = (assignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+                perspective = (assignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
             }
             bellStates = Array(repeating: true, count: newSize)
             size = newSize
@@ -321,7 +321,7 @@ class BellCircle: ObservableObject {
                         }
                     }
                     objectWillChange.send()
-                    perspective = (tempAssignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+                    perspective = (tempAssignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
                 }
             }
         }
@@ -360,7 +360,7 @@ class BellCircle: ObservableObject {
                     tempAssignments[index] = assignment!
                 }
             }
-            perspective = (tempAssignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+            perspective = (tempAssignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
         }
     }
     
@@ -388,7 +388,7 @@ class BellCircle: ObservableObject {
     }
     
     func userLeft(id:Int) {
-        for i in assignments.allIndecesOfRingerForID(id) ?? [Int]() {
+        for i in assignments.allIndicesOfRingerForID(id) ?? [Int]() {
             unAssign(at: i+1)
         }
         users.removeRingerForID(id)
@@ -470,7 +470,7 @@ extension Array where Element == Ringer {
         }
     }
     
-    func allIndecesOfRingerForID(_ id:Int) -> [Int]? {
+    func allIndicesOfRingerForID(_ id:Int) -> [Int]? {
         var output = [Int]()
         if self.containsRingerForID(id) {
             for (index, ringer) in self.enumerated() {
