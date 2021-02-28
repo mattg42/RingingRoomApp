@@ -80,7 +80,7 @@ struct AutoLogin: View {
                 self.comController.login(email: email, password: password)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     if AppController.shared.state == .login {
-                        noInternetAlert()§
+                        noInternetAlert()
                     }
                 }
             } catch {
