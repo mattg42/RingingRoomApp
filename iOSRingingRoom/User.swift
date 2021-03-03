@@ -18,7 +18,7 @@ class User:ObservableObject {
     var loggedIn:Bool = false
     var name:String = ""
     var email:String = ""
-    
+    var password = ""
     
 //    @Published var towerID = 0
     
@@ -40,7 +40,7 @@ class User:ObservableObject {
         loggedIn = false
         name = ""
         email = ""
-                
+        password = ""
         myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
         
         firstTower = true

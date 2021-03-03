@@ -154,9 +154,7 @@ struct RingView: View {
                                     self.buttonHeight = geo.size.height
 
                                 })
-                                .alert(isPresented: self.$showingAlert) {
-                                    Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
-                                }
+
                             }
                             
 
@@ -229,6 +227,8 @@ struct RingView: View {
                     }
                 )
                 
+            }                                .alert(isPresented: self.$showingAlert) {
+                Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
             }
             .onAppear(perform: {
                 self.comController = CommunicationController(sender: self)
@@ -302,9 +302,13 @@ struct RingView: View {
     @State var towerInQueue = 0
     
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
-        if statusCode == 404 {
+        print("received")
+        if statusCode ?? 0 == 404 {
             noTowerAlert()
-        } else if statusCode == 200 {
+        } else if statusCode ?? 0 == 401 {
+            print("koko")
+            unauthorisedAlert()
+        } else if statusCode ?? 0 == 200 {
             //            if user.myTowers.towerForID(response["tower_id"] as! Int) == nil {
             //                self.response = response
             //                comController.getMyTowers()
@@ -329,9 +333,17 @@ struct RingView: View {
             }
             
             
-            
+            SocketIOManager.shared.setups = 0
+            SocketIOManager.shared.ignoreSetup = false
             //            comController.getHostModePermitted(BellCircle.current.towerID)
             SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                if AppController.shared.state != .ringing {
+                    if !showingAlert {
+                        socketFailedAlert()
+                    }
+                }
+            }
             //            }
         } else {
             unknownErrorAlert()
@@ -352,6 +364,20 @@ struct RingView: View {
         print("going to ringingroom view")
         comController.getMyTowers()
         AppController.shared.state = .ringing
+    }
+    
+    func socketFailedAlert() {
+        alertTitle = "Failed to connect socket"
+        alertMessage = "Please try and join the tower again. If the problem persists, restart the app."
+        alertCancelButton = .cancel(Text("OK"))
+        showingAlert = true
+    }
+    
+    func unauthorisedAlert() {
+        alertTitle = "Invalid token"
+        alertMessage = "Please restart the app."
+        alertCancelButton = .cancel(Text("OK"))
+        showingAlert = true
     }
     
     func noTowerAlert() {
@@ -411,10 +437,10 @@ public struct TextAlert {
   public var placeholder: String = "" // Placeholder text for the TextField
   public var accept: String = "OK" // The left-most button label
   public var cancel: String? = "Cancel" // The optional cancel (right-most) button label
-  public var secondaryActionTitle: String? = nil // The optional center button label
+  public var secondaryActionTitle: String? = nil // The optional centre button label
   public var keyboardType: UIKeyboardType = .default // Keyboard tzpe of the TextField
   public var action: (String?) -> Void // Triggers when either of the two buttons closes the dialog
-  public var secondaryAction: (() -> Void)? = nil // Triggers when the optional center button is tapped
+  public var secondaryAction: (() -> Void)? = nil // Triggers when the optional centre button is tapped
 }
 
 extension UIAlertController {
