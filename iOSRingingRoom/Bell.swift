@@ -167,20 +167,21 @@ class BellCircle: ObservableObject {
             keyboardShowing = false
         }
     }
-    
-    var newImages = false
-    
+        
     var oldRadius:CGFloat = 0
     var oldCentre:CGPoint = CGPoint(x: 0, y: 0)
     var oldSize = 0
     var oldPerspective = 0
+    var oldBellType = BellType.tower
     
     func getNewPositions(radius:CGFloat, centre:CGPoint) -> [CGPoint] {
         if radius == oldRadius {
             if centre == oldCentre {
                 if size == oldSize {
-                    if perspective == oldPerspective {
-                        return bellPositions
+                    if bellType == oldBellType {
+                        if perspective == oldPerspective {
+                            return bellPositions
+                        }
                     }
                 }
             }
@@ -224,6 +225,7 @@ class BellCircle: ObservableObject {
         oldCentre = centre
         oldSize = size
         oldPerspective = perspective
+        oldBellType = bellType
         print(size, bellPositions.count)
 //        print(centre)
 //        for pos in newPositions {
@@ -403,7 +405,6 @@ class BellCircle: ObservableObject {
             if type.rawValue == audio {
                 objectWillChange.send()
                 bellType = type
-                newImages = true
             }
         }
     }

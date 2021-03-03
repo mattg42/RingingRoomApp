@@ -777,7 +777,7 @@ struct RopeCircle:View {
                     Text("Tap the bell that you would like to be positioned bottom right, or tap the rotate button again to cancel.")
                         .multilineTextAlignment(.center)
                         .frame(width: 180)
-                        .font(.title2)
+                        .font(.title3)
                         .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
                         .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
                 }
@@ -802,10 +802,10 @@ struct RopeCircle:View {
                 .fixedSize()
                 .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
 //                                }
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
+//                VStack {
+//                    Spacer()
+//                    HStack {
+//                        Spacer()
                         Button(action: {
                             self.bellCircle.bellMode.toggle()
                             //put into change perspective mode
@@ -820,11 +820,12 @@ struct RopeCircle:View {
                             .fixedSize()
                         }
                         //                            Text("Set at hand")
-                        .position(x: geo.frame(in: .local).width - 40, y: bellCircle.bellPositions.count == bellCircle.size ? bellCircle.bellPositions[bellCircle.perspective-1].y + CGFloat(bellCircle.imageSize)/2 - 25: 0)
+
+                        .position(x: geo.frame(in: .local).width - 30, y: bellCircle.bellPositions.count == bellCircle.size ? bellCircle.bellType == .tower ? bellCircle.bellPositions[bellCircle.perspective-1].y + CGFloat(bellCircle.imageSize)/2 - CGFloat(37/2) : bellCircle.bellPositions[bellCircle.perspective-1].y + (CGFloat(bellCircle.imageSize)*0.7)/2 - CGFloat(37/2) - 5 : 0)
                         .animation(nil)
-                    }
-                }
-                .padding(.horizontal, 5)
+//                    }
+//                }
+//                .padding(.horizontal, 5)
             }
         }
 //        .background (Color.green)
@@ -836,10 +837,12 @@ struct RopeCircle:View {
     func getImageWidth(size: CGSize) -> CGFloat {
         if size == bellCircle.oldScreenSize {
             if bellCircle.size == bellCircle.oldBellCircleSize {
-                if bellCircle.bellType == .tower {
-                    return CGFloat(bellCircle.imageSize)/3
-                } else {
-                    return CGFloat(bellCircle.imageSize) * 0.7
+                if bellCircle.bellType == bellCircle.oldBellType {
+                    if bellCircle.bellType == .tower {
+                        return CGFloat(bellCircle.imageSize)/3
+                    } else {
+                        return CGFloat(bellCircle.imageSize) * 0.7
+                    }
                 }
 
             }
@@ -877,12 +880,13 @@ struct RopeCircle:View {
     func getImageHeight(size: CGSize) -> CGFloat {
         if size == bellCircle.oldScreenSize {
             if bellCircle.size == bellCircle.oldBellCircleSize {
-                if bellCircle.bellType == .tower {
-                    return CGFloat(bellCircle.imageSize)
-                } else {
-                    return CGFloat(bellCircle.imageSize) * 0.7
+                if bellCircle.bellType == bellCircle.oldBellType {
+                    if bellCircle.bellType == .tower {
+                        return CGFloat(bellCircle.imageSize)
+                    } else {
+                        return CGFloat(bellCircle.imageSize) * 0.7
+                    }
                 }
-
             }
         }
         
