@@ -14,11 +14,11 @@ class CommunicationController {
     
     var loginType:LoginType? = nil
     
-    var sender:Any
+    var sender:Any!
     
     static var baseUrl = UserDefaults.standard.bool(forKey: "useDevServer") ? "https:/dev.ringingroom.com/api/" : UserDefaults.standard.bool(forKey: "NA") ? "https:/na.ringingroom.com/api/" : "https:/ringingroom.com/api/"
 
-    init(sender:Any, loginType:LoginType? = nil) {
+    init(sender:Any! = nil, loginType:LoginType? = nil) {
         self.sender = sender
         self.loginType = loginType
     }
@@ -90,6 +90,13 @@ class CommunicationController {
                 }
             }
             
+//            if statusCode == 401 {
+//                if type != .loginAttempt {
+//                    self.loginType = .refresh
+//                    login(email: User.shared.email, password: User.shared.password)
+//                }
+//            }
+            
             print(dataDict)
             
             switch type {
@@ -107,6 +114,8 @@ class CommunicationController {
                     (self.sender as! SimpleLoginView).receivedResponse(statusCode: statusCode, responseData: dataDict)
                 case .settings:
                     (self.sender as! SettingsView).receivedResponse(statusCode: statusCode, responseData: dataDict)
+//                case .refresh:
+//                    (self.sender as! RingView)
                 default:
                     print("not login")
 //                case .none:
@@ -255,5 +264,5 @@ enum RequestType {
 }
 
 enum LoginType {
-    case auto, welcome, simple, settings
+    case auto, welcome, simple, settings, refresh
 }

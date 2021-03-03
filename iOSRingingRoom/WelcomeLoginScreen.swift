@@ -210,6 +210,7 @@ struct WelcomeLoginScreen: View {
     func login() {
         if monitor.currentPath.status == .satisfied || monitor.currentPath.status == .requiresConnection {
             print("sent login request")
+
             comController.login(email: self.email.trimmingCharacters(in: .whitespaces), password: self.password)
         } else {
             print("path unsatisfied")
@@ -237,6 +238,8 @@ struct WelcomeLoginScreen: View {
             DispatchQueue.main.async {
                 UserDefaults.standard.set(self.stayLoggedIn, forKey: "keepMeLoggedIn")
                 UserDefaults.standard.set(self.email, forKey: "userEmail")
+                User.shared.email = email
+                User.shared.password = password
                 let kcw = KeychainWrapper()
                 do {
                     try kcw.storePasswordFor(account: self.email, password: self.password)

@@ -75,7 +75,7 @@ class BellCircle: ObservableObject {
         didSet {
             changedPerspective = true
             print("from perspective")
-//            getNewPositions(radius: radius, center: center)
+//            getNewPositions(radius: radius, centre: centre)
         }
     }
     
@@ -83,14 +83,14 @@ class BellCircle: ObservableObject {
     
     var bellType:BellType = BellType.hand
     
-    var center = CGPoint(x: 0, y: 0) {
-        didSet(oldCenter) {
+    var centre = CGPoint(x: 0, y: 0) {
+        didSet(oldCentre) {
 //            if BellCircle.current.ringingroomIsPresented {
-//                if oldCenter != CGPoint(x: 0, y: 0) || oldCenter != center {
-//                    center = oldCenter
+//                if oldCentre != CGPoint(x: 0, y: 0) || oldCentre != centre {
+//                    centre = oldCentre
 //                }
 //            }
-            print("center changed")
+            print("centre changed")
         }
     }
     
@@ -131,7 +131,7 @@ class BellCircle: ObservableObject {
     
     var bellPositions = [CGPoint]()
     
-    var bellStates = [Bool]()
+    @Published var bellStates = [Bool]()
         
     var halfMuffled = false
     
@@ -167,20 +167,21 @@ class BellCircle: ObservableObject {
             keyboardShowing = false
         }
     }
-    
-    var newImages = false
-    
+        
     var oldRadius:CGFloat = 0
-    var oldCenter:CGPoint = CGPoint(x: 0, y: 0)
+    var oldCentre:CGPoint = CGPoint(x: 0, y: 0)
     var oldSize = 0
     var oldPerspective = 0
+    var oldBellType = BellType.tower
     
-    func getNewPositions(radius:CGFloat, center:CGPoint) -> [CGPoint] {
+    func getNewPositions(radius:CGFloat, centre:CGPoint) -> [CGPoint] {
         if radius == oldRadius {
-            if center == oldCenter {
+            if centre == oldCentre {
                 if size == oldSize {
-                    if perspective == oldPerspective {
-                        return bellPositions
+                    if bellType == oldBellType {
+                        if perspective == oldPerspective {
+                            return bellPositions
+                        }
                     }
                 }
             }
@@ -207,7 +208,7 @@ class BellCircle: ObservableObject {
                 }
             }
             
-            let bellPos = CGPoint(x: center.x + x, y: center.y + y)
+            let bellPos = CGPoint(x: centre.x + x, y: centre.y + y)
 
             newPositions.append(bellPos)
             currentAngle += angleIncrement
@@ -221,11 +222,12 @@ class BellCircle: ObservableObject {
         }
         bellPositions = newPositions
         oldRadius = radius
-        oldCenter = center
+        oldCentre = centre
         oldSize = size
         oldPerspective = perspective
+        oldBellType = bellType
         print(size, bellPositions.count)
-//        print(center)
+//        print(centre)
 //        for pos in newPositions {
 //            print(pos.pos)
 //        }
@@ -269,7 +271,8 @@ class BellCircle: ObservableObject {
     
     func newSize(_ newSize:Int) {
         print("new size from socketio")
-        if SocketIOManager.shared.ignoreSetup == false {
+        if !SocketIOManager.shared.ignoreSetup && !SocketIOManager.shared.refresh {
+            SocketIOManager.shared.refresh = false
             assignments = Array(repeating: Ringer.blank, count: newSize)
             assignmentsBuffer = Array(repeating: nil, count: newSize)
             bellStates = Array(repeating: true, count: newSize)
@@ -289,10 +292,12 @@ class BellCircle: ObservableObject {
                     perspective = 1
                 }
             } else {
-                perspective = (assignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+                perspective = (assignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
             }
-            bellStates = Array(repeating: true, count: newSize)
-            size = newSize
+            if newSize != size {
+                bellStates = Array(repeating: true, count: newSize)
+                size = newSize
+            }
         }
         print("assignments", assignments)
         objectWillChange.send()
@@ -321,7 +326,7 @@ class BellCircle: ObservableObject {
                         }
                     }
                     objectWillChange.send()
-                    perspective = (tempAssignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+                    perspective = (tempAssignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
                 }
             }
         }
@@ -360,7 +365,7 @@ class BellCircle: ObservableObject {
                     tempAssignments[index] = assignment!
                 }
             }
-            perspective = (tempAssignments.allIndecesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+            perspective = (tempAssignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
         }
     }
     
@@ -388,7 +393,7 @@ class BellCircle: ObservableObject {
     }
     
     func userLeft(id:Int) {
-        for i in assignments.allIndecesOfRingerForID(id) ?? [Int]() {
+        for i in assignments.allIndicesOfRingerForID(id) ?? [Int]() {
             unAssign(at: i+1)
         }
         users.removeRingerForID(id)
@@ -400,7 +405,6 @@ class BellCircle: ObservableObject {
             if type.rawValue == audio {
                 objectWillChange.send()
                 bellType = type
-                newImages = true
             }
         }
     }
@@ -470,7 +474,7 @@ extension Array where Element == Ringer {
         }
     }
     
-    func allIndecesOfRingerForID(_ id:Int) -> [Int]? {
+    func allIndicesOfRingerForID(_ id:Int) -> [Int]? {
         var output = [Int]()
         if self.containsRingerForID(id) {
             for (index, ringer) in self.enumerated() {

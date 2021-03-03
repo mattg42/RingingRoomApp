@@ -749,8 +749,8 @@ struct RopeCircle:View {
                     .opacity(bellCircle.bellMode == .ring ? canRing(bellNumber) ? 1 : 0.35 : 1)
                     .buttonStyle(TouchDown(isAvailable: true))
                     .foregroundColor(.primary)
-                    .position(self.getBellPositionsAndSizes(frame: geo.frame(in: .local), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
-//                    .position(self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), center: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
+                    .position(self.getBellPositionsAndSizes(frame: geo.frame(in: .local), centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
+//                    .position(self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
                 }
                 if bellCircle.bellMode == .ring {
                     ScrollView(showsIndicators: false) {
@@ -777,7 +777,7 @@ struct RopeCircle:View {
                     Text("Tap the bell that you would like to be positioned bottom right, or tap the rotate button again to cancel.")
                         .multilineTextAlignment(.center)
                         .frame(width: 180)
-                        .font(.title2)
+                        .font(.title3)
                         .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
                         .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
                 }
@@ -802,10 +802,10 @@ struct RopeCircle:View {
                 .fixedSize()
                 .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
 //                                }
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
+//                VStack {
+//                    Spacer()
+//                    HStack {
+//                        Spacer()
                         Button(action: {
                             self.bellCircle.bellMode.toggle()
                             //put into change perspective mode
@@ -820,11 +820,12 @@ struct RopeCircle:View {
                             .fixedSize()
                         }
                         //                            Text("Set at hand")
-                        .position(x: geo.frame(in: .local).width - 40, y: bellCircle.bellPositions.count == bellCircle.size ? bellCircle.bellPositions[bellCircle.perspective-1].y + CGFloat(bellCircle.imageSize)/2 - 25: 0)
+
+                        .position(x: geo.frame(in: .local).width - 30, y: bellCircle.bellPositions.count == bellCircle.size ? bellCircle.bellType == .tower ? bellCircle.bellPositions[bellCircle.perspective-1].y + CGFloat(bellCircle.imageSize)/2 - CGFloat(37/2) : bellCircle.bellPositions[bellCircle.perspective-1].y + (CGFloat(bellCircle.imageSize)*0.7)/2 - CGFloat(37/2) - 5 : 0)
                         .animation(nil)
-                    }
-                }
-                .padding(.horizontal, 5)
+//                    }
+//                }
+//                .padding(.horizontal, 5)
             }
         }
 //        .background (Color.green)
@@ -836,10 +837,12 @@ struct RopeCircle:View {
     func getImageWidth(size: CGSize) -> CGFloat {
         if size == bellCircle.oldScreenSize {
             if bellCircle.size == bellCircle.oldBellCircleSize {
-                if bellCircle.bellType == .tower {
-                    return CGFloat(bellCircle.imageSize)/3
-                } else {
-                    return CGFloat(bellCircle.imageSize) * 0.7
+                if bellCircle.bellType == bellCircle.oldBellType {
+                    if bellCircle.bellType == .tower {
+                        return CGFloat(bellCircle.imageSize)/3
+                    } else {
+                        return CGFloat(bellCircle.imageSize) * 0.7
+                    }
                 }
 
             }
@@ -877,12 +880,13 @@ struct RopeCircle:View {
     func getImageHeight(size: CGSize) -> CGFloat {
         if size == bellCircle.oldScreenSize {
             if bellCircle.size == bellCircle.oldBellCircleSize {
-                if bellCircle.bellType == .tower {
-                    return CGFloat(bellCircle.imageSize)
-                } else {
-                    return CGFloat(bellCircle.imageSize) * 0.7
+                if bellCircle.bellType == bellCircle.oldBellType {
+                    if bellCircle.bellType == .tower {
+                        return CGFloat(bellCircle.imageSize)
+                    } else {
+                        return CGFloat(bellCircle.imageSize) * 0.7
+                    }
                 }
-
             }
         }
         
@@ -914,9 +918,9 @@ struct RopeCircle:View {
 
     }
     
-    func getBellPositionsAndSizes(frame:CGRect, center:CGPoint) -> [CGPoint] {
+    func getBellPositionsAndSizes(frame:CGRect, centre:CGPoint) -> [CGPoint] {
 
-        return self.bellCircle.getNewPositions(radius: CGFloat(bellCircle.radius), center: center)
+            return self.bellCircle.getNewPositions(radius: CGFloat(bellCircle.radius), centre: centre)
     }
     
     func reduceOverlap(width:CGFloat, height:CGFloat, imageSize:Double, radius:Double, theta:Double) -> (Double, Double) {
@@ -956,6 +960,9 @@ struct RopeCircle:View {
             hOverlap = a + (imageSize/3)/2 - Double(width)/2
         } else {
             hOverlap = a + (imageSize*0.6)/2 - Double(width)/2
+        }
+        if bellCircle.size == 4 {
+            hOverlap += 30
         }
         
         maxOverlap = max(vOverlap, hOverlap)
@@ -1404,7 +1411,7 @@ struct UsersView:View {
                                     tempUsers.removeRingerForID(assignedUser.userID)
                                 }
                             }
-                            var availableBells = self.bellCircle.assignments.allIndecesOfRingerForID(Ringer.blank.userID)!
+                            var availableBells = self.bellCircle.assignments.allIndicesOfRingerForID(Ringer.blank.userID)!
                             availableBells.shuffle()
                             tempUsers.shuffle()
                             for user in tempUsers {
@@ -1589,7 +1596,7 @@ struct UsersView:View {
     }
     
     func numberOfAvailableBells() -> Int {
-        return (bellCircle.assignments.allIndecesOfRingerForID(Ringer.blank.userID) ?? [Int]()).count
+        return (bellCircle.assignments.allIndicesOfRingerForID(Ringer.blank.userID) ?? [Int]()).count
     }
 
 
@@ -1604,7 +1611,7 @@ struct RingerView:View {
 
     var body: some View {
         HStack {
-            Text(!bellCircle.assignments.containsRingerForID(user.userID) ? "-" : self.getString(indexes: bellCircle.assignments.allIndecesOfRingerForID(user.userID)!))
+            Text(!bellCircle.assignments.containsRingerForID(user.userID) ? "-" : self.getString(indexes: bellCircle.assignments.allIndicesOfRingerForID(user.userID)!))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
             Text(user.name)
