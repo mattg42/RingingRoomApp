@@ -146,6 +146,7 @@ struct WelcomeLoginScreen: View {
                     UserDefaults.standard.set(useNAServer, forKey: "NA")
                     if useNAServer {
                         CommunicationController.baseUrl = "https:/na.ringingroom.com/api/"
+                        isUsingDevServer = false
                     } else {
                         if isUsingDevServer {
                             CommunicationController.baseUrl = "https:/dev.ringingroom.com/api/"
@@ -208,6 +209,7 @@ struct WelcomeLoginScreen: View {
     }
     
     func login() {
+        print(CommunicationController.baseUrl)
         if monitor.currentPath.status == .satisfied || monitor.currentPath.status == .requiresConnection {
             print("sent login request")
 
