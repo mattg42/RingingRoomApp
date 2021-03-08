@@ -33,8 +33,11 @@ struct MainApp: View {
         case .login:
             if AppController.shared.loginState == .auto {
                 AutoLogin()
+
             } else {
                 WelcomeLoginScreen()
+                    .accentColor(Color.main)
+
             }
         case .main:
             TabView(selection: .init(get: {
@@ -84,6 +87,8 @@ struct MainApp: View {
                         SocketIOManager.shared.socket?.disconnect()
                     }
                 })
+                .accentColor(Color.main)
+
         }
     }
 }

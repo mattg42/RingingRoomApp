@@ -184,15 +184,16 @@ struct WelcomeLoginScreen: View {
                     HStack {
                         Button(action: {self.showingResetPasswordView = true; self.loginScreenIsActive = false}) {
                             Text("Forgot password?")
-                                .font(.footnote)
+                                .font(.callout)
                         }.sheet(isPresented: $showingResetPasswordView, onDismiss: {self.loginScreenIsActive = true}) {
-                            resetPasswordView(isPresented: self.$showingResetPasswordView, email: self.$email)
+                            resetPasswordView(isPresented: self.$showingResetPasswordView, email: self.$email).accentColor(Color.main)
+
                         }
                         
                         Spacer()
                         Button(action: { self.showingAccountCreationView = true; self.loginScreenIsActive = false} ) {
                             Text("Create an account")
-                                .font(.footnote)
+                                .font(.callout)
                         }.sheet(isPresented: $showingAccountCreationView, onDismiss: {self.loginScreenIsActive = true; if self.accountCreated {self.login()}}) {
                             AccountCreationView(isPresented: self.$showingAccountCreationView, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
                         }

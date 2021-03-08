@@ -12,8 +12,13 @@ struct resetPasswordView: View {
     
     @Binding var isPresented:Bool
     @Binding var email:String
-        
-    @State private var isPresentingAlert = false
+            
+    var cc = CommunicationController(sender: nil)
+    
+    @State private var showingAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var alertCancelButton = Alert.Button.cancel()
     
     var body: some View {
         NavigationView {
@@ -23,15 +28,15 @@ struct resetPasswordView: View {
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
                     .disableAutocorrection(true)
+                    .autocapitalization(.none)
                 }
                 Section {
-                    Button("Not Available Yet. Please go to ringingroom.com to change your password.") {
+                    Button("Request password reset") {
                         self.resetPassword()
                     }
-                    .alert(isPresented: $isPresentingAlert) {
-                        Alert(title: Text("Email not valid"), message: Text("Please enter a valid email"))
+                    .alert(isPresented: $showingAlert) {
+                        Alert(title: Text(alertTitle), message: Text(alertMessage))
                     }
-                .disabled(true)
                 }
             }
             .navigationBarTitle("Reset Password", displayMode: .inline)
@@ -42,10 +47,15 @@ struct resetPasswordView: View {
     
     func resetPassword() {
         if !email.trimmingCharacters(in: .whitespaces).isValidEmail() {
-            isPresentingAlert = true
+            alertTitle = "Email not valid"
+            alertMessage = "Please enter a valid email address."
+            showingAlert = true
             return
         } else {
-            //send reset password request to server
+            cc.resetPassword(email: email)
+            alertTitle = "Request sent"
+            alertMessage = "Check your email for the instructions to reset your password."
+            showingAlert = true
         }
     }
 }
