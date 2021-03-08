@@ -254,10 +254,16 @@ class CommunicationController {
         sendRequest(method: "GET", endpoint: "tower/\(id)/settings", headers: headers, type: .getTowerSettings, towerID: id)
     }
     
+    func resetPassword(email: String) {
+        let json = ["email":email]
+        
+        sendRequest(method: "POST", endpoint: "user/reset_password", json: json, type: .resetPassword)
+    }
+    
 }
 
 enum RequestType {
-    case welcomeLoginAttempt, loginAttempt, autoLoginAttempt, logout, getUserDetails, registerNewUser, modifyUserDetails, deleteUser
+    case welcomeLoginAttempt, loginAttempt, autoLoginAttempt, logout, getUserDetails, registerNewUser, modifyUserDetails, deleteUser, resetPassword
     case getMyTowers, toggleBookmark, deleteTowerFromRecents
     case connectToTower, createTower, deleteTower, getTowerSettings, modifyTowerSettings, addHost, removeHost
 }
