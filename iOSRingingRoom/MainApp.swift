@@ -69,9 +69,9 @@ struct MainApp: View {
                 SettingsView()
                     .tag(TabViewType.settings)
                     .tabItem {
-                        Image(systemName: "gear")
+                        Image(systemName: "person.crop.circle.fill")
                             .font(.title)
-                        Text("Settings")
+                        Text("Account")
                     }
             }
             
