@@ -98,7 +98,7 @@ struct SettingsView: View {
                 }
                 .padding()
                 .foregroundColor(.secondary)
-            }.navigationBarTitle("Settings")
+            }.navigationBarTitle("Account")
             
         }
         .navigationViewStyle(StackNavigationViewStyle())
