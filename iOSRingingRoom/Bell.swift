@@ -175,10 +175,6 @@ class BellCircle: ObservableObject {
     var oldBellType = BellType.tower
     
     func getNewPositions(radius:CGFloat, centre:CGPoint) -> [CGPoint] {
-        if justToggledTowerControls {
-            justToggledTowerControls = false
-            return bellPositions
-        }
         print(radius, oldRadius)
         if radius.truncate(places: 5) == oldRadius {
             print("passed radius")
