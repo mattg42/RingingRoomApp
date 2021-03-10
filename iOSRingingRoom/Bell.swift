@@ -63,8 +63,8 @@ class BellCircle: ObservableObject {
     var towerID = 0
     var towerName = ""
     
-    var isHost = false
-    var hostModeEnabled = false
+    @Published var isHost = false
+    @Published var hostModeEnabled = false
     var hostModePermitted = false
     
     var audioController = AudioController()
@@ -175,17 +175,33 @@ class BellCircle: ObservableObject {
     var oldBellType = BellType.tower
     
     func getNewPositions(radius:CGFloat, centre:CGPoint) -> [CGPoint] {
-        if radius == oldRadius {
-            if centre == oldCentre {
+        if justToggledTowerControls {
+            justToggledTowerControls = false
+            return bellPositions
+        }
+        print(radius, oldRadius)
+        if radius.truncate(places: 5) == oldRadius {
+            print("passed radius")
+            print(centre, oldCentre)
+            if centre.truncate(places: 5) == oldCentre {
+                print("passed centre")
+
                 if size == oldSize {
+                    print("passed size")
+
                     if bellType == oldBellType {
+                        print("passed bellType")
+
                         if perspective == oldPerspective {
+                            print("passed perspective")
+
                             return bellPositions
                         }
                     }
                 }
             }
         }
+        print("new positions")
         let angleIncrement:Double = 360/Double(size)
         let startAngle:Double = 360 - (-angleIncrement/2 + angleIncrement*Double(perspective))
         
@@ -200,7 +216,6 @@ class BellCircle: ObservableObject {
             var y = CGFloat(cos(Angle(degrees: currentAngle).radians)) * radius
             
             if size % 4 == 0 {
-                print("edited")
                 if ((90.0)...(270.0)).contains(currentAngle) {
                     y -= 7.5
                 } else {
@@ -221,8 +236,8 @@ class BellCircle: ObservableObject {
             objectWillChange.send()
         }
         bellPositions = newPositions
-        oldRadius = radius
-        oldCentre = centre
+        oldRadius = radius.truncate(places: 5)
+        oldCentre = centre.truncate(places: 5)
         oldSize = size
         oldPerspective = perspective
         oldBellType = bellType
@@ -299,7 +314,6 @@ class BellCircle: ObservableObject {
                 size = newSize
             }
         }
-        print("assignments", assignments)
         objectWillChange.send()
     }
     
@@ -502,5 +516,22 @@ extension Array where Element == Ringer {
             }
             return desc
         }
+    }
+}
+
+extension CGPoint {
+    func truncate(places : Int) -> CGPoint {
+        var newX = self.x
+        var newY = self.y
+        newX = CGFloat(floor(pow(10.0, CGFloat(places)) * newX)/pow(10.0, CGFloat(places)))
+        newY = CGFloat(floor(pow(10.0, CGFloat(places)) * newY)/pow(10.0, CGFloat(places)))
+
+        return CGPoint(x: newX, y: newY)
+    }
+}
+
+extension CGFloat {
+    func truncate(places : Int) -> CGFloat {
+        return CGFloat(floor(pow(10.0, CGFloat(places)) * self)/pow(10.0, CGFloat(places)))
     }
 }

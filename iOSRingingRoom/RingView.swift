@@ -306,7 +306,6 @@ struct RingView: View {
         if statusCode ?? 0 == 404 {
             noTowerAlert()
         } else if statusCode ?? 0 == 401 {
-            print("koko")
             unauthorisedAlert()
         } else if statusCode ?? 0 == 200 {
             //            if user.myTowers.towerForID(response["tower_id"] as! Int) == nil {
@@ -316,22 +315,17 @@ struct RingView: View {
             BellCircle.current.towerName = response["tower_name"] as! String
             BellCircle.current.towerID = response["tower_id"] as! Int
             BellCircle.current.serverAddress = response["server_address"] as! String
+            BellCircle.current.additionalSizes = response["additional_sizes_enabled"] as! Bool
+            BellCircle.current.hostModePermitted = response["host_mode_permitted"] as! Bool
+            BellCircle.current.halfMuffled = response["half_muffled"] as! Bool
             
             if let tower = user.myTowers.towerForID(BellCircle.current.towerID) {
-                BellCircle.current.isHost = tower.host
-                if !tower.gotSettings {
-                    print("in queue")
-                    towerInQueue = BellCircle.current.towerID
-                } else {
-                    BellCircle.current.hostModeEnabled = tower.hostModePermitted
-                    print(tower.additionalSizes, "additional")
-                    BellCircle.current.additionalSizes = tower.additionalSizes
-                    SocketIOManager.shared.setups += 1
+                DispatchQueue.main.async {
+                    BellCircle.current.isHost = tower.host
                 }
             } else {
                 BellCircle.current.needsTowerInfo = true
             }
-            
             
             SocketIOManager.shared.setups = 0
             SocketIOManager.shared.ignoreSetup = false
@@ -347,16 +341,6 @@ struct RingView: View {
             //            }
         } else {
             unknownErrorAlert()
-        }
-    }
-    
-    func receivedTowerSettings(id: Int) {
-        if id == towerInQueue {
-            let tower = User.shared.myTowers.towerForID(id)!
-            BellCircle.current.hostModeEnabled = tower.hostModePermitted
-            BellCircle.current.additionalSizes = tower.additionalSizes
-            BellCircle.current.needsTowerInfo = false
-            SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
         }
     }
     

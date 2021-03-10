@@ -28,7 +28,7 @@ class SocketIOManager: NSObject, ObservableObject {
     
     var setups = 0 {
         didSet {
-            if setups == 8 {
+            if setups == 7 {
                 
                 cc.getMyTowers()
                 print(setups)
@@ -50,21 +50,14 @@ class SocketIOManager: NSObject, ObservableObject {
     func gotMyTowers() {
         if bellCircle.needsTowerInfo {
             if let tower = User.shared.myTowers.towerForID(bellCircle.towerID) {
-                cc.getTowerSettings(id: tower.tower_id)
+                bellCircle.isHost = tower.host
+                bellCircle.needsTowerInfo = false
             } else {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     self.cc.getMyTowers()
                 }
             }
         }
-    }
-    
-    func receivedTowerSettings(id: Int) {
-        let tower = User.shared.myTowers.towerForID(id)!
-        BellCircle.current.hostModeEnabled = tower.hostModePermitted
-        BellCircle.current.additionalSizes = tower.additionalSizes
-        bellCircle.needsTowerInfo = false
-        setups += 1
     }
     
     func addListeners() {
@@ -83,11 +76,12 @@ class SocketIOManager: NSObject, ObservableObject {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     self.cc.getMyTowers()
                 }
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now()+0.1) {
-                if AppController.shared.state != .ringing {
-                    self.socket?.disconnect()
-                    self.socket?.connect()
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now()+0.1) {
+                    if AppController.shared.state != .ringing {
+                        self.socket?.disconnect()
+                        self.socket?.connect()
+                    }
                 }
             }
         }
