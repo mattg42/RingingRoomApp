@@ -1207,32 +1207,25 @@ struct TowerControlsView:View {
                     .padding(.top, 4)
                     .padding(.bottom, 7)
     //                .padding(.top, -4)
-                    HStack {
-                        Picker(selection: .init(get: {
-                            self.bellCircle.halfMuffled
-                        }, set: {
-                            self.bellCircle.halfMuffled = $0
-                        }), label: Text("Half-muffled")){
-                            Text("Half-muffled").tag(true)
-                            Text("Open").tag(false)
-                        }
-                        .fixedSize()
-                        .pickerStyle(SegmentedPickerStyle())
-                        if hasPermissions() {
-                        Picker(selection: .init(get: {self.bellTypes.firstIndex(of: self.bellCircle.bellType)!}, set: {self.bellTypeChanged(value:$0)}), label: Text("Bell type picker")) {
-                            ForEach(0..<2) { i in
-                                Text(self.bellTypes[i].rawValue)
+                    if hasPermissions() {
+                        HStack {
+                            if bellCircle.hostModePermitted {
+                                Toggle("Host Mode", isOn: .init(get: { bellCircle.hostModeEnabled }, set: { SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode": $0, "tower_id": bellCircle.towerID]) }))
                             }
-                        }
-                        .fixedSize()
-                        //                            .padding(.horizontal)
-                        //                            .padding(.top, 7)
-                        .pickerStyle(SegmentedPickerStyle())
-                        }
-                        Spacer()
+                            Picker(selection: .init(get: {self.bellTypes.firstIndex(of: self.bellCircle.bellType)!}, set: {self.bellTypeChanged(value:$0)}), label: Text("Bell type picker")) {
+                                ForEach(0..<2) { i in
+                                    Text(self.bellTypes[i].rawValue)
+                                }
+                            }
+                            .fixedSize()
+                            //                            .padding(.horizontal)
+                            //                            .padding(.top, 7)
+                            .pickerStyle(SegmentedPickerStyle())
+                            }
+                        .padding(.bottom, 7)
 
+                    
                     }
-                    .padding(.bottom, 7)
                         if hasPermissions() {
                             HStack {
                                 
