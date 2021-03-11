@@ -65,9 +65,7 @@ struct WelcomeLoginScreen: View {
     @State private var monitor = NWPathMonitor()
     
     @State private var useNAServer = UserDefaults.standard.bool(forKey: "NA")
-    
-    @State private var isUsingDevServer = UserDefaults.standard.bool(forKey: "useDevServer")
-        
+            
     var body: some View {
         ZStack {
             backgroundColor.edgesIgnoringSafeArea(.all) //background view
@@ -122,38 +120,15 @@ struct WelcomeLoginScreen: View {
                     Toggle(isOn: $stayLoggedIn) {
                         Text("Keep me logged in")
                     }
-                Toggle(isOn: $isUsingDevServer) {
-                    Text("Use dev server")
-                }
-                .onChange(of: isUsingDevServer, perform: { value in
-                    UserDefaults.standard.setValue(value, forKey: "useDevServer")
-
-                    if isUsingDevServer {
-                        
-                        CommunicationController.baseUrl = "https:/dev.ringingroom.com/api/"
-                        useNAServer = false
-                    } else {
-                        if useNAServer {
-                            CommunicationController.baseUrl = "https:/na.ringingroom.com/api/"
-                        } else {
-                            CommunicationController.baseUrl = "https:/ringingroom.com/api/"
-                        }
-                    }
-                })
+                
                 Toggle(isOn: $useNAServer) {
                     Text("Use North American Server")
                 }.onChange(of: useNAServer) { value in
                     UserDefaults.standard.set(useNAServer, forKey: "NA")
                     if useNAServer {
                         CommunicationController.baseUrl = "https:/na.ringingroom.com/api/"
-                        isUsingDevServer = false
                     } else {
-                        if isUsingDevServer {
-                            CommunicationController.baseUrl = "https:/dev.ringingroom.com/api/"
-                        } else {
-                            CommunicationController.baseUrl = "https:/ringingroom.com/api/"
-                        }
-
+                        CommunicationController.baseUrl = "https:/ringingroom.com/api/"
                     }
                 }
                     Button(action: login) {

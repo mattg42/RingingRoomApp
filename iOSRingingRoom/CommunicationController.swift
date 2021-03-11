@@ -16,7 +16,7 @@ class CommunicationController {
     
     var sender:Any!
     
-    static var baseUrl = UserDefaults.standard.bool(forKey: "useDevServer") ? "https:/dev.ringingroom.com/api/" : UserDefaults.standard.bool(forKey: "NA") ? "https:/na.ringingroom.com/api/" : "https:/ringingroom.com/api/"
+    static var baseUrl = UserDefaults.standard.bool(forKey: "NA") ? "https:/na.ringingroom.com/api/" : "https:/ringingroom.com/api/"
 
     init(sender:Any! = nil, loginType:LoginType? = nil) {
         self.sender = sender
