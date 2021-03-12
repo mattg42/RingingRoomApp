@@ -63,9 +63,13 @@ struct WelcomeLoginScreen: View {
     @State private var alertCancelButton = Alert.Button.cancel()
     
     @State private var monitor = NWPathMonitor()
+                
+    var servers = ["/":"UK","/na.":"North America","/sg.":"Singapore"]
     
-    @State private var useNAServer = UserDefaults.standard.bool(forKey: "NA")
-            
+    @State var serverSelect = UserDefaults.standard.string(forKey: "server") ?? (UserDefaults.standard.bool(forKey: "NA") ? "/na." : "/")
+    
+    @State var showingServers = false
+    
     var body: some View {
         ZStack {
             backgroundColor.edgesIgnoringSafeArea(.all) //background view
@@ -120,17 +124,56 @@ struct WelcomeLoginScreen: View {
                     Toggle(isOn: $stayLoggedIn) {
                         Text("Keep me logged in")
                     }
-                
-                Toggle(isOn: $useNAServer) {
-                    Text("Use North American Server")
-                }.onChange(of: useNAServer) { value in
-                    UserDefaults.standard.set(useNAServer, forKey: "NA")
-                    if useNAServer {
-                        CommunicationController.baseUrl = "https:/na.ringingroom.com/api/"
-                    } else {
-                        CommunicationController.baseUrl = "https:/ringingroom.com/api/"
+                DisclosureGroup(
+                    
+                    isExpanded: $showingServers,
+                    
+                    content: {
+                        VStack {
+                            ForEach(Array(servers.keys).sorted(), id: \.self) { server in
+                                if server != serverSelect {
+                                Button(action: {
+                                    CommunicationController.server = server
+                                    serverSelect = server
+                                    UserDefaults.standard.set(server, forKey: "server")
+                                    withAnimation {
+                                        showingServers = false
+                                    }
+                                }) {
+                                    HStack {
+                                        Spacer()
+
+                                        Text(servers[server]!)
+    //                                    if serverSelect == server {
+    //                                        Image(systemName: "checkmark")
+    //                                    }
+                                    }
+                                }
+    //                            .padding(.vertical, 1)
+                                }
+                                
+
+                            }
+                            .padding(.top, 1)
+                        }
+                        .padding(.top, 5)
+                    },
+                    label: {
+                        HStack {
+                            Text("Server:")
+                            Spacer()
+                            Button(action: {
+                                withAnimation {
+                                    self.showingServers.toggle()
+                                }
+                            }) {
+                                Text(servers[serverSelect]!)
+                            }
+                        }
+                        
                     }
-                }
+                )
+                
                     Button(action: login) {
                         ZStack {
                             Color.main
@@ -185,7 +228,7 @@ struct WelcomeLoginScreen: View {
     }
     
     func login() {
-        print(CommunicationController.baseUrl)
+        print(CommunicationController.server)
         if monitor.currentPath.status == .satisfied || monitor.currentPath.status == .requiresConnection {
             print("sent login request")
 

@@ -9,7 +9,7 @@
 import Foundation
 
 class ChatManager:ObservableObject {
-    @Published var messages = [String]() //[""]
+    @Published var messages = [Message]() //[""]
     @Published var newMessages = 0
     
     var canSeeMessages = false {
@@ -32,7 +32,7 @@ class ChatManager:ObservableObject {
 //            newMessagesArray[0] = "\(user): \(message)"
 //            firstMessage = false
 //        } else {
-            newMessagesArray.append("\(user): \(message)")
+            newMessagesArray.append(Message(sender: user, message: message))
 //        }
         if !canSeeMessages {
             self.objectWillChange.send()
@@ -43,7 +43,7 @@ class ChatManager:ObservableObject {
     }
 }
 
-struct message:Identifiable {
+struct Message:Identifiable {
     var id = UUID()
     
     var sender:String

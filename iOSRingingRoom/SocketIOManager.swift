@@ -28,7 +28,7 @@ class SocketIOManager: NSObject, ObservableObject {
     
     var setups = 0 {
         didSet {
-            if setups == 7 {
+            if setups == 8 {
                 
                 cc.getMyTowers()
                 print(setups)
@@ -53,7 +53,7 @@ class SocketIOManager: NSObject, ObservableObject {
                 bellCircle.isHost = tower.host
                 bellCircle.needsTowerInfo = false
             } else {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                     self.cc.getMyTowers()
                 }
             }
@@ -77,12 +77,13 @@ class SocketIOManager: NSObject, ObservableObject {
                     self.cc.getMyTowers()
                 }
             } else {
-                DispatchQueue.main.asyncAfter(deadline: .now()+0.1) {
-                    if AppController.shared.state != .ringing {
-                        self.socket?.disconnect()
-                        self.socket?.connect()
-                    }
-                }
+//                DispatchQueue.main.asyncAfter(deadline: .now()+0.1) {
+//                    if AppController.shared.state != .ringing {
+//                        self.setups = 0
+//                        self.socket?.disconnect()
+//                        self.socket?.connect()
+//                    }
+//                }
             }
         }
         
@@ -184,7 +185,7 @@ class SocketIOManager: NSObject, ObservableObject {
 //        bellCircle.setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false, "gotAssignments":false]
         socket?.disconnect()
         socket = nil
-        ChatManager.shared.messages = [String]()
+        ChatManager.shared.messages = [Message]()
         ChatManager.shared.newMessages = 0
         ChatManager.shared.canSeeMessages = false
         manager = nil

@@ -326,7 +326,7 @@ class BellCircle: ObservableObject {
         print("assign", id, bell)
         if let ringer = ringerForID(id) {
             assignmentsBuffer[bell-1] = ringer
-            sortTimer = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
+            sortTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
             if autoRotate {
                 if id == User.shared.ringerID {
                     var tempAssignments = assignments
@@ -357,6 +357,9 @@ class BellCircle: ObservableObject {
             }
         }
         assignmentsBuffer = Array(repeating: nil, count: size)
+        if !SocketIOManager.shared.ignoreSetup {
+            SocketIOManager.shared.setups += 1
+        }
         sortUserArray()
     }
     
@@ -367,7 +370,7 @@ class BellCircle: ObservableObject {
             changePerspective = true
         }
             assignmentsBuffer[bell - 1] = Ringer.blank
-            sortTimer = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
+            sortTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
         if changePerspective && autoRotate {
             var tempAssignments = assignments
             for (index, assignment) in assignmentsBuffer.enumerated() {
@@ -407,7 +410,6 @@ class BellCircle: ObservableObject {
             unAssign(at: i+1)
         }
         users.removeRingerForID(id)
-        sortUsers()
     }
     
     func newAudio(_ audio:String) {
@@ -421,7 +423,7 @@ class BellCircle: ObservableObject {
     
     func sortUsers() {
 //        sortTimer.invalidate()
-        sortTimer = Timer.scheduledTimer(timeInterval: 0.15, target: self, selector: #selector(sortUserArray), userInfo: nil, repeats: false)
+        sortTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(sortUserArray), userInfo: nil, repeats: false)
     }
     
     @objc func sortUserArray() {

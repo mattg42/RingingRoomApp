@@ -56,36 +56,45 @@ struct AutoLogin: View {
     }
         
     func login() {
-            print("sent login request")
-            let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
-            //remove in next beta version
-            let savedPassword = UserDefaults.standard.string(forKey: "userPassword") ?? ""
-            let kcw = KeychainWrapper()
-
-            if savedPassword != "" {
-                do {
-                    try kcw.storePasswordFor(account: email, password: savedPassword)
-                } catch {
-                    print("error saving password to keychain")
-                }
-                UserDefaults.standard.setValue("", forKey: "userPassword")
-            }
-            //
+        print("sent login request")
+        let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
+        
+        //remove in next beta version
+        let savedPassword = UserDefaults.standard.string(forKey: "userPassword") ?? ""
+        let kcw = KeychainWrapper()
+        
+        let value = UserDefaults.standard.bool(forKey: "NA")
+        
+        if value {
+            UserDefaults.standard.setValue("/na.", forKey: "server")
+        } else {
+            UserDefaults.standard.setValue("/", forKey: "server")
+        }
+        
+        if savedPassword != "" {
             do {
-                print("got this far")
-                let password = try kcw.getPasswordFor(account: email)
-                User.shared.email = email
-                User.shared.password = password
-                print("retrieved password")
-                self.comController.login(email: email, password: password)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    if AppController.shared.state == .login {
-                        noInternetAlert()
-                    }
-                }
+                try kcw.storePasswordFor(account: email, password: savedPassword)
             } catch {
-                unknownErrorAlert()
-            } 
+                print("error saving password to keychain")
+            }
+            UserDefaults.standard.setValue("", forKey: "userPassword")
+        }
+        //
+        do {
+            print("got this far")
+            let password = try kcw.getPasswordFor(account: email)
+            User.shared.email = email
+            User.shared.password = password
+            print("retrieved password")
+            self.comController.login(email: email, password: password)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                if AppController.shared.state == .login {
+                    noInternetAlert()
+                }
+            }
+        } catch {
+            unknownErrorAlert()
+        }
     }
     
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
