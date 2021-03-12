@@ -777,7 +777,7 @@ struct RopeCircle:View {
                     Text("Tap the bell that you would like to be positioned bottom right, or tap the rotate button again to cancel.")
                         .multilineTextAlignment(.center)
                         .frame(width: 180)
-                        .font(.title3)
+                        .font(.body)
                         .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
                         .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
                 }
@@ -1184,6 +1184,8 @@ struct TowerControlsView:View {
     
     @State var width:CGFloat = 0
     
+    @State var hostMode = BellCircle.current.hostModeEnabled
+    
     var body: some View {
         GeometryReader { geo in
             ZStack {
@@ -1210,23 +1212,26 @@ struct TowerControlsView:View {
                     if hasPermissions() {
                         HStack {
                             if bellCircle.hostModePermitted {
-                                Toggle("Host Mode", isOn: .init(get: { bellCircle.hostModeEnabled }, set: { SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode": $0, "tower_id": bellCircle.towerID]) }))
+                                Toggle("Host Mode", isOn: $hostMode)
+                                .onChange(of: hostMode, perform: { value in
+                                    SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode": value, "tower_id": bellCircle.towerID])
+                                })
+                                    .onChange(of: bellCircle.hostModeEnabled, perform: { value in
+                                        hostMode = value
+                                    })
                             }
                             Picker(selection: .init(get: {self.bellTypes.firstIndex(of: self.bellCircle.bellType)!}, set: {self.bellTypeChanged(value:$0)}), label: Text("Bell type picker")) {
                                 ForEach(0..<2) { i in
                                     Text(self.bellTypes[i].rawValue)
                                 }
                             }
-                            .fixedSize()
+//                            .fixedSize()
                             //                            .padding(.horizontal)
                             //                            .padding(.top, 7)
                             .pickerStyle(SegmentedPickerStyle())
                             }
                         .padding(.bottom, 7)
 
-                    
-                    }
-                        if hasPermissions() {
                             HStack {
                                 
                                 
@@ -1242,7 +1247,7 @@ struct TowerControlsView:View {
                                 
                             }
                             .padding(.bottom, 7)
-                        }
+                    }
         //                if bellCircle.isHost && bellCircle.hostModePermitted {
         //                    Toggle(isOn: .init(get: {self.bellCircle.hostModeEnabled}, set: { newValue in
         //                        SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode":newValue, "tower_id":self.bellCircle.towerID])
@@ -1702,16 +1707,18 @@ struct ChatView:View {
 //            if self.showingChat {
                 ScrollView {
                     ScrollViewReader { value in
-                        VStack {
+                        VStack(spacing: 5) {
                             if chatManager.messages.count > 0 {
                                 ForEach(0..<chatManager.messages.count, id: \.self) { i in
                                     HStack {
-                                        Text(chatManager.messages[i])
+                                        (Text(chatManager.messages[i].sender).bold() + Text(": \(chatManager.messages[i].message)"))
                                             .id(i)
                                         Spacer()
                                     }
+
 //                                      .background(Color.blue)
                                 }
+                                
                                 .onAppear {
                                     value.scrollTo(chatManager.messages.count - 1)
                                 }

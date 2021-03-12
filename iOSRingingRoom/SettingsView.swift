@@ -59,28 +59,29 @@ struct SettingsView: View {
                             }
                         }
                     } else {
-                        Section {
-                            Button("Log in") {
-                                self.presentingLogin = true
-                            }
-                            .sheet(isPresented: $presentingLogin, onDismiss: {
-                                print("login is dissmissed", self.presentingLogin)
-                            }) {
-                                SimpleLoginView(loggedIn: self.$loggedIn)
-                            }
-                        }
-                        Section {
-                            Button("Create account") {
-                                self.presentingCreateAccount = true
-                            }
-                            .sheet(isPresented: $presentingCreateAccount, onDismiss: {
-                                if self.accountCreated {
-                                    self.comController.login(email: self.email, password: self.password)
-                                }
-                            }) {
-                                AccountCreationView(isPresented: self.$presentingCreateAccount, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
-                            }
-                        }
+                        Text("Oops!")
+//                        Section {
+//                            Button("Log in") {
+//                                self.presentingLogin = true
+//                            }
+//                            .sheet(isPresented: $presentingLogin, onDismiss: {
+//                                print("login is dissmissed", self.presentingLogin)
+//                            }) {
+//                                SimpleLoginView(loggedIn: self.$loggedIn)
+//                            }
+//                        }
+//                        Section {
+//                            Button("Create account") {
+//                                self.presentingCreateAccount = true
+//                            }
+//                            .sheet(isPresented: $presentingCreateAccount, onDismiss: {
+//                                if self.accountCreated {
+//                                    self.comController.login(email: self.email, password: self.password)
+//                                }
+//                            }) {
+//                                AccountCreationView(isPresented: self.$presentingCreateAccount, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
+//                            }
+//                        }
                         
                     }
                 }
