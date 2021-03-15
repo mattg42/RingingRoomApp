@@ -30,9 +30,6 @@ struct AgreeToPrivacyPolicyView: View {
                             .bold()
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 4)
-                            //                                    Text("hand")
-                            //                                        .bold()
-                            //                                }
                             .foregroundColor(.white)
                             .padding(.vertical, 10)
                     }

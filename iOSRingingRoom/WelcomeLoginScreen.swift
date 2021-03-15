@@ -22,7 +22,6 @@ enum ActiveLoginSheet: Identifiable {
 }
 
 struct WelcomeLoginScreen: View {
-//    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     @Environment(\.colorScheme) var colorScheme
 
     var backgroundColor:Color {
@@ -305,19 +304,10 @@ struct WelcomeLoginScreen: View {
                 }
                 AppController.shared.selectedTab = .ring
                 AppController.shared.state = .main
-//                self.presentMainApp()
             }
         } else {
             unknownErrorAlert()
         }
-    }
-    
-    func presentMainApp() {
-        //present main ringingroom view
-
-//        self.viewControllerHolder?.present(style: .fullScreen, name: "Main") {
-//            MainApp(autoJoinTower: autoJoinTower, autoJoinTowerID: autoJoinTowerID)
-//        }
     }
     
     func unknownErrorAlert() {
@@ -346,56 +336,8 @@ struct WelcomeLoginScreen: View {
     
 }
 
-
 struct LoginScreen_Previews: PreviewProvider {
     static var previews: some View {
         WelcomeLoginScreen()
     }
 }
-
-//struct ViewControllerHolder {
-//    weak var value: UIViewController?
-//}
-//
-//struct ViewControllerKey: EnvironmentKey {
-//    static var defaultValue: ViewControllerHolder {
-//        return ViewControllerHolder(value: UIApplication.shared.windows.first?.rootViewController)
-//        
-//    }
-//}
-//
-//extension EnvironmentValues {
-//    var viewController: UIViewController? {
-//        get { return self[ViewControllerKey.self].value }
-//        set { self[ViewControllerKey.self].value = newValue }
-//    }
-//}
-//
-//extension UIViewController {
-//    func present<Content: View>(style: UIModalPresentationStyle = .automatic, name:String, animated:Bool = false, @ViewBuilder builder: () -> Content) {
-//        let toPresent = UIHostingController(rootView: AnyView(EmptyView()))
-//        toPresent.modalPresentationStyle = style
-//        toPresent.rootView = AnyView(
-//            builder()
-//                .environment(\.viewController, toPresent)
-//        )
-//        print("blank")
-//        NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "dismiss\(name)"), object: nil, queue: nil) { [weak toPresent] _ in
-//            toPresent?.dismiss(animated: false, completion: nil)
-//        }
-//        if name == "RingingRoom" {
-//            if BellCircle.current.ringingroomIsPresented == false {
-//                BellCircle.current.ringingroomIsPresented = true
-//            print("\n-=-=-=-=-=-=-=-Presented RR-=-=-=-=-=-=-=-=-=-=-=\n")
-//            } else {
-//                return
-//            }
-//        }
-//        self.present(toPresent, animated: animated, completion: nil)
-//        print("presented \(name)")
-//    }
-//}
-
-
-
-

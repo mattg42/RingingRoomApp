@@ -190,16 +190,6 @@ struct AboutView:View {
         
         .padding()
 
-
-//            Button("Tap to view the Privacy Policy") {
-//                isShowingPrivacyPolicy = true
-//            }
-//            .sheet(isPresented: $isShowingPrivacyPolicy, content: {
-//                PrivacyPolicyView()
-//            })
-//                Spacer()
-//            }
-//        }
         .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
             if asSheet {
                 Text("Dismiss")

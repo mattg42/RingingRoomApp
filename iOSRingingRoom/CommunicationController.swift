@@ -31,6 +31,7 @@ class CommunicationController {
         guard let requestUrl = URL(string: baseURL+endpoint) else { return }
         
         var request = URLRequest(url: requestUrl)
+        
         // Specify HTTP Method to use
         request.httpMethod = method
         
@@ -79,7 +80,6 @@ class CommunicationController {
                     print("Http response")
                     print(dataString)
                 }
-                // print("Response data string:\n \(dataString)")
                 
                 do {
                     if type == .getMyTowers {
@@ -91,13 +91,6 @@ class CommunicationController {
                     print("error converting response to a dictionary")
                 }
             }
-            
-//            if statusCode == 401 {
-//                if type != .loginAttempt {
-//                    self.loginType = .refresh
-//                    login(email: User.shared.email, password: User.shared.password)
-//                }
-//            }
             
             print(dataDict)
             
@@ -187,7 +180,6 @@ class CommunicationController {
 //                case nil:
 //                    (self.sender as! RingView).updatedMyTowers()
                 }
-            //    {"928134567": {"bookmark": 0,"creator": 1,"host": 1,"recent": 1,"tower_id": 928134567,"tower_name": "Advent","visited": "Mon, 31 Aug 2020 15:45:54 GMT"}, "987654321": {"bookmark": 0,"creator": 0,"host": 0,"recent": 1,"tower_id": 987654321,"tower_name": "Old North","visited": "Mon, 31 Aug 2020 15:44:40 GMT"}}
                 
 //            case .toggleBookmark:
 //            case .deleteTowerFromRecents:

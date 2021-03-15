@@ -12,12 +12,6 @@ import Network
 
 struct RingView: View {
     
-    //    init() {
-    //         UIScrollView.appearance().bounces = false
-    //    }
-    
-    //    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
-    
     @State private var comController:CommunicationController!
     
     @State private var towerListSelection:Int = 0
@@ -56,7 +50,6 @@ struct RingView: View {
     @State private var showingTowerIDField = false
     
     var body: some View {
-        //        if !BellCircle.current.ringingroomIsPresented {
         NavigationView {
             VStack(spacing: 8) {
                 //            Picker("Tower list selection", selection: $towerListSelection) {
@@ -67,7 +60,6 @@ struct RingView: View {
                 //            .pickerStyle(SegmentedPickerStyle())
                 HStack {
                     Text("(No tower management in this version)")
-                    //                    Text("Tower management is not currently supported")
                     Spacer()
                 }.padding(.top, -20)
                 HStack {
@@ -264,13 +256,6 @@ struct RingView: View {
                 }
             }
         }
-        //        } else {
-        //            ringingRoomView
-        //        }
-        
-        //        .onReceive(BellCircle.current.objectWillChange, perform: { _ in
-        //
-        //        })
     }
         
     func getTowerIDHeader() -> String {
@@ -298,7 +283,6 @@ struct RingView: View {
                 
                 comController.createTower(name: towerName.trimmingCharacters(in: .whitespaces))
                 
-                //create new tower
             } else {
                 noInternetAlert()
             }
@@ -331,10 +315,6 @@ struct RingView: View {
         } else if statusCode ?? 0 == 401 {
             unauthorisedAlert()
         } else if statusCode ?? 0 == 200 {
-            //            if user.myTowers.towerForID(response["tower_id"] as! Int) == nil {
-            //                self.response = response
-            //                comController.getMyTowers()
-            //            } else {
             BellCircle.current.towerName = response["tower_name"] as! String
             BellCircle.current.towerID = response["tower_id"] as! Int
             BellCircle.current.serverAddress = response["server_address"] as! String
@@ -356,7 +336,6 @@ struct RingView: View {
             
             SocketIOManager.shared.setups = 0
             SocketIOManager.shared.ignoreSetup = false
-            //            comController.getHostModePermitted(BellCircle.current.towerID)
             SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 if AppController.shared.state != .ringing {

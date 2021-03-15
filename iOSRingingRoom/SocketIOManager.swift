@@ -179,8 +179,6 @@ class SocketIOManager: NSObject, ObservableObject {
     
     func leaveTower() {
         socket?.emit("c_user_left", ["user_name":User.shared.name, "user_token":CommunicationController.token!, "anonymous_user":false, "tower_id":bellCircle.towerID])
-//        if bellCircle.ringingroomIsPresented {
-//        }
         setups = 0
         ignoreSetup = false
 //        bellCircle.setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false, "gotAssignments":false]
