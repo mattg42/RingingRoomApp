@@ -17,6 +17,8 @@ This is my first real-life coding project, let alone my first SwiftUI one, so th
 
 For major changes, please open an issue first to discuss what you would like to change.
 
+Comments coming soon!
+
 ## Contact
 
 If you want to contact me directly, email me at ringingroomapp@gmail.com
