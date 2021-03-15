@@ -46,6 +46,15 @@ struct AutoLogin: View {
         //present welcome login screen
             Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: alertCancelButton)
         }
+        .onOpenURL(perform: { url in
+            var pathComponents = url.pathComponents.dropFirst()
+            if let firstPath = pathComponents.first {
+                if let towerID = Int(firstPath) {
+                    CommunicationController.towerQueued = towerID
+                }
+            }
+            print("opened from \(url.pathComponents.dropFirst())")
+        })
         .onAppear(perform: {
 
 
@@ -55,6 +64,65 @@ struct AutoLogin: View {
         })
     }
         
+    func joinTower(id: Int) {
+
+        DispatchQueue.global(qos: .userInteractive).async {
+                CommunicationController.towerQueued = nil
+                print("joined tower")
+                self.getTowerConnectionDetails(id: id)
+                
+                //create new tower
+        }
+        
+    }
+    
+    func getTowerConnectionDetails(id: Int) {
+        comController.getTowerDetails(id: id)
+    }
+        
+    func receivedTowerResponse(statusCode:Int?, response:[String:Any]) {
+        print("received")
+        if statusCode ?? 0 == 404 {
+            noTowerAlert()
+        } else if statusCode ?? 0 == 401 {
+            unauthorisedAlert()
+        } else if statusCode ?? 0 == 200 {
+            //            if user.myTowers.towerForID(response["tower_id"] as! Int) == nil {
+            //                self.response = response
+            //                comController.getMyTowers()
+            //            } else {
+            BellCircle.current.towerName = response["tower_name"] as! String
+            BellCircle.current.towerID = response["tower_id"] as! Int
+            BellCircle.current.serverAddress = response["server_address"] as! String
+            BellCircle.current.additionalSizes = response["additional_sizes_enabled"] as! Bool
+            BellCircle.current.hostModePermitted = response["host_mode_permitted"] as! Bool
+            BellCircle.current.halfMuffled = response["half_muffled"] as! Bool
+            
+            if let tower = User.shared.myTowers.towerForID(BellCircle.current.towerID) {
+                DispatchQueue.main.async {
+                    BellCircle.current.isHost = tower.host
+                }
+            } else {
+                BellCircle.current.needsTowerInfo = true
+            }
+            
+            SocketIOManager.shared.setups = 0
+            SocketIOManager.shared.ignoreSetup = false
+            //            comController.getHostModePermitted(BellCircle.current.towerID)
+            SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                if AppController.shared.state != .ringing {
+                    if !showingAlert {
+                        socketFailedAlert()
+                    }
+                }
+            }
+            //            }
+        } else {
+            unknownErrorAlert()
+        }
+    }
+    
     func login() {
         print("sent login request")
         let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
@@ -63,12 +131,14 @@ struct AutoLogin: View {
         let savedPassword = UserDefaults.standard.string(forKey: "userPassword") ?? ""
         let kcw = KeychainWrapper()
         
-        let value = UserDefaults.standard.bool(forKey: "NA")
-        
-        if value {
-            UserDefaults.standard.setValue("/na.", forKey: "server")
-        } else {
-            UserDefaults.standard.setValue("/", forKey: "server")
+        if UserDefaults.standard.string(forKey: "server") == nil {
+            let value = UserDefaults.standard.bool(forKey: "NA")
+            
+            if value {
+                UserDefaults.standard.setValue("/na.", forKey: "server")
+            } else {
+                UserDefaults.standard.setValue("/", forKey: "server")
+            }
         }
         
         if savedPassword != "" {
@@ -132,15 +202,6 @@ struct AutoLogin: View {
         showingAlert = true
     }
     
-    func unknownErrorAlert() {
-        alertTitle = "Error"
-        alertMessage = "An unknown error occured."
-        alertCancelButton = .cancel(Text("OK"), action: {
-            AppController.shared.loginState = .standard
-        })
-        showingAlert = true
-    }
-    
     func incorrectCredentialsAlert() {
         alertTitle = "Credentials error"
         alertMessage = "Your username or password is incorrect."
@@ -150,6 +211,34 @@ struct AutoLogin: View {
         self.showingAlert = true
     }
     
+        func socketFailedAlert() {
+            alertTitle = "Failed to connect socket"
+            alertMessage = "Please try and join the tower again. If the problem persists, restart the app."
+            alertCancelButton = .cancel(Text("OK"))
+            showingAlert = true
+        }
+        
+        func unauthorisedAlert() {
+            alertTitle = "Invalid token"
+            alertMessage = "Please restart the app."
+            alertCancelButton = .cancel(Text("OK"))
+            showingAlert = true
+        }
+        
+        func noTowerAlert() {
+            alertTitle = "No tower found"
+            alertMessage = "There is no tower with that ID."
+            alertCancelButton = .cancel(Text("OK"))
+            showingAlert = true
+        }
+        
+        func unknownErrorAlert() {
+            alertTitle = "Error"
+            alertMessage = "An unknown error occurred."
+            alertCancelButton = .cancel(Text("OK"))
+            showingAlert = true
+        }
+        
     func noInternetAlert() {
         alertTitle = "Connection error"
         alertMessage = "Your device is not connected to the internet. Please check your internet connection and try again."

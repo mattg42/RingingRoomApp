@@ -12,6 +12,8 @@ class CommunicationController {
     
     static var token:String? = nil
     
+    static var towerQueued:Int? = nil
+    
     var loginType:LoginType? = nil
     
     var sender:Any!
@@ -107,7 +109,11 @@ class CommunicationController {
                 }
                 switch self.loginType {
                 case .auto:
-                    (self.sender as! AutoLogin).receivedResponse(statusCode: statusCode, response: dataDict)
+                    if CommunicationController.towerQueued == nil {
+                        (self.sender as! AutoLogin).receivedResponse(statusCode: statusCode, response: dataDict)
+                    } else {
+                        (self.sender as! AutoLogin).joinTower(id: CommunicationController.towerQueued!)
+                    }
                 case .welcome:
                     (self.sender as! WelcomeLoginScreen).receivedResponse(statusCode: statusCode, responseData: dataDict)
 //                case .simple:
@@ -186,7 +192,11 @@ class CommunicationController {
 //            case .toggleBookmark:
 //            case .deleteTowerFromRecents:
             case .connectToTower:
-                (self.sender as! RingView).receivedResponse(statusCode: statusCode, response: dataDict)
+                if self.loginType == .auto {
+                    (self.sender as! AutoLogin).receivedTowerResponse(statusCode: statusCode, response: dataDict)
+                } else {
+                    (self.sender as! RingView).receivedResponse(statusCode: statusCode, response: dataDict)
+                }
             case .createTower:
                 self.getTowerDetails(id: dataDict["tower_id"] as! Int)
 //            case .deleteTower:

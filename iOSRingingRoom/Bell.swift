@@ -128,6 +128,7 @@ class BellCircle: ObservableObject {
     var assignments = [Ringer]()
     
     var assignmentsBuffer = [Ringer?]()
+    var usersBuffer = [Ringer]()
     
     var bellPositions = [CGPoint]()
     
@@ -140,6 +141,10 @@ class BellCircle: ObservableObject {
     @Published var bellMode = BellMode.ring
     
     @Published var keyboardShowing = false
+    
+    var gotHostMode = true
+    var hostModeFromSelf = false
+    var hostModeFromServer = false
     
     init() {
         let session = AVAudioSession()
@@ -175,21 +180,21 @@ class BellCircle: ObservableObject {
     var oldBellType = BellType.tower
     
     func getNewPositions(radius:CGFloat, centre:CGPoint) -> [CGPoint] {
-        print(radius, oldRadius)
+//        print(radius, oldRadius)
         if radius.truncate(places: 5) == oldRadius {
-            print("passed radius")
-            print(centre, oldCentre)
+//            print("passed radius")
+//            print(centre, oldCentre)
             if centre.truncate(places: 5) == oldCentre {
-                print("passed centre")
+//                print("passed centre")
 
                 if size == oldSize {
-                    print("passed size")
+//                    print("passed size")
 
                     if bellType == oldBellType {
-                        print("passed bellType")
+//                        print("passed bellType")
 
                         if perspective == oldPerspective {
-                            print("passed perspective")
+//                            print("passed perspective")
 
                             return bellPositions
                         }
@@ -203,7 +208,7 @@ class BellCircle: ObservableObject {
         
         var newPositions = [CGPoint]()
         
-        print("calculating")
+//        print("calculating")
         
         var currentAngle = startAngle
         
@@ -322,26 +327,6 @@ class BellCircle: ObservableObject {
         return nil
     }
     
-    func assign(_ id:Int, to bell: Int) {
-        print("assign", id, bell)
-        if let ringer = ringerForID(id) {
-            assignmentsBuffer[bell-1] = ringer
-            sortTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
-            if autoRotate {
-                if id == User.shared.ringerID {
-                    var tempAssignments = assignments
-                    for (index, assignment) in assignmentsBuffer.enumerated() {
-                        if assignment != nil {
-                            tempAssignments[index] = assignment!
-                        }
-                    }
-                    objectWillChange.send()
-                    perspective = (tempAssignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
-                }
-            }
-        }
-    }
-    
     func ringBell(_ number:Int) {
             SocketIOManager.shared.socket?.emit("c_bell_rung", ["bell": number, "stroke": (bellStates[number - 1]), "tower_id": towerID])
 //        bellCircle.timer.tolerance = 0
@@ -356,6 +341,9 @@ class BellCircle: ObservableObject {
                 assignments[index] = assignment!
             }
         }
+        if autoRotate {
+            perspective = (assignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+        }
         assignmentsBuffer = Array(repeating: nil, count: size)
         if !SocketIOManager.shared.ignoreSetup {
             SocketIOManager.shared.setups += 1
@@ -364,22 +352,25 @@ class BellCircle: ObservableObject {
     }
     
     
+    func assign(_ id:Int, to bell: Int) {
+        print("assign", id, bell)
+        if let ringer = ringerForID(id) {
+            var changePerspective = false
+            if assignments[bell - 1].userID == User.shared.ringerID {
+                changePerspective = true
+            }
+            assignmentsBuffer[bell - 1] = ringer
+            sortTimer = Timer.scheduledTimer(timeInterval: 0.07, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
+        }
+    }
+    
     func unAssign(at bell:Int) {
         var changePerspective = false
         if assignments[bell - 1].userID == User.shared.ringerID {
             changePerspective = true
         }
-            assignmentsBuffer[bell - 1] = Ringer.blank
-            sortTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
-        if changePerspective && autoRotate {
-            var tempAssignments = assignments
-            for (index, assignment) in assignmentsBuffer.enumerated() {
-                if assignment != nil {
-                    tempAssignments[index] = assignment!
-                }
-            }
-            perspective = (tempAssignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
-        }
+        assignmentsBuffer[bell - 1] = Ringer.blank
+        sortTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
     }
     
     func newUserlist(_ newUsers:[[String:Any]]) {
@@ -390,12 +381,12 @@ class BellCircle: ObservableObject {
             ringer.userID = newRinger["user_id"] as! Int
             ringer.name = newRinger["username"] as! String
             print(ringer.userID)
-            if !users.containsRingerForID(ringer.userID) {
-                users.append(ringer)
-                print(users.ringers)
-            }
+            newUser(id: ringer.userID, name: ringer.name)
+//            if !usersBuffer.containsRingerForID(ringer.userID) {
+//                usersBuffer.append(ringer)
+//                print(usersBuffer.ringers)
+//            }
         }
-        objectWillChange.send()
     }
     
     func newUser(id:Int, name:String) {

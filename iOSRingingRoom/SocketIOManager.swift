@@ -139,6 +139,7 @@ class SocketIOManager: NSObject, ObservableObject {
                 User.shared.ringerID = self.getDict(data)["user_id"] as! Int
                 self.setups += 1
             }
+            print(self.getDict(data))
             self.bellCircle.newUser(id: self.getDict(data)["user_id"] as! Int, name: self.getDict(data)["username"] as! String)
         }
         
@@ -153,7 +154,6 @@ class SocketIOManager: NSObject, ObservableObject {
             if !self.ignoreSetup {
                 self.setups += 1
             }
-            self.bellCircle.objectWillChange.send()
             self.bellCircle.hostModeEnabled = self.getDict(data)["new_mode"] as! Bool
         }
         
@@ -162,6 +162,7 @@ class SocketIOManager: NSObject, ObservableObject {
         }
         
         socket?.on("s_user_left") { data, ack in
+            print(self.getDict(data))
             if self.getDict(data)["user_id"] as! Int == User.shared.ringerID {
                 self.leaveTower()
             } else {
