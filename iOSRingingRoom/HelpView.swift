@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import MessageUI
 
 class HelpDocumentation {
     static let creatingAnAccount = """
@@ -16,11 +17,11 @@ To help Ringing Room give you a safe, secure ringing experience and to help stor
 
 After you have registered, you will be automatically logged in. In the Settings view, your username will appear at the top of the screen. If you want to manage your account, such as changing your password, you will need to login on the Ringing Room website. These facilities will be added in a future version of the app.
 
-If you ever forget your password, you will need to go to ringingroom.com, where you can use the password reset link on the login page, which will send an email to your address on file with a link to reset your password. Note that this link is only good for 24 hours after being sent. Make sure to check your spam filter for the email if it doesn't arrive promptly.
+If you ever forget your password, you will need to log out, then press 'Forgot password' in the bottom left corner of the login page. Enter you email address, then press on Request password reset. An email will be sent to your address on file with a link to reset your password. Note that this link is only good for 24 hours after being sent. Make sure to check your spam filter for the email if it doesn't arrive promptly.
 """
     
     static let creatingOrJoiningATower = """
-To join a tower, if you have visited it before, you can just press on its name in the list of towers. If you want to join a tower you haven't been to before, then press on 'Enter existing tower ID', to reveal a text box and a Join Tower button. Enter the desired tower's 9 digit ID number in the text box and press Join Tower. The Join Tower button is only enabled when 9 digits are in the text box.
+To join a tower, if you have visited it before, you can just press on its name in the list of towers. If you want to join a tower you haven't been to before, then press on 'Join tower by ID', to reveal a text box and a Join Tower button. Enter the desired tower's 9 digit ID number in the text box and press Join Tower. The Join Tower button is only enabled when 9 digits are in the text box.
 
 Creating a tower on Ringing Room is simple. Go to the Towers view and press on 'Create new tower' to reveal a text box and the Create Tower button. Next, type the name of the new tower into the text box. Press Create Tower and you will be sent to a new tower with that name.
 """
@@ -28,7 +29,7 @@ Creating a tower on Ringing Room is simple. Go to the Towers view and press on '
     static let ringingTheBells = """
 Once you're in a tower, you can ring the bells by tapping on their images. If you are assigned a bell, a button for that bell will appear near the bottom of your screen.
 
-You may wish to change the number of bells in the tower, whether you are ringing tower bells or handbells, and if you are ringing tower bells, whether you are ringing half-muffled or open. This can be achieved by selecting the desired option in the Tower Controls. You can access the Tower Controls by clicking on the button at the top-right of the Ringing view. Also available in the tower controls are a list of users, and the chat. You will also be able to assign ringers to bells; this is covered in the Advanced Features section.
+You may wish to change the number of bells in the tower, whether you are ringing tower bells or handbells. This can be achieved by selecting the desired option in the Tower Controls. You can access the Tower Controls by clicking on the button at the top-right of the Ringing view. Also available in the tower controls are a list of users, and the chat. You will also be able to assign ringers to bells; this is covered in the Advanced Features section.
 """
     
     static let makingCalls = """
@@ -50,7 +51,7 @@ The tower controls includes a list of users presently in the tower, which you ca
 
 Assigning a user to a bell will have the effect of automatically rotating that ringer's \"perspective\" on the tower so that the bell is placed in the bottom right position. There is more about changing your perspective in the section "Rotating the perspective of the bell circle". This will also make a large dedicated button for each assigned bell near the bottom of the screen. If a user is assigned to multiple bells, the lowest-numbered one will be placed on the right.
 
-There is also a button called 'Fill In'. This will randomly assign unassigned ringers to available bells. The Fill In button is only enabled if there are at least as many unassigned ringers as available bells.
+There is also a button called 'Fill In'. This will randomly assign unassigned ringers to available bells. The Fill In button is only enabled if there are at least as many unassigned ringers as available bells. If Wheatley is in the tower, then Fill In will randomly assign all human ringers a bell, then fill in the rest with Wheatley.
 """
     
     static let rotating = """
@@ -61,7 +62,7 @@ In addition, in the Settings tab, there is an option to disable the automatic ro
     
     
     static let managingTowers = """
-The Towers tab shows all the towers associated with your account. They are sorted by last visited, with the most recent at the bottom.
+The Towers tab shows all the towers associated with your account. They are sorted by last visited, with the most recent at the top.
 
 In a later version, you will be able to view separate lists for recent, bookmarked, created and host towers, and be able to change the settings for the towers you have created.
 """
@@ -78,9 +79,7 @@ If Host Mode is permitted at a tower, hosts have an extra switch in the tower co
     • Only hosts may assign other ringers to bells.
     • Non-hosts may assign themselves to open bells only — that is, they can \"catch hold\" of unused bells, but not displace other ringers.
 
-Host mode can only be activated or deactivated by any hosts currently in the tower through the Ringing Room website. If there are no hosts present in the tower, host mode will automatically be disabled so that ringing can proceed normally.
-
-A future version of this app will add support for full control of host mode.
+Host mode can only be activated or deactivated by any hosts currently in the tower. If there are no hosts present in the tower, host mode will automatically be disabled so that ringing can proceed normally.
 """
     
 }
@@ -108,6 +107,9 @@ struct MasterHelpView:View {
     var body: some View {
         Form {
             Section {
+                NavigationLink("About", destination: AboutView(asSheet: self.asSheet, isPresented: self.$isPresented))
+            }
+            Section {
                 NavigationLink("Quick Start Guide", destination: QuickStartGuideView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Advanced Features", destination: AdvancedFeaturesView(asSheet: self.asSheet, isPresented: self.$isPresented))
 //                NavigationLink("FAQs",  destination: QuickStartGuideView(asSheet: self.asSheet, isPresented: self.$isPresented))
@@ -125,6 +127,88 @@ struct MasterHelpView:View {
             
         })
             .navigationBarTitle("Help")
+    }
+}
+
+struct AboutView:View {
+    var asSheet:Bool
+    
+    @Binding var isPresented:Bool
+        
+    @State private var result: Result<MFMailComposeResult, Error>? = nil
+    @State private var isShowingMailView = false
+    @State private var noMailAlert = false
+    
+    @State private var isShowingPrivacyPolicy = false
+    
+    var body: some View {
+//        ZStack {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20.0) {
+                
+                HStack(spacing: 10.0) {
+                    Image("Icon")
+                        .cornerRadius(13, antialiased: true)
+                    
+                    VStack(alignment: .leading, spacing: 4.5) {
+                        Text("Ringing Room").bold()
+                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String)").bold()
+                        Text("by Matthew Goodship")
+                            .foregroundColor(.secondary)
+                        
+                    }
+                }.padding(.top, 5)
+                VStack(alignment: .leading, spacing: 8.0) {
+                    Text("This app provides users with a way to ring on Ringing Room using their iPhones and iPads, with a quicker response time than a mobile browser, and a touch friendly user interface.")
+                    Text("Ringing Room is a website built by Leland Paul Kusmer and Bryn Marie Reinstadler to allow change ringers to continue ringing with one another even when socially distanced.")
+                    Text("The app will be continually improved, with support for features such as tower management and account settings coming soon. If you would like to submit a feature request or bug report, please contact me at")
+                    Button("ringingroomapp@gmail.com") {
+                        MFMailComposeViewController.canSendMail() ? self.isShowingMailView.toggle() : self.noMailAlert.toggle()
+                    }
+                    .padding(.top, -5)
+                    .sheet(isPresented: $isShowingMailView) {
+                        MailView(result: self.$result, recipient:"ringingroomapp@gmail.com")
+                    }
+                    .alert(isPresented: self.$noMailAlert) {
+                        Alert(title: Text("Mail not setup"), message: Text("Mail is not setup on your device."), dismissButton: .default(Text("OK")))
+                    }
+                    VStack(alignment: .leading, spacing: 0.0) {
+                        Text("This app is fully open-source. To view the code, go to")
+                        Link("github.com/Matthew15625/iOSRingingRoom", destination: URL(string: "https://github.com/Matthew15625/iOSRingingRoom")!)
+                    }
+                }
+                VStack(alignment: .leading, spacing: 8.0) {
+                    Text("Privacy Policy").bold()
+                    PrivacyPolicyView()
+                    
+                }
+                VStack(alignment: .leading, spacing: 8.0) {
+                    
+                }
+            }
+        }
+        
+        .padding()
+
+
+//            Button("Tap to view the Privacy Policy") {
+//                isShowingPrivacyPolicy = true
+//            }
+//            .sheet(isPresented: $isShowingPrivacyPolicy, content: {
+//                PrivacyPolicyView()
+//            })
+//                Spacer()
+//            }
+//        }
+        .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
+            if asSheet {
+                Text("Dismiss")
+            } else {
+                Text("")
+            }
+            
+        })
+            .navigationBarTitle("About", displayMode: .inline)
     }
 }
 

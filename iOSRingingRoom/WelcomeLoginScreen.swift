@@ -13,6 +13,14 @@ import Combine
 import NotificationCenter
 import Network
 
+enum ActiveLoginSheet: Identifiable {
+    case privacy, forgotPassword, createAccount
+    
+    var id: Int {
+        hashValue
+    }
+}
+
 struct WelcomeLoginScreen: View {
 //    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     @Environment(\.colorScheme) var colorScheme
@@ -63,12 +71,17 @@ struct WelcomeLoginScreen: View {
     @State private var alertCancelButton = Alert.Button.cancel()
     
     @State private var monitor = NWPathMonitor()
+    
+    @State private var activeLoginSheet:ActiveLoginSheet? = nil
                 
     var servers = ["/":"UK","/na.":"North America","/sg.":"Singapore"]
     
     @State var serverSelect = UserDefaults.standard.string(forKey: "server") ?? (UserDefaults.standard.bool(forKey: "NA") ? "/na." : "/")
     
     @State var showingServers = false
+    
+    var webview = Webview(web: nil, url: URL(string: "https://ringingroom.co.uk/privacy")!)
+
     
     var body: some View {
         ZStack {
@@ -124,6 +137,7 @@ struct WelcomeLoginScreen: View {
                     Toggle(isOn: $stayLoggedIn) {
                         Text("Keep me logged in")
                     }
+                    .toggleStyle(SwitchToggleStyle(tint: .main))
                 DisclosureGroup(
                     
                     isExpanded: $showingServers,
@@ -160,7 +174,7 @@ struct WelcomeLoginScreen: View {
                     },
                     label: {
                         HStack {
-                            Text("Server:")
+                            Text("Server")
                             Spacer()
                             Button(action: {
                                 withAnimation {
@@ -200,26 +214,48 @@ struct WelcomeLoginScreen: View {
 //                    }
 //                    .fixedSize(horizontal: false, vertical: true)
                     HStack {
-                        Button(action: {self.showingResetPasswordView = true; self.loginScreenIsActive = false}) {
+                        Button(action: {self.activeLoginSheet = .forgotPassword; self.loginScreenIsActive = false}) {
                             Text("Forgot password?")
                                 .font(.callout)
-                        }.sheet(isPresented: $showingResetPasswordView, onDismiss: {self.loginScreenIsActive = true}) {
-                            resetPasswordView(isPresented: self.$showingResetPasswordView, email: self.$email).accentColor(Color.main)
-
                         }
                         
                         Spacer()
-                        Button(action: { self.showingAccountCreationView = true; self.loginScreenIsActive = false} ) {
+                        Button(action: { self.activeLoginSheet = .createAccount; self.loginScreenIsActive = false} ) {
                             Text("Create an account")
                                 .font(.callout)
-                        }.sheet(isPresented: $showingAccountCreationView, onDismiss: {self.loginScreenIsActive = true; if self.accountCreated {self.login()}}) {
-                            AccountCreationView(isPresented: self.$showingAccountCreationView, email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
                         }
                     }
                     .accentColor(Color.main)
                     }
             .padding()
         }
+        .sheet(item: $activeLoginSheet, onDismiss: {
+            self.loginScreenIsActive = true
+            if self.accountCreated {
+                self.login()
+            }
+        }, content: { item in
+            switch item {
+            case .privacy:
+                NavigationView {
+                    webview
+                        .navigationBarTitle("Privacy", displayMode: .inline)
+                        .navigationBarItems(trailing: Button("Dismiss") {activeLoginSheet = nil})
+                }
+                .accentColor(.main)
+            case .forgotPassword:
+            ResetPasswordView(isPresented: .init(get: {self.activeLoginSheet == .forgotPassword}, set: {if !$0 {self.activeLoginSheet = nil}}), email: self.$email).accentColor(Color.main)
+            case .createAccount:
+                AccountCreationView(isPresented: .init(get: {self.activeLoginSheet == .createAccount}, set: {if $0 {self.activeLoginSheet = nil}}), email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
+            }
+        })
+        .onOpenURL(perform: { url in
+            let pathComponents = Array(url.pathComponents.dropFirst())
+            print(pathComponents)
+            if pathComponents[0] == "privacy" {
+                activeLoginSheet = .privacy
+            }
+        })
         .onAppear(perform: {
             self.comController = CommunicationController(sender: self, loginType: .welcome)
             let queue = DispatchQueue.monitor
@@ -310,24 +346,6 @@ struct WelcomeLoginScreen: View {
     
 }
 
-extension Publishers {
-    static var keyboardHeight: AnyPublisher<CGFloat, Never> {
-        let willShow = NotificationCenter.default.publisher(for: UIApplication.keyboardWillShowNotification)
-            .map { $0.keyboardHeight }
-        
-        let willHide = NotificationCenter.default.publisher(for: UIApplication.keyboardWillHideNotification)
-            .map { _ in CGFloat(0) }
-        
-        return MergeMany(willShow, willHide)
-            .eraseToAnyPublisher()
-    }
-}
-
-extension Notification {
-    var keyboardHeight: CGFloat {
-        return (userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect)?.height ?? 0
-    }
-}
 
 struct LoginScreen_Previews: PreviewProvider {
     static var previews: some View {

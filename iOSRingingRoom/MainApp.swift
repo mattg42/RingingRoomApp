@@ -28,17 +28,36 @@ struct MainApp: View {
     
     @ObservedObject var controller = AppController.shared
         
+    @State var showingPrivacyPolicyView = false
+
+    
+    var webview = Webview(web: nil, url: URL(string: "https://ringingroom.co.uk/privacy")!)
+    
     var body: some View {
         switch AppController.shared.state {
         case .login:
             if AppController.shared.loginState == .auto {
                 AutoLogin()
-
+                    .sheet(isPresented: $showingPrivacyPolicyView, content: {
+                        NavigationView {
+                            webview
+                                .navigationBarTitle("Privacy", displayMode: .inline)
+                                .navigationBarItems(trailing: Button("Dismiss") {showingPrivacyPolicyView = false})
+                        }
+                    })
+                    .onOpenURL(perform: { url in
+                        let pathComponents = Array(url.pathComponents.dropFirst())
+                        print(pathComponents)
+                        if pathComponents[0] == "privacy" {
+                            showingPrivacyPolicyView = true
+                        }
+                    })
             } else {
                 WelcomeLoginScreen()
                     .accentColor(Color.main)
 
             }
+
         case .main:
             TabView(selection: .init(get: {
                 controller.selectedTab
@@ -74,7 +93,20 @@ struct MainApp: View {
                         Text("Account")
                     }
             }
-            
+            .sheet(isPresented: $showingPrivacyPolicyView, content: {
+                NavigationView {
+                    webview
+                        .navigationBarTitle("Privacy", displayMode: .inline)
+                        .navigationBarItems(trailing: Button("Dismiss") {showingPrivacyPolicyView = false})
+                }
+            })
+            .onOpenURL(perform: { url in
+                let pathComponents = Array(url.pathComponents.dropFirst())
+                print(pathComponents)
+                if pathComponents[0] == "privacy" {
+                    showingPrivacyPolicyView = true
+                }
+            })
             .accentColor(Color.main)
         case .ringing:
             ringingRoomView

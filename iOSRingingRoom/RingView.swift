@@ -66,6 +66,11 @@ struct RingView: View {
                 //            }
                 //            .pickerStyle(SegmentedPickerStyle())
                 HStack {
+                    Text("(No tower management in this version)")
+                    //                    Text("Tower management is not currently supported")
+                    Spacer()
+                }.padding(.top, -20)
+                HStack {
                     Text("Recent towers - tap to join").font(.headline)
                     Spacer()
                 }
@@ -148,16 +153,16 @@ struct RingView: View {
                                             .foregroundColor(.white)
                                     }
                                 }
-                                .opacity(User.shared.loggedIn ? String(towerID).count != 0 ? 1 : 0.35 : 0.35)
-                                .disabled((User.shared.loggedIn ? String(towerID).count != 0 ? false : true : true))
+                                .opacity(User.shared.loggedIn ? String(towerID).count == 9 ? 1 : 0.35 : 0.35)
+                                .disabled((User.shared.loggedIn ? String(towerID).count == 9 ? false : true : true))
                                 .onAppear(perform: {
                                     self.buttonHeight = geo.size.height
-
+                                    
                                 })
-
+                                
                             }
                             
-
+                            
                             //                    .frame(height: 45)
                             //                    .fixedSize(horizontal: false, vertical: true)
                         }
@@ -171,8 +176,8 @@ struct RingView: View {
                         }
                     }) {
                         HStack {
-                        Text("Enter existing tower ID").font(.headline)
-                        Spacer()
+                            Text("Join tower by ID").font(.headline)
+                            Spacer()
                         }
                     }}
                 )
@@ -184,18 +189,18 @@ struct RingView: View {
                     content: {
                         ZStack {
                             TextField("Enter name of new tower", text: $towerName).textFieldStyle(RoundedBorderTextFieldStyle())
-
+                            
                             if towerName.count > 0 {
-                            HStack {
-                                Spacer()
-                                Button(action: {
-                                    towerName = ""
-                                }) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.secondary)
+                                HStack {
+                                    Spacer()
+                                    Button(action: {
+                                        towerName = ""
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
-                            }
-                            .padding(5)
+                                .padding(5)
                             }
                         }
                         .padding(.top, 8)
@@ -213,6 +218,7 @@ struct RingView: View {
                             .disabled((User.shared.loggedIn ? String(towerName).count != 0 ? false : true : true))
                             
                         }
+                        .padding(.bottom,6)
                     },
                     label: { Button(action: {
                         withAnimation {
@@ -225,20 +231,39 @@ struct RingView: View {
                         }
                     }
                     }
-                )
+                )                    .padding(.bottom, 9)
+
                 
-            }                                .alert(isPresented: self.$showingAlert) {
+            }
+            .alert(isPresented: self.$showingAlert) {
                 Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
             }
-            .onAppear(perform: {
-                self.comController = CommunicationController(sender: self)
-                let queue = DispatchQueue.monitor
-                monitor.start(queue: queue)
-            })
-            .padding()
+            
+            .padding([.horizontal, .top])
             .navigationBarTitle("Towers")
-        }        .navigationViewStyle(StackNavigationViewStyle())
-
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        .onOpenURL(perform: { url in
+            var pathComponents = url.pathComponents.dropFirst()
+            if let firstPath = pathComponents.first {
+                if let towerID = Int(firstPath) {
+                    if CommunicationController.token != nil {
+                        joinTower(id: towerID)
+                    }
+                }
+            }
+            print("opened from \(url.pathComponents.dropFirst())")
+        })
+        .onAppear {
+            self.comController = CommunicationController(sender: self)
+            let queue = DispatchQueue.monitor
+            monitor.start(queue: queue)
+            if let towerID = CommunicationController.towerQueued {
+                if CommunicationController.token != nil {
+                    joinTower(id: towerID)
+                }
+            }
+        }
         //        } else {
         //            ringingRoomView
         //        }
@@ -247,9 +272,9 @@ struct RingView: View {
         //
         //        })
     }
-    
+        
     func getTowerIDHeader() -> String {
-        return "Enter existing tower ID"
+        return "Join tower by ID"
     }
     
     func getOffset() -> CGFloat {
@@ -281,10 +306,10 @@ struct RingView: View {
     }
     
     func joinTower(id: Int) {
+
         DispatchQueue.global(qos: .userInteractive).async {
             if monitor.currentPath.status == .satisfied {
                 print("joined tower")
-                
                 self.getTowerConnectionDetails(id: id)
                 
                 //create new tower
@@ -298,9 +323,7 @@ struct RingView: View {
     func getTowerConnectionDetails(id: Int) {
         comController.getTowerDetails(id: id)
     }
-    
-    @State var towerInQueue = 0
-    
+        
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
         print("received")
         if statusCode ?? 0 == 404 {
@@ -315,9 +338,13 @@ struct RingView: View {
             BellCircle.current.towerName = response["tower_name"] as! String
             BellCircle.current.towerID = response["tower_id"] as! Int
             BellCircle.current.serverAddress = response["server_address"] as! String
-            BellCircle.current.additionalSizes = response["additional_sizes_enabled"] as! Bool
-            BellCircle.current.hostModePermitted = response["host_mode_permitted"] as! Bool
-            BellCircle.current.halfMuffled = response["half_muffled"] as! Bool
+            BellCircle.current.additionalSizes = response["additional_sizes_enabled"] as? Bool ?? false
+            BellCircle.current.hostModePermitted = response["host_mode_permitted"] as? Bool ?? false
+            BellCircle.current.halfMuffled = response["half_muffled"] as? Bool ?? false
+            
+            DispatchQueue.main.async {
+                BellCircle.current.hostModeEnabled = false
+            }
             
             if let tower = user.myTowers.towerForID(BellCircle.current.towerID) {
                 DispatchQueue.main.async {

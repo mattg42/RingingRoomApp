@@ -60,7 +60,7 @@ struct AccountCreationView: View {
                         Text(privacyPolicyButtonText)
                     }
                     .sheet(isPresented: $isShowingPrivacyPolicy) {
-                        agreeToPrivacyPolicyView(isPresented: self.$isShowingPrivacyPolicy, agreed: self.$agreedToPrivacyPolicy)
+                        AgreeToPrivacyPolicyView(isPresented: self.$isShowingPrivacyPolicy, agreed: self.$agreedToPrivacyPolicy)
                     }
                 }
                 Section() {

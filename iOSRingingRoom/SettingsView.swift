@@ -38,7 +38,7 @@ struct SettingsView: View {
                 Form {
                     if loggedIn {
                         Section() {
-                            Text("Account settings will be availible in a future version.")
+                            Text("Account settings will be available in a future version. For now, please go to ringingroom.com to change your account settings.")
                             //                        Text("Current username: \(User.shared.name)")
                             //                        TextField("New username", text: $newUsername)
                         }
@@ -49,10 +49,17 @@ struct SettingsView: View {
                                 UserDefaults.standard.set($0, forKey: "autoRotate")
                                 BellCircle.current.autoRotate = $0
                             }))
+                            .toggleStyle(SwitchToggleStyle(tint: .main))
                         }
                         Section {
-                            Button("Log out") {
+                            Button(action: {
                                 self.presentingAlert = true
+                            }) {
+                                HStack {
+                                    Spacer()
+                                    Text("Log out")
+                                    Spacer()
+                                }
                             }
                             .alert(isPresented: $presentingAlert) {
                                 Alert(title: Text("Are you sure you want to log out?"), message: nil, primaryButton: .destructive(Text("Yes"), action: self.logout), secondaryButton: .cancel(Text("Cancel"), action: {self.presentingAlert = false}))
@@ -89,13 +96,13 @@ struct SettingsView: View {
                     Spacer()
                     #if DEBUG
                         Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String) (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)) debug")
-                            .font(.footnote)
+                            .font(.callout)
                     #else
                         Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String) (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String))")
-                            .font(.footnote)
+                            .font(.callout)
                     #endif
                     Text("By Matthew Goodship")
-                        .font(.footnote)
+                        .font(.callout)
                 }
                 .padding()
                 .foregroundColor(.secondary)
@@ -182,14 +189,6 @@ struct SettingsView: View {
         AppController.shared.loginState = .standard
         AppController.shared.state = .login
         print("logged out")
-    }
-}
-
-struct AboutView:View {
-    
-    
-    var body: some View {
-        Spacer()
     }
 }
 
