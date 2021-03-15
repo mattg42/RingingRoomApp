@@ -144,7 +144,7 @@ struct AboutView:View {
     var body: some View {
 //        ZStack {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20.0) {
+            VStack(spacing: 20.0) {
                 
                 HStack(spacing: 10.0) {
                     Image("Icon")
@@ -158,32 +158,31 @@ struct AboutView:View {
                         
                     }
                 }.padding(.top, 5)
-                VStack(alignment: .leading, spacing: 8.0) {
-                    Text("This app provides users with a way to ring on Ringing Room using their iPhones and iPads, with a quicker response time than a mobile browser, and a touch friendly user interface.")
-                    Text("Ringing Room is a website built by Leland Paul Kusmer and Bryn Marie Reinstadler to allow change ringers to continue ringing with one another even when socially distanced.")
-                    Text("The app will be continually improved, with support for features such as tower management and account settings coming soon. If you would like to submit a feature request or bug report, please contact me at")
-                    Button("ringingroomapp@gmail.com") {
-                        MFMailComposeViewController.canSendMail() ? self.isShowingMailView.toggle() : self.noMailAlert.toggle()
+                VStack(alignment: .leading, spacing: 20.0) {
+                    VStack(alignment: .leading, spacing: 8.0) {
+                        Text("This app provides users with a way to ring on Ringing Room using their iPhones and iPads, with a quicker response time than a mobile browser, and a touch friendly user interface.")
+                        Text("Ringing Room is a website built by Leland Paul Kusmer and Bryn Marie Reinstadler to allow change ringers to continue ringing with one another even when socially distanced.")
+                        Text("The app will be continually improved, with support for features such as tower management and account settings coming soon. If you would like to submit a feature request or bug report, please contact me at")
+                        Button("ringingroomapp@gmail.com") {
+                            MFMailComposeViewController.canSendMail() ? self.isShowingMailView.toggle() : self.noMailAlert.toggle()
+                        }
+                        .padding(.top, -5)
+                        .sheet(isPresented: $isShowingMailView) {
+                            MailView(result: self.$result, recipient:"ringingroomapp@gmail.com")
+                        }
+                        .alert(isPresented: self.$noMailAlert) {
+                            Alert(title: Text("Mail not setup"), message: Text("Mail is not setup on your device."), dismissButton: .default(Text("OK")))
+                        }
+                        VStack(alignment: .leading, spacing: 0.0) {
+                            Text("This app is fully open-source. To view the code, go to")
+                            Link("github.com/Matthew15625/iOSRingingRoom", destination: URL(string: "https://github.com/Matthew15625/iOSRingingRoom")!)
+                        }
                     }
-                    .padding(.top, -5)
-                    .sheet(isPresented: $isShowingMailView) {
-                        MailView(result: self.$result, recipient:"ringingroomapp@gmail.com")
+                    VStack(alignment: .leading, spacing: 8.0) {
+                        Text("Privacy Policy").bold()
+                        PrivacyPolicyView()
+                        
                     }
-                    .alert(isPresented: self.$noMailAlert) {
-                        Alert(title: Text("Mail not setup"), message: Text("Mail is not setup on your device."), dismissButton: .default(Text("OK")))
-                    }
-                    VStack(alignment: .leading, spacing: 0.0) {
-                        Text("This app is fully open-source. To view the code, go to")
-                        Link("github.com/Matthew15625/iOSRingingRoom", destination: URL(string: "https://github.com/Matthew15625/iOSRingingRoom")!)
-                    }
-                }
-                VStack(alignment: .leading, spacing: 8.0) {
-                    Text("Privacy Policy").bold()
-                    PrivacyPolicyView()
-                    
-                }
-                VStack(alignment: .leading, spacing: 8.0) {
-                    
                 }
             }
         }
