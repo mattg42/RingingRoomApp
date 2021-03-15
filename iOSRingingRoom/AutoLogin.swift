@@ -10,8 +10,6 @@ import SwiftUI
 import Network
 
 struct AutoLogin: View {
-//    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
-
     @State private var showingAlert = false
     
     @State private var alertTitle = ""
@@ -33,11 +31,9 @@ struct AutoLogin: View {
         ZStack {
             Color.main
             HStack {
-//                Spacer(minLength: 55)
                 Image("rrLogo").resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 256, height: 256)
-//                Spacer(minLength: 55)
             }
             
         }
@@ -70,10 +66,7 @@ struct AutoLogin: View {
                 CommunicationController.towerQueued = nil
                 print("joined tower")
                 self.getTowerConnectionDetails(id: id)
-                
-                //create new tower
-        }
-        
+            }
     }
     
     func getTowerConnectionDetails(id: Int) {
@@ -87,10 +80,6 @@ struct AutoLogin: View {
         } else if statusCode ?? 0 == 401 {
             unauthorisedAlert()
         } else if statusCode ?? 0 == 200 {
-            //            if user.myTowers.towerForID(response["tower_id"] as! Int) == nil {
-            //                self.response = response
-            //                comController.getMyTowers()
-            //            } else {
             BellCircle.current.towerName = response["tower_name"] as! String
             BellCircle.current.towerID = response["tower_id"] as! Int
             BellCircle.current.serverAddress = response["server_address"] as! String
@@ -108,7 +97,6 @@ struct AutoLogin: View {
             
             SocketIOManager.shared.setups = 0
             SocketIOManager.shared.ignoreSetup = false
-            //            comController.getHostModePermitted(BellCircle.current.towerID)
             SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 if AppController.shared.state != .ringing {
@@ -149,7 +137,7 @@ struct AutoLogin: View {
             }
             UserDefaults.standard.setValue("", forKey: "userPassword")
         }
-        //
+        
         do {
             print("got this far")
             let password = try kcw.getPasswordFor(account: email)
@@ -182,15 +170,6 @@ struct AutoLogin: View {
         DispatchQueue.main.async {
             AppController.shared.state = .main
         }
-//        if statusCode == 200 {
-//            DispatchQueue.main.async {
-//                self.viewControllerHolder?.present(style: .fullScreen, name: "Main", animated: false) {
-//                    MainApp(autoJoinTower: autoJoinTower, autoJoinTowerID: autoJoinTowerID)
-//                }
-//            }
-//        } else {
-//            unknownErrorAlert()
-//        }
     }
     
     func upgradeSecurityAlert() {

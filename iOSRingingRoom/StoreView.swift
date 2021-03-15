@@ -28,17 +28,14 @@ struct StoreView: View {
                     HStack {
                         Button(action: {self.webview.goBack()}) {
                             Image(systemName: "chevron.left")
-                       //         .font(.title)
                         }
                         Spacer()
                         Button(action: {self.webview.goForward()}) {
                             Image(systemName: "chevron.right")
-                       //         .font(.title)
                         }
                         Spacer()
                         Button(action: {self.actionSheetIsPresented = true}) {
                             Image(systemName: "square.and.arrow.up")
-                   //             .font(.title)
                         }
                         .sheet(isPresented: self.$actionSheetIsPresented) {
                             ShareSheet(activityItems: [self.webview.webviewController!.webview.url!], applicationActivities: nil)
@@ -46,7 +43,6 @@ struct StoreView: View {
                         Spacer()
                         Button(action: {UIApplication.shared.open((self.webview.webviewController?.webview.url)!)}) {
                             Image(systemName: "safari")
-                   //             .font(.title)
                         }
                         
                     }

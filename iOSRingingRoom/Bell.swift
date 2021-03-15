@@ -85,11 +85,6 @@ class BellCircle: ObservableObject {
     
     var centre = CGPoint(x: 0, y: 0) {
         didSet(oldCentre) {
-//            if BellCircle.current.ringingroomIsPresented {
-//                if oldCentre != CGPoint(x: 0, y: 0) || oldCentre != centre {
-//                    centre = oldCentre
-//                }
-//            }
             print("centre changed")
         }
     }
@@ -329,10 +324,6 @@ class BellCircle: ObservableObject {
     
     func ringBell(_ number:Int) {
             SocketIOManager.shared.socket?.emit("c_bell_rung", ["bell": number, "stroke": (bellStates[number - 1]), "tower_id": towerID])
-//        bellCircle.timer.tolerance = 0
-//        bellCircle.timer = Timer.scheduledTimer(withTimeInterval: 0.001, repeats: true, block: { _ in
-//            bellCircle.counter += 1
-//        })
     }
     
     @objc func updateAssignments() {
@@ -382,10 +373,6 @@ class BellCircle: ObservableObject {
             ringer.name = newRinger["username"] as! String
             print(ringer.userID)
             newUser(id: ringer.userID, name: ringer.name)
-//            if !usersBuffer.containsRingerForID(ringer.userID) {
-//                usersBuffer.append(ringer)
-//                print(usersBuffer.ringers)
-//            }
         }
     }
     

@@ -76,19 +76,6 @@ class Tower:Identifiable, Hashable {
             visitedComponents.minute = String(String(stringComponents[3]).split(separator: ":")[1])
             visitedComponents.second = String(String(stringComponents[3]).split(separator: ":")[2])
             
-//            var temp1Array = lastVisited.split(separator: ":")
-//            var temp2Array = String(temp1Array[0]).split(separator: " ")
-//            let tempStr = temp2Array[temp2Array.count-1]
-//            var hours = Int(tempStr)!
-//            if hours > 12 {
-//                hours -= 12
-//                temp2Array[temp2Array.count - 1] = Substring(String(hours))
-//                temp1Array[0] = Substring(temp2Array.joined(separator: " "))
-//                lastVisited = temp1Array.joined(separator: ":")
-//                lastVisited.append(" pm")
-//            } else {
-//                lastVisited.append(" am")
-//            }
             print(lastVisited)
             date = visitedComponents.combine()
             print(date)
@@ -99,11 +86,6 @@ class Tower:Identifiable, Hashable {
         self.host = Bool(host)
         self.recent = Bool(recent)
         self.creator = Bool(creator)
-//        if visited == "" {
-//            self.visited = Date()
-//        } else {
-//            self.visited = date!
-//        }
         self.visited = date
         self.bookmark = Bool(integerLiteral: bookmark)
     }
@@ -132,16 +114,6 @@ extension Array where Element==Tower {
             return arr
         }
     }
-    
-//    var dates:[Date] {
-//        get {
-//            var visiteds = [Date]()
-//            for tower in self {
-//                visiteds.append(tower.visited)
-//            }
-//            return visiteds
-//        }
-//    }
 }
 
 extension String {
