@@ -215,6 +215,9 @@ connection is restored.
 //            .alert(isPresented: $showingAlert) {
 //                Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
 //            }
+            .onDisappear {
+                monitor.cancel()
+            }
             .onAppear {
                 if bellCircle.autoRotate {
                     if !bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
@@ -506,28 +509,59 @@ struct RingingView:View {
             Spacer()
             ropeCircle
             Spacer()
-            if !isSplit {
-                if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
-                    HStack(spacing: 5.0) {
-                        ForEach(0..<bellCircle.size, id: \.self) { i in
-                            if bellCircle.assignments[bellCircle.size-1-i].userID == User.shared.ringerID {
-                                Button(action: {
-                                    self.bellCircle.ringBell(bellCircle.size-i)
-                                }) {
-                                    RingButton(number: String(bellCircle.size-i))
+
+            if interfaceOrientation?.isPortrait ?? true {
+                if horizontalSizeClass == .compact {
+                    if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
+                        HStack(spacing: 5.0) {
+                            ForEach(0..<bellCircle.size, id: \.self) { i in
+                                if bellCircle.assignments[bellCircle.size-1-i].userID == User.shared.ringerID {
+                                    Button(action: {
+                                        self.bellCircle.ringBell(bellCircle.size-i)
+                                    }) {
+                                        RingButton(number: String(bellCircle.size-i))
+                                    }
+                                    .buttonStyle(TouchDown(isAvailable: true, callButton:false))
+                                    .onAppear {
+                                        print("ring button", bellCircle.assignments.ringers, User.shared.ringerID)
+                                    }
                                 }
-                                .buttonStyle(TouchDown(isAvailable: true, callButton:false))
                             }
                         }
+                        .padding(.horizontal, 5)
+                        
                     }
-                    .padding(.horizontal, 5)
-
+                    HorizontalCallButtons()
+                        .disabled(!canCall())
+                        .opacity(canCall() ? 1 : 0.35)
+                        .padding(.horizontal, 5)
+                        .padding(.bottom, 5)
+                } else {
+                    HorizontalCallButtons()
+                        .disabled(!canCall())
+                        .opacity(canCall() ? 1 : 0.35)
+                        .padding(.horizontal, 5)
+                        .padding(.bottom, 5)
+                    if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
+                        HStack(spacing: 5.0) {
+                            ForEach(0..<bellCircle.size, id: \.self) { i in
+                                if bellCircle.assignments[bellCircle.size-1-i].userID == User.shared.ringerID {
+                                    Button(action: {
+                                        self.bellCircle.ringBell(bellCircle.size-i)
+                                    }) {
+                                        RingButton(number: String(bellCircle.size-i))
+                                    }
+                                    .buttonStyle(TouchDown(isAvailable: true, callButton:false))
+                                    .onAppear {
+                                        print("ring button", bellCircle.assignments.ringers, User.shared.ringerID)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 5)
+                        
+                    }
                 }
-                HorizontalCallButtons()
-                .disabled(!canCall())
-                .opacity(canCall() ? 1 : 0.35)
-                .padding(.horizontal, 5)
-                .padding(.bottom, 5)
             } else {
                 if bellCircle.assignments.containsRingerForID(User.shared.ringerID) {
                     HStack(alignment: .bottom, spacing: 5.0) {
@@ -845,7 +879,7 @@ struct RopeCircle:View {
                             Text(String(bellNumber+1))
                                 .opacity(isLeft(bellNumber) ? 0 : 1)
                                 .font(getFont())
-                            Image(self.getImage(bellNumber)).resizable()
+                            Image(self.getImage(bellNumber)).antialiased(true).resizable()
                                 .frame(width: getImageWidth(size: geo.size), height: getImageHeight(size: geo.size))
                                 .rotation3DEffect(
                                     .degrees((bellCircle.bellType == .tower) ? 0 : isLeft(bellNumber) ? 180 : 0),
@@ -951,7 +985,7 @@ struct RopeCircle:View {
     }
     
     func getImageWidth(size: CGSize) -> CGFloat {
-        if size == bellCircle.oldScreenSize {
+        if size.truncate(places: 5) == bellCircle.oldScreenSize.truncate(places: 5) {
             if bellCircle.size == bellCircle.oldBellCircleSize {
                 if bellCircle.bellType == bellCircle.oldBellType {
                     if bellCircle.bellType == .tower {
@@ -983,7 +1017,7 @@ struct RopeCircle:View {
         (bellCircle.imageSize, bellCircle.radius) = reduceOverlap(width: size.width, height: size.height, imageSize: newImageSize, radius: newRadius, theta: theta)
         bellCircle.radius = min(bellCircle.radius, 350)
 
-        bellCircle.oldScreenSize = size
+        bellCircle.oldScreenSize = size.truncate(places: 5)
         bellCircle.oldBellCircleSize = bellCircle.size
         
         if bellCircle.bellType == .tower {
@@ -995,7 +1029,7 @@ struct RopeCircle:View {
     }
     
     func getImageHeight(size: CGSize) -> CGFloat {
-        if size == bellCircle.oldScreenSize {
+        if size.truncate(places: 5) == bellCircle.oldScreenSize {
             if bellCircle.size == bellCircle.oldBellCircleSize {
                 if bellCircle.bellType == bellCircle.oldBellType {
                     if bellCircle.bellType == .tower {
@@ -1023,7 +1057,7 @@ struct RopeCircle:View {
 
         (bellCircle.imageSize, bellCircle.radius) = reduceOverlap(width: size.width, height: size.height, imageSize: newImageSize, radius: newRadius, theta: theta)
         bellCircle.radius = min(bellCircle.radius, 350)
-        bellCircle.oldScreenSize = size
+        bellCircle.oldScreenSize = size.truncate(places: 5)
         bellCircle.oldBellCircleSize = bellCircle.size
         
 //        imageSize *= 1.2
@@ -1123,7 +1157,6 @@ struct RopeCircle:View {
     
     func getHeight(geo:GeometryProxy) -> CGFloat {
 
-        print(bellCircle.perspective, bellCircle.bellPositions.count, bellCircle.size)
         var returnValue:CGFloat = 0
         if bellCircle.bellPositions.count == bellCircle.size {
             if bellCircle.gotBellPositions {
@@ -1365,6 +1398,10 @@ struct TowerControlsView:View {
     
     @State var changeHostMode = true
     
+    @State var showingAudioSlider = false
+    
+//    @State var width = 0
+    
     var body: some View {
         GeometryReader { geo in
             ZStack {
@@ -1387,6 +1424,64 @@ struct TowerControlsView:View {
                     }
                     .padding(.top, 4)
                     .padding(.bottom, 7)
+//                    ZStack {
+//                        if !showingAudioSlider {
+//                    HStack(alignment: .center) {
+//                        Spacer()
+////                        HelpButton(activeSheet: .constant(nil)).disabled(true).opacity(0)
+////                        if showingAudioSlider {
+////                            Slider(value: .init(get: {
+////                                pow(bellCircle.audioController.starling.engine.mainMixerNode.outputVolume, 1/3)
+////                            }, set: {
+////                                bellCircle.audioController.starling.engine.mainMixerNode.outputVolume = pow($0, 3)
+////                            }), in: (0.1)...(1.0))
+////
+////                        }
+//////                            if !showingAudioSlider {
+////                            Button(action: {
+////                                // toggle audio
+////                                withAnimation {
+////                                    showingAudioSlider.toggle()
+////                                }
+////                            }) {
+////                                ZStack {
+////                                    Color.main.cornerRadius(5)
+////                                    Image(systemName: "speaker.2")
+////                                        .font(Font.callout.weight(.bold))
+////                                        .foregroundColor(.white)
+////                                        .padding(4)
+////                                }.fixedSize()
+////                            }
+//                        Text(String(bellCircle.towerID))
+//                        Button(action: {
+//                            let pasteboard = UIPasteboard.general
+//                            pasteboard.string = String(self.bellCircle.towerID)
+//                        }) {
+//                            Image(systemName: "doc.on.doc")
+//                        }
+//                        .foregroundColor(.primary)
+//                        Spacer()
+//    //                    if hasPermissions() {
+//    //                    MenuButton()
+//    //                        .opacity(0)
+//    //                    }
+////                    },
+//                    .padding(.top, 4)
+////                        }
+//
+////                        HStack(alignment: .center) {
+////
+////                                }
+////                            } else {
+////                                //                                HStack
+////
+////                            }
+////                            Spacer()
+////                            MenuButton(keepSize: false).opacity(0).disabled(true)
+////                        }.padding(.top, -3)
+//                    }
+//                    .padding(.bottom, 7)
+                    
     //                .padding(.top, -4)
                     if hasPermissions() {
                         HStack {
@@ -1574,6 +1669,7 @@ struct TowerControlsView:View {
                 Spacer()
                 if available() {
                     Button(action: {
+                        bellCircle.fillIn = true
                         var tempUsers = self.bellCircle.users
                         if !tempUsers.containsRingerForID(-1) {
                             for assignedUser in self.bellCircle.assignments {
@@ -1596,7 +1692,7 @@ struct TowerControlsView:View {
                                     tempUsers.removeRingerForID(assignedUser.userID)
                                 }
                             }
-                            var availableBells = self.bellCircle.assignments.allIndicesOfRingerForID(Ringer.blank.userID)!
+                            var availableBells = self.bellCircle.assignments.allIndicesOfRingerForID(Ringer.blank.userID)
                             availableBells.shuffle()
                             tempUsers.shuffle()
                             for user in tempUsers {
@@ -1705,6 +1801,7 @@ struct TowerControlsView:View {
                                     }
                                     .disabled(!(self.bellCircle.assignments[number].name == ""))
                                     .opacity((self.bellCircle.assignments[number].name == "") ? 1 : 0.35)
+                                    .animation(.linear(duration: 0.15))
                                     .fixedSize(horizontal: true, vertical: true)
                                     //.background(.black)
                                 }
@@ -1797,7 +1894,7 @@ struct RingerView:View {
 
     var body: some View {
         HStack {
-            Text(!bellCircle.assignments.containsRingerForID(user.userID) ? "-" : self.getString(indexes: bellCircle.assignments.allIndicesOfRingerForID(user.userID)!))
+            Text(!bellCircle.assignments.containsRingerForID(user.userID) ? "-" : self.getString(indexes: bellCircle.assignments.allIndicesOfRingerForID(user.userID)))
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
             Text(user.name)

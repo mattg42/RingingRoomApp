@@ -19,10 +19,6 @@ struct SettingsView: View {
     @ObservedObject var user = User.shared
     
     @State private var comController:CommunicationController!
-
-    @State private var email = User.shared.email
-    @State private var password = User.shared.email
-    @State private var loggedIn = User.shared.loggedIn
     
     @State private var showingAlert = false
     @State private var alertTitle = ""
@@ -36,7 +32,7 @@ struct SettingsView: View {
         NavigationView {
             ZStack {
                 Form {
-                    if loggedIn {
+                    if User.shared.loggedIn {
                         Section() {
                             Text("Account settings will be available in a future version. For now, please go to ringingroom.com to change your account settings.")
                             //                        Text("Current username: \(User.shared.name)")
@@ -133,38 +129,38 @@ struct SettingsView: View {
     
     @State var i = 1
     
-    func receivedMyTowers(statusCode:Int?, responseData:[String:Any]?) {
-        if statusCode! == 401 {
-            alertTitle = "Error logging in"
-            self.showingAlert = true
-        } else {
-            DispatchQueue.main.async {
-                UserDefaults.standard.set(true, forKey: "keepMeLoggedIn")
-                UserDefaults.standard.set(self.email, forKey: "userEmail")
-                UserDefaults.standard.set(self.password, forKey: "userPassword")
-                self.loggedIn = true
-            }
-        }
-    }
-    
-    func runShortcut() {
-        if i == 1 {
-            var shortcutName = "shortcuts://import-shortcut?url=https://www.icloud.com/shortcuts/04566978207b47b2a99b7b878028d431&name=Start%20Practice&silent=true"
-
-            let url = URL(string: shortcutName)!
-            UIApplication.shared.open(url,
-                                      options: [:],
-                                      completionHandler: nil)
-            i += 1
-        } else {
-            var shortcutName = "shortcuts://run-shortcut?name=Start%20Practice&silent=true"
-
-            let url = URL(string: shortcutName)!
-            UIApplication.shared.open(url,
-                                      options: [:],
-                                      completionHandler: nil)
-        }
-    }
+//    func receivedMyTowers(statusCode:Int?, responseData:[String:Any]?) {
+//        if statusCode! == 401 {
+//            alertTitle = "Error logging in"
+//            self.showingAlert = true
+//        } else {
+//            DispatchQueue.main.async {
+//                UserDefaults.standard.set(true, forKey: "keepMeLoggedIn")
+//                UserDefaults.standard.set(self.email, forKey: "userEmail")
+//                UserDefaults.standard.set(self.password, forKey: "userPassword")
+//                self.loggedIn = true
+//            }
+//        }
+//    }
+//
+//    func runShortcut() {
+//        if i == 1 {
+//            var shortcutName = "shortcuts://import-shortcut?url=https://www.icloud.com/shortcuts/04566978207b47b2a99b7b878028d431&name=Start%20Practice&silent=true"
+//
+//            let url = URL(string: shortcutName)!
+//            UIApplication.shared.open(url,
+//                                      options: [:],
+//                                      completionHandler: nil)
+//            i += 1
+//        } else {
+//            var shortcutName = "shortcuts://run-shortcut?name=Start%20Practice&silent=true"
+//
+//            let url = URL(string: shortcutName)!
+//            UIApplication.shared.open(url,
+//                                      options: [:],
+//                                      completionHandler: nil)
+//        }
+//    }
     
     func logout() {
         let kcw = KeychainWrapper()
@@ -175,16 +171,13 @@ struct SettingsView: View {
             print("error deleting password")
         }
 
-        User.shared.objectWillChange.send()
-        User.shared.reset()
+        User.shared = User()
         
         CommunicationController.token = nil
         UserDefaults.standard.set("", forKey: "userEmail")
         UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
-        
-        UserDefaults.standard.set("", forKey: "savedTower")
-        
-        self.loggedIn = false
+                
+        User.shared.loggedIn = false
         
         AppController.shared.loginState = .standard
         AppController.shared.state = .login

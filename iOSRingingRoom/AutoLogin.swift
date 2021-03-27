@@ -96,7 +96,6 @@ struct AutoLogin: View {
             }
             
             SocketIOManager.shared.setups = 0
-            SocketIOManager.shared.ignoreSetup = false
             SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 if AppController.shared.state != .ringing {

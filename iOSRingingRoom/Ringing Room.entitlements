@@ -12,6 +12,7 @@
 		<string>applinks:ringingroom.co.uk</string>
 		<string>webcredentials:www.ringingroom.co.uk</string>
 		<string>applinks:www.ringingroom.co.uk</string>
+		<string>webcredentials:example.com</string>
 	</array>
 </dict>
 </plist>

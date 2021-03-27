@@ -8,13 +8,29 @@
 
 import Foundation
 
-class User:ObservableObject {
-    static var shared = User()
-    static var blank:User {
-        get { User() }
+@propertyWrapper
+struct RingerID {
+    private var number:Int
+    
+    init() {
+        self.number = 0
     }
     
-    var ringerID = 0
+    var wrappedValue:Int {
+        get {
+            number
+        }
+        set {
+            number = (number == 0) ? newValue : number
+        }
+    }
+}
+
+class User:ObservableObject {
+    static var shared = User()
+        
+    @RingerID var ringerID
+    
     var loggedIn:Bool = false
     var name:String = ""
     var email:String = ""
