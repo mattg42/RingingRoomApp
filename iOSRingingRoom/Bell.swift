@@ -30,8 +30,7 @@ class BellCircle: ObservableObject {
     }
     
     @Published var showingTowerControls = false
-    
-    @Published var ringingroomIsPresented = false
+            
     
     var serverAddress = ""
     
@@ -92,7 +91,8 @@ class BellCircle: ObservableObject {
     var timer = Timer()
     var counter = 0.000
     
-    var sortTimer = Timer()
+    var sortUsersTimer = Timer()
+    var updateAssignmentsTimer = Timer()
     
     var oldScreenSize = CGSize(width: 0, height: 0)
     var oldBellCircleSize = 0
@@ -142,9 +142,13 @@ class BellCircle: ObservableObject {
     var hostModeFromServer = false
     
     init() {
-        let session = AVAudioSession()
+        let session = AVAudioSession.sharedInstance()
+    
         do {
-            try session.setCategory(.playback, mode: AVAudioSession.Mode.default, options: [AVAudioSession.CategoryOptions.mixWithOthers])
+            try session.setCategory(.playback, mode: AVAudioSession.Mode.voicePrompt, options: [.duckOthers, .interruptSpokenAudioAndMixWithOthers])
+
+            //            try session.setCategory(.playback, mode: AVAudioSession.Mode.voiceChat)
+//            try session.setCategory(.playback, mode: AVAudioSession.Mode.voiceChat, options: .interruptSpokenAudioAndMixWithOthers)
             try session.setPreferredIOBufferDuration(0.002)
             try session.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
@@ -282,7 +286,7 @@ class BellCircle: ObservableObject {
     
     func newSize(_ newSize:Int) {
         print("new size from socketio")
-        if !SocketIOManager.shared.ignoreSetup && !SocketIOManager.shared.refresh {
+        if AppController.shared.state != .ringing && !SocketIOManager.shared.refresh {
             SocketIOManager.shared.refresh = false
             assignments = Array(repeating: Ringer.blank, count: newSize)
             assignmentsBuffer = Array(repeating: nil, count: newSize)
@@ -303,7 +307,8 @@ class BellCircle: ObservableObject {
                     perspective = 1
                 }
             } else {
-                perspective = (assignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+                print("from size")
+                perspective = (assignments.allIndicesOfRingerForID(User.shared.ringerID).first ?? 0) + 1
             }
             if newSize != size {
                 bellStates = Array(repeating: true, count: newSize)
@@ -327,41 +332,59 @@ class BellCircle: ObservableObject {
     }
     
     @objc func updateAssignments() {
+        print("updating assignments")
         for (index, assignment) in assignmentsBuffer.enumerated() {
             if assignment != nil {
                 assignments[index] = assignment!
             }
         }
         if autoRotate {
-            perspective = (assignments.allIndicesOfRingerForID(User.shared.ringerID)?.first ?? 0) + 1
+
+            perspective = (assignments.allIndicesOfRingerForID(User.shared.ringerID).first ?? 0) + 1
         }
         assignmentsBuffer = Array(repeating: nil, count: size)
-        if !SocketIOManager.shared.ignoreSetup {
-            SocketIOManager.shared.setups += 1
+        print(assignments.ringers)
+        if AppController.shared.state != .ringing {
+            if !gotAssignments {
+                print("from assignments")
+                SocketIOManager.shared.setups += 1
+                gotAssignments = true
+            }
         }
         sortUserArray()
     }
     
+    var gotAssignments = false
+    
+    var fillIn = false
     
     func assign(_ id:Int, to bell: Int) {
         print("assign", id, bell)
         if let ringer = ringerForID(id) {
-            var changePerspective = false
-            if assignments[bell - 1].userID == User.shared.ringerID {
-                changePerspective = true
-            }
             assignmentsBuffer[bell - 1] = ringer
-            sortTimer = Timer.scheduledTimer(timeInterval: 0.07, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
+//            updateAssignments()
+            if fillIn {
+                if assignmentsBuffer.filter { ringer in return ringer?.userID ?? 0 != Ringer.blank.userID }.count + (size - assignments.allIndicesOfRingerForID(Ringer.blank.userID).count) == size {
+                    updateAssignments()
+                    fillIn = false
+                }
+            } else {
+                updateAssignments()
+            }
+//            updateAssignmentsTimer.invalidate()
+//            updateAssignmentsTimer = Timer.scheduledTimer(timeInterval: 0.07, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
         }
     }
     
     func unAssign(at bell:Int) {
-        var changePerspective = false
-        if assignments[bell - 1].userID == User.shared.ringerID {
-            changePerspective = true
+        print("un assign")
+        print(User.shared.ringerID)
+        if assignments[bell - 1] != Ringer.blank {
+            assignmentsBuffer[bell - 1] = Ringer.blank
+//            updateAssignments()
         }
-        assignmentsBuffer[bell - 1] = Ringer.blank
-        sortTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
+        updateAssignmentsTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
+
     }
     
     func newUserlist(_ newUsers:[[String:Any]]) {
@@ -379,7 +402,7 @@ class BellCircle: ObservableObject {
     func newUser(id:Int, name:String) {
         if !users.containsRingerForID(id) {
             users.append(Ringer(name: name, id: id))
-            sortUsers()
+            sortUserArray()
         }
     }
     
@@ -388,6 +411,7 @@ class BellCircle: ObservableObject {
             unAssign(at: i+1)
         }
         users.removeRingerForID(id)
+        sortUserArray()
     }
     
     func newAudio(_ audio:String) {
@@ -401,12 +425,13 @@ class BellCircle: ObservableObject {
     
     func sortUsers() {
 //        sortTimer.invalidate()
-        sortTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(sortUserArray), userInfo: nil, repeats: false)
+        updateAssignmentsTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
     }
     
     @objc func sortUserArray() {
 //        print(users.ringers)
         var tempUsers = users
+        tempUsers += usersBuffer
         var newUsers = [Ringer]()
         for assignment in assignments {
             if assignment.userID != 0 {
@@ -421,9 +446,7 @@ class BellCircle: ObservableObject {
 //        print(newUsers.ringers)
         objectWillChange.send()
         users = newUsers
-        if !SocketIOManager.shared.ignoreSetup {
-            SocketIOManager.shared.setups += 1
-        }
+        usersBuffer = [Ringer]()
     }
 
 }
@@ -464,7 +487,7 @@ extension Array where Element == Ringer {
         }
     }
     
-    func allIndicesOfRingerForID(_ id:Int) -> [Int]? {
+    func allIndicesOfRingerForID(_ id:Int) -> [Int] {
         var output = [Int]()
         if self.containsRingerForID(id) {
             for (index, ringer) in self.enumerated() {
@@ -474,7 +497,7 @@ extension Array where Element == Ringer {
             }
             return output
         } else {
-            return nil
+            return [Int]()
         }
     }
     
@@ -497,17 +520,18 @@ extension Array where Element == Ringer {
 
 extension CGPoint {
     func truncate(places : Int) -> CGPoint {
-        var newX = self.x
-        var newY = self.y
-        newX = CGFloat(floor(pow(10.0, CGFloat(places)) * newX)/pow(10.0, CGFloat(places)))
-        newY = CGFloat(floor(pow(10.0, CGFloat(places)) * newY)/pow(10.0, CGFloat(places)))
-
-        return CGPoint(x: newX, y: newY)
+        return CGPoint(x: self.x.truncate(places: places), y: self.y.truncate(places: places))
     }
 }
 
 extension CGFloat {
     func truncate(places : Int) -> CGFloat {
         return CGFloat(floor(pow(10.0, CGFloat(places)) * self)/pow(10.0, CGFloat(places)))
+    }
+}
+
+extension CGSize {
+    func truncate(places : Int) -> CGSize {
+        return CGSize(width: self.width.truncate(places: places), height: self.height.truncate(places: places))
     }
 }

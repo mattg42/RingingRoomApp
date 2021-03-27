@@ -256,6 +256,9 @@ struct RingView: View {
                 }
             }
         }
+        .onDisappear {
+            monitor.cancel()
+        }
     }
         
     func getTowerIDHeader() -> String {
@@ -290,7 +293,7 @@ struct RingView: View {
     }
     
     func joinTower(id: Int) {
-
+        SocketIOManager.shared.socket?.disconnect()
         DispatchQueue.global(qos: .userInteractive).async {
             if monitor.currentPath.status == .satisfied {
                 print("joined tower")
@@ -335,9 +338,8 @@ struct RingView: View {
             }
             
             SocketIOManager.shared.setups = 0
-            SocketIOManager.shared.ignoreSetup = false
             SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 if AppController.shared.state != .ringing {
                     if !showingAlert {
                         socketFailedAlert()

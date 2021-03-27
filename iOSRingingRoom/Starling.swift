@@ -37,6 +37,8 @@ enum StarlingError: Error {
 
 public class Starling {
     
+    static var volume:Float = 1.0
+    
     /// Defines the number of players which Starling instantiates
     /// during initialization. If more concurrent sounds than this
     /// are requested at any point, Starling will allocate additional
@@ -47,13 +49,13 @@ public class Starling {
     /// will allow to be played at the same time. If (N) sounds are
     /// already playing and another play() request is made, it will
     /// be ignored (not queued).
-    private static let maximumTotalPlayers = 48
+    private static let maximumTotalPlayers = 20
     
  // MARK: - Internal Properties
     
     private var players: [StarlingAudioPlayer]
     private var files: [String: AVAudioFile]
-    private let engine:AVAudioEngine = AVAudioEngine()
+    let engine:AVAudioEngine = AVAudioEngine()
 
     // MARK: - Initializer
     
@@ -63,7 +65,9 @@ public class Starling {
         
         players = [StarlingAudioPlayer]()
         files = [String: AVAudioFile]()
-
+        
+        engine.mainMixerNode.outputVolume = Starling.volume
+        
         for _ in 0..<Starling.defaultStartingPlayerCount {
             players.append(createNewPlayerAttachedToEngine())
         }

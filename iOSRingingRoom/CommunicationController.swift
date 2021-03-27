@@ -170,8 +170,8 @@ class CommunicationController {
                     (self.sender as! WelcomeLoginScreen).receivedMyTowers(statusCode: statusCode, responseData: dataDict)
 //                case .simple:
 //                    (self.sender as! SimpleLoginView).receivedMyTowers(statusCode: statusCode, responseData: dataDict)
-                case .settings:
-                    (self.sender as! SettingsView).receivedMyTowers(statusCode: statusCode, responseData: dataDict)
+//                case .settings:
+//                    (self.sender as! SettingsView).receivedMyTowers(statusCode: statusCode, responseData: dataDict)
                 default:
                     if let sender = self.sender as? SocketIOManager {
                         sender.gotMyTowers()

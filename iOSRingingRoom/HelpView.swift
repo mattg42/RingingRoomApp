@@ -43,7 +43,7 @@ At the top of the ringing view, there is a button called 'Leave'. Pressing this 
     static let tips = """
 To prevent notifications from silencing the audio and distracting you while ringing, it's a good idea to switch on "Do Not Disturb" before a ringing session. This setting can be found in the Control Centre (it has a crescent moon icon), or search the Settings app to find it. Remember to turn it off again after ringing if you want to see and hear notifications.
 
-To stop your device going to sleep between rings because you don't touch the screen for a while, perhaps while chatting on Zoom or sitting out of a touch, you can set the Auto-Lock duration to Never. The Auto-Lock setting is in the Display & Brightness section of the Settings app.
+
 """
     
     static let assigning = """
@@ -59,7 +59,6 @@ By default, whenever you are assigned a bell, that bell will appear in the botto
 
 In addition, in the Settings tab, there is an option to disable the automatic rotation of the bell circle when you are assigned a bell.
 """
-    
     
     static let managingTowers = """
 The Towers tab shows all the towers associated with your account. They are sorted by last visited, with the most recent at the top.
@@ -81,9 +80,35 @@ If Host Mode is permitted at a tower, hosts have an extra switch in the tower co
 
 Host mode can only be activated or deactivated by any hosts currently in the tower. If there are no hosts present in the tower, host mode will automatically be disabled so that ringing can proceed normally.
 """
+}
+
+class FAQ:Identifiable {
+
+    var question:String
+    var answer:String
+    
+    var id = UUID()
+    
+    init(question: String, answer: String) {
+        self.question = question
+        self.answer = answer
+    }
+    
+    static var FAQs = [
+        FAQ(question: "I can't hear any audio", answer: "Make sure your volume is up. If are using Zoom on the same device and still can't hear any audio, this might be because you joined the Zoom call before opening Ringing Room. Make sure you have Ringing Room open, then leave your Zoom call and rejoin it. Now you should be able to hear Ringing Room and Zoom clearly. If you are not using using Zoom, and still can't hear any audio, then please restart the app."),
+        FAQ(question: "How can I stop notifications while I'm ringing?", answer: "Turn on Do Not Disturb. This is a system setting that will silence your notifications. You can find this setting in two places: the settings app, and Control Centre. To find it in the setting app, go to settings, then swipe down to reveal the search bar. Tap it, and enter 'Do not disturb'. Tap on the first result. Then, turn on the Do Not Disturb toggle. Alternatively, you can find the setting in Control Centre. To get to Control Centre, swipe down from the top-right corner of the screen, or swipe up from the bottom if you are using an iPhone without a notch. Next, press the button with the crescent moon icon. If the moon turns purple, with a white background, then Do Not Disturb is on. Remember to turn it off again once you have finished ringing."),
+        FAQ(question: "My device keeps turning off", answer: "To stop your device going to sleep between rings because you don't touch the screen for a while, perhaps while chatting on Zoom or sitting out of a touch, you can set the Auto-Lock duration to Never. The Auto-Lock setting is in the Display & Brightness section of the Settings app.")
+    ]
     
 }
 
+extension Text {
+    init(_ faq: FAQ) {
+        self.init("")
+        self = Text(faq.question).bold()
+        self = self + Text("\n\n\(faq.answer)\n")
+    }
+}
 
 struct HelpView:View {
     var asSheet:Bool
@@ -112,7 +137,7 @@ struct MasterHelpView:View {
             Section {
                 NavigationLink("Quick Start Guide", destination: QuickStartGuideView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Advanced Features", destination: AdvancedFeaturesView(asSheet: self.asSheet, isPresented: self.$isPresented))
-//                NavigationLink("FAQs",  destination: QuickStartGuideView(asSheet: self.asSheet, isPresented: self.$isPresented))
+                NavigationLink("FAQs",  destination: FAQsView(asSheet: self.asSheet, isPresented: self.$isPresented))
             }
             Section {
                 NavigationLink("Full help document", destination: HelpTextView(asSheet: self.asSheet, isPresented: self.$isPresented))
@@ -127,6 +152,34 @@ struct MasterHelpView:View {
             
         })
             .navigationBarTitle("Help")
+    }
+}
+
+struct FAQsView:View {
+    var asSheet:Bool
+    
+    @Binding var isPresented:Bool
+    
+    var body: some View {
+//        ZStack {
+        ScrollView {
+            VStack {
+                ForEach(FAQ.FAQs) { faq in
+                    Text(faq)
+                }
+            }
+            .padding()
+        }
+
+        .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
+            if asSheet {
+                Text("Dismiss")
+            } else {
+                Text("")
+            }
+            
+        })
+            .navigationBarTitle("FAQs", displayMode: .inline)
     }
 }
 
@@ -214,7 +267,6 @@ struct QuickStartGuideView:View {
                 NavigationLink("Ringing the Bells", destination: RingingTheBellsView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Making calls", destination: MakingCallsView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Leaving a tower", destination: LeavingATowerView(asSheet: self.asSheet, isPresented: self.$isPresented))
-                NavigationLink("Tips", destination: HintsAndTipsView(asSheet: self.asSheet, isPresented: self.$isPresented))
             }
             Section {
                 NavigationLink("Full Quick Start Guide", destination: ScrollView {
@@ -267,32 +319,6 @@ struct CreatingAnAccountView:View {
             .navigationBarTitle("Creating an account", displayMode: .inline)
     }
 }
-
-struct HintsAndTipsView:View {
-    var asSheet:Bool
-    
-    @Binding var isPresented:Bool
-    var body:some View {
-        ScrollView {
-            
-            VStack(alignment: .leading, spacing: 10) {
-                Text(HelpDocumentation.tips)
-                Spacer()
-            }
-        }
-        .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
-            if asSheet {
-                Text("Dismiss")
-            } else {
-                Text("")
-            }
-            
-        })
-            .padding()
-            .navigationBarTitle("Hints and Tips", displayMode: .inline)
-    }
-}
-
 
 struct CreatingOrJoiningATowerView:View {
     var asSheet:Bool
@@ -426,12 +452,6 @@ struct QuickStartGuideTextView:View {
                         .font(.headline)
                         .bold()
                     Text(HelpDocumentation.leavingATower)
-                }
-                Group {
-                    Text("\n\nTips\n")
-                        .font(.headline)
-                        .bold()
-                    Text(HelpDocumentation.tips)
                 }
                 
             }
@@ -693,7 +713,7 @@ struct HelpTextView:View {
                     .font(.title)
                     .bold()
                 QuickStartGuideTextView(asSheet: self.asSheet, isPresented: self.$isPresented)
-                Text("\nAdvanced Features")
+                Text("\n") + Text("Advanced Features")
                     .font(.title)
                     .bold()
                 AdvancedFeaturesTextView(asSheet: self.asSheet, isPresented: self.$isPresented)

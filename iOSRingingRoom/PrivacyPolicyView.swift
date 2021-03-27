@@ -9,6 +9,61 @@
 import SwiftUI
 import MessageUI
 
+struct PrivacyPolicyWebView:View {
+    
+    var webview = Webview(web: nil, url: URL(string: "https://ringingroom.com/privacy")!)
+    
+    @Binding var isPresented:Bool
+    
+    var body: some View {
+        GeometryReader { geo2 in
+        NavigationView {
+            VStack {
+            GeometryReader { geo in
+                Text("Hi")
+                    .onAppear {
+                        print("geo", geo.size)
+                    }.frame(maxWidth: .infinity, maxHeight: .infinity)
+//            webview
+//                .navigationBarTitle("Privacy", displayMode: .inline)
+//                .navigationBarItems(trailing: Button("Dismiss") {isPresented = false})
+//                .onAppear(perform: {
+//                    print(geo.frame(in: .global))
+////                    self.webview.webviewController?.webview.frame = geo.frame(in: .global)
+//                    self.webview.webviewController?.webview.frame = CGRect(x: 0, y: 0, width: geo.frame(in: .local).width, height: geo.frame(in: .local).height)
+////                    self.webview.webviewController?.webview.frame.width = geo.frame(in: .global).width
+//                    print(self.webview.webviewController?.webview.frame)
+//                })
+//                .fixedSize(horizontal: false, vertical: false)
+            }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(GeometryReader { geoB in
+                Color.red
+                    .onAppear {
+                        print("back", geoB.size)
+                    }
+            })
+
+        }.accentColor(.main)
+        }
+        .onAppear {
+            print("ge2", geo2.size)
+        }
+        }
+
+    }
+}
+
+struct MyView:View {
+    var body: some View {
+        GeometryReader { geo in
+            Color.red
+                .onAppear {
+                    print(geo.size)
+                }
+        }
+    }
+}
+
 struct PrivacyPolicyView: View {
     
     @State private var result: Result<MFMailComposeResult, Error>? = nil
@@ -17,7 +72,7 @@ struct PrivacyPolicyView: View {
     
     @State private var isShowingPrivacyPolicy = false
     
-    var webview = Webview(web: nil, url: URL(string: "https://ringingroom.com/privacy")!)
+    
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -25,11 +80,11 @@ struct PrivacyPolicyView: View {
             Button("ringingroom.com/privacy") {isShowingPrivacyPolicy = true}
         }
         .sheet(isPresented: $isShowingPrivacyPolicy, content: {
+//            PrivacyPolicyWebView(isPresented: $isShowingPrivacyPolicy)
             NavigationView {
-                webview
-                    .navigationBarTitle("Privacy", displayMode: .inline)
-                    .navigationBarItems(trailing: Button("Dismiss") {isShowingPrivacyPolicy = false})
-            }                            .accentColor(.main)
+                MyView()
+            }
+
 
         })
     }

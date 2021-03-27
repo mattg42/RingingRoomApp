@@ -73,7 +73,7 @@ struct WelcomeLoginScreen: View {
     
     @State private var activeLoginSheet:ActiveLoginSheet? = nil
                 
-    var servers = ["/":"UK","/na.":"North America","/sg.":"Singapore"]
+    var servers = ["/":"UK","/na.":"North America","/sg.":"Singapore","/anzab.":"ANZAB"]
     
     @State var serverSelect = UserDefaults.standard.string(forKey: "server") ?? (UserDefaults.standard.bool(forKey: "NA") ? "/na." : "/")
     
@@ -260,6 +260,9 @@ struct WelcomeLoginScreen: View {
             let queue = DispatchQueue.monitor
             monitor.start(queue: queue)
         })
+        .onDisappear {
+            monitor.cancel()
+        }
     }
     
     func login() {

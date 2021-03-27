@@ -18,9 +18,7 @@ class SocketIOManager: NSObject, ObservableObject {
     var manager:SocketManager!
     
     var bellCircle = BellCircle.current
-    
-    var ignoreSetup = false
-    
+        
     var refresh = false
     var server_ip = ""
     
@@ -28,12 +26,11 @@ class SocketIOManager: NSObject, ObservableObject {
     
     var setups = 0 {
         didSet {
-            if setups == 8 {
+            if setups == 7 {
                 
-                cc.getMyTowers()
-                print(setups)
+                print("finished setup", setups)
                 AppController.shared.state = .ringing
-                ignoreSetup = true
+                cc.getMyTowers()
             }
         }
     }
@@ -70,7 +67,6 @@ class SocketIOManager: NSObject, ObservableObject {
 //
         socket?.on(clientEvent: .connect) { data, ack in
             print(self.socket?.status)
-            self.ignoreSetup = false
             self.socket?.emit("c_join", ["tower_id": self.bellCircle.towerID, "user_token": CommunicationController.token!, "anonymous_user": false])
             if self.bellCircle.needsTowerInfo {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -88,15 +84,21 @@ class SocketIOManager: NSObject, ObservableObject {
         }
         
         socket?.on("s_size_change") { data, ack in
-            self.bellCircle.newSize(self.getDict(data)["size"] as! Int)
-            if !self.ignoreSetup {
+            if self.refresh {
+                self.socket?.emit("c_request_global_state", ["tower_id":self.bellCircle.towerID])
+            }
+            if AppController.shared.state != .ringing {
+                print("from size change")
                 self.setups += 1
                 self.socket?.emit("c_request_global_state", ["tower_id":self.bellCircle.towerID])
             }
+            self.bellCircle.newSize(self.getDict(data)["size"] as! Int)
+
         }
         
         socket?.on("s_global_state") { data, ack in
-            if !self.ignoreSetup {
+            if AppController.shared.state != .ringing {
+                print("from bell states")
                 self.setups += 1
             }
             self.bellCircle.objectWillChange.send()
@@ -114,7 +116,8 @@ class SocketIOManager: NSObject, ObservableObject {
         }
         
         socket?.on("s_set_userlist") { data, ack in
-            if !self.ignoreSetup {
+            if AppController.shared.state != .ringing {
+                print("from userlist")
                 self.setups += 1
             }
             self.bellCircle.newUserlist(self.getDict(data)["user_list"] as! [[String:Any]])
@@ -135,8 +138,10 @@ class SocketIOManager: NSObject, ObservableObject {
         }
         
         socket?.on("s_user_entered") { data, ack in
-            if !self.ignoreSetup {
+            if AppController.shared.state != .ringing {
                 User.shared.ringerID = self.getDict(data)["user_id"] as! Int
+                print("set userID")
+                print("from user entered")
                 self.setups += 1
             }
             print(self.getDict(data))
@@ -144,14 +149,16 @@ class SocketIOManager: NSObject, ObservableObject {
         }
         
         socket?.on("s_audio_change") { data, ack in
-            if !self.ignoreSetup {
+            if AppController.shared.state != .ringing {
+                print("from audio change")
                 self.setups += 1
             }
             self.bellCircle.newAudio(self.getDict(data)["new_audio"] as! String)
         }
         
         socket?.on("s_host_mode") { data, ack in
-            if !self.ignoreSetup {
+            if AppController.shared.state != .ringing {
+                print("from host mode")
                 self.setups += 1
             }
             self.bellCircle.hostModeEnabled = self.getDict(data)["new_mode"] as! Bool
@@ -180,15 +187,15 @@ class SocketIOManager: NSObject, ObservableObject {
     func leaveTower() {
         socket?.emit("c_user_left", ["user_name":User.shared.name, "user_token":CommunicationController.token!, "anonymous_user":false, "tower_id":bellCircle.towerID])
         setups = 0
-        ignoreSetup = false
 //        bellCircle.setupComplete = ["gotUserList":false, "gotSize":false, "gotAudioType":false, "gotHostMode":false, "gotUserEntered":false, "gotBellStates":false, "gotAssignments":false]
         socket?.disconnect()
+        bellCircle.users = [Ringer]()
+        bellCircle.gotAssignments = false
         socket = nil
         ChatManager.shared.messages = [Message]()
         ChatManager.shared.newMessages = 0
         ChatManager.shared.canSeeMessages = false
         manager = nil
-        ignoreSetup = false
         
         print(User.shared.myTowers.names)
         
