@@ -87,8 +87,6 @@ struct RingingRoomView: View {
     @State var showingPrivacyPolicyView = false
 
     
-    var webview = Webview(web: nil, url: URL(string: "https://ringingroom.co.uk/privacy")!)
-    
 
     
     @State var activeSheet: ActiveSheet?
@@ -241,11 +239,8 @@ connection is restored.
             .sheet(item: $activeSheet) { item in
                         switch item {
                         case .privacy:
-                            NavigationView {
-                                webview
-                                    .navigationBarTitle("Privacy", displayMode: .inline)
-                                    .navigationBarItems(trailing: Button("Dismiss") {activeSheet = nil})
-                            }
+                            PrivacyPolicyWebView(isPresented: .init(get: {activeSheet == .privacy}, set: {if !$0 {activeSheet = nil}}))
+
                             .accentColor(.main)
                         case .help:
                             HelpView(asSheet: true, isPresented: .init(get: {activeSheet == .help}, set: {if !$0 {activeSheet = nil}}))

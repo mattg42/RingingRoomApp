@@ -30,20 +30,14 @@ struct MainApp: View {
         
     @State var showingPrivacyPolicyView = false
 
-    
-    var webview = Webview(web: nil, url: URL(string: "https://ringingroom.co.uk/privacy")!)
-    
     var body: some View {
         switch AppController.shared.state {
         case .login:
             if AppController.shared.loginState == .auto {
                 AutoLogin()
                     .sheet(isPresented: $showingPrivacyPolicyView, content: {
-                        NavigationView {
-                            webview
-                                .navigationBarTitle("Privacy", displayMode: .inline)
-                                .navigationBarItems(trailing: Button("Dismiss") {showingPrivacyPolicyView = false})
-                        }
+                        PrivacyPolicyWebView(isPresented: $showingPrivacyPolicyView)
+
                     })
                     .onOpenURL(perform: { url in
                         let pathComponents = Array(url.pathComponents.dropFirst())
@@ -94,11 +88,8 @@ struct MainApp: View {
                     }
             }
             .sheet(isPresented: $showingPrivacyPolicyView, content: {
-                NavigationView {
-                    webview
-                        .navigationBarTitle("Privacy", displayMode: .inline)
-                        .navigationBarItems(trailing: Button("Dismiss") {showingPrivacyPolicyView = false})
-                }
+                PrivacyPolicyWebView(isPresented: $showingPrivacyPolicyView)
+
             })
             .onOpenURL(perform: { url in
                 let pathComponents = Array(url.pathComponents.dropFirst())

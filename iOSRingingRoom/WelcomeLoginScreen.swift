@@ -79,7 +79,6 @@ struct WelcomeLoginScreen: View {
     
     @State var showingServers = false
     
-    var webview = Webview(web: nil, url: URL(string: "https://ringingroom.co.uk/privacy")!)
 
     
     var body: some View {
@@ -236,11 +235,7 @@ struct WelcomeLoginScreen: View {
         }, content: { item in
             switch item {
             case .privacy:
-                NavigationView {
-                    webview
-                        .navigationBarTitle("Privacy", displayMode: .inline)
-                        .navigationBarItems(trailing: Button("Dismiss") {activeLoginSheet = nil})
-                }
+                PrivacyPolicyWebView(isPresented: .init(get: {self.activeLoginSheet == .privacy}, set: {if !$0 {self.activeLoginSheet = nil}}))
                 .accentColor(.main)
             case .forgotPassword:
             ResetPasswordView(isPresented: .init(get: {self.activeLoginSheet == .forgotPassword}, set: {if !$0 {self.activeLoginSheet = nil}}), email: self.$email).accentColor(Color.main)
