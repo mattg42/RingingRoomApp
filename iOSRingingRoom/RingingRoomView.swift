@@ -813,30 +813,6 @@ struct RopeCircle:View {
     
     @State private var manager = SocketIOManager.shared
     
-//    @State private var ropeSize:CGFloat = 0
-//    
-//    @State private var handBellSize:CGFloat = 0
-    
-//    var imageWidth:CGFloat {
-//        get {
-//            if bellCircle.bellType == .tower {
-//                return ropeSize/3
-//            } else {
-//                return handBellSize
-//            }
-//        }
-//    }
-//
-//    var imageHeight:CGFloat {
-//        get {
-//            if bellCircle.bellType == .tower {
-//                return ropeSize
-//            } else {
-//                return handBellSize
-//            }
-//        }
-//    }
-    
     var interfaceOrientation: UIInterfaceOrientation? {
         get {
             guard let orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation else {
@@ -1356,6 +1332,32 @@ extension String {
 }
 
 struct TowerControlsView:View {
+    
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    
+    @Environment(\.colorScheme) var colorScheme
+
+    
+    var interfaceOrientation: UIInterfaceOrientation? {
+        get {
+            guard let orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation else {
+                #if DEBUG
+                fatalError("Could not obtain UIInterfaceOrientation from a valid windowScene")
+                #else
+                return nil
+                #endif
+            }
+            return orientation
+        }
+    }
+    
+    var isSplit:Bool {
+        get {
+            !(horizontalSizeClass == .compact || (interfaceOrientation?.isPortrait ?? true))
+        }
+    }
+    
     @ObservedObject var bellCircle = BellCircle.current
 
     @State private var permitHostMode:Bool = false
@@ -1397,87 +1399,142 @@ struct TowerControlsView:View {
     
 //    @State var width = 0
     
+    @State var speakerSliders = ".3"
+    
+    @State var volume = UserDefaults.standard.optionalDouble(forKey: "volume") ?? 1
+    
+    var backgroundColor: some View {
+        get {
+            if isSplit {
+                return AnyView(EmptyView())
+            } else {
+                return AnyView(Color.primary.colorInvert())
+            }
+        }
+    }
+    
     var body: some View {
         GeometryReader { geo in
             ZStack {
                 VStack(spacing: 0) {
-                    HStack(alignment: .center) {
-                        Spacer()
-                        Text(String(bellCircle.towerID))
-                        Button(action: {
-                            let pasteboard = UIPasteboard.general
-                            pasteboard.string = String(self.bellCircle.towerID)
-                        }) {
-                            Image(systemName: "doc.on.doc")
+                    if UIDevice.current.userInterfaceIdiom == .phone {
+                    ZStack {
+                        HStack(alignment: .center) {
+                            Spacer()
+                            Text(String(bellCircle.towerID))
+                            Button(action: {
+                                let pasteboard = UIPasteboard.general
+                                pasteboard.string = String(self.bellCircle.towerID)
+                            }) {
+                                Image(systemName: "doc.on.doc")
+                            }
+                            .foregroundColor(.primary)
+                            Spacer()
                         }
-                        .foregroundColor(.primary)
-                        Spacer()
-    //                    if hasPermissions() {
-    //                    MenuButton()
-    //                        .opacity(0)
-    //                    }
-                    }
-                    .padding(.top, 4)
-                    .padding(.bottom, 7)
-//                    ZStack {
-//                        if !showingAudioSlider {
-//                    HStack(alignment: .center) {
-//                        Spacer()
-////                        HelpButton(activeSheet: .constant(nil)).disabled(true).opacity(0)
-////                        if showingAudioSlider {
-////                            Slider(value: .init(get: {
-////                                pow(bellCircle.audioController.starling.engine.mainMixerNode.outputVolume, 1/3)
-////                            }, set: {
-////                                bellCircle.audioController.starling.engine.mainMixerNode.outputVolume = pow($0, 3)
-////                            }), in: (0.1)...(1.0))
-////
-////                        }
-//////                            if !showingAudioSlider {
-////                            Button(action: {
-////                                // toggle audio
-////                                withAnimation {
-////                                    showingAudioSlider.toggle()
-////                                }
-////                            }) {
-////                                ZStack {
-////                                    Color.main.cornerRadius(5)
-////                                    Image(systemName: "speaker.2")
-////                                        .font(Font.callout.weight(.bold))
-////                                        .foregroundColor(.white)
-////                                        .padding(4)
-////                                }.fixedSize()
-////                            }
-//                        Text(String(bellCircle.towerID))
-//                        Button(action: {
-//                            let pasteboard = UIPasteboard.general
-//                            pasteboard.string = String(self.bellCircle.towerID)
-//                        }) {
-//                            Image(systemName: "doc.on.doc")
-//                        }
-//                        .foregroundColor(.primary)
-//                        Spacer()
-//    //                    if hasPermissions() {
-//    //                    MenuButton()
-//    //                        .opacity(0)
-//    //                    }
-////                    },
-//                    .padding(.top, 4)
-////                        }
-//
-////                        HStack(alignment: .center) {
-////
-////                                }
-////                            } else {
-////                                //                                HStack
-////
-////                            }
-////                            Spacer()
-////                            MenuButton(keepSize: false).opacity(0).disabled(true)
-////                        }.padding(.top, -3)
-//                    }
-//                    .padding(.bottom, 7)
-                    
-    //                .padding(.top, -4)
+//                                            .padding(.top, 2)
+//                                            .padding(.bottom, 7)
+                        HStack(alignment: .center) {
+                            if !isSplit {
+                            HelpButton(activeSheet: .constant(nil))
+                                .opacity(0)
+                                .disabled(true)
+                            }
+                            Button(action: {
+                                withAnimation {
+                                    showingAudioSlider.toggle()
+                                }
+                            }) {
+                                ZStack(alignment: .leading) {
+                                    ZStack {
+                                    Color.main.cornerRadius(5)
+                                        Image(systemName: "speaker.3").padding(3).font(Font.callout.weight(.bold))
+                                            .hidden()
+                                    }.fixedSize()
+                                    Image(systemName: "speaker\(speakerSliders)")
+                                        .font(Font.callout.weight(.bold))
+                                        .foregroundColor(.white)
+                                        .padding(3)
+                                }.fixedSize()
+                                .onAppear {
+                                    getNumberOfLines()
+                                }
+                            }
+                            Slider(value: $volume, in: 0.0...1.0)
+                                .frame(maxWidth: showingAudioSlider ? .infinity : 0)
+                            .opacity(showingAudioSlider ? 1 : 0)
+                            .background(backgroundColor)
+                            .onChange(of: volume) { _ in
+                                bellCircle.audioController.starling.engine.mainMixerNode.outputVolume = pow(Float(volume), 3)
+                                getNumberOfLines()
+                                UserDefaults.standard.setValue(volume, forKey: "volume")
+                            }
+                            Spacer()
+                            if !isSplit {
+                            
+                            MenuButton(keepSize: false).opacity(0).disabled(true)
+                            }
+                        }
+                    }.padding(.top, -3.5)
+                    .padding(.bottom, 3)
+                    } else {
+                            HStack(alignment: .center) {
+                                if !isSplit {
+                                HelpButton(activeSheet: .constant(nil))
+                                    .opacity(0)
+                                    .disabled(true)
+                                    Spacer()
+
+                                }
+                                
+
+
+
+                                    ZStack(alignment: .leading) {
+                                        ZStack {
+                                        backgroundColor
+                                            Image(systemName: "speaker.3")
+//                                                .padding(3)
+                                                .font(Font.callout.weight(.bold))
+                                                .hidden()
+                                        }.fixedSize()
+                                        Image(systemName: "speaker\(speakerSliders)")
+                                            .font(Font.callout.weight(.bold))
+                                            .foregroundColor(.primary)
+//                                            .padding(3)
+                                    }.fixedSize()
+                                    .onAppear {
+                                        getNumberOfLines()
+                                    }
+                                    .padding(.trailing, -3)
+                                Slider(value: $volume, in: 0.0...1.0)
+                                    .frame(maxWidth: 250)
+//                                .opacity(showingAudioSlider ? 1 : 0)
+                                .background(backgroundColor)
+                                .onChange(of: volume) { _ in
+                                    bellCircle.audioController.starling.engine.mainMixerNode.outputVolume = pow(Float(volume), 3)
+                                    getNumberOfLines()
+                                    UserDefaults.standard.setValue(volume, forKey: "volume")
+                                }
+                                Spacer()
+                                Text(String(bellCircle.towerID))
+                                Button(action: {
+                                    let pasteboard = UIPasteboard.general
+                                    pasteboard.string = String(self.bellCircle.towerID)
+                                }) {
+                                    Image(systemName: "doc.on.doc")
+                                }
+                                .foregroundColor(.primary)
+                                if !isSplit {
+                                    Spacer()
+
+                                MenuButton(keepSize: false).opacity(0).disabled(true)
+                                }
+                                
+                            }
+                        .padding(.top, -3.5)
+                        .padding(.bottom, 3)
+                        }
+
                     if hasPermissions() {
                         HStack {
                             if bellCircle.hostModePermitted && bellCircle.isHost {
@@ -1502,9 +1559,6 @@ struct TowerControlsView:View {
                                     Text(self.bellTypes[i].rawValue)
                                 }
                             }
-//                            .fixedSize()
-                            //                            .padding(.horizontal)
-                            //                            .padding(.top, 7)
                             .pickerStyle(SegmentedPickerStyle())
                             }
                         .padding(.bottom, 7)
@@ -1517,70 +1571,215 @@ struct TowerControlsView:View {
                                         Text(String(self.towerSizes[i]))
                                     }
                                 }
-                                //                            .fixedSize()
-                                //                            .padding(.horizontal)
-                                //                                .padding(.top, 10)
                                 .pickerStyle(SegmentedPickerStyle())
                                 
                             }
                             .padding(.bottom, 7)
                     }
-        //                if bellCircle.isHost && bellCircle.hostModePermitted {
-        //                    Toggle(isOn: .init(get: {self.bellCircle.hostModeEnabled}, set: { newValue in
-        //                        SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode":newValue, "tower_id":self.bellCircle.towerID])
-        //                    }) ) {
-        //                        Text("Enable host mode")
-        //                    }
-        //                }
                     if bellCircle.towerControlsViewSelection == 1 {
                         UsersView()
                     } else {
                         ChatView()
                     }
-    //                TabView(selection: .init(get: {
-    //                    return bellCircle.towerControlsViewSelection
-    //                }, set: {
-    //                    bellCircle.towerControlsViewSelection = $0
-    //                })) {
-    ////                    Text("df")
-    //                    UsersView()
-    ////                        .padding(.vertical)
-    //                        .padding(.bottom, self.bellCircle.keyboardShowing ? 5 : 102)
-    //                        .tag(1)
-    //                        .padding(.horizontal, 5)
-    //                        .tabItem {
-    //                            Image(systemName: "person")
-    //                            Text("Users")
-    //                        }
-    ////                    Text("tab")
-    ////                        .onAppear {
-    ////                            print("text appeared")
-    ////                        }
-    //                    ChatView()
-    //                        .padding(.horizontal, 5)
-    //                        .padding(.bottom, self.bellCircle.keyboardShowing ? 5 : 102)
-    //                        .tag(2)
-    //                        .tabItem {
-    //                            Image(systemName: "text.bubble")
-    //                            Text("Chat")
-    //                        }
-    //                }
-    ////                .tabViewStyle(PageTabViewStyle())
-    ////                .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-    //                .padding(.top, self.bellCircle.keyboardShowing ? -77 : 0)
-    //                .padding(.bottom, -145)
-    //                .onAppear {
-    //                    print("tab view appeared")
-    //                }
-    //                .padding(.horizontal, -5)
-    //                .accentColor(.main)
                 }
             }
+//            ZStack {
+//                VStack(spacing: 0) {
+//                    HStack(alignment: .center) {
+//                        Spacer()
+//                        Text(String(bellCircle.towerID))
+//                        Button(action: {
+//                            let pasteboard = UIPasteboard.general
+//                            pasteboard.string = String(self.bellCircle.towerID)
+//                        }) {
+//                            Image(systemName: "doc.on.doc")
+//                        }
+//                        .foregroundColor(.primary)
+//                        Spacer()
+//    //                    if hasPermissions() {
+//    //                    MenuButton()
+//    //                        .opacity(0)
+//    //                    }
+//                    }
+//                    .padding(.top, 4)
+//                    .padding(.bottom, 7)
+////                    ZStack {
+////                        if !showingAudioSlider {
+////                    HStack(alignment: .center) {
+////                        Spacer()
+//////                        HelpButton(activeSheet: .constant(nil)).disabled(true).opacity(0)
+//////                        if showingAudioSlider {
+//////                            Slider(value: .init(get: {
+//////                                pow(bellCircle.audioController.starling.engine.mainMixerNode.outputVolume, 1/3)
+//////                            }, set: {
+//////                                bellCircle.audioController.starling.engine.mainMixerNode.outputVolume = pow($0, 3)
+//////                            }), in: (0.1)...(1.0))
+//////
+//////                        }
+////////                            if !showingAudioSlider {
+//////                            Button(action: {
+//////                                // toggle audio
+//////                                withAnimation {
+//////                                    showingAudioSlider.toggle()
+//////                                }
+//////                            }) {
+//////                                ZStack {
+//////                                    Color.main.cornerRadius(5)
+//////                                    Image(systemName: "speaker.2")
+//////                                        .font(Font.callout.weight(.bold))
+//////                                        .foregroundColor(.white)
+//////                                        .padding(4)
+//////                                }.fixedSize()
+//////                            }
+////                        Text(String(bellCircle.towerID))
+////                        Button(action: {
+////                            let pasteboard = UIPasteboard.general
+////                            pasteboard.string = String(self.bellCircle.towerID)
+////                        }) {
+////                            Image(systemName: "doc.on.doc")
+////                        }
+////                        .foregroundColor(.primary)
+////                        Spacer()
+////    //                    if hasPermissions() {
+////    //                    MenuButton()
+////    //                        .opacity(0)
+////    //                    }
+//////                    },
+////                    .padding(.top, 4)
+//////                        }
+////
+//////                        HStack(alignment: .center) {
+//////
+//////                                }
+//////                            } else {
+//////                                //                                HStack
+//////
+//////                            }
+//////                            Spacer()
+//////                            MenuButton(keepSize: false).opacity(0).disabled(true)
+//////                        }.padding(.top, -3)
+////                    }
+////                    .padding(.bottom, 7)
+//
+//    //                .padding(.top, -4)
+//                    if hasPermissions() {
+//                        HStack {
+//                            if bellCircle.hostModePermitted && bellCircle.isHost {
+//                                Toggle("Host Mode", isOn: .init(get: { hostMode }, set: {
+//                                    if !(hostModeTimer?.isValid ?? false) {
+//                                        hostMode = $0
+//                                        SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode": hostMode, "tower_id": bellCircle.towerID])
+//                                        hostModeTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false, block: { _ in hostModeTimer = nil})
+//                                    }
+//                                }))
+//                                .padding(.trailing, 20)
+//                                .onChange(of: bellCircle.hostModeEnabled, perform: { value in
+//                                    if !bellCircle.hostModeEnabled == hostMode {
+//                                        hostMode = bellCircle.hostModeEnabled
+//                                    }
+//                                })
+//                                .toggleStyle(SwitchToggleStyle(tint: .main))
+//                                .fixedSize()
+//                            }
+//                            Picker(selection: .init(get: {self.bellTypes.firstIndex(of: self.bellCircle.bellType)!}, set: {self.bellTypeChanged(value:$0)}), label: Text("Bell type picker")) {
+//                                ForEach(0..<2) { i in
+//                                    Text(self.bellTypes[i].rawValue)
+//                                }
+//                            }
+////                            .fixedSize()
+//                            //                            .padding(.horizontal)
+//                            //                            .padding(.top, 7)
+//                            .pickerStyle(SegmentedPickerStyle())
+//                            }
+//                        .padding(.bottom, 7)
+//
+//                            HStack {
+//
+//
+//                                Picker(selection: .init(get: { towerSizes.firstIndex(of: bellCircle.size) ?? 6 }, set: {self.sizeChanged(value:$0)}), label: Text("Tower size picker")) {
+//                                    ForEach(0..<towerSizes.count) { i in
+//                                        Text(String(self.towerSizes[i]))
+//                                    }
+//                                }
+//                                //                            .fixedSize()
+//                                //                            .padding(.horizontal)
+//                                //                                .padding(.top, 10)
+//                                .pickerStyle(SegmentedPickerStyle())
+//
+//                            }
+//                            .padding(.bottom, 7)
+//                    }
+//        //                if bellCircle.isHost && bellCircle.hostModePermitted {
+//        //                    Toggle(isOn: .init(get: {self.bellCircle.hostModeEnabled}, set: { newValue in
+//        //                        SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode":newValue, "tower_id":self.bellCircle.towerID])
+//        //                    }) ) {
+//        //                        Text("Enable host mode")
+//        //                    }
+//        //                }
+//                    if bellCircle.towerControlsViewSelection == 1 {
+//                        UsersView()
+//                    } else {
+//                        ChatView()
+//                    }
+//    //                TabView(selection: .init(get: {
+//    //                    return bellCircle.towerControlsViewSelection
+//    //                }, set: {
+//    //                    bellCircle.towerControlsViewSelection = $0
+//    //                })) {
+//    ////                    Text("df")
+//    //                    UsersView()
+//    ////                        .padding(.vertical)
+//    //                        .padding(.bottom, self.bellCircle.keyboardShowing ? 5 : 102)
+//    //                        .tag(1)
+//    //                        .padding(.horizontal, 5)
+//    //                        .tabItem {
+//    //                            Image(systemName: "person")
+//    //                            Text("Users")
+//    //                        }
+//    ////                    Text("tab")
+//    ////                        .onAppear {
+//    ////                            print("text appeared")
+//    ////                        }
+//    //                    ChatView()
+//    //                        .padding(.horizontal, 5)
+//    //                        .padding(.bottom, self.bellCircle.keyboardShowing ? 5 : 102)
+//    //                        .tag(2)
+//    //                        .tabItem {
+//    //                            Image(systemName: "text.bubble")
+//    //                            Text("Chat")
+//    //                        }
+//    //                }
+//    ////                .tabViewStyle(PageTabViewStyle())
+//    ////                .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+//    //                .padding(.top, self.bellCircle.keyboardShowing ? -77 : 0)
+//    //                .padding(.bottom, -145)
+//    //                .onAppear {
+//    //                    print("tab view appeared")
+//    //                }
+//    //                .padding(.horizontal, -5)
+//    //                .accentColor(.main)
+//                }
+//            }
 //            .fixedSize(horizontal: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/, vertical: false)
 //            .frame(minWidth: geo.size.width, maxWidth: width)
         }
     }
 
+    func getNumberOfLines() {
+        switch volume {
+        case 0:
+            speakerSliders = ""
+        case 0..<1/3:
+            speakerSliders = ".1"
+        case 1/3..<2/3:
+            speakerSliders = ".2"
+        case 2/3...1:
+            speakerSliders = ".3"
+        default:
+            speakerSliders = ".2"
+        }
+    }
+    
     func hasPermissions() -> Bool {
         if bellCircle.isHost {
             return true
