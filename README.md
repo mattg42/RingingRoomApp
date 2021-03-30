@@ -3,22 +3,20 @@ A native iOS client for [Ringing Room](https://github.com/lelandpaul/virtual-rin
 
 It will be available soon on the App Store.
 
-## About The Project
+## About
+I had 2 clear goals in mind when I started this project: to make it easier for people to use Ringing Room on their iOS devices, and to learn more about Swift and SwiftUI. I am pleased to say that I achieved both of these. I managed to make the project using 100% SwiftUI, while making (what I think at least is) a greate UX.
 
-It is built 100% using SwiftUI.
+## Contributing
 
-This is my first real-life coding project, let alone my first SwiftUI one, so the code is definately sub-optimal. If you can improve it in anyway, please do. Any contributions are greatly appreciated. To contribute:
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b my-new-branch`)
-3. Commit your Changes (`git commit -m 'Describe what you've changed'`)
-4. Push to the Branch (`git push origin my-new-branch`)
-5. Open a Pull Request
-
-For major changes, please open an issue first to discuss what you would like to change.
+As this is my first Swift/SwiftUI project, there are undoubtedly many ways to improve it. If you can in any way, please feel free to open an issue or pull request.
 
 Comments coming soon!
 
 ## Contact
 
 If you want to contact me directly, email me at ringingroomapp@gmail.com
+
+## Acknowledgements
+• Thank you [Leland Paul](https://github.com/lelandpaul) for making [Ringing Room](https://github.com/lelandpaul/ringingroom), the Ringing Room API, and helping me make this project a reality.
+
+• For the low latency audio, I have used [Starling](https://github.com/matthewreagan/Starling). Thank you [Matthew Reagan](https://github.com/matthewreagan) for making this!
