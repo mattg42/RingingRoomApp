@@ -4,7 +4,7 @@ A native iOS client for [Ringing Room](https://github.com/lelandpaul/virtual-rin
 It will be available soon on the App Store.
 
 ## About
-I had 2 clear goals in mind when I started this project: to make it easier for people to use Ringing Room on their iOS devices, and to learn more about Swift and SwiftUI. I am pleased to say that I achieved both of these. I managed to make the project using 100% SwiftUI, while making (what I think at least is) a greate UX.
+I had 2 clear goals in mind when I started this project: to make it easier for people to use Ringing Room on their iOS devices, and to learn more about Swift and SwiftUI. I am pleased to say that I achieved both of these. I managed to make the project using 100% SwiftUI, while making (what I think at least is) a great UX.
 
 ## Contributing
 
