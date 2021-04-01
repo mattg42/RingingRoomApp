@@ -156,17 +156,17 @@ class AudioController: NSObject, AVAudioPlayerDelegate {
         for sound in SoundAsset.allCases {
             switch sound.rawValue {
             case "bob":
-                starling.load(resource: sound.rawValue, type: "mp3", for: SoundIdentifier("Bob"))
+                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("Bob"))
             case "single":
-                starling.load(resource: sound.rawValue, type: "mp3", for: SoundIdentifier("Single"))
+                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("Single"))
             case "go":
-                starling.load(resource: sound.rawValue, type: "mp3", for: SoundIdentifier("Go"))
+                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("Go"))
             case "look":
-                starling.load(resource: sound.rawValue, type: "mp3", for: SoundIdentifier("Look to"))
+                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("Look to"))
             case "stand":
-                starling.load(resource: sound.rawValue, type: "mp3", for: SoundIdentifier("Stand next"))
+                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("Stand next"))
             case "all":
-                starling.load(resource: sound.rawValue, type: "mp3", for: SoundIdentifier("That's all"))
+                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("That's all"))
             default:
                 starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier(sound.rawValue))
             }
