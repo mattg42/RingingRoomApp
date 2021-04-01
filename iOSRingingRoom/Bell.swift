@@ -361,7 +361,9 @@ class BellCircle: ObservableObject {
     func assign(_ id:Int, to bell: Int) {
         print("assign", id, bell)
         if let ringer = ringerForID(id) {
-            assignmentsBuffer[bell - 1] = ringer
+            if (1...size).contains(bell) {
+                assignmentsBuffer[bell - 1] = ringer
+            }
 //            updateAssignments()
             if fillIn {
                 if assignmentsBuffer.filter { ringer in return ringer?.userID ?? 0 != Ringer.blank.userID }.count + (size - assignments.allIndicesOfRingerForID(Ringer.blank.userID).count) == size {
@@ -379,12 +381,13 @@ class BellCircle: ObservableObject {
     func unAssign(at bell:Int) {
         print("un assign")
         print(User.shared.ringerID)
-        if assignments[bell - 1] != Ringer.blank {
-            assignmentsBuffer[bell - 1] = Ringer.blank
-//            updateAssignments()
+        if (1...size).contains(bell) {
+            if assignments[bell - 1] != Ringer.blank {
+                assignmentsBuffer[bell - 1] = Ringer.blank
+    //            updateAssignments()
+            }
+            updateAssignmentsTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
         }
-        updateAssignmentsTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
-
     }
     
     func newUserlist(_ newUsers:[[String:Any]]) {
