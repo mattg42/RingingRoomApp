@@ -83,9 +83,9 @@ struct AutoLogin: View {
             BellCircle.current.towerName = response["tower_name"] as! String
             BellCircle.current.towerID = response["tower_id"] as! Int
             BellCircle.current.serverAddress = response["server_address"] as! String
-            BellCircle.current.additionalSizes = response["additional_sizes_enabled"] as! Bool
-            BellCircle.current.hostModePermitted = response["host_mode_permitted"] as! Bool
-            BellCircle.current.halfMuffled = response["half_muffled"] as! Bool
+            BellCircle.current.additionalSizes = response["additional_sizes_enabled"] as? Bool ?? false
+            BellCircle.current.hostModePermitted = response["host_mode_permitted"] as? Bool ?? true
+            BellCircle.current.halfMuffled = response["half_muffled"] as! Bool as? Bool ?? false
             
             if let tower = User.shared.myTowers.towerForID(BellCircle.current.towerID) {
                 DispatchQueue.main.async {
@@ -144,8 +144,8 @@ struct AutoLogin: View {
             User.shared.password = password
             print("retrieved password")
             self.comController.login(email: email, password: password)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                if AppController.shared.state == .login {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+                if !SocketIOManager.shared.gotAnAssignment {
                     noInternetAlert()
                 }
             }
@@ -154,10 +154,10 @@ struct AutoLogin: View {
         }
     }
     
-    func receivedResponse(statusCode:Int?, response:[String:Any]) {
+    func receivedResponse(statusCode:Int?, response:[String:Any], _ gotToken:Bool) {
         if statusCode == 401 {
             incorrectCredentialsAlert()
-        } else if statusCode == 200 {
+        } else if statusCode == 200 && gotToken {
             self.comController.getUserDetails()
             self.comController.getMyTowers()
         } else {

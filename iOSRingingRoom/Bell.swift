@@ -23,6 +23,14 @@ enum BellType:String, CaseIterable {
 
 class BellCircle: ObservableObject {
     
+    var viewWidth:CGFloat = 0 {
+        didSet {
+            isLargeSize = viewWidth > UIScreen.main.bounds.width
+        }
+    }
+    
+    @Published var isLargeSize = false
+    
     @Published var towerControlsViewSelection = 1 {
         didSet {
             ChatManager.shared.canSeeMessages = towerControlsViewSelection == 2
@@ -256,7 +264,8 @@ class BellCircle: ObservableObject {
     }
     
     func bellRang(number:Int, bellStates:[Bool]) {
-        var fileName = BellCircle.sounds[bellType]![size]![number-1]
+        
+        guard var fileName = BellCircle.sounds[bellType]?[size]?[number-1] else { return }
         fileName.prefix(String(bellType.rawValue.first!))
         if bellType == .tower {
             if halfMuffled {

@@ -24,6 +24,8 @@ class SocketIOManager: NSObject, ObservableObject {
     
     var cc = CommunicationController(sender: self)
     
+    var gotAnAssignment = false
+    
     var setups = 0 {
         didSet {
             if setups == 7 {
@@ -61,6 +63,7 @@ class SocketIOManager: NSObject, ObservableObject {
         socket?.onAny() { data in
             if !(data.event == "ping" || data.event == "pong") {
                 print("received socketio event: ", data.event)
+                print(data.items)
             }
         }
 
@@ -124,6 +127,9 @@ class SocketIOManager: NSObject, ObservableObject {
         }
         
         socket?.on("s_assign_user") { data, ack in
+            if AppController.shared.state != .ringing {
+                self.gotAnAssignment = true
+            }
             let id = self.getDict(data)["user"] as? Int
             let bell = self.getDict(data)["bell"] as! Int
             if id != nil {
@@ -191,11 +197,15 @@ class SocketIOManager: NSObject, ObservableObject {
         socket?.disconnect()
         bellCircle.users = [Ringer]()
         bellCircle.gotAssignments = false
+        bellCircle.isLargeSize = false
+
         socket = nil
         ChatManager.shared.messages = [Message]()
         ChatManager.shared.newMessages = 0
         ChatManager.shared.canSeeMessages = false
         manager = nil
+        
+        gotAnAssignment = false
         
         print(User.shared.myTowers.names)
         
