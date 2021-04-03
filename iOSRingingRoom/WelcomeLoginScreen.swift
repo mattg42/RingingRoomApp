@@ -262,6 +262,7 @@ struct WelcomeLoginScreen: View {
     
     func login() {
         print(CommunicationController.server)
+        CommunicationController.server = serverSelect
         if monitor.currentPath.status == .satisfied || monitor.currentPath.status == .requiresConnection {
             print("sent login request")
 
