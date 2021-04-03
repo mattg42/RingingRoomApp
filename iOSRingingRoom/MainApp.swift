@@ -42,7 +42,7 @@ struct MainApp: View {
                     .onOpenURL(perform: { url in
                         let pathComponents = Array(url.pathComponents.dropFirst())
                         print(pathComponents)
-                        if pathComponents[0] == "privacy" {
+                        if pathComponents.first ?? "" == "privacy" {
                             showingPrivacyPolicyView = true
                         }
                     })
@@ -94,7 +94,7 @@ struct MainApp: View {
             .onOpenURL(perform: { url in
                 let pathComponents = Array(url.pathComponents.dropFirst())
                 print(pathComponents)
-                if pathComponents[0] == "privacy" {
+                if pathComponents.first ?? "" == "privacy" {
                     showingPrivacyPolicyView = true
                 }
             })

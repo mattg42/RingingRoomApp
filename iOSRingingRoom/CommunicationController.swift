@@ -96,23 +96,25 @@ class CommunicationController {
             
             switch type {
             case .loginAttempt:
+                var gotToken = false
                 if let token = dataDict["token"] as? String {
                     CommunicationController.token = token
                     User.shared.loggedIn = true
+                    gotToken = true
                 }
                 switch self.loginType {
                 case .auto:
                     if CommunicationController.towerQueued == nil {
-                        (self.sender as! AutoLogin).receivedResponse(statusCode: statusCode, response: dataDict)
+                        (self.sender as! AutoLogin).receivedResponse(statusCode: statusCode, response: dataDict, gotToken)
                     } else {
                         (self.sender as! AutoLogin).joinTower(id: CommunicationController.towerQueued!)
                     }
                 case .welcome:
-                    (self.sender as! WelcomeLoginScreen).receivedResponse(statusCode: statusCode, responseData: dataDict)
+                    (self.sender as! WelcomeLoginScreen).receivedResponse(statusCode: statusCode, response: dataDict, gotToken)
 //                case .simple:
 //                    (self.sender as! SimpleLoginView).receivedResponse(statusCode: statusCode, responseData: dataDict)
-                case .settings:
-                    (self.sender as! SettingsView).receivedResponse(statusCode: statusCode, responseData: dataDict)
+//                case .settings:
+//                    (self.sender as! SettingsView).receivedResponse(statusCode: statusCode, responseData: dataDict)
 //                case .refresh:
 //                    (self.sender as! RingView)
                 default:

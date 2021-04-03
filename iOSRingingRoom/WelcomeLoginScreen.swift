@@ -246,7 +246,7 @@ struct WelcomeLoginScreen: View {
         .onOpenURL(perform: { url in
             let pathComponents = Array(url.pathComponents.dropFirst())
             print(pathComponents)
-            if pathComponents[0] == "privacy" {
+            if pathComponents.first ?? "" == "privacy" {
                 activeLoginSheet = .privacy
             }
         })
@@ -272,14 +272,12 @@ struct WelcomeLoginScreen: View {
         }
     }
     
-    func receivedResponse(statusCode:Int?, responseData:[String:Any]?) {
-        print("status code: \(String(describing: statusCode))")
-        print(responseData ?? 0)
-        if statusCode! == 401 {
+    func receivedResponse(statusCode:Int?, response:[String:Any], _ gotToken:Bool) {
+        if statusCode == 401 {
             incorrectCredentialsAlert()
-        } else if statusCode! == 200 {
-            comController.getUserDetails()
-            comController.getMyTowers()
+        } else if statusCode == 200 && gotToken {
+            self.comController.getUserDetails()
+            self.comController.getMyTowers()
         } else {
             unknownErrorAlert()
         }

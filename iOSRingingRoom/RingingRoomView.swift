@@ -26,6 +26,10 @@ struct RingingRoomView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
     
+    @Environment(\.sizeCategory) var sizeCategory
+
+    @Environment(\.scenePhase) var scenePhase
+    
     var monitor = NWPathMonitor()
     
     @State private var showingAlert = false
@@ -74,6 +78,8 @@ struct RingingRoomView: View {
     
     var ringingView = RingingView()
     
+    @State var changedSizeCategory = false
+    
     @State var text = ""
     
 //    @State var towerControls = TowerControlsView()
@@ -106,6 +112,7 @@ struct RingingRoomView: View {
                             .padding(.bottom, 5)
                             HStack {
                                 LeaveButton()
+                                
                                 Spacer()
                                 HelpButton(activeSheet: $activeSheet)
                                 Spacer()
@@ -124,11 +131,17 @@ struct RingingRoomView: View {
                             .padding(.bottom, 5)
                             .opacity(0)
                         HStack(spacing: 0) {
+                            if !bellCircle.isLargeSize {
                             HelpButton(activeSheet: .constant(nil))
                                 .opacity(0)
                                 .disabled(true)
+                            
                             Spacer(minLength: 0)
+                            }
                             LeaveButton()
+                                .onAppear {
+                                    print("width", geo.size.width, UIScreen.main.bounds.width)
+                                }
                             Spacer(minLength: 0)
                             SetAtHandButton()
                             Spacer(minLength: 0)
@@ -155,8 +168,11 @@ struct RingingRoomView: View {
                                 .offset(x: bellCircle.showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
                             VStack {
                                 HStack(spacing: 0) {
-                                    HelpButton(activeSheet: $activeSheet)
+                                    if !bellCircle.isLargeSize {
+                                        HelpButton(activeSheet: $activeSheet)
+                                    
                                     Spacer(minLength: 0)
+                                    }
                                     LeaveButton()
                                         .opacity(0)
                                         .disabled(true)
@@ -209,6 +225,40 @@ connection is restored.
                     .fixedSize()
                 }
                 .opacity(showingAlert ? 1 : 0)
+                GeometryReader { geo2 in
+                    HStack {
+                        HelpButton(activeSheet: .constant(nil))
+
+                        
+                        Spacer(minLength: 0)
+                        
+                        LeaveButton()
+                        Spacer(minLength: 0)
+                        SetAtHandButton()
+                        Spacer(minLength: 0)
+                        MenuButton(keepSize: true)
+                    }
+                    .opacity(0)
+                    .onAppear {
+                        print("changed sizeCategory", geo2.size.width, UIScreen.main.bounds.width)
+                        print(UIScreen.main.bounds.width)
+                        bellCircle.isLargeSize = geo2.size.width > UIScreen.main.bounds.size.width
+                    }
+                    .onChange(of: sizeCategory, perform: { value in
+                        print("changed sizeCategory", geo2.size.width)
+                        bellCircle.isLargeSize = false
+                        changedSizeCategory = true
+                    })
+                    .onChange(of: scenePhase, perform: { value in
+                        print("changed scenePhase", geo2.size.width)
+                        if changedSizeCategory {
+                            changedSizeCategory = false
+                            bellCircle.isLargeSize = geo2.size.width > UIScreen.main.bounds.size.width
+                        }
+
+                    })
+                }.disabled(true)
+                .fixedSize(horizontal: false, vertical: true)
             }
 //            .alert(isPresented: $showingAlert) {
 //                Alert(title: Text(self.alertTitle), message: Text(self.alertMessage), dismissButton: alertCancelButton)
@@ -252,7 +302,7 @@ connection is restored.
             .onOpenURL(perform: { url in
                 let pathComponents = Array(url.pathComponents.dropFirst())
                 print(pathComponents)
-                if pathComponents[0] == "privacy" {
+                if pathComponents.first ?? "" == "privacy" {
                     activeSheet = .privacy
                 }
             })
@@ -294,6 +344,7 @@ struct ChatNotificationButton:View {
                     .accentColor(Color.main)
                     .font(.title)
                 Text(String(chatManager.newMessages))
+                    
                     .foregroundColor(.white)
                     .bold()
                     .offset(x: 0, y: -2)
@@ -324,6 +375,7 @@ struct SetAtHandButton:View {
                     //                                }
                     .foregroundColor(.white)
                     .padding(2)
+                    .minimumScaleFactor(0.7)
             }
             .fixedSize()
         }
@@ -353,6 +405,10 @@ struct TowerNameView:View {
     }
 }
 
+enum MenuButtonMode {
+    case ring, controls
+}
+
 struct MenuButton:View {
         
     @ObservedObject var bellCircle:BellCircle = BellCircle.current
@@ -360,6 +416,8 @@ struct MenuButton:View {
     @ObservedObject var chatManager = ChatManager.shared
         
     var keepSize:Bool
+    
+    var mode:MenuButtonMode = .controls
     
     var body: some View {
         Button(action: {
@@ -382,7 +440,11 @@ struct MenuButton:View {
     //                    .fixedSize()
                 
                 if keepSize {
-                    ToControls()
+                    if mode == .ring {
+                        ToRing()
+                    } else {
+                        ToControls()
+                    }
                 } else {
                     if bellCircle.showingTowerControls {
                         ToRing()
@@ -403,6 +465,8 @@ struct ToControls:View {
         HStack {
             Text("Controls")
                 .bold()
+                .minimumScaleFactor(0.7)
+
             Image(systemName: "chevron.right")
         }
             .padding(2)
@@ -416,7 +480,10 @@ struct ToRing:View {
         HStack {
             Image(systemName: "chevron.left")
             Text("Ring")
+
                 .bold()
+                .minimumScaleFactor(0.7)
+
         }
             .padding(2)
             .padding(.horizontal, 3.5)
@@ -435,10 +502,13 @@ struct HelpButton:View {
                 Color.main.cornerRadius(5)
 //                    .fixedSize()
                 Text("Help")
+
                 .bold()
                     .padding(2)
                     .padding(.horizontal, 3.5)
                     .foregroundColor(Color.white)
+                    .minimumScaleFactor(0.7)
+
             }
             .fixedSize()
         }
@@ -459,6 +529,8 @@ struct LeaveButton:View {
                     .padding(2)
                     .padding(.horizontal, 3.5)
                     .foregroundColor(Color.white)
+                    .minimumScaleFactor(0.7)
+
             }
             .fixedSize()
         }
@@ -874,26 +946,35 @@ struct RopeCircle:View {
 //                    .position(self.bellCircle.getNewPositions(radius: bellCircle.getRadius(baseRadius: min(geo.frame(in: .local).width/2 - imageWidth/2, geo.frame(in: .local).height/2  - (20 + imageWidth/2)), iPad: isSplit), centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))[bellNumber])
                 }
                 if bellCircle.bellMode == .ring {
-                    ScrollView(showsIndicators: false) {
-                        ForEach(0..<bellCircle.assignments.count, id: \.self) { i in
-                            HStack {
-                                Text("\(i+1)")
-                                    .font(.callout)
-                                    .frame(width: 20, height:18, alignment: .trailing)
-                                Text(" \(self.bellCircle.assignments[i].name)")
-                                    .font(.callout)
-                                    .frame(width: 160, height:18, alignment: .leading)
-                                    
-//                                    .minimumScaleFactor(0.9)
-                            }
-                            .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
-                        }
-                    }
-                    .disabled(bellCircle.size > 11 ? false : true)
-                    .frame(maxHeight: getHeight(geo: geo))
-                    .fixedSize()
+                    GeometryReader { assignmentsGeo in
+                        ScrollView(.vertical, showsIndicators: false) {
+                            VStack(spacing: -3) {
+                                ForEach(0..<bellCircle.assignments.count, id: \.self) { i in
+                                    HStack {
+                                        Text("\(i+1)")
+                                            .font(.callout)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.7)
+                                            .frame(width: 20, alignment: .trailing)
+                                        Text(" \(self.bellCircle.assignments[i].name)")
+                                            .font(.callout)
+                                            .lineLimit(1)
+                                            .frame(width: getWidth(geo: geo), alignment: .leading)
+                                            
+        //                                    .minimumScaleFactor(0.9)
+                                    }
+                                    .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
+                                }.fixedSize(horizontal:true, vertical:false)
+                                
+                            }.fixedSize(horizontal:true, vertical:false)
+                            
+                        }.offset(x: 0, y: bellCircle.size == 5 ? -10 : 0)
+//                        .disabled(bellCircle.size > 11 ? false : true)
+                        .frame(maxHeight: getHeight(geo: geo))
+                        .fixedSize()
 
-                    .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                        .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                    }
                 } else {
                     Text("Tap the bell that you would like to be positioned bottom right, or tap the rotate button again to cancel.")
                         .multilineTextAlignment(.center)
@@ -1140,13 +1221,17 @@ struct RopeCircle:View {
                         returnValue = bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[top-1].y
 
                 } else if bellCircle.perspective <= Int(bellCircle.size/2) {
-                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y) - CGFloat(bellCircle.imageSize)
+                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 + Int(ceil(Double(bellCircle.size/2)))].y)
                 } else {
-                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y) - CGFloat(bellCircle.imageSize)
+                    returnValue = (bellCircle.bellPositions[bellCircle.perspective - 1].y - bellCircle.bellPositions[bellCircle.perspective - 1 - Int(ceil(Double(bellCircle.size/2)))].y)
                 }
             }
         }
-        returnValue -= 15
+        returnValue -= 10
+
+        if bellCircle.size != 4 {
+            returnValue -= getImageHeight(size: geo.size)
+        }
 //        if bellCircle.bellType == .hand {
 //            if bellCircle.size > 13 {
 //                returnValue = returnValue - 100
@@ -1159,6 +1244,43 @@ struct RopeCircle:View {
         
         
         return returnValue
+    }
+    
+    func getWidth(geo: GeometryProxy) -> CGFloat {
+        var returnValue:CGFloat = 0
+
+        if bellCircle.bellPositions.count == bellCircle.size {
+            if bellCircle.gotBellPositions {
+                var leftBellNumber = bellCircle.perspective + 2
+                if leftBellNumber > bellCircle.size {
+                    leftBellNumber -= bellCircle.size
+                }
+                var rightBellNumber = bellCircle.perspective - 1
+                if rightBellNumber <= 0 {
+                    rightBellNumber += bellCircle.size
+                }
+                var left = bellCircle.bellPositions[leftBellNumber-1].x
+                var right = bellCircle.bellPositions[rightBellNumber-1].x
+                
+                returnValue = right - left
+                if bellCircle.size == 4 && bellCircle.bellType == .hand {
+                    return returnValue
+                }
+                returnValue -= getImageWidth(size: geo.size)
+                if bellCircle.size == 4 {
+                    return returnValue
+                }
+                if bellCircle.size != 4 {
+                returnValue -= 20
+                }
+                if ![4, 14, 16].contains(bellCircle.size) {
+                    returnValue -= 30
+                }
+                returnValue = min(returnValue, 160)
+                return returnValue
+            }
+        }
+        return 0
     }
     
     func getFont() -> Font {
@@ -1338,6 +1460,9 @@ struct TowerControlsView:View {
     
     @Environment(\.colorScheme) var colorScheme
 
+    @Environment(\.sizeCategory) var sizeCategory
+    
+    @Environment(\.scenePhase) var scenePhase
     
     var interfaceOrientation: UIInterfaceOrientation? {
         get {
@@ -1403,6 +1528,8 @@ struct TowerControlsView:View {
     
     @State var volume = UserDefaults.standard.optionalDouble(forKey: "volume") ?? 1
     
+    @State var activeSheet: ActiveSheet?
+    
     var backgroundColor: some View {
         get {
             if isSplit {
@@ -1413,31 +1540,18 @@ struct TowerControlsView:View {
         }
     }
     
+
     var body: some View {
         GeometryReader { geo in
             ZStack {
                 VStack(spacing: 0) {
                     if UIDevice.current.userInterfaceIdiom == .phone {
-                    ZStack {
-                        HStack(alignment: .center) {
-                            Spacer()
-                            Text(String(bellCircle.towerID))
-                            Button(action: {
-                                let pasteboard = UIPasteboard.general
-                                pasteboard.string = String(self.bellCircle.towerID)
-                            }) {
-                                Image(systemName: "doc.on.doc")
-                            }
-                            .foregroundColor(.primary)
-                            Spacer()
-                        }
-//                                            .padding(.top, 2)
-//                                            .padding(.bottom, 7)
-                        HStack(alignment: .center) {
+
+                        HStack(alignment: .top) {
                             if !isSplit {
-                            HelpButton(activeSheet: .constant(nil))
-                                .opacity(0)
-                                .disabled(true)
+                            HelpButton(activeSheet: $activeSheet)
+                                .opacity(bellCircle.isLargeSize ? 1 : 0)
+                                .disabled(!bellCircle.isLargeSize)
                             }
                             Button(action: {
                                 withAnimation {
@@ -1459,22 +1573,38 @@ struct TowerControlsView:View {
                                     getNumberOfLines()
                                 }
                             }
+                            Spacer()
+                            ZStack(alignment: .top) {
+                                HStack {
+                                Spacer()
+                                Text(String(bellCircle.towerID)).lineLimit(1).minimumScaleFactor(0.5)
+                                Button(action: {
+                                    let pasteboard = UIPasteboard.general
+                                    pasteboard.string = String(self.bellCircle.towerID)
+                                }) {
+                                    Image(systemName: "doc.on.doc")
+                                }
+                                .foregroundColor(.primary)
+                                Spacer()
+                            }
+                                HStack(spacing: 0) {
                             Slider(value: $volume, in: 0.0...1.0)
                                 .frame(maxWidth: showingAudioSlider ? .infinity : 0)
                             .opacity(showingAudioSlider ? 1 : 0)
                             .background(backgroundColor)
-                            .onChange(of: volume) { _ in
-                                bellCircle.audioController.starling.engine.mainMixerNode.outputVolume = pow(Float(volume), 3)
-                                getNumberOfLines()
-                                UserDefaults.standard.setValue(volume, forKey: "volume")
+                                .padding(.top, -3.5)
+                                Spacer()
+                                }
                             }
                             Spacer()
                             if !isSplit {
                             
-                            MenuButton(keepSize: false).opacity(0).disabled(true)
+                                MenuButton(keepSize: true, mode: .ring).opacity(0).disabled(true)
                             }
-                        }
-                    }.padding(.top, -3.5)
+                        
+                    }
+//                    .background(Color.blue)
+//                    .padding(.top, -3.5)
                     .padding(.bottom, 3)
                     } else {
                             HStack(alignment: .center) {
@@ -1490,12 +1620,15 @@ struct TowerControlsView:View {
 
 
                                     ZStack(alignment: .leading) {
+                                        GeometryReader { geoSize in
                                         ZStack {
                                         backgroundColor
                                             Image(systemName: "speaker.3")
 //                                                .padding(3)
                                                 .font(Font.callout.weight(.bold))
                                                 .hidden()
+                                        }.fixedSize()
+
                                         }.fixedSize()
                                         Image(systemName: "speaker\(speakerSliders)")
                                             .font(Font.callout.weight(.bold))
@@ -1510,13 +1643,8 @@ struct TowerControlsView:View {
                                     .frame(maxWidth: 250)
 //                                .opacity(showingAudioSlider ? 1 : 0)
                                 .background(backgroundColor)
-                                .onChange(of: volume) { _ in
-                                    bellCircle.audioController.starling.engine.mainMixerNode.outputVolume = pow(Float(volume), 3)
-                                    getNumberOfLines()
-                                    UserDefaults.standard.setValue(volume, forKey: "volume")
-                                }
                                 Spacer()
-                                Text(String(bellCircle.towerID))
+                                Text(String(bellCircle.towerID)).lineLimit(1).minimumScaleFactor(0.5)
                                 Button(action: {
                                     let pasteboard = UIPasteboard.general
                                     pasteboard.string = String(self.bellCircle.towerID)
@@ -1526,8 +1654,7 @@ struct TowerControlsView:View {
                                 .foregroundColor(.primary)
                                 if !isSplit {
                                     Spacer()
-
-                                MenuButton(keepSize: false).opacity(0).disabled(true)
+                                    MenuButton(keepSize: true, mode: .ring).opacity(0).disabled(true)
                                 }
                                 
                             }
@@ -1538,21 +1665,23 @@ struct TowerControlsView:View {
                     if hasPermissions() {
                         HStack {
                             if bellCircle.hostModePermitted && bellCircle.isHost {
-                                Toggle("Host Mode", isOn: .init(get: { hostMode }, set: {
-                                    if !(hostModeTimer?.isValid ?? false) {
-                                        hostMode = $0
-                                        SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode": hostMode, "tower_id": bellCircle.towerID])
-                                        hostModeTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false, block: { _ in hostModeTimer = nil})
-                                    }
-                                }))
-                                .padding(.trailing, 20)
-                                .onChange(of: bellCircle.hostModeEnabled, perform: { value in
-                                    if !bellCircle.hostModeEnabled == hostMode {
-                                        hostMode = bellCircle.hostModeEnabled
-                                    }
-                                })
-                                .toggleStyle(SwitchToggleStyle(tint: .main))
-                                .fixedSize()
+                                HStack {
+                                    Toggle("Host Mode", isOn: .init(get: { hostMode }, set: {
+                                        if !(hostModeTimer?.isValid ?? false) {
+                                            hostMode = $0
+                                            SocketIOManager.shared.socket?.emit("c_host_mode", ["new_mode": hostMode, "tower_id": bellCircle.towerID])
+                                            hostModeTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false, block: { _ in hostModeTimer = nil})
+                                        }
+                                    }))
+                                    .onChange(of: bellCircle.hostModeEnabled, perform: { value in
+                                        if !bellCircle.hostModeEnabled == hostMode {
+                                            hostMode = bellCircle.hostModeEnabled
+                                        }
+                                    })
+                                    .toggleStyle(SwitchToggleStyle(tint: .main))
+                                    .fixedSize()
+                                    Spacer()
+                                }
                             }
                             Picker(selection: .init(get: {self.bellTypes.firstIndex(of: self.bellCircle.bellType)!}, set: {self.bellTypeChanged(value:$0)}), label: Text("Bell type picker")) {
                                 ForEach(0..<2) { i in
@@ -1582,6 +1711,15 @@ struct TowerControlsView:View {
                         ChatView()
                     }
                 }
+
+            }
+
+            .onChange(of: volume) { _ in
+                print("volume changed")
+                var mappedVolume = pow(Float(volume), 3)
+                bellCircle.audioController.starling.engine.mainMixerNode.outputVolume = mappedVolume
+                getNumberOfLines()
+                UserDefaults.standard.setValue(volume, forKey: "volume")
             }
 //            ZStack {
 //                VStack(spacing: 0) {
@@ -1763,6 +1901,7 @@ struct TowerControlsView:View {
 //            .fixedSize(horizontal: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/, vertical: false)
 //            .frame(minWidth: geo.size.width, maxWidth: width)
         }
+//        .background(Color.red)
     }
 
     func getNumberOfLines() {
@@ -1881,17 +2020,25 @@ struct TowerControlsView:View {
                             }
                         } else {
                             tempUsers.removeRingerForID(-1)
+                            print(tempUsers.ringers)
                             for assignedUser in self.bellCircle.assignments {
                                 if assignedUser.name != "" {
                                     tempUsers.removeRingerForID(assignedUser.userID)
                                 }
                             }
+                            print(tempUsers.ringers)
+                            print(self.bellCircle.assignments.ringers)
                             var availableBells = self.bellCircle.assignments.allIndicesOfRingerForID(Ringer.blank.userID)
+                            print(availableBells)
                             availableBells.shuffle()
                             tempUsers.shuffle()
                             for user in tempUsers {
-                                SocketIOManager.shared.socket?.emit("c_assign_user", ["user":user.userID, "bell":availableBells[0]+1, "tower_id":self.bellCircle.towerID])
-                                availableBells.removeFirst()
+                                if let bell = availableBells.first {
+                                    SocketIOManager.shared.socket?.emit("c_assign_user", ["user":user.userID, "bell":bell+1, "tower_id":self.bellCircle.towerID])
+                                    availableBells.removeFirst()
+                                } else {
+                                    break
+                                }
                             }
                             for bell in availableBells {
                                 SocketIOManager.shared.socket?.emit("c_assign_user", ["user":-1, "bell":bell+1, "tower_id":self.bellCircle.towerID])

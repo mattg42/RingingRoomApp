@@ -339,7 +339,7 @@ struct RingView: View {
             
             SocketIOManager.shared.setups = 0
             SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 7) {
                 if AppController.shared.state != .ringing {
                     if !showingAlert {
                         socketFailedAlert()
