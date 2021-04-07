@@ -189,7 +189,11 @@ class CommunicationController {
                 if self.loginType == .auto {
                     (self.sender as! AutoLogin).receivedTowerResponse(statusCode: statusCode, response: dataDict)
                 } else {
-                    (self.sender as! RingView).receivedResponse(statusCode: statusCode, response: dataDict)
+                    if let sender = self.sender as? MainApp {
+                        sender.receivedResponse(statusCode: statusCode, response: dataDict)
+                    } else {
+                        (self.sender as! RingView).receivedResponse(statusCode: statusCode, response: dataDict)
+                    }
                 }
             case .createTower:
                 self.getTowerDetails(id: dataDict["tower_id"] as! Int)

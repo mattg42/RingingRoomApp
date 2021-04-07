@@ -105,8 +105,8 @@ struct RingingRoomView: View {
                 ZStack {
                 if isSplit {
                     HStack(spacing: 5) {
-                        TowerControlsView(width: geo.size.width * 0.2)
-                            .frame(width: 350, height: geo.size.height)
+                        TowerControlsView(width: geo.size.width * 0.2, activeSheet: $activeSheet)
+                            .frame(width: 350)
                         VStack(spacing: 0) {
                             TowerNameView()
                             .padding(.bottom, 5)
@@ -117,17 +117,19 @@ struct RingingRoomView: View {
                                 HelpButton(activeSheet: $activeSheet)
                                 Spacer()
                                 SetAtHandButton()
-                            }.padding(.leading, 5)
+                            }
                             ringingView
-                        }
+                        }.padding(.leading, 5)
 //                        .padding(.bottom, 5)
 //                        .frame(width: geo.size.width * 0.67, height: geo.size.height)
                         .ignoresSafeArea(.keyboard, edges: .all)
                     }
                     .padding(5)
+//                    .padding(.bottom, 25)
                 } else {
                     VStack(spacing: 0) {
                         TowerNameView()
+                            .padding(.horizontal, 5)
                             .padding(.bottom, 5)
                             .opacity(0)
                         HStack(spacing: 0) {
@@ -161,8 +163,10 @@ struct RingingRoomView: View {
                     VStack(spacing: 0) {
                         TowerNameView()
                             .padding(.bottom, 5)
+                            .padding(.horizontal, 5)
+
                         ZStack {
-                            TowerControlsView(width: .infinity)
+                            TowerControlsView(width: .infinity, activeSheet: $activeSheet)
                                 .padding(.horizontal, 5)
                                 .padding(.bottom, 5)
                                 .offset(x: bellCircle.showingTowerControls ? 0 : -(geo.frame(in: .local).width), y: 0)
@@ -401,7 +405,7 @@ struct TowerNameView:View {
         }
         //                    .padding(.top, -5)
         .fixedSize(horizontal: false, vertical: true)
-        .padding(.horizontal, 5)
+//        .padding(.horizontal, 5)
     }
 }
 
@@ -1507,8 +1511,9 @@ struct TowerControlsView:View {
     
     @State private var showingUsers = false
 
-    init(width:CGFloat) {
+    init(width:CGFloat, activeSheet:Binding<ActiveSheet?>) {
         print("new towerControls")
+        self._activeSheet = activeSheet
         self.width = width
     }
     
@@ -1528,7 +1533,7 @@ struct TowerControlsView:View {
     
     @State var volume = UserDefaults.standard.optionalDouble(forKey: "volume") ?? 1
     
-    @State var activeSheet: ActiveSheet?
+    @Binding var activeSheet: ActiveSheet?
     
     var backgroundColor: some View {
         get {

@@ -95,13 +95,17 @@ struct AutoLogin: View {
                 BellCircle.current.needsTowerInfo = true
             }
             
+            BellCircle.current.joinedTowers.append(BellCircle.current.towerID)
+            
             SocketIOManager.shared.setups = 0
             SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                if AppController.shared.state != .ringing {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 7) {
+                if !BellCircle.current.joinedTowers.contains(response["tower_id"] as! Int) {
                     if !showingAlert {
                         socketFailedAlert()
                     }
+                } else {
+                    BellCircle.current.joinedTowers.removeFirstInstance(of: response["tower_id"] as! Int)
                 }
             }
             //            }
