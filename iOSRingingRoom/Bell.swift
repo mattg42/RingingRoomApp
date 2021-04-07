@@ -149,6 +149,8 @@ class BellCircle: ObservableObject {
     var hostModeFromSelf = false
     var hostModeFromServer = false
     
+    var joinedTowers = [Int]()
+    
     init() {
         let session = AVAudioSession.sharedInstance()
     

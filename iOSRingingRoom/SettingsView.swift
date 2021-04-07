@@ -62,7 +62,7 @@ struct SettingsView: View {
                             }
                         }
                     } else {
-                        Text("Oops!")
+                        Text("An error has occurred. Please restart the app.")
 //                        Section {
 //                            Button("Log in") {
 //                                self.presentingLogin = true
@@ -91,10 +91,10 @@ struct SettingsView: View {
                 VStack {
                     Spacer()
                     #if DEBUG
-                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String) (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)) debug")
+                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String)")
                             .font(.callout)
                     #else
-                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String) (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String))")
+                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String)")
                             .font(.callout)
                     #endif
                     Text("By Matthew Goodship")

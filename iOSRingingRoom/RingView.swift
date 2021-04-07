@@ -235,17 +235,17 @@ struct RingView: View {
             .navigationBarTitle("Towers")
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .onOpenURL(perform: { url in
-            var pathComponents = url.pathComponents.dropFirst()
-            if let firstPath = pathComponents.first {
-                if let towerID = Int(firstPath) {
-                    if CommunicationController.token != nil {
-                        joinTower(id: towerID)
-                    }
-                }
-            }
-            print("opened from \(url.pathComponents.dropFirst())")
-        })
+//        .onOpenURL(perform: { url in
+//            var pathComponents = url.pathComponents.dropFirst()
+//            if let firstPath = pathComponents.first {
+//                if let towerID = Int(firstPath) {
+//                    if CommunicationController.token != nil {
+//                        joinTower(id: towerID)
+//                    }
+//                }
+//            }
+//            print("opened from \(url.pathComponents.dropFirst())")
+//        })
         .onAppear {
             self.comController = CommunicationController(sender: self)
             let queue = DispatchQueue.monitor
@@ -337,13 +337,17 @@ struct RingView: View {
                 BellCircle.current.needsTowerInfo = true
             }
             
+            BellCircle.current.joinedTowers.append(BellCircle.current.towerID)
+            
             SocketIOManager.shared.setups = 0
             SocketIOManager.shared.connectSocket(server_ip: BellCircle.current.serverAddress)
             DispatchQueue.main.asyncAfter(deadline: .now() + 7) {
-                if AppController.shared.state != .ringing {
+                if !BellCircle.current.joinedTowers.contains(response["tower_id"] as! Int) {
                     if !showingAlert {
                         socketFailedAlert()
                     }
+                } else {
+                    BellCircle.current.joinedTowers.removeFirstInstance(of: response["tower_id"] as! Int)
                 }
             }
             //            }
@@ -501,4 +505,17 @@ extension View {
   public func alert(isPresented: Binding<Bool>, _ alert: TextAlert) -> some View {
     AlertWrapper(isPresented: isPresented, alert: alert, content: self)
   }
+}
+
+extension Array where Element == Int {
+    
+    mutating func removeFirstInstance(of element:Int) {
+        for (index, ele) in self.enumerated() {
+            if ele == element {
+                self.remove(at: index)
+                return
+            }
+        }
+    }
+    
 }
