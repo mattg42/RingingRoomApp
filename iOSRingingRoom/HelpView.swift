@@ -21,9 +21,10 @@ If you ever forget your password, you will need to log out, then press 'Forgot p
 """
     
     static let creatingOrJoiningATower = """
-To join a tower, if you have visited it before, you can just press on its name in the list of towers. If you want to join a tower you haven't been to before, then press on 'Join tower by ID', to reveal a text box and a Join Tower button. Enter the desired tower's 9 digit ID number in the text box and press Join Tower. The Join Tower button is only enabled when 9 digits are in the text box.
+If you have visited a tower before, then you can join it by pressing on its name in the list of recent towers.
+If you are joining a tower for the first time, then, in the towers tab, press on 'Join tower by ID'. Type in the ID of the tower you wish to join, and press join.
 
-Creating a tower on Ringing Room is simple. Go to the Towers view and press on 'Create new tower' to reveal a text box and the Create Tower button. Next, type the name of the new tower into the text box. Press Create Tower and you will be sent to a new tower with that name.
+To create a tower, go to the Towers view and press on 'Create new tower' to reveal a text box and the Create Tower button. Next, type the name of the new tower into the text box. Press Create Tower and you will be sent to a new tower with that name.
 """
     
     static let ringingTheBells = """
@@ -49,7 +50,7 @@ To prevent notifications from silencing the audio and distracting you while ring
     static let assigning = """
 The tower controls includes a list of users presently in the tower, which you can use to assign bells to particular ringers. To assign ringers, tap on the name of the ringer you would like to assign, then tap on the number of the bell you would like to assign them to. Tapping the \"x\" to the left of a bell number will un-assign the ringer from that bell. There is also an Un-assign All button, which un-assigns every ringer.
 
-Assigning a user to a bell will have the effect of automatically rotating that ringer's \"perspective\" on the tower so that the bell is placed in the bottom right position. There is more about changing your perspective in the section "Rotating the perspective of the bell circle". This will also make a large dedicated button for each assigned bell near the bottom of the screen. If a user is assigned to multiple bells, the lowest-numbered one will be placed on the right.
+Assigning a user to a bell will have the effect of automatically rotating that ringer's \"perspective\" on the tower so that the bell is placed in the bottom right position. There is more about changing your perspective in the section "Rotating the perspective of the bell circle". For every bell you are assigned to, there will be a large button for ringing that bell.
 
 There is also a button called 'Fill In'. This will randomly assign unassigned ringers to available bells. The Fill In button is only enabled if there are at least as many unassigned ringers as available bells. If Wheatley is in the tower, then Fill In will randomly assign all human ringers a bell, then fill in the rest with Wheatley.
 """
@@ -80,6 +81,13 @@ If Host Mode is permitted at a tower, hosts have an extra switch in the tower co
 
 Host mode can only be activated or deactivated by any hosts currently in the tower. If there are no hosts present in the tower, host mode will automatically be disabled so that ringing can proceed normally.
 """
+    
+    static let volume = """
+Ringing Room has a volume slider that lets you reduce the volume of the bells without affecting the system volume. This is useful if you are using Ringing Room and Zoom (or other apps such as Discord) at the same time on your device - you can lower the volume of the bells, without making peoples' voices quieter.
+
+To access the volume slider, you must be in a tower. Once in a tower, go to the tower controls. Then press on the button with a speaker symbol on it. This will reveal the volume slider. Press the speaker button again to hide the volume slider.
+"""
+    
 }
 
 class FAQ:Identifiable {
@@ -238,9 +246,10 @@ struct AboutView:View {
                     }
                 }
             }
+            .padding()
+
         }
         
-        .padding()
 
         .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
             if asSheet {
@@ -262,11 +271,12 @@ struct QuickStartGuideView:View {
     var body: some View {
         Form {
             Section {
-                NavigationLink("Creating an account", destination: CreatingAnAccountView(asSheet: self.asSheet, isPresented: self.$isPresented))
+//                NavigationLink("Creating an account", destination: CreatingAnAccountView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Joining or creating a tower", destination: CreatingOrJoiningATowerView(asSheet: self.asSheet, isPresented: self.$isPresented))
-                NavigationLink("Ringing the Bells", destination: RingingTheBellsView(asSheet: self.asSheet, isPresented: self.$isPresented))
+                NavigationLink("Ringing the bells", destination: RingingTheBellsView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Making calls", destination: MakingCallsView(asSheet: self.asSheet, isPresented: self.$isPresented))
                 NavigationLink("Leaving a tower", destination: LeavingATowerView(asSheet: self.asSheet, isPresented: self.$isPresented))
+                NavigationLink("Reducing the volume", destination: VolumeView(asSheet: self.asSheet, isPresented: self.$isPresented))
             }
             Section {
                 NavigationLink("Full Quick Start Guide", destination: ScrollView {
@@ -319,6 +329,32 @@ struct CreatingAnAccountView:View {
             .navigationBarTitle("Creating an account", displayMode: .inline)
     }
 }
+
+struct VolumeView:View {
+    var asSheet:Bool
+    
+    @Binding var isPresented:Bool
+    var body:some View {
+        ScrollView {
+            
+            VStack(alignment: .leading, spacing: 10) {
+                Text(HelpDocumentation.volume)
+                Spacer()
+            }
+        }
+        .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {
+            if asSheet {
+                Text("Dismiss")
+            } else {
+                Text("")
+            }
+            
+        })
+            .padding()
+            .navigationBarTitle("Reducing the volume", displayMode: .inline)
+    }
+}
+
 
 struct CreatingOrJoiningATowerView:View {
     var asSheet:Bool
@@ -423,12 +459,12 @@ struct QuickStartGuideTextView:View {
     @Binding var isPresented:Bool
     var body: some View {
             VStack(alignment: .leading) {
-                Group {
-                    Text("Creating an account\n")
-                        .font(.headline)
-                        .bold()
-                    Text(HelpDocumentation.creatingAnAccount)
-                }
+//                Group {
+//                    Text("Creating an account\n")
+//                        .font(.headline)
+//                        .bold()
+//                    Text(HelpDocumentation.creatingAnAccount)
+//                }
                 Group {
                     Text("\n\nJoining or creating a tower\n")
                         .font(.headline)
@@ -452,6 +488,12 @@ struct QuickStartGuideTextView:View {
                         .font(.headline)
                         .bold()
                     Text(HelpDocumentation.leavingATower)
+                }
+                Group {
+                    Text("\n\nReducing the volume\n")
+                        .font(.headline)
+                        .bold()
+                    Text(HelpDocumentation.volume)
                 }
                 
             }
