@@ -104,7 +104,7 @@ class CommunicationController {
                 }
                 switch self.loginType {
                 case .auto:
-                    if CommunicationController.towerQueued == nil {
+                    if CommunicationController.towerQueued == nil || !gotToken {
                         (self.sender as! AutoLogin).receivedResponse(statusCode: statusCode, response: dataDict, gotToken)
                     } else {
                         (self.sender as! AutoLogin).joinTower(id: CommunicationController.towerQueued!)
