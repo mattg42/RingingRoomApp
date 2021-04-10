@@ -2,3 +2,4 @@ iOSRingingRoom.xcodeproj/**
 *.pbxproj
 *.xcuserstate
 .DS_Store
+*.txt
