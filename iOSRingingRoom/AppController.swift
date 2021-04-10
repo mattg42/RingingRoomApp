@@ -16,7 +16,13 @@ class AppController:ObservableObject {
     
     @Published var selectedTab = TabViewType.ring
     
-    @Published var state = AppState.login
+    @Published var state = AppState.login {
+        didSet {
+            if !User.shared.loggedIn {
+                state = .login
+            }
+        }
+    }
 }
 
 
