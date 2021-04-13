@@ -25,7 +25,7 @@ class CommunicationController {
         self.loginType = loginType
     }
     
-    func sendRequest(method:String, endpoint:String, headers:[String:String]? = nil, json:[String:String]? = nil, type:RequestType, towerID:Int = 0) {
+    func sendRequest(method:String, endpoint:String, headers:[String:String]? = nil, json:[String:String]? = nil, type:RequestType, towerID:Int = 0, userSetting:UserSetting? = nil) {
         // Create URL Request
         var baseURL = "https:\(CommunicationController.server)ringingroom.com/api/"
         guard let requestUrl = URL(string: baseURL+endpoint) else { return }
@@ -129,8 +129,12 @@ class CommunicationController {
                 User.shared.email = dataDict["email"] as! String
             case .registerNewUser:
                 (self.sender as! AccountCreationView).receivedResponse(statusCode: statusCode, response: dataDict)
-//            case .modifyUserDetails:
-//            case .deleteUser:
+            case .modifyUserDetails:
+                User.shared.name = dataDict["username"] as! String
+                User.shared.email = dataDict["email"] as! String
+                (self.sender as! AccountView).receivedResponse(statusCode: statusCode, response: dataDict, setting:userSetting!, newSetting: json!["new_\(userSetting?.rawValue ?? "")"] ?? "")
+            case .deleteUser:
+                (self.sender as! AccountView).receivedDeleteResponse(statusCode: statusCode, response: dataDict)
             case .getMyTowers:
 //                for dict in dataDict {
 //                    print(dict.value)
@@ -199,14 +203,6 @@ class CommunicationController {
                 self.getTowerDetails(id: dataDict["tower_id"] as! Int)
 //            case .deleteTower:
 //            case .getTowerSettings:
-//                let tower = User.shared.myTowers.towerForID(towerID)!
-//                tower.additioalSizes = dataDict["additional_sizes_enabled"] as? Bool ?? true
-//                tower.gotSettings = true
-//                if let ringView = self.sender as? RingView {
-//                    ringView.receivedTowerSettings(id: tower.tower_id)
-//                } else {
-//                    SocketIOManager.shared.receivedTowerSettings(id: tower.tower_id)
-//                }
 //            case .modifyTowerSettings:
 //            case .addHost:
 //            case .removeHost:
@@ -267,6 +263,29 @@ class CommunicationController {
         sendRequest(method: "POST", endpoint: "user/reset_password", json: json, type: .resetPassword)
     }
     
+    func changeUserSetting(change:[String:String], setting:UserSetting) {
+        let headers = ["Authorization":"Bearer \(CommunicationController.token!)"]
+        
+        let json = change
+        
+        sendRequest(method: "PUT", endpoint: "user", headers: headers, json: json, type: .modifyUserDetails, userSetting: setting)
+        
+    }
+    
+    func deleteAccount() {
+        let headers = ["Authorization":"Bearer \(CommunicationController.token!)"]
+
+        sendRequest(method: "DELETE", endpoint: "user", headers: headers, type: .deleteUser)
+    }
+    
+}
+
+enum UserSetting:String {
+    case username, email, password, delete
+}
+
+extension UserSetting:Identifiable {
+    var id: String { rawValue }
 }
 
 enum RequestType {

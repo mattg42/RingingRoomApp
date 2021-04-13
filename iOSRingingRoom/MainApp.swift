@@ -89,7 +89,7 @@ struct MainApp: View {
                             .font(.title)
                         Text("Help")
                     }
-                SettingsView()
+                AccountView()
                     .tag(TabViewType.settings)
                     .tabItem {
                         Image(systemName: "person.crop.circle.fill")
