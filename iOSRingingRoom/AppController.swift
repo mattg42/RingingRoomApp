@@ -19,7 +19,9 @@ class AppController:ObservableObject {
     @Published var state = AppState.login {
         didSet {
             if !User.shared.loggedIn {
-                state = .login
+                DispatchQueue.main.async { [weak self] in
+                    self?.state = .login
+                }
             }
         }
     }
