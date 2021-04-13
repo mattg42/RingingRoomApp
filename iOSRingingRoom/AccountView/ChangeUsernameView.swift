@@ -33,7 +33,7 @@ struct ChangeAccountSettingView: View {
         return (setting == .email) ? .emailAddress : .default
     }
     
-    var parent:SettingsView
+    var parent:AccountView
     
     @State var newSetting = ""
     
@@ -43,6 +43,8 @@ struct ChangeAccountSettingView: View {
     @State var alertTitle = ""
     @State var alertMessage = ""
     @State var showingAlert = false
+    
+    var canSaveChanges = false
     
     var body: some View {
         NavigationView {
@@ -73,6 +75,7 @@ struct ChangeAccountSettingView: View {
                     Button("Save change") {
                         makeChange()
                     }
+                    .disabled(!canSaveChange())
                 }
             }
             .alert(isPresented: $showingAlert, content: {
@@ -84,28 +87,33 @@ struct ChangeAccountSettingView: View {
         .accentColor(.main)
     }
     
-    func makeChange() {
-        
+    func canSaveChange() -> Bool {
         if setting == .email {
             if !newSetting.isValidEmail() {
-                invalidEmailAlert()
-                return
+                return false
             }
         }
         
         if setting == .password {
-            if repeatPassword != password {
-                differentPasswordsAlert()
-                return
+            if newSetting != "" {
+                if repeatPassword != newSetting {
+                    return false
+                }
             }
         }
         
         if setting != .username {
             if password != User.shared.password {
-                incorrectPasswordAlert()
-                return
+                return false
             }
         }
+        
+        return true
+    }
+    
+    func makeChange() {
+        
+
         
         // passed checks
         

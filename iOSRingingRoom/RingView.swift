@@ -427,84 +427,121 @@ extension DispatchQueue {
 }
 
 
-public struct TextAlert {
-  public var title: String // Title of the dialog
-  public var message: String // Dialog message
-  public var placeholder: String = "" // Placeholder text for the TextField
-  public var accept: String = "OK" // The left-most button label
-  public var cancel: String? = "Cancel" // The optional cancel (right-most) button label
-  public var secondaryActionTitle: String? = nil // The optional centre button label
-  public var keyboardType: UIKeyboardType = .default // Keyboard tzpe of the TextField
-  public var action: (String?) -> Void // Triggers when either of the two buttons closes the dialog
-  public var secondaryAction: (() -> Void)? = nil // Triggers when the optional centre button is tapped
+
+
+struct TextFieldAlert: UIViewControllerRepresentable {
+    
+    @Binding var isPresented: Bool
+    
+    var title: String
+    var message: String?
+    
+    var dismissAction: (String?) -> ()
+    var isSecure: Bool
+    var setting: UserSetting? = nil
+    
+    typealias UIViewControllerType = TextFieldAlertViewController
+    
+    func makeUIViewController(context: Context) -> UIViewControllerType {
+        TextFieldAlertViewController(title: title, message: message, isPresented: $isPresented, dismissAction: dismissAction, setting: setting, isSecure: isSecure)
+    }
+    
+    func updateUIViewController(_ textAlertViewController: UIViewControllerType,
+                                context: Context) {
+        if isPresented == true {
+            textAlertViewController.presentAlertController()
+        }
+    }
 }
-
-extension UIAlertController {
-  convenience init(alert: TextAlert) {
-    self.init(title: alert.title, message: alert.message, preferredStyle: .alert)
-    addTextField {
-       $0.placeholder = alert.placeholder
-       $0.keyboardType = alert.keyboardType
-    }
-    if let cancel = alert.cancel {
-      addAction(UIAlertAction(title: cancel, style: .cancel) { _ in
-        alert.action(nil)
-      })
-    }
-    if let secondaryActionTitle = alert.secondaryActionTitle {
-       addAction(UIAlertAction(title: secondaryActionTitle, style: .default, handler: { _ in
-         alert.secondaryAction?()
-       }))
-    }
-    let textField = self.textFields?.first
-    addAction(UIAlertAction(title: alert.accept, style: .default) { _ in
-      alert.action(textField?.text)
-    })
-  }
-}
-
-struct AlertWrapper<Content: View>: UIViewControllerRepresentable {
-  @Binding var isPresented: Bool
-  let alert: TextAlert
-  let content: Content
-
-  func makeUIViewController(context: UIViewControllerRepresentableContext<AlertWrapper>) -> UIHostingController<Content> {
-    UIHostingController(rootView: content)
-  }
-
-  final class Coordinator {
-    var alertController: UIAlertController?
-    init(_ controller: UIAlertController? = nil) {
-       self.alertController = controller
-    }
-  }
-
-  func makeCoordinator() -> Coordinator {
-    return Coordinator()
-  }
-
-  func updateUIViewController(_ uiViewController: UIHostingController<Content>, context: UIViewControllerRepresentableContext<AlertWrapper>) {
-    uiViewController.rootView = content
-    if isPresented && uiViewController.presentedViewController == nil {
-      var alert = self.alert
-      alert.action = {
-        self.isPresented = false
-        self.alert.action($0)
-      }
-      context.coordinator.alertController = UIAlertController(alert: alert)
-      uiViewController.present(context.coordinator.alertController!, animated: true)
-    }
-    if !isPresented && uiViewController.presentedViewController == context.coordinator.alertController {
-      uiViewController.dismiss(animated: true)
-    }
-  }
-}
-
 
 extension View {
-  public func alert(isPresented: Binding<Bool>, _ alert: TextAlert) -> some View {
-    AlertWrapper(isPresented: isPresented, alert: alert, content: self)
+  func textFieldAlert(content: TextFieldAlert) -> some View {
+    ZStack(alignment: .leading) {
+        self
+        content
+    }
   }
+}
+
+class TextFieldAlertViewController: UIViewController {
+
+    /// Presents a UIAlertController (alert style) with a UITextField and a `Done` button
+    /// - Parameters:
+    ///   - title: to be used as title of the UIAlertController
+    ///   - message: to be used as optional message of the UIAlertController
+    ///   - text: binding for the text typed into the UITextField
+    ///   - isPresented: binding to be set to false when the alert is dismissed (`Done` button tapped)
+    init(title: String, message: String?, isPresented: Binding<Bool>, dismissAction: @escaping ((String?) -> ()), setting:UserSetting?, isSecure:Bool) {
+        self.alertTitle = title
+        self.message = message
+        self._isPresented = isPresented
+        self.dismissAction = dismissAction
+        self.setting = setting
+        self.isSecure = isSecure
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Dependencies
+    private let alertTitle: String
+    private let message: String?
+    @Binding private var isPresented: Bool
+    private let dismissAction: (String?) -> ()
+    private let setting:UserSetting?
+    private let isSecure:Bool
+
+    // MARK: - Lifecycle
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+
+    func presentAlertController() {
+        let vc = UIAlertController(title: alertTitle, message: message, preferredStyle: .alert)
+
+        // add a textField and create a subscription to update the `text` binding
+        vc.addTextField { [weak self] textField in
+            guard let self = self else { return }
+
+            textField.clearButtonMode = .always
+            switch self.setting {
+            case .email:
+//                textField.textContentType = .emailAddress
+                textField.placeholder = "New email"
+                textField.keyboardType = .emailAddress
+            case .password:
+                textField.placeholder = "New password"
+                textField.textContentType = .newPassword
+                textField.isSecureTextEntry = true
+            case .username:
+                textField.placeholder = "New username"
+            default:
+                break
+            }
+            textField.isSecureTextEntry = self.isSecure
+        }
+        
+        if setting == .email {
+            vc.addTextField { [weak self] textField in
+                textField.placeholder = "Enter your password to confirm"
+                textField.isSecureTextEntry = true
+                textField.textContentType = .password
+            }
+        }
+        
+        
+        // create a `Done` action that updates the `isPresented` binding when tapped
+        // this is just for Demo only but we should really inject
+        // an array of buttons (with their title, style and tap handler)
+        let action = UIAlertAction(title: "Done", style: .default) { [weak self] _ in
+            self?.dismissAction(vc.textFields?.first!.text)
+            self?.isPresented = false
+        }
+        vc.addAction(action)
+        present(vc, animated: true, completion: nil)
+    }
 }
 
 extension Array where Element == Int {
