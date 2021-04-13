@@ -132,8 +132,9 @@ class CommunicationController {
             case .modifyUserDetails:
                 User.shared.name = dataDict["username"] as! String
                 User.shared.email = dataDict["email"] as! String
-                (self.sender as! AccountView).receivedResponse(statusCode: statusCode, response: dataDict, setting:userSetting!)
-//            case .deleteUser:
+                (self.sender as! AccountView).receivedResponse(statusCode: statusCode, response: dataDict, setting:userSetting!, newSetting: json!["new_\(userSetting?.rawValue ?? "")"] ?? "")
+            case .deleteUser:
+                (self.sender as! AccountView).receivedDeleteResponse(statusCode: statusCode, response: dataDict)
             case .getMyTowers:
 //                for dict in dataDict {
 //                    print(dict.value)
@@ -267,14 +268,20 @@ class CommunicationController {
         
         let json = change
         
-        sendRequest(method: "PUT", endpoint: "user", headers: headers, json: json, type: .modifyUserDetails, towerID: 0, userSetting: setting)
+        sendRequest(method: "PUT", endpoint: "user", headers: headers, json: json, type: .modifyUserDetails, userSetting: setting)
         
+    }
+    
+    func deleteAccount() {
+        let headers = ["Authorization":"Bearer \(CommunicationController.token!)"]
+
+        sendRequest(method: "DELETE", endpoint: "user", headers: headers, type: .deleteUser)
     }
     
 }
 
 enum UserSetting:String {
-    case username, email, password
+    case username, email, password, delete
 }
 
 extension UserSetting:Identifiable {

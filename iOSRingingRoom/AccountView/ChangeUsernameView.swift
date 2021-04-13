@@ -26,6 +26,8 @@ struct ChangeAccountSettingView: View {
             return .nickname
         case .password:
             return .newPassword
+        default:
+            fatalError("Invalid user setting: \(setting.rawValue)")
         }
     }
     
@@ -46,29 +48,51 @@ struct ChangeAccountSettingView: View {
     
     var canSaveChanges = false
     
+    @State var passwordsMatch = true
+    @State var correctPassword = true
+    
     var body: some View {
         NavigationView {
             
             
             Form {
                 if setting == .password {
-                    Section {
-                        SecureField("New password", text: $newSetting)
+                    Section(footer: Text("Error: Passwords don't match").foregroundColor(.red).opacity(passwordsMatch ? 0 : 1).animation(.default)) {
+                        SecureField("New password", text: $newSetting) {
+                            passwordsMatch = newSetting == repeatPassword || repeatPassword == ""  || newSetting == ""
+                        }
                             .textContentType(.newPassword)
-                        SecureField("Repeat new password", text: $repeatPassword)
+                            .autocapitalization(.none)
+                        .onChange(of: newSetting, perform: { value in
+                            passwordsMatch = true
+                        })
+                        SecureField("Repeat new password", text: $repeatPassword) {
+                            passwordsMatch = newSetting == repeatPassword || repeatPassword == ""  || newSetting == ""
+                        }
                             .textContentType(.newPassword)
+                            .autocapitalization(.none)
+                        .onChange(of: repeatPassword, perform: { value in
+                            passwordsMatch = true
+                        })
                     }
                 } else {
                     Section {
                         TextField("New \(setting.rawValue)", text: $newSetting)
                             .textContentType(textContentType)
                             .keyboardType(keyboardType)
+                            .autocapitalization(.none)
                     }
                 }
                 if setting != .username {
-                    Section(header: Text("Enter your password to confirm").autocapitalization(.none)) {
-                        SecureField("Password", text: $password)
+                    Section(header: Text("Enter your password to confirm"), footer: Text("Error: Password Incorrect").foregroundColor(.red).opacity(correctPassword ? 0 : 1).animation(.default)) {
+                        SecureField("Password", text: $password) {
+                            correctPassword = password == User.shared.password || password == ""
+                        }
                             .textContentType(.password)
+                            .autocapitalization(.none)
+                        .onChange(of: password, perform: { value in
+                            correctPassword = true
+                        })
                     }
                 }
                 Section {
@@ -88,6 +112,11 @@ struct ChangeAccountSettingView: View {
     }
     
     func canSaveChange() -> Bool {
+        
+        if newSetting == "" {
+            return false
+        }
+        
         if setting == .email {
             if !newSetting.isValidEmail() {
                 return false
@@ -95,10 +124,8 @@ struct ChangeAccountSettingView: View {
         }
         
         if setting == .password {
-            if newSetting != "" {
-                if repeatPassword != newSetting {
-                    return false
-                }
+            if repeatPassword != newSetting {
+                return false
             }
         }
         
@@ -112,12 +139,8 @@ struct ChangeAccountSettingView: View {
     }
     
     func makeChange() {
-        
-
-        
-        // passed checks
-        
         parent.comController.changeUserSetting(change: ["new_\(setting.rawValue)":newSetting], setting: setting)
+        presentationMode.wrappedValue.dismiss()
     }
     
     func invalidEmailAlert() {
