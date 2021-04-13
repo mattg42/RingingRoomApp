@@ -79,6 +79,16 @@ struct AccountView: View {
                     }
                     
                     Section {
+                        Button(action: {
+                            currentSetting = .delete
+                        }) {
+                            ZStack(alignment: .leading) {
+                            Text("Delete account").foregroundColor(.red).bold()
+                            }
+                        }
+                    }
+                    
+                    Section {
                         Toggle("Auto-rotate bell circle", isOn: .init(get: {
                             return UserDefaults.standard.optionalBool(forKey: "autoRotate") ?? true
                         }, set: {
@@ -103,9 +113,11 @@ struct AccountView: View {
                     }
                 }
                 .sheet(item: $currentSetting, content: { setting in
-//                    if setting != nil {
+                    if setting != .delete {
                         ChangeAccountSettingView(setting: setting, parent: self)
-//                    }
+                    } else {
+                        DeleteAccountView(parent: self)
+                    }
                 })
 //                .sheet(isPresented: $showingChangeSettingView) {
 //                    ChangeAccountSettingView(parent: self)
@@ -140,11 +152,33 @@ struct AccountView: View {
         })
     }
     
-    func receivedResponse(statusCode: Int?, response: [String:Any], setting:UserSetting) {
+    func receivedResponse(statusCode: Int?, response: [String:Any], setting:UserSetting, newSetting:String) {
         print("status code: \(String(describing: statusCode))")
         print(response)
-        if statusCode != 201 {
+        if statusCode == 201 {
             // success
+            if setting == .password {
+                User.shared.password = newSetting
+                let kcw = KeychainWrapper()
+                do {
+                    try kcw.storePasswordFor(account: User.shared.email, password: newSetting)
+                } catch {
+                    print("error saving password")
+                }
+            } else if setting == .email {
+
+                let kcw = KeychainWrapper()
+                do {
+                    try kcw.storePasswordFor(account: newSetting, password: User.shared.password)
+                    try kcw.deletePasswordFor(account: User.shared.email)
+                } catch {
+                    print("error saving password")
+                }
+                
+                User.shared.email = newSetting
+                UserDefaults.standard.set(newSetting, forKey: "userEmail")
+
+            }
             responseAlertTitle = "Success!"
             responseAlertMessage = "You have successfully changed your \(setting.rawValue)!"
         } else {
@@ -155,7 +189,20 @@ struct AccountView: View {
         showingResponseAlert = true
     }
     
-    @State var i = 1
+    func receivedDeleteResponse(statusCode: Int?, response: [String:Any]) {
+        if statusCode == 202 {
+            // account deleted
+            
+            logout()
+        } else {
+            responseAlertTitle = "Failure"
+            responseAlertMessage = "The account failed to delete."
+        
+            showingResponseAlert = true
+        }
+    }
+    
+//    @State var i = 1
     
 //    func receivedMyTowers(statusCode:Int?, responseData:[String:Any]?) {
 //        if statusCode! == 401 {
