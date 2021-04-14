@@ -22,7 +22,7 @@ struct DeleteAccountView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Enter your password to confirm"), footer: Text("Error: Password Incorrect").foregroundColor(.red).opacity(correctPassword ? 0 : 1).animation(.default)) {
+                Section(header: Text("Enter your password to confirm"), footer: Text("Incorrect Password").foregroundColor(.red).opacity(correctPassword ? 0 : 1).animation(.default)) {
                     SecureField("Password", text: $password) {
                         correctPassword = password == User.shared.password || password == ""
                     }
