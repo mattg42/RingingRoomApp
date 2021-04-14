@@ -65,7 +65,7 @@ Wheatley is a computer ringer for Ringing Room, made by Ben White-Horne and Matt
 Enabling Wheatley
 Wheatley needs to be enabled on a per-tower basis with the switch in the tower settings. This can only be done through the website currentley. Once Wheatley is enabled, a user called 'Wheatley' will be present in the users list. You can then assign Wheatley to bells like any other person. The Fill In button will randomly assign all human ringers first, then fill the remaining bells with Wheatley.
 
-To tell Wheatley what to ring, you need to the tower on the website. The control for Wheatley in the app is coming soon.
+To tell Wheatley what to ring, you need to join the tower through the website. The control for Wheatley in the app is coming soon.
 
 To start ringing a method with Wheatley (only on the website):
 Click on the "Methods" tab in the Wheatley box.
@@ -74,7 +74,7 @@ Start typing the name of the method you want to ring. As you type, a list of pot
 Click on the method name you want to ring, or press "Enter" to select the first option.
 If everything worked out, the first line of the Wheatley box should say "After 'Look To', Wheatley will ring <your method name>", and Wheatley will ring that method after Look To is called.
 
-Wheatley will still respond to all yours calls from the app, such as Look To, or Stand.
+Wheatley will still respond to all yours calls from the app, such as Look to, or Stand.
 """
     
     static let rotating = """
