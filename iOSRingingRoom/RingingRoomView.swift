@@ -1661,15 +1661,10 @@ struct TowerControlsView:View {
 
 
                                     ZStack(alignment: .leading) {
-                                        GeometryReader { geoSize in
                                         ZStack {
-                                        backgroundColor
-                                            Image(systemName: "speaker.3")
-//                                                .padding(3)
-                                                .font(Font.callout.weight(.bold))
+                                        Color.main.cornerRadius(5)
+                                            Image(systemName: "speaker.3").padding(3).font(Font.callout.weight(.bold))
                                                 .hidden()
-                                        }.fixedSize()
-
                                         }.fixedSize()
                                         Image(systemName: "speaker\(speakerSliders)")
                                             .font(Font.callout.weight(.bold))
