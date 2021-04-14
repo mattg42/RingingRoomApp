@@ -57,7 +57,7 @@ struct ChangeAccountSettingView: View {
             
             Form {
                 if setting == .password {
-                    Section(footer: Text("Error: Passwords don't match").foregroundColor(.red).opacity(passwordsMatch ? 0 : 1).animation(.default)) {
+                    Section(footer: Text("Passwords don't match").foregroundColor(.red).opacity(passwordsMatch ? 0 : 1).animation(.default)) {
                         SecureField("New password", text: $newSetting) {
                             passwordsMatch = newSetting == repeatPassword || repeatPassword == ""  || newSetting == ""
                         }
@@ -84,7 +84,7 @@ struct ChangeAccountSettingView: View {
                     }
                 }
                 if setting != .username {
-                    Section(header: Text("Enter your password to confirm"), footer: Text("Error: Password Incorrect").foregroundColor(.red).opacity(correctPassword ? 0 : 1).animation(.default)) {
+                    Section(header: Text("Enter your password to confirm"), footer: Text("Incorrect Password").foregroundColor(.red).opacity(correctPassword ? 0 : 1).animation(.default)) {
                         SecureField("Password", text: $password) {
                             correctPassword = password == User.shared.password || password == ""
                         }
