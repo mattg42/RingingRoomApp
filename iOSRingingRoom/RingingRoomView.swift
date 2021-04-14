@@ -1662,7 +1662,6 @@ struct TowerControlsView:View {
 
                                     ZStack(alignment: .leading) {
                                         ZStack {
-                                        Color.main.cornerRadius(5)
                                             Image(systemName: "speaker.3").padding(3).font(Font.callout.weight(.bold))
                                                 .hidden()
                                         }.fixedSize()
