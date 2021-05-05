@@ -18,7 +18,7 @@ struct AccountView: View {
     
     @ObservedObject var user = User.shared
     
-    @State var comController:CommunicationController!
+//    @State var comController:CommunicationController!
     
     @State private var showingAlert = false
     @State private var alertTitle = ""
@@ -147,9 +147,6 @@ struct AccountView: View {
         .alert(isPresented: $showingAlert) {
             Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .cancel(Text("OK")))
         }
-        .onAppear(perform: {
-            self.comController = CommunicationController(sender: self, loginType: .settings)
-        })
     }
     
     func receivedResponse(statusCode: Int?, response: [String:Any], setting:UserSetting, newSetting:String) {
@@ -246,9 +243,9 @@ struct AccountView: View {
             print("error deleting password")
         }
 
-        User.shared = User()
+        User.shared.reset()
         
-        CommunicationController.token = nil
+        NetworkManager.token = nil
         UserDefaults.standard.set("", forKey: "userEmail")
         UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
                 
@@ -291,4 +288,12 @@ extension UserDefaults {
         }
         return nil
     }
+}
+
+enum UserSetting:String {
+    case username, email, password, delete
+}
+
+extension UserSetting:Identifiable {
+    var id: String { rawValue }
 }

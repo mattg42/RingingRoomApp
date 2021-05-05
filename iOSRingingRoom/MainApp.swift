@@ -25,16 +25,15 @@ struct MainApp: View {
     
     @ObservedObject var user = User.shared
     
-    @ObservedObject var bellCircle = BellCircle.current
+    @ObservedObject private var bellCircle = BellCircle.current
+//    @ObservedObject(initialValue: BellCircle.current) var bellCircle
     
     @ObservedObject var controller = AppController.shared
         
     @State var showingPrivacyPolicyView = false
     
-    @State var cc:CommunicationController! = nil
+    var monitor = NetworkStatus.shared.monitor
 
-    @State var monitor = NWPathMonitor()
-    
     @State private var showingAlert = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""
@@ -63,6 +62,7 @@ struct MainApp: View {
             }
 
         case .main:
+//            Text("Main")
             TabView(selection: .init(get: {
                 controller.selectedTab
             }, set: {
@@ -100,25 +100,18 @@ struct MainApp: View {
             .alert(isPresented: $showingAlert, content: {
                 Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: alertCancelButton)
             })
-            .onAppear {
-                monitor.start(queue: DispatchQueue.monitor)
-            }
-            .onDisappear {
-                monitor.cancel()
-            }
             .sheet(isPresented: $showingPrivacyPolicyView, content: {
                 PrivacyPolicyWebView(isPresented: $showingPrivacyPolicyView)
 
             })
             .onOpenURL(perform: { url in
-                cc = CommunicationController(sender: self, loginType: nil)
                 let pathComponents = url.pathComponents.dropFirst()
                 print(pathComponents)
                 if let firstPath = pathComponents.first {
                     if firstPath == "privacy" {
                         showingPrivacyPolicyView = true
                     } else if let towerID = Int(firstPath) {
-                        if CommunicationController.token != nil {
+                        if NetworkManager.token != nil {
                             joinTower(id: towerID)
                         }
                     }
@@ -144,7 +137,7 @@ struct MainApp: View {
     func joinTower(id: Int) {
         SocketIOManager.shared.socket?.disconnect()
         DispatchQueue.global(qos: .userInteractive).async {
-            if monitor.currentPath.status == .satisfied {
+            if monitor?.currentPath.status == .satisfied {
                 print("joined tower")
                 self.getTowerConnectionDetails(id: id)
                 
@@ -157,7 +150,12 @@ struct MainApp: View {
     }
     
     func getTowerConnectionDetails(id: Int) {
-        cc.getTowerDetails(id: id)
+//        cc.getTowerDetails(id: id)
+        NetworkManager.sendRequest(request: .getTowerDetails(id: id)) { (json, response, error) in
+            if let json = json {
+                receivedResponse(statusCode: response?.statusCode, response: json)
+            }
+        }
     }
         
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
@@ -207,7 +205,7 @@ struct MainApp: View {
     
     func presentRingingRoomView() {
         print("going to ringingroom view")
-        cc.getMyTowers()
+//        cc.getMyTowers()
         AppController.shared.state = .ringing
     }
     
