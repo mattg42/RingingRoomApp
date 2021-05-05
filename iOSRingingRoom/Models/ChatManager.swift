@@ -22,6 +22,7 @@ class ChatManager:ObservableObject {
     
     static var shared = ChatManager()
     
+    private init() {}
 //    var firstMessage = true
     
     func newMessage(user:String, message:String) {

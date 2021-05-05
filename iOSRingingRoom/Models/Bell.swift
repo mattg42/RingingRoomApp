@@ -43,7 +43,7 @@ class BellCircle: ObservableObject {
     var serverAddress = ""
     
     static var current = BellCircle()
-    
+        
     static var sounds = [
         BellType.tower : [
             4: ["5","6","7","8"],
@@ -151,7 +151,7 @@ class BellCircle: ObservableObject {
     
     var joinedTowers = [Int]()
     
-    init() {
+    private init() {
         let session = AVAudioSession.sharedInstance()
     
         do {
@@ -437,15 +437,9 @@ class BellCircle: ObservableObject {
         }
     }
     
-    func sortUsers() {
-//        sortTimer.invalidate()
-        updateAssignmentsTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateAssignments), userInfo: nil, repeats: false)
-    }
-    
     @objc func sortUserArray() {
 //        print(users.ringers)
         var tempUsers = users
-        tempUsers += usersBuffer
         var newUsers = [Ringer]()
         for assignment in assignments {
             if assignment.userID != 0 {
@@ -460,7 +454,6 @@ class BellCircle: ObservableObject {
 //        print(newUsers.ringers)
         objectWillChange.send()
         users = newUsers
-        usersBuffer = [Ringer]()
     }
 
 }

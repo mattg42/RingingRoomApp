@@ -13,17 +13,20 @@ import SwiftUI
 struct RingingRoomApp: App {
     
     @Environment(\.scenePhase) var scenePhase
-    
-    let cc = CommunicationController(sender: nil)
-    
+        
     var body: some Scene {
         WindowGroup {
             MainApp()
                 .onChange(of: scenePhase, perform: { value in
                     print("refreshed token", value)
                     if value == .active {
-                        cc.loginType = .refresh
-                        cc.login(email: User.shared.email, password: User.shared.password)
+//                        cc.loginType = .refresh
+//                        cc.login(email: User.shared.email, password: User.shared.password)
+                        NetworkManager.sendRequest(request: .login(email: User.shared.email, password: User.shared.password)) { json, response, error in
+                            if let json = json {
+                                
+                            }
+                        }
                     }
                 })
         }
