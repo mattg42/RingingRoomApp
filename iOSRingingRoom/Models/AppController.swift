@@ -12,19 +12,21 @@ class AppController:ObservableObject {
     
     static var shared = AppController()
     
+    private init() {}
+    
     @Published var loginState = UserDefaults.standard.bool(forKey: "keepMeLoggedIn") ? LoginState.auto : LoginState.standard
     
     @Published var selectedTab = TabViewType.ring
     
-    @Published var state = AppState.login {
-        didSet {
-            if !User.shared.loggedIn {
-                DispatchQueue.main.async { [weak self] in
-                    self?.state = .login
-                }
-            }
-        }
-    }
+    @Published var state = AppState.login
+//        didSet {
+//            if !User.shared.loggedIn {
+//                DispatchQueue.main.async { [weak self] in
+//                    self?.state = .login
+//                }
+//            }
+//        }
+//    }
 }
 
 

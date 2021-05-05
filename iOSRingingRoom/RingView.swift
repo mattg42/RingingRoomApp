@@ -12,7 +12,7 @@ import Network
 
 struct RingView: View {
     
-    @State private var comController:CommunicationController!
+//    @State private var comController:CommunicationController!
     
     @State private var towerListSelection:Int = 0
     var towerLists = ["Recents", "Favourites", "Created", "Host"]
@@ -42,8 +42,8 @@ struct RingView: View {
     
     @State var response = [String:Any]()
     
-    @State var monitor = NWPathMonitor()
-    
+    var monitor = NetworkStatus.shared.monitor
+
     @State private var buttonHeight:CGFloat = 0
     
     @State private var createTowerShowing = false
@@ -235,30 +235,17 @@ struct RingView: View {
             .navigationBarTitle("Towers")
         }
         .navigationViewStyle(StackNavigationViewStyle())
-//        .onOpenURL(perform: { url in
-//            var pathComponents = url.pathComponents.dropFirst()
-//            if let firstPath = pathComponents.first {
-//                if let towerID = Int(firstPath) {
-//                    if CommunicationController.token != nil {
-//                        joinTower(id: towerID)
-//                    }
-//                }
-//            }
-//            print("opened from \(url.pathComponents.dropFirst())")
-//        })
-        .onAppear {
-            self.comController = CommunicationController(sender: self)
-            let queue = DispatchQueue.monitor
-            monitor.start(queue: queue)
-            if let towerID = CommunicationController.towerQueued {
-                if CommunicationController.token != nil {
-                    joinTower(id: towerID)
+        .onOpenURL(perform: { url in
+            var pathComponents = url.pathComponents.dropFirst()
+            if let firstPath = pathComponents.first {
+                if let towerID = Int(firstPath) {
+                    if NetworkManager.token != nil {
+                        joinTower(id: towerID)
+                    }
                 }
             }
-        }
-        .onDisappear {
-            monitor.cancel()
-        }
+            print("opened from \(url.pathComponents.dropFirst())")
+        })
     }
         
     func getTowerIDHeader() -> String {
@@ -281,11 +268,15 @@ struct RingView: View {
     
     func createTower() {
         DispatchQueue.global(qos: .userInteractive).async {
-            if monitor.currentPath.status == .satisfied {
+            if monitor?.currentPath.status == .satisfied {
                 print("joined tower")
                 
-                comController.createTower(name: towerName.trimmingCharacters(in: .whitespaces))
-                
+//                comController.createTower(name: towerName.trimmingCharacters(in: .whitespaces))
+                NetworkManager.sendRequest(request: .createTower(name: towerName.trimmingCharacters(in: .whitespaces))) { (json, response, error) in
+                    if let json = json {
+                        receivedResponse(statusCode: response?.statusCode, response: json)
+                    }
+                }
             } else {
                 noInternetAlert()
             }
@@ -295,7 +286,7 @@ struct RingView: View {
     func joinTower(id: Int) {
         SocketIOManager.shared.socket?.disconnect()
         DispatchQueue.global(qos: .userInteractive).async {
-            if monitor.currentPath.status == .satisfied {
+            if monitor?.currentPath.status == .satisfied {
                 print("joined tower")
                 self.getTowerConnectionDetails(id: id)
                 
@@ -308,7 +299,12 @@ struct RingView: View {
     }
     
     func getTowerConnectionDetails(id: Int) {
-        comController.getTowerDetails(id: id)
+//        comController.getTowerDetails(id: id)
+        NetworkManager.sendRequest(request: .getTowerDetails(id: id)) { (json, response, error) in
+            if let json = json {
+                receivedResponse(statusCode: response?.statusCode, response: json)
+            }
+        }
     }
         
     func receivedResponse(statusCode:Int?, response:[String:Any]) {
@@ -358,7 +354,7 @@ struct RingView: View {
     
     func presentRingingRoomView() {
         print("going to ringingroom view")
-        comController.getMyTowers()
+//        comController.getMyTowers()
         AppController.shared.state = .ringing
     }
     

@@ -28,7 +28,9 @@ struct RingerID {
 
 class User:ObservableObject {
     static var shared = User()
-        
+    
+    private init() {}
+    
     @RingerID var ringerID
     
     var loggedIn:Bool = false
@@ -50,14 +52,7 @@ class User:ObservableObject {
     }
     
     func reset() {
-        ringerID = 0
-        loggedIn = false
-        name = ""
-        email = ""
-        password = ""
-        myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
-        
-        firstTower = true
+        User.shared = User()
     }
     
     func sortTowers() {

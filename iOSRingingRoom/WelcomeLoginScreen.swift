@@ -10,7 +10,6 @@
 
 import SwiftUI
 import Combine
-import NotificationCenter
 import Network
 
 enum ActiveLoginSheet: Identifiable {
@@ -34,7 +33,7 @@ struct WelcomeLoginScreen: View {
         }
     }
     
-    @State private var comController:CommunicationController!
+//    @State private var comController:CommunicationController!
     
     @State private var email = ""
     @State private var password = ""
@@ -69,7 +68,9 @@ struct WelcomeLoginScreen: View {
     @State private var alertMessage = ""
     @State private var alertCancelButton = Alert.Button.cancel()
     
-    @State private var monitor = NWPathMonitor()
+//    @State private var monitor = NWPathMonitor()
+    
+    var monitor = NetworkStatus.shared.monitor
     
     @State private var activeLoginSheet:ActiveLoginSheet? = nil
                 
@@ -107,7 +108,7 @@ struct WelcomeLoginScreen: View {
 //                        .scaledToFit()
                 }
                 Spacer()
-                
+
 //            }
 //                .disabled(true)
 //            VStack {
@@ -123,7 +124,7 @@ struct WelcomeLoginScreen: View {
                         .keyboardType(.emailAddress)
                         .disableAutocorrection(true)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                    SecureField("Password", text: self.$password)
+                    SecureField("Password", text: $password)
                         .onChange(of: password, perform: { _ in
                             validPassword = password.count > 0
                         })
@@ -131,21 +132,21 @@ struct WelcomeLoginScreen: View {
                         .textContentType(.password)
                         .disableAutocorrection(true)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                    
+
                     Toggle(isOn: $stayLoggedIn) {
                         Text("Keep me logged in")
                     }
                     .toggleStyle(SwitchToggleStyle(tint: .main))
                 DisclosureGroup(
-                    
+
                     isExpanded: $showingServers,
-                    
+
                     content: {
                         VStack {
                             ForEach(Array(servers.keys).sorted(), id: \.self) { server in
                                 if server != serverSelect {
                                 Button(action: {
-                                    CommunicationController.server = server
+                                    NetworkManager.server = server
                                     serverSelect = server
                                     UserDefaults.standard.set(server, forKey: "server")
                                     withAnimation {
@@ -156,14 +157,11 @@ struct WelcomeLoginScreen: View {
                                         Spacer()
 
                                         Text(servers[server]!)
-    //                                    if serverSelect == server {
-    //                                        Image(systemName: "checkmark")
-    //                                    }
                                     }
                                 }
     //                            .padding(.vertical, 1)
                                 }
-                                
+
 
                             }
                             .padding(.top, 1)
@@ -176,16 +174,16 @@ struct WelcomeLoginScreen: View {
                             Spacer()
                             Button(action: {
                                 withAnimation {
-                                    self.showingServers.toggle()
+                                    showingServers.toggle()
                                 }
                             }) {
                                 Text(servers[serverSelect]!)
                             }
                         }
-                        
+
                     }
                 )
-                
+//
                     Button(action: login) {
                         ZStack {
                             Color.main
@@ -212,7 +210,9 @@ struct WelcomeLoginScreen: View {
 //                    }
 //                    .fixedSize(horizontal: false, vertical: true)
                     HStack {
-                        Button(action: {self.activeLoginSheet = .forgotPassword; self.loginScreenIsActive = false}) {
+                        Button(action: {
+                                self.activeLoginSheet = .forgotPassword; self.loginScreenIsActive = false
+                        }) {
                             Text("Forgot password?")
                                 .font(.callout)
                         }
@@ -250,35 +250,66 @@ struct WelcomeLoginScreen: View {
                 activeLoginSheet = .privacy
             }
         })
-        .onAppear(perform: {
-            self.comController = CommunicationController(sender: self, loginType: .welcome)
-            let queue = DispatchQueue.monitor
-            monitor.start(queue: queue)
-        })
-        .onDisappear {
-            monitor.cancel()
-        }
     }
     
     func login() {
-        print(CommunicationController.server)
-        CommunicationController.server = serverSelect
-        if monitor.currentPath.status == .satisfied || monitor.currentPath.status == .requiresConnection {
+//        print(CommunicationController.server)
+//        CommunicationController.server = serverSelect
+        if monitor?.currentPath.status == .satisfied || monitor?.currentPath.status == .requiresConnection {
             print("sent login request")
-
-            comController.login(email: self.email.trimmingCharacters(in: .whitespaces), password: self.password)
+            NetworkManager.sendRequest(request: .login(email: email.trimmingCharacters(in: .whitespaces), password: password)) { json, response, error in
+                if let json = json {
+                    receivedResponse(statusCode: response?.statusCode, response: json)
+                }
+            }
+//            comController.login(email: self.email.trimmingCharacters(in: .whitespaces), password: self.password)
         } else {
             print("path unsatisfied")
             noInternetAlert()
         }
     }
     
-    func receivedResponse(statusCode:Int?, response:[String:Any], _ gotToken:Bool) {
+    func receivedResponse(statusCode:Int?, response:[String:Any]) {
         if statusCode == 401 {
             incorrectCredentialsAlert()
-        } else if statusCode == 200 && gotToken {
-            self.comController.getUserDetails()
-            self.comController.getMyTowers()
+        } else if statusCode == 200 {
+            NetworkManager.token = response["token"] as? String
+            NetworkManager.sendRequest(request: .getUserDetails()) { (json, response, error) in
+                if let json = json {
+                    User.shared.name = json["username"] as! String
+                }
+            }
+            NetworkManager.sendRequest(request: .getMyTowers()) { (json, response, error) in
+                if let json = json as? [String: [String:Any]] {
+                    DispatchQueue.main.async {
+                        User.shared.myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]
+                        User.shared.firstTower = true
+                    }
+                    for dict in json {
+                        print(dict)
+                        if dict.key != "0" {
+                            var tower:Tower? = nil
+                            if let id = dict.value["tower_id"] as? Int {
+                                tower = Tower(id: id, name: dict.value["tower_name"] as! String, host: dict.value["host"] as! Int, recent: dict.value["recent"] as! Int, visited: dict.value["visited"] as! String, creator: dict.value["creator"] as! Int, bookmark: dict.value["bookmark"] as! Int)
+                            } else {
+                                tower = Tower(id: Int(dict.value["tower_id"] as! String)!, name: dict.value["tower_name"] as! String, host: dict.value["host"] as! Int, recent: dict.value["recent"] as! Int, visited: dict.value["visited"] as! String, creator: dict.value["creator"] as! Int, bookmark: dict.value["bookmark"] as! Int)
+                                
+                            }
+                            if tower != nil {
+                                DispatchQueue.main.async {
+                                    User.shared.addTower(tower!)
+                                }
+                               
+                            }
+                        }
+                    }
+                    print(User.shared.myTowers.names)
+                    DispatchQueue.main.async {
+                        User.shared.sortTowers()
+                    }
+                    receivedMyTowers(statusCode: response?.statusCode, responseData: json)
+                }
+            }
         } else {
             unknownErrorAlert()
         }

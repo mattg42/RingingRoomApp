@@ -11,7 +11,7 @@ import SwiftUI
 struct AccountCreationView: View {
     @Environment(\.presentationMode) var presentationMode
     
-    @State private var comController:CommunicationController!
+//    @State private var comController:CommunicationController!
 
     @Binding var isPresented:Bool
     @State private var isShowingPrivacyPolicy = false
@@ -79,9 +79,6 @@ struct AccountCreationView: View {
         }
         .accentColor(.main)
     .navigationViewStyle(StackNavigationViewStyle())
-    .onAppear(perform: {
-        self.comController = CommunicationController(sender: self)
-    })
     }
     
     func createAccount() {
@@ -110,10 +107,15 @@ struct AccountCreationView: View {
             return
         }
         //send account creation request to server
-        comController.registerNewUser(username: username, email: email.lowercased(), password: password)
+//        comController.registerNewUser(username: username, email: email.lowercased(), password: password)
+        NetworkManager.sendRequest(request: .registerNewUser(username: username, email: email.lowercased(), password: password)) { (json, response, error) in
+            if let json = json {
+                receivedResponse(statusCode: response?.statusCode, response: json)
+            }
+        }
     }
     
-    func receivedResponse(statusCode:Int? = nil, response:[String:Any]) {
+    func receivedResponse(statusCode:Int?, response:[String:Any]) {
         if statusCode == 500 {
             alertTitle = "Email already registered"
             alertMessage = "There is already an account with that email address"
