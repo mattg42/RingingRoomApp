@@ -50,7 +50,7 @@ struct DeleteAccountView: View {
     }
     
     func makeChange() {
-        parent.comController.deleteAccount()
+//        parent.comController.deleteAccount()
         presentationMode.wrappedValue.dismiss()
     }
 }

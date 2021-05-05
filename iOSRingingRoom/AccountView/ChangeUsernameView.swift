@@ -139,7 +139,7 @@ struct ChangeAccountSettingView: View {
     }
     
     func makeChange() {
-        parent.comController.changeUserSetting(change: ["new_\(setting.rawValue)":newSetting], setting: setting)
+//        parent.comController.changeUserSetting(change: ["new_\(setting.rawValue)":newSetting], setting: setting)
         presentationMode.wrappedValue.dismiss()
     }
     
