@@ -13,7 +13,7 @@ struct ResetPasswordView: View {
     @Binding var isPresented:Bool
     @Binding var email:String
             
-    var cc = CommunicationController(sender: nil)
+//    var cc = CommunicationController(sender: nil)
     
     @State private var showingAlert = false
     @State private var alertTitle = ""
@@ -52,7 +52,8 @@ struct ResetPasswordView: View {
             showingAlert = true
             return
         } else {
-            cc.resetPassword(email: email)
+//            cc.resetPassword(email: email)
+            NetworkManager.sendRequest(request: .resetPassword(email: email.trimmingCharacters(in: .whitespaces)), completion: {_, _, _ in})
             alertTitle = "Request sent"
             alertMessage = "Check your email for the instructions to reset your password."
             showingAlert = true
