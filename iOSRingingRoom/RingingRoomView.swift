@@ -1063,7 +1063,7 @@ struct RopeCircle:View {
                         }
                         //                            Text("Set at hand")
 
-                        .position(x: geo.frame(in: .local).width - 30, y: bellCircle.bellPositions.count == bellCircle.size ? bellCircle.bellType == .tower ? bellCircle.bellPositions[bellCircle.perspective-1].y + CGFloat(bellCircle.imageSize)/2 - CGFloat(37/2) : bellCircle.bellPositions[bellCircle.perspective-1].y + (CGFloat(bellCircle.imageSize)*0.7)/2 - CGFloat(37/2) - 5 : 0)
+                        .position(x: geo.frame(in: .local).width - 30, y: bellCircle.bellPositions.count == bellCircle.size ? bellCircle.bellType == .tower ? bellCircle.bellPositions[bellCircle.perspective-1].y + CGFloat(bellCircle.imageSize)/2 - CGFloat(37/2) : bellCircle.bellPositions[bellCircle.perspective-1].y + (CGFloat(bellCircle.imageSize)*0.7)/2 - CGFloat(37)/CGFloat(2) - CGFloat(5) : 0)
                         .animation(nil)
 //                    }
 //                }

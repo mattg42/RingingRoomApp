@@ -403,19 +403,26 @@ class BellCircle: ObservableObject {
     
     func newUserlist(_ newUsers:[[String:Any]]) {
         users = [Ringer]()
-
+        assignments = [Ringer]()
+        print(self.users.ringers)
+        print(newUsers)
+        usersBuffer = [Ringer]()
         for newRinger in newUsers {
             let ringer = Ringer.blank
             ringer.userID = newRinger["user_id"] as! Int
             ringer.name = newRinger["username"] as! String
             print(ringer.userID)
             newUser(id: ringer.userID, name: ringer.name)
+            print(self.users.ringers)
         }
+        
+        print(self.users.ringers)
     }
     
     func newUser(id:Int, name:String) {
         if !users.containsRingerForID(id) {
             users.append(Ringer(name: name, id: id))
+            print(self.users.ringers)
             sortUserArray()
         }
     }
@@ -454,6 +461,8 @@ class BellCircle: ObservableObject {
 //        print(newUsers.ringers)
         objectWillChange.send()
         users = newUsers
+        print(self.users.ringers)
+
     }
 
 }

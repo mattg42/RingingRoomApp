@@ -8,6 +8,20 @@
 
 import SwiftUI
 
+enum TextFieldType {
+    case new, repeated, confirm
+}
+
+enum AlertType: String {
+    case passwordsDontMatch, passwordIncorrect, invalidEmail, success, error
+}
+
+extension AlertType:Identifiable {
+    var id: RawValue {
+        self.rawValue
+    }
+}
+
 struct ChangeAccountSettingView: View {
     
     @Environment(\.presentationMode) var presentationMode
@@ -37,19 +51,21 @@ struct ChangeAccountSettingView: View {
     
     var parent:AccountView
     
+    @State var alertType:AlertType? = nil
+    
     @State var newSetting = ""
     
     @State var password = ""
     @State var repeatPassword = ""
     
-    @State var alertTitle = ""
-    @State var alertMessage = ""
-    @State var showingAlert = false
-    
     var canSaveChanges = false
     
     @State var passwordsMatch = true
     @State var correctPassword = true
+    
+    @State var validNewSetting = true
+    
+    @State var selectedField:TextFieldType? = nil
     
     var body: some View {
         NavigationView {
@@ -57,23 +73,13 @@ struct ChangeAccountSettingView: View {
             
             Form {
                 if setting == .password {
-                    Section(footer: Text("Passwords don't match").foregroundColor(.red).opacity(passwordsMatch ? 0 : 1).animation(.default)) {
-                        SecureField("New password", text: $newSetting) {
-                            passwordsMatch = newSetting == repeatPassword || repeatPassword == ""  || newSetting == ""
-                        }
+                    Section {
+                        SecureField("New password", text: $newSetting)
                             .textContentType(.newPassword)
                             .autocapitalization(.none)
-                        .onChange(of: newSetting, perform: { value in
-                            passwordsMatch = true
-                        })
-                        SecureField("Repeat new password", text: $repeatPassword) {
-                            passwordsMatch = newSetting == repeatPassword || repeatPassword == ""  || newSetting == ""
-                        }
+                        SecureField("Repeat new password", text: $repeatPassword)
                             .textContentType(.newPassword)
                             .autocapitalization(.none)
-                        .onChange(of: repeatPassword, perform: { value in
-                            passwordsMatch = true
-                        })
                     }
                 } else {
                     Section {
@@ -84,26 +90,34 @@ struct ChangeAccountSettingView: View {
                     }
                 }
                 if setting != .username {
-                    Section(header: Text("Enter your password to confirm"), footer: Text("Incorrect Password").foregroundColor(.red).opacity(correctPassword ? 0 : 1).animation(.default)) {
-                        SecureField("Password", text: $password) {
-                            correctPassword = password == User.shared.password || password == ""
-                        }
+                    Section {
+                        SecureField("Password", text: $password)
                             .textContentType(.password)
                             .autocapitalization(.none)
-                        .onChange(of: password, perform: { value in
-                            correctPassword = true
-                        })
                     }
                 }
                 Section {
                     Button("Save change") {
                         makeChange()
                     }
-                    .disabled(!canSaveChange())
+                    .disabled(textFieldsAreEmpty())
                 }
             }
-            .alert(isPresented: $showingAlert, content: {
-                Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .cancel(Text("OK")))
+            .alert(item: $alertType, content: { alertType in
+                switch alertType {
+                case .passwordsDontMatch:
+                    return Alert(title: Text("Passwords don't match"), message: Text("Please re-enter your new password and try again."), dismissButton: .cancel(Text("OK")))
+                case .passwordIncorrect:
+                    return Alert(title: Text("Your password is incorrect"), message: Text("Please re-enter your password and try again."), dismissButton: .cancel(Text("OK")))
+                case .invalidEmail:
+                    return Alert(title: Text("Invalid email"), message: Text("Please re-enter your new email address and try again."), dismissButton: .cancel(Text("OK")))
+                case .success:
+                    return Alert(title: Text("Success!"), message: Text("Your new settings have been saved."), dismissButton: .default(Text("OK"), action: {
+                        self.presentationMode.wrappedValue.dismiss()
+                    }))
+                case .error:
+                    return Alert(title: Text("Error"), message: Text("There was an error when saving your new settings."), dismissButton: .cancel())
+                }
             })
             .navigationBarTitle(navigationTitle, displayMode: .inline)
             .navigationBarItems(trailing: Button("Back") { presentationMode.wrappedValue.dismiss() })
@@ -111,53 +125,78 @@ struct ChangeAccountSettingView: View {
         .accentColor(.main)
     }
     
-    func canSaveChange() -> Bool {
-        
-        if newSetting == "" {
-            return false
+    func selectedFieldChanged() {
+        switch selectedField {
+        case .repeated, .new:
+            passwordsMatch = newSetting == repeatPassword || repeatPassword == ""  || newSetting == ""
+        case .confirm:
+            correctPassword = password == User.shared.password || password == ""
+        default: break
         }
+    }
+    
+    func textFieldsAreEmpty() -> Bool {
+        switch setting {
+        case .username:
+            return newSetting == ""
+        case .password:
+            return newSetting == "" || repeatPassword == ""
+        case .email:
+            return newSetting == "" || password == ""
+        default:
+            return true
+        }
+    }
+    
+    func canSaveChange() -> AlertType? {
         
         if setting == .email {
             if !newSetting.isValidEmail() {
-                return false
+                return .invalidEmail
             }
         }
         
         if setting == .password {
             if repeatPassword != newSetting {
-                return false
+                return .passwordsDontMatch
             }
         }
         
         if setting != .username {
             if password != User.shared.password {
-                return false
+                return .passwordIncorrect
             }
         }
         
-        return true
+        return nil
     }
     
     func makeChange() {
-//        parent.comController.changeUserSetting(change: ["new_\(setting.rawValue)":newSetting], setting: setting)
-        presentationMode.wrappedValue.dismiss()
-    }
-    
-    func invalidEmailAlert() {
-        alertTitle = "Invalid email"
-        alertMessage = "The email address you entered is invalid. Please change it and try again."
-        showingAlert = true
-    }
-    
-    func differentPasswordsAlert() {
-        alertTitle = "Different passwords"
-        alertMessage = "Your repeated password isn't the same as the first."
-        showingAlert = true
-    }
-    
-    func incorrectPasswordAlert() {
-        alertTitle = "Incorrect password"
-        alertMessage = "The password you entered is incorrect."
-        showingAlert = true
+        if let alertType = canSaveChange() {
+            self.alertType = alertType
+        } else {
+            
+            NetworkManager.sendRequest(request: .changeUserSetting(change: ["new_\(setting.rawValue)":newSetting], setting: setting)) { data, response, error in
+                if let error = error {
+                    print("Error: \(error.localizedDescription)")
+                } else {
+                    if 200..<300 ~= response?.statusCode ?? 0{
+                        NetworkManager.sendRequest(request: .getUserDetails(), completion: { json,_,_ in
+                            if let json = json {
+                                if let username = json["username"] as? String {
+                                    DispatchQueue.main.async {
+                                        User.shared.name = username
+                                    }
+                                }
+                            }
+                            self.alertType = .success
+                        })
+                        
+                    } else {
+                        self.alertType = .error
+                    }
+                }
+            }
+        }
     }
 }
