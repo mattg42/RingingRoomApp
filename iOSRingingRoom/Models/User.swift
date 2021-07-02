@@ -34,7 +34,7 @@ class User:ObservableObject {
     @RingerID var ringerID
     
     var loggedIn:Bool = false
-    var name:String = ""
+    @Published var name:String = ""
     var email:String = ""
     var password = ""
         

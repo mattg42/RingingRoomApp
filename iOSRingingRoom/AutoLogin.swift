@@ -151,7 +151,10 @@ struct AutoLogin: View {
                         NetworkManager.sendRequest(request: .getUserDetails()) { (json, response, error) in
                             if let json = json {
                                 if let username = json["username"] as? String {
-                                    User.shared.name = username
+                                    DispatchQueue.main.async {
+                                        User.shared.name = username
+                                    }
+                                    
                                 }
                             }
 
