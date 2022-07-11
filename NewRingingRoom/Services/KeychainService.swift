@@ -8,54 +8,44 @@
 
 import Foundation
 
-struct KeychainWrapperError: Error {
-  var message: String?
-  var type: KeychainErrorType
-
-  enum KeychainErrorType {
+enum KeychainError: Error, Alertable {
     case badData
-    case servicesError
+    case servicesError(status: OSStatus)
     case itemNotFound
     case unableToConvertToString
-  }
-
-  init(status: OSStatus, type: KeychainErrorType) {
-    self.type = type
-    if let errorMessage = SecCopyErrorMessageString(status, nil) {
-      self.message = String(errorMessage)
-    } else {
-      self.message = "Status Code: \(status)"
+    
+    var alertData: AlertData {
+        switch self {
+        case .badData:
+            return AlertData(title: "Keychain error", message: "Cannot convert data to password. Please restart the app. If the problem persists, please contact support at ringingroomapp@gmail.com.")
+        case .servicesError(let status):
+            let message: String
+            if let errorMessage = SecCopyErrorMessageString(status, nil) {
+                message = String(errorMessage)
+            } else {
+                message = "Status Code: \(status)"
+            }
+            return AlertData(title: "Keychain error", message: message)
+        case .itemNotFound, .unableToConvertToString:
+            return AlertData(title: "Failed to retrieve password", message: "Please restart the app. If the problem persists, reinstall the app.")
+        }
     }
-  }
-
-  init(type: KeychainErrorType) {
-    self.type = type
-  }
-
-  init(message: String, type: KeychainErrorType) {
-    self.message = message
-    self.type = type
-  }
 }
 
-class KeychainUtils {
-    
-    let server = "ringingroom.com"
-    
-    func storePasswordFor(
-        account: String,
-        password: String
-    ) throws {
+enum KeychainService {
         
+    static func storePasswordFor(account: String, password: String, server: String) throws {
         if password.isEmpty {
             try deletePasswordFor(
-                account: account)
+                account: account,
+                server: server
+            )
             return
         }
         
         guard let passwordData = password.data(using: .utf8) else {
             print("Error converting value to data.")
-            throw KeychainWrapperError(type: .badData)
+            throw KeychainError.badData
         }
         
         let query: [String: Any] = [
@@ -72,15 +62,15 @@ class KeychainUtils {
         case errSecDuplicateItem:
             try updatePasswordFor(
                 account: account,
-                password: password)
+                password: password,
+                server: server
+            )
         default:
-            throw KeychainWrapperError(status: status, type: .servicesError)
+            throw KeychainError.servicesError(status: status)
         }
-        
-        
     }
     
-    func getPasswordFor(account: String) throws -> String {
+    static func getPasswordFor(account: String, server: String) throws -> String {
         let query: [String: Any] = [
             kSecClass as String: kSecClassInternetPassword,
             kSecAttrAccount as String: account,
@@ -92,11 +82,12 @@ class KeychainUtils {
         
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
+        
         guard status != errSecItemNotFound else {
-            throw KeychainWrapperError(type: .itemNotFound)
+            throw KeychainError.itemNotFound
         }
         guard status == errSecSuccess else {
-            throw KeychainWrapperError(status: status, type: .servicesError)
+            throw KeychainError.servicesError(status: status)
         }
         
         guard
@@ -104,18 +95,13 @@ class KeychainUtils {
             let valueData = existingItem[kSecValueData as String] as? Data,
             let value = String(data: valueData, encoding: .utf8)
         else {
-            throw KeychainWrapperError(type: .unableToConvertToString)
+            throw KeychainError.unableToConvertToString
         }
         
         return value
-        
-        
     }
     
-    func updatePasswordFor(
-        account: String,
-        password: String
-    ) throws {
+    static func updatePasswordFor(account: String, password: String, server: String) throws {
         guard let passwordData = password.data(using: .utf8) else {
             print("Error converting value to data.")
             return
@@ -132,16 +118,14 @@ class KeychainUtils {
         
         let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
         guard status != errSecItemNotFound else {
-            throw KeychainWrapperError(
-                message: "Matching Item Not Found",
-                type: .itemNotFound)
+            throw KeychainError.itemNotFound
         }
         guard status == errSecSuccess else {
-            throw KeychainWrapperError(status: status, type: .servicesError)
+            throw KeychainError.servicesError(status: status)
         }
     }
     
-    func deletePasswordFor(account: String) throws {
+    static func deletePasswordFor(account: String, server: String) throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassInternetPassword,
             kSecAttrAccount as String: account,
@@ -150,11 +134,22 @@ class KeychainUtils {
         
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
-            throw KeychainWrapperError(status: status, type: .servicesError)
+            throw KeychainError.servicesError(status: status)
         }
     }
     
-    
-    
+    static func clear() {
+        let secItemClasses =  [
+            kSecClassGenericPassword,
+            kSecClassInternetPassword,
+            kSecClassCertificate,
+            kSecClassKey,
+            kSecClassIdentity,
+        ]
+        for itemClass in secItemClasses {
+            let spec: NSDictionary = [kSecClass: itemClass]
+            SecItemDelete(spec)
+        }
+    }
 }
 

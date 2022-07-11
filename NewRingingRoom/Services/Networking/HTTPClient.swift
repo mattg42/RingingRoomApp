@@ -13,13 +13,22 @@ protocol HTTPClient {
     var region: Region { get set }
     var token: String? { get set }
     
-    func request<T: Decodable>(endpoint: String, method: HTTPMethod, json: JSON?, headers: JSON?, auth: Bool, model: T.Type) async -> Result<T, APIError>
+    var domain: String { get }
+    
+    func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, auth: Bool, model: T.Type) async -> Result<T, APIError>
 }
 
 extension HTTPClient {
-    func request<T: Decodable>(endpoint: String, method: HTTPMethod, json: JSON? = nil, headers: JSON? = nil, auth: Bool = true, model: T.Type) async -> Result<T, APIError> {
+    
+    var domain: String {
+        "\(region.server)ringingroom.com"
+    }
+    
+    func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON? = nil, headers: JSON? = nil, auth: Bool = true, model: T.Type) async -> Result<T, APIError> {
         
-        let url = URL(string: "https://\(region.server)ringingroom.co.uk/api/\(endpoint)")!
+        guard let url = URL(string: "https://\(domain)/api/\(path)") else {
+            return .failure(.invalidURL(attemptedURL: "https://\(domain)/api/\(path)"))
+        }
         
         var request = URLRequest(url: url)
         

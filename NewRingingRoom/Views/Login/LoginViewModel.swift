@@ -11,13 +11,13 @@ import SwiftUI
 
 class LoginViewModel: ObservableObject {
     
-    init(apiService: APIServiceable, errorHandler: ErrorHandleable) {
+    init(apiService: APIServiceable, router: AppRouter) {
         self.apiService = apiService
-        self.errorHandler = errorHandler
+        self.appRouter = router
     }
     
     var apiService: APIServiceable
-    let errorHandler: ErrorHandleable
+    let appRouter: AppRouter
     
     func login(email: String, password: String, withTowerID towerID: Int? = nil) async {
         
@@ -25,28 +25,18 @@ class LoginViewModel: ObservableObject {
         let utf8str = "\(email.lowercased()):\(password)".data(using: .utf8)
         
         if let base64Encoded = utf8str?.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0)) {
-            do {
-                let token = try await apiService.login(base64Encoded: base64Encoded).get()
+            let result = await apiService.login(base64Encoded: base64Encoded)
+            switch result {
+            case .success(let token):
                 apiService.token = token
-                
-                let userResult = try await apiService.getUserDetails().get()
-                let towersResult = try await apiService.getTowers().get()
-                
-                if let towerID = towerID {
-                    let towerInfo = try await apiService.getTowerDetails(towerID: towerID).get()
-                    print(towerInfo)
-                } else {
-                    
-                }
-            } catch let error as APIError {
-                errorHandler.handle(error: error)
-            } catch {
-                fatalError("Not possible")
+                // navigate to main module
+                print("success")
+                appRouter.moveTo(.main)
+            case .failure(let error):
+                AlertHandler.handle(error: error)
             }
-            
         } else {
-            errorHandler.handle(error: APIError.encode)
+            AlertHandler.handle(error: APIError.encode)
         }
     }
 }
-

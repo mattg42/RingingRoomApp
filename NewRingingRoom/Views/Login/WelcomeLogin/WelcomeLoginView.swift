@@ -117,7 +117,7 @@ struct WelcomeLoginView: View {
                                         HStack {
                                             Spacer()
                                             
-                                            Text(viewModel.apiService.region.displayName)
+                                            Text(region.displayName)
                                         }
                                     }
                                 }

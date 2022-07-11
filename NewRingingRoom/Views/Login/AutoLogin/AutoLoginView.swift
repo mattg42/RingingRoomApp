@@ -33,54 +33,33 @@ struct AutoLoginView: View {
             }
             print("opened from \(url.pathComponents.dropFirst())")
         })
-        .onAppear(perform: {
-            login()
-        })
+        .task {
+            await login()
+        }
     }
         
-    func login() {
+    func login() async {
         
         guard viewModel.apiService.token == nil else { return }
         
         print("sent login request")
         let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
-        
-        //remove in next beta version
-        let savedPassword = UserDefaults.standard.string(forKey: "userPassword") ?? ""
-        let kcw = KeychainUtils()
-        
-        if UserDefaults.standard.string(forKey: "server") == nil {
-            let value = UserDefaults.standard.bool(forKey: "NA")
-            
-            if value {
-                UserDefaults.standard.setValue("/na.", forKey: "server")
-            } else {
-                UserDefaults.standard.setValue("/", forKey: "server")
-            }
-        }
-        
-        if savedPassword != "" {
-            do {
-                try kcw.storePasswordFor(account: email, password: savedPassword)
-            } catch {
-                print("error saving password to keychain")
-            }
-            UserDefaults.standard.setValue("", forKey: "userPassword")
-        }
-        
+                
         do {
-            let password = try kcw.getPasswordFor(account: email)
+            let password = try KeychainService.getPasswordFor(account: email, server: viewModel.apiService.domain )
             User.shared.email = email
             User.shared.password = password
             print("retrieved password")
         
             if autoJoinTowerID != 0 {
-                viewModel.login(email: email, password: password, withTowerID: autoJoinTowerID)
+                await viewModel.login(email: email, password: password, withTowerID: autoJoinTowerID)
             } else {
-                viewModel.login(email: email, password: password)
+                await viewModel.login(email: email, password: password)
             }
+        } catch let error as KeychainError {
+            AlertHandler.handle(error: error)
         } catch {
-            AlertHandler.unknownError(message: "")
+            fatalError("Impossible")
         }
     }
 }

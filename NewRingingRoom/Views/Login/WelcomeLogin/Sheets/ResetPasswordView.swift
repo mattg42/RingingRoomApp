@@ -12,6 +12,8 @@ struct ResetPasswordView: View {
     
     @Environment(\.presentationMode) var presentationMode
     
+    @EnvironmentObject var viewModel: LoginViewModel
+    
     @Binding var email:String
     
     var body: some View {
@@ -25,8 +27,8 @@ struct ResetPasswordView: View {
                         .autocapitalization(.none)
                 }
                 Section {
-                    Button("Request password reset") {
-                        self.resetPassword()
+                    AsyncButton("Request password reset") {
+                        await resetPassword()
                     }
                 }
             }
@@ -38,23 +40,15 @@ struct ResetPasswordView: View {
         .navigationViewStyle(StackNavigationViewStyle())
     }
     
-    func resetPassword() {
+    func resetPassword() async {
         email = email.trimmingCharacters(in: .whitespaces).lowercased()
-        guard !email.isValidEmail() else {
-            AlertHandler.emailNotValid()
+        guard email.isValidEmail() else {
+            AlertHandler.handle(error: LoginError.emailNotValid)
             return
         }
-        APIService.resetPassword(email: email)
-            .sink { completion in
-                switch completion {
-                case .failure(let error):
-                    print(error)
-                default:
-                    break
-                }
-            } receiveValue: { _ in
-                AlertHandler.resetPasswordRequestSent()
-            }
-            .store()
+        
+        await viewModel.apiService.resetPassword(email: email)
+
+        AlertHandler.presentAlert(title: "Request sent", message: "Check your email for the instructions to reset your password.", dismiss: .cancel(title: "Ok", action: nil))
     }
 }
