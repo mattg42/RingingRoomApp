@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class User: ObservableObject {
+class User: ObservableObject {
     
     static var shared = User()
     

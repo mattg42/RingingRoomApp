@@ -10,78 +10,31 @@ import Foundation
 enum APIError: Error, Alertable {
     case decode(error: DecodingError)
     case url(error: URLError)
-    case invalidURL
+    case invalidURL(attemptedURL: String)
     case noResponse
     case unauthorized
     case encode
     case http(code: Int)
     case unknown(message: String)
     
-    var errorAlert: ErrorAlert {
-        ErrorAlert(title: errorTitle, message: errorMessage, dissmiss: errorDissmiss)
-    }
-    
-    var errorTitle: String {
+    var alertData: AlertData {
         switch self {
         case .decode(let error):
-            <#code#>
+            return AlertData(title: "Decoding error", message: "There was an error decoding the server response: \(error.localizedDescription). Please make sure the app is updated.")
         case .url(let error):
-            <#code#>
-        case .invalidURL:
-            <#code#>
+            return AlertData(title: "Couldn't reach server", message: "There was an error reaching the server: \(error.localizedDescription)")
+        case .invalidURL(let url):
+            return AlertData(title: "Invalid URL", message: "Invalid request URL: \(url). Please screenshot and email to support at ringingroomapp@gmail.com.")
         case .noResponse:
-            <#code#>
+            return AlertData(title: "No response", message: "There was no response from the server. Please try again.")
         case .unauthorized:
-            <#code#>
+            return AlertData(title: "Unauthorized", message: "Please restart the app.")
         case .encode:
-            <#code#>
+            return AlertData(title: "Encoding error", message: "There was an error encoding your username or password.")
         case .http(let code):
-            <#code#>
+            return AlertData(title: "Unexpected server response", message: "HTTP code: \(code). Please contact support at ringingroomapp@gmail.com, and provide the HTTP code and explain what you were trying to do.")
         case .unknown(let message):
-            <#code#>
+            return AlertData(title: "Unexpected error", message: "An unknown error occured: \(message)")
         }
     }
-    
-    var errorMessage: String {
-        switch self {
-        case .decode(let error):
-            return "There was an error decoding the server response: \(error.localizedDescription)"
-        case .url(let error):
-            <#code#>
-        case .invalidURL:
-            <#code#>
-        case .noResponse:
-            <#code#>
-        case .unauthorized:
-            <#code#>
-        case .encode:
-            return "There was an error encoding your username or password."
-        case .http(let code):
-            <#code#>
-        case .unknown(let message):
-            <#code#>
-        }
-    }
-    
-    var errorDissmiss: DissmissType {
-        switch self {
-        case .decode(let error):
-            <#code#>
-        case .url(let error):
-            <#code#>
-        case .invalidURL:
-            <#code#>
-        case .noResponse:
-            <#code#>
-        case .unauthorized:
-            <#code#>
-        case .encode:
-            return .cancel(title: "OK", action: nil)
-        case .http(let code):
-            <#code#>
-        case .unknown(let message):
-            <#code#>
-        }
-    }
-    
 }

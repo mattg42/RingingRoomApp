@@ -19,11 +19,11 @@ class WebViewModel: ObservableObject {
                     withAnimation(.linear(duration:0.3)) {
                         self.progress = 1
                     }
-                    DispatchQueue.main.asyncAfter(deadline: .now()+0.3, execute: {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: { [weak self] in
                         withAnimation(.linear(duration: 0.2)) {
-                            alpha = 0.0
+                            self?.alpha = 0.0
                         }
-                        DispatchQueue.main.asyncAfter(deadline: .now()+0.2) { [weak self] in
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                             self?.progress = 0
                         }
                     })

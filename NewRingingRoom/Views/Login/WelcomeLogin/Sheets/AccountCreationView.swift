@@ -73,22 +73,22 @@ struct AccountCreationView: View {
     
     func createAccount() async {
         guard email.trimmingCharacters(in: .whitespaces).isValidEmail() else {
-            viewModel.errorHandler.handle(error: AccountCreationError.emailNotValid)
+            AlertHandler.handle(error: LoginError.emailNotValid)
             return
         }
         
         guard !username.isEmpty else {
-            viewModel.errorHandler.handle(error: AccountCreationError.noUsername)
+            AlertHandler.handle(error: LoginError.noUsername)
             return
         }
         
         guard !password.isEmpty else {
-            viewModel.errorHandler.handle(error: AccountCreationError.noPassword)
+            AlertHandler.handle(error: LoginError.noPassword)
             return
         }
         
         guard password == repeatedPassword else {
-            viewModel.errorHandler.handle(error: AccountCreationError.passwordsDontMatch)
+            AlertHandler.handle(error: LoginError.passwordsDontMatch)
             return
         }
         
@@ -106,24 +106,7 @@ struct AccountCreationView: View {
             }
             
         case .failure(let error):
-            viewModel.errorHandler.handle(error: error)
-        }
-    }
-}
-
-enum AccountCreationError: Error, Alertable {
-    case emailNotValid, noUsername, noPassword, passwordsDontMatch
-    
-    var errorAlert: ErrorAlert {
-        switch self {
-        case .emailNotValid:
-            return ErrorAlert(title: "Invalid email", message: "The email address you entered is invalid. Please fix this", dissmiss: .cancel(title: "Ok", action: nil))
-        case .noUsername:
-            return ErrorAlert(title:"No username", message: "Please enter a username", dissmiss: .cancel(title: "Ok", action: nil))
-        case .noPassword:
-            return ErrorAlert(title: "No password", message: "Please enter a password", dissmiss: .cancel(title: "Ok", action: nil))
-        case .passwordsDontMatch:
-            return ErrorAlert(title: "Passwords don't match", message: "Please type in the same password twice", dissmiss: .cancel(title: "Ok", action: nil))
+            AlertHandler.handle(error: error)
         }
     }
 }

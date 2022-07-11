@@ -8,18 +8,14 @@
 import SwiftUI
 import Combine
 
-class ModuleNavigator: ObservableObject {
+class AppRouter: ObservableObject {
     @Published var currentModule: AppModule = .login
-    
-    static var shared = ModuleNavigator()
-    
-    static func moveTo(_ newModule: AppModule) {
-        DispatchQueue.main.async {
-            shared.currentModule = newModule
+        
+    func moveTo(_ newModule: AppModule) {
+        ThreadUtil.runInMain {
+            self.currentModule = newModule
         }
     }
-    
-    private init() {}
 }
 
 enum AppModule {
@@ -31,23 +27,31 @@ enum AppModule {
 @main
 struct NewRingingRoomApp: App {
         
-    @ObservedObject var navigator = ModuleNavigator.shared
-    @ObservedObject var user = User.shared
+    init() {
+        let freshInstall = !UserDefaults.standard.bool(forKey: "alreadyInstalled")
+        if freshInstall {
+            KeychainService.clear()
+            UserDefaults.standard.set(true, forKey: "alreadyInstalled")
+        }
+    }
+    
+    @StateObject var router = AppRouter()
     
     let apiService = APIService()
     
     var body: some Scene {
         WindowGroup {
             Group {
-                switch navigator.currentModule {
+                switch router.currentModule {
                 case .login:
-                    LoginOverview(apiService: apiService)
+                    LoginOverview(apiService: apiService, router: router)
                 case .main:
                     MainOverview()
                 case .ringing:
                     RingingView()
                 }
             }
+            .tint(Color.main)
         }
     }
 }

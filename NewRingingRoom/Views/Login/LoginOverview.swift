@@ -15,8 +15,8 @@ enum LoginState {
 
 struct LoginOverview: View {
     
-    init(apiService: APIServiceable) {
-        self._loginModel = StateObject(wrappedValue: LoginViewModel(apiService: apiService, errorHandler: ErrorHandler()))
+    init(apiService: APIServiceable, router: AppRouter) {
+        self._loginModel = StateObject(wrappedValue: LoginViewModel(apiService: apiService, router: router))
     }
     
     @State var loginState: LoginState = .welcome
@@ -34,4 +34,12 @@ struct LoginOverview: View {
         }
         .environmentObject(loginModel)
     }
+}
+
+protocol Loginable {
+    func login(email: String, password: String, withTowerID towerID: Int?) async
+}
+
+extension Loginable {
+    
 }

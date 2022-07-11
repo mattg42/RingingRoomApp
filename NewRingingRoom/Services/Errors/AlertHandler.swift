@@ -1,5 +1,5 @@
 //
-//  ErrorHandler.swift
+//  alertHandler.swift
 //  NewRingingRoom
 //
 //  Created by Matthew on 17/04/2022.
@@ -8,12 +8,8 @@
 import Foundation
 import UIKit
 
-protocol ErrorHandleable {
-    func handle(error: Alertable)
-}
-
-public struct ErrorHandler: ErrorHandleable {
-    private func presentAlert(title: String, message: String, dismiss: DissmissType) {
+public enum AlertHandler {
+    static func presentAlert(title: String, message: String, dismiss: DissmissType) {
         let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
         switch dismiss {
         case .cancel(let title, let action):
@@ -28,8 +24,8 @@ public struct ErrorHandler: ErrorHandleable {
         UIApplication.shared.keyWindowPresentedController?.present(ac, animated: true, completion: nil)
     }
     
-    func handle(error: Alertable) {
-        presentAlert(title: error.errorAlert.title, message: error.errorAlert.message, dismiss: error.errorAlert.dissmiss)
+    static func handle(error: Alertable) {
+        presentAlert(title: error.alertData.title, message: error.alertData.message, dismiss: error.alertData.dismiss)
     }
 }
 
