@@ -26,7 +26,12 @@ extension HTTPClient {
     
     func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON? = nil, headers: JSON? = nil, auth: Bool = true, model: T.Type) async -> Result<T, APIError> {
         
-        guard let url = URL(string: "https://\(domain)/api/\(path)") else {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = domain
+        components.path = "/api/\(path)"
+        
+        guard let url = components.url else {
             return .failure(.invalidURL(attemptedURL: "https://\(domain)/api/\(path)"))
         }
         
