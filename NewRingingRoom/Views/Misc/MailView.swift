@@ -14,19 +14,19 @@ import MessageUI
 
 struct MailView: UIViewControllerRepresentable {
 
-    @Environment(\.presentationMode) var presentation
+    @Environment(\.dismiss) private var dismiss
     @Binding var result: Result<MFMailComposeResult, Error>?
 
     var recipient: String
     
     class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
 
-        @Binding var presentation: PresentationMode
+        var dismiss: DismissAction
         @Binding var result: Result<MFMailComposeResult, Error>?
 
-        init(presentation: Binding<PresentationMode>,
+        init(dismiss: DismissAction,
              result: Binding<Result<MFMailComposeResult, Error>?>) {
-            _presentation = presentation
+            self.dismiss = dismiss
             _result = result
         }
 
@@ -34,8 +34,9 @@ struct MailView: UIViewControllerRepresentable {
                                    didFinishWith result: MFMailComposeResult,
                                    error: Error?) {
             defer {
-                $presentation.wrappedValue.dismiss()
+                dismiss()
             }
+            
             guard error == nil else {
                 self.result = .failure(error!)
                 return
@@ -45,7 +46,7 @@ struct MailView: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(presentation: presentation,
+        return Coordinator(dismiss: dismiss,
                            result: $result)
     }
 

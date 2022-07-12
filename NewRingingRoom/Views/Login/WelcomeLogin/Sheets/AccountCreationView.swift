@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct AccountCreationView: View {
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
         
     @State private var isShowingPrivacyPolicy = false
     
@@ -68,7 +68,7 @@ struct AccountCreationView: View {
             }
             .navigationBarTitle("Create Account", displayMode: .inline)
             .navigationBarItems(trailing: Button {
-                presentationMode.wrappedValue.dismiss()
+                dismiss()
             } label: {
                 Text("Back")
                 .bold()

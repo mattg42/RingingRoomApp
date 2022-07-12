@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ResetPasswordView: View {
     
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
         
     @Binding var email: String
     
@@ -32,7 +32,7 @@ struct ResetPasswordView: View {
             }
             .navigationBarTitle("Reset Password", displayMode: .inline)
             .navigationBarItems(trailing: Button("Back") {
-                presentationMode.wrappedValue.dismiss()
+                dismiss()
             })
         }
         .navigationViewStyle(StackNavigationViewStyle())
