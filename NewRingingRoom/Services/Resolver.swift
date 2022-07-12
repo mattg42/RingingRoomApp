@@ -33,7 +33,7 @@ import SwiftUI
 import Foundation
 #endif
 
-// swiftlint:disable file_length
+// swiftlint: disable file_length
 public protocol ResolverRegistering {
     static func registerAllServices()
 }
@@ -371,12 +371,12 @@ extension Resolver {
     /// Internal class used by Resolver for multiple argument support.
     public struct Args {
 
-        private var args: [String:Any?]
+        private var args: [String: Any?]
 
         public init(_ args: Any?) {
             if let args = args as? Args {
                 self.args = args.args
-            } else if let args = args as? [String:Any?] {
+            } else if let args = args as? [String: Any?] {
                 self.args = args
             } else {
                 self.args = ["" : args]
@@ -663,7 +663,7 @@ public protocol StoryboardResolving: Resolving {
 
 /// Storyboard Automatic Resolution Trigger
 public extension UIViewController {
-    // swiftlint:disable unused_setter_value
+    // swiftlint: disable unused_setter_value
     @objc dynamic var resolving: Bool {
         get {
             return true
@@ -674,7 +674,7 @@ public extension UIViewController {
             }
         }
     }
-    // swiftlint:enable unused_setter_value
+    // swiftlint: enable unused_setter_value
 }
 #endif
 

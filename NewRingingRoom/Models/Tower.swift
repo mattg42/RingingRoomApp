@@ -7,7 +7,17 @@
 
 import Foundation
 
-struct Tower {
+struct Tower: Identifiable {
+    init(bookmark: Bool, creator: Bool, host: Bool, recent: Bool, towerId: Int, towerName: String, visited: Date) {
+        self.bookmark = bookmark
+        self.creator = creator
+        self.host = host
+        self.recent = recent
+        self.towerId = towerId
+        self.towerName = towerName
+        self.visited = visited
+    }
+    
     var bookmark: Bool
     var creator: Bool
     var host: Bool
@@ -26,6 +36,12 @@ struct Tower {
         
         visited = convertToDate(String(towerModel.visited[...towerModel.visited.index(before: towerModel.visited.lastIndex(of: " ")!)]))
     }
+    
+    static var blank: Tower {
+        Tower(bookmark: false, creator: false, host: false, recent: true, towerId: Int.random(in: 0...Int.max), towerName: "Blank", visited: .now)
+    }
+    
+    var id: Int { towerId }
 }
 
 fileprivate func convertToDate(_ str: String) -> Date {

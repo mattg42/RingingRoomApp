@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 class AppRouter: ObservableObject {
-    @Published var currentModule: AppModule = .login
+    @Published var currentModule: AppModule = .main
         
     func moveTo(_ newModule: AppModule) {
         ThreadUtil.runInMain {
@@ -45,7 +45,7 @@ struct NewRingingRoomApp: App {
                 case .login:
                     LoginOverview()
                 case .main:
-                    MainOverview()
+                    MainView()
                 case .ringing:
                     RingingView()
                 }

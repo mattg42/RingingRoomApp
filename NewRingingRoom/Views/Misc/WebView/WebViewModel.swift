@@ -16,7 +16,7 @@ class WebViewModel: ObservableObject {
         didSet {
             DispatchQueue.main.async { [self] in
                 if estimatedProgress >= 1.0 {
-                    withAnimation(.linear(duration:0.3)) {
+                    withAnimation(.linear(duration: 0.3)) {
                         self.progress = 1
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: { [weak self] in

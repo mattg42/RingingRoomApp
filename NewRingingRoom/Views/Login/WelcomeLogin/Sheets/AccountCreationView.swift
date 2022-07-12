@@ -15,12 +15,12 @@ struct AccountCreationView: View {
     
     @State private var agreedToPrivacyPolicy = false
     
-    @Binding var email:String
+    @Binding var email: String
     @State private var username = ""
-    @Binding var password:String
+    @Binding var password: String
     @State private var repeatedPassword = ""
     
-    @Binding var accountCreated:Bool
+    @Binding var accountCreated: Bool
     
     @State private var privacyPolicyButtonText = "Read and agree to the privacy policy"
     
@@ -31,6 +31,7 @@ struct AccountCreationView: View {
                     TextField("Username", text: $username)
                         .disableAutocorrection(true)
                 }
+                
                 Section(footer: Text("You'll use your email address to log in. We will never share it with anyone.")) {
                     TextField("Email", text: $email)
                         .textContentType(.username)
@@ -38,22 +39,25 @@ struct AccountCreationView: View {
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                 }
+                
                 Section {
                     SecureField("Password", text: $password)
                         .textContentType(.newPassword)
                     SecureField("Repeat password", text: $repeatedPassword)
                         .textContentType(.newPassword)
                 }
+                
                 Section {
                     Button(action: {
-                        self.isShowingPrivacyPolicy = true
+                        isShowingPrivacyPolicy = true
                     }) {
                         Text(privacyPolicyButtonText)
                     }
                     .sheet(isPresented: $isShowingPrivacyPolicy) {
-                        AgreeToPrivacyPolicyView(isPresented: self.$isShowingPrivacyPolicy, agreed: self.$agreedToPrivacyPolicy)
+                        AgreeToPrivacyPolicyView(isPresented: $isShowingPrivacyPolicy, agreed: $agreedToPrivacyPolicy)
                     }
                 }
+                
                 Section {
                     AsyncButton(action: createAccount) {
                         Text("Create account")
@@ -61,9 +65,14 @@ struct AccountCreationView: View {
                     .disabled(!agreedToPrivacyPolicy)
                     
                 }
-                
-            }.navigationBarTitle("Create Account", displayMode: .inline)
-                .navigationBarItems(trailing: Button(action: {self.presentationMode.wrappedValue.dismiss()}) {Text("Back").bold()})
+            }
+            .navigationBarTitle("Create Account", displayMode: .inline)
+            .navigationBarItems(trailing: Button {
+                presentationMode.wrappedValue.dismiss()
+            } label: {
+                Text("Back")
+                .bold()
+            })
         }
         .accentColor(.main)
         .navigationViewStyle(StackNavigationViewStyle())
@@ -92,7 +101,7 @@ struct AccountCreationView: View {
         
         let authenticationService = AuthenticationService()
         
-        await ErrorUtil.alertable {
+        await ErrorUtil.do {
             try await authenticationService.registerUser(username: username, email: email.lowercased(), password: password)
             ThreadUtil.runInMain {
                 self.accountCreated = true

@@ -36,7 +36,6 @@ struct AuthenticationService: UnauthenticatedClient {
     }
     
     func login(email: String, password: String) async throws -> String {
-        
         let utf8str = "\(email.lowercased()):\(password)".data(using: .utf8)
         
         if let base64Encoded = utf8str?.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0)) {

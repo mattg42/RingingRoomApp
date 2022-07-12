@@ -10,20 +10,23 @@ import SwiftUI
 
 struct AgreeToPrivacyPolicyView: View {
     
-    @Binding var isPresented:Bool
-    @Binding var agreed:Bool
+    @Binding var isPresented: Bool
+    @Binding var agreed: Bool
     
     var body: some View {
         NavigationView {
             VStack {
                 PrivacyPolicyView()
+                
                 Spacer()
-                Button(action: {
-                    self.agreed = true
-                    self.isPresented = false
-                }) {
+                
+                Button {
+                    agreed = true
+                    isPresented = false
+                } label: {
                     ZStack {
                         Color.main.cornerRadius(10)
+                        
                         Text("I have read and agree\nto the privacy policy")
                             .bold()
                             .multilineTextAlignment(.center)
@@ -33,12 +36,15 @@ struct AgreeToPrivacyPolicyView: View {
                     }
                     .fixedSize(horizontal: false, vertical: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
                 }
-                
             }
             .padding()
             .navigationBarTitle("Our Privacy Policy", displayMode: .inline)
-            .navigationBarItems(trailing: Button(action: {self.isPresented = false}) {Text("Back").bold()})
-            
+            .navigationBarItems(trailing: Button {
+                isPresented = false
+            } label: {
+                Text("Back")
+                .bold()
+            })
         }
         .accentColor(.main)
         .navigationViewStyle(StackNavigationViewStyle())

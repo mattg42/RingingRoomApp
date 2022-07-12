@@ -12,7 +12,7 @@ struct ResetPasswordView: View {
     
     @Environment(\.presentationMode) var presentationMode
         
-    @Binding var email:String
+    @Binding var email: String
     
     var body: some View {
         NavigationView {
@@ -42,7 +42,7 @@ struct ResetPasswordView: View {
         email = email.trimmingCharacters(in: .whitespaces).lowercased()
         let authenicationService = AuthenticationService()
         
-        await ErrorUtil.alertable {
+        await ErrorUtil.do {
             guard email.isValidEmail() else {
                 throw LoginError.emailNotValid
             }
