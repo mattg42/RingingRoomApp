@@ -165,3 +165,22 @@ Host mode can only be activated or deactivated by any hosts currently in the tow
         }
     }
 }
+
+struct HelpSectionView: View {
+    
+    let helpSection: HelpSection
+    
+    @Environment(\.isInSheet) var isInSheet: Bool
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(helpSection.helpText)
+                Spacer()
+            }
+        }
+        .conditionalDismiss(shouldDisplay: isInSheet)
+        .padding()
+        .navigationBarTitle(helpSection.title, displayMode: .inline)
+    }
+}
