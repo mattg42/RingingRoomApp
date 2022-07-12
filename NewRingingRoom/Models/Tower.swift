@@ -28,9 +28,8 @@ struct Tower {
     }
 }
 
-func convertToDate(_ str: String) -> Date {
+fileprivate func convertToDate(_ str: String) -> Date {
     let dateFormatter = DateFormatter()
-    print(str)
     dateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss"
     dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX") as Locale
     return dateFormatter.date(from: str)!

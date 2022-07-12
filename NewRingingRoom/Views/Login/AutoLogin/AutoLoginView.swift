@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct AutoLoginView: View {
-        
-    @EnvironmentObject var viewModel: LoginViewModel
     
-    @State private var autoJoinTowerID = 0
+    @EnvironmentObject var user: User
+    
+    @State private var autoJoinTowerID: Int?
     
     var body: some View {
         ZStack {
@@ -39,27 +39,24 @@ struct AutoLoginView: View {
     }
         
     func login() async {
+
+        let authenticationService = AuthenticationService()
         
-        guard viewModel.apiService.token == nil else { return }
-        
-        print("sent login request")
         let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
-                
-        do {
-            let password = try KeychainService.getPasswordFor(account: email, server: viewModel.apiService.domain )
-            User.shared.email = email
-            User.shared.password = password
-            print("retrieved password")
         
-            if autoJoinTowerID != 0 {
-                await viewModel.login(email: email, password: password, withTowerID: autoJoinTowerID)
-            } else {
-                await viewModel.login(email: email, password: password)
+        await ErrorUtil.alertable {
+            let password = try KeychainService.getPasswordFor(account: email, server: authenticationService.domain )
+            user.email = email
+            user.password = password
+            print("retrieved password")
+            
+            let token = try await authenticationService.login(email: email, password: password)
+            
+            if let towerID = autoJoinTowerID {
+                let apiService = APIService(token: token, region: authenticationService.region)
+                let details = try await apiService.getTowerDetails(towerID: towerID)
+                details.
             }
-        } catch let error as KeychainError {
-            AlertHandler.handle(error: error)
-        } catch {
-            fatalError("Impossible")
         }
     }
 }

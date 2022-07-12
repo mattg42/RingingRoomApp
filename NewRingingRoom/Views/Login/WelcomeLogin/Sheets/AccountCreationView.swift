@@ -10,9 +10,7 @@ import SwiftUI
 
 struct AccountCreationView: View {
     @Environment(\.presentationMode) var presentationMode
-    
-    @EnvironmentObject var viewModel: LoginViewModel
-    
+        
     @State private var isShowingPrivacyPolicy = false
     
     @State private var agreedToPrivacyPolicy = false
@@ -92,21 +90,14 @@ struct AccountCreationView: View {
             return
         }
         
-        let result = await viewModel.apiService.registerUser(username: username, email: email.lowercased(), password: password)
+        let authenticationService = AuthenticationService()
         
-        switch result {
-        case .success(let userModel):
-            User.shared.username = userModel.username
-            User.shared.email = userModel.email
-            User.shared.password = password
-            
+        await ErrorUtil.alertable {
+            try await authenticationService.registerUser(username: username, email: email.lowercased(), password: password)
             ThreadUtil.runInMain {
                 self.accountCreated = true
                 self.presentationMode.wrappedValue.dismiss()
             }
-            
-        case .failure(let error):
-            AlertHandler.handle(error: error)
         }
     }
 }
