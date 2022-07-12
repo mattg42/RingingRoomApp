@@ -33,6 +33,8 @@
 		341D39062722E5C000E340CF /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 341D39012722E5C000E340CF /* OFL.txt */; };
 		341D39072722E5C000E340CF /* Simonetta-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 341D39022722E5C000E340CF /* Simonetta-BlackItalic.ttf */; };
 		345052B72812C04200143E22 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345052B62812C04200143E22 /* MainView.swift */; };
+		3454CBA8287CC66700FB2495 /* AuthenicationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454CBA7287CC66700FB2495 /* AuthenicationService.swift */; };
+		3454CBAF287DABD800FB2495 /* ErrorUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454CBAE287DABD800FB2495 /* ErrorUtil.swift */; };
 		3454ED1F280C1E6E00C60E3C /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454ED1E280C1E6E00C60E3C /* APIError.swift */; };
 		3454ED21280C1E8C00C60E3C /* AlertData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454ED20280C1E8C00C60E3C /* AlertData.swift */; };
 		3454ED24280C1EED00C60E3C /* AlertHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454ED23280C1EED00C60E3C /* AlertHandler.swift */; };
@@ -43,10 +45,8 @@
 		3454ED2F280C9FBB00C60E3C /* LoginError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454ED2E280C9FBB00C60E3C /* LoginError.swift */; };
 		3471D43A26C18F9700A20FA8 /* LoginOverview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3471D43926C18F9700A20FA8 /* LoginOverview.swift */; };
 		3471D43C26C191E000A20FA8 /* AutoLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3471D43B26C191E000A20FA8 /* AutoLoginView.swift */; };
-		3471D43E26C192A600A20FA8 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3471D43D26C192A600A20FA8 /* LoginViewModel.swift */; };
 		34A22A6426C04D5600FE255C /* Bool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6326C04D5600FE255C /* Bool.swift */; };
 		34A22A6826C0564E00FE255C /* WelcomeLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */; };
-		34A22A6A26C0565800FE255C /* WelcomeLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6926C0565800FE255C /* WelcomeLoginViewModel.swift */; };
 		34B20F0826D05B9A00468F81 /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B20F0726D05B9A00468F81 /* Resolver.swift */; };
 		34BD256626BF0255000E932C /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BD256526BF0255000E932C /* Global.swift */; };
 /* End PBXBuildFile section */
@@ -80,6 +80,8 @@
 		341D39012722E5C000E340CF /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OFL.txt; sourceTree = "<group>"; };
 		341D39022722E5C000E340CF /* Simonetta-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Simonetta-BlackItalic.ttf"; sourceTree = "<group>"; };
 		345052B62812C04200143E22 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		3454CBA7287CC66700FB2495 /* AuthenicationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenicationService.swift; sourceTree = "<group>"; };
+		3454CBAE287DABD800FB2495 /* ErrorUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorUtil.swift; sourceTree = "<group>"; };
 		3454ED1E280C1E6E00C60E3C /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
 		3454ED20280C1E8C00C60E3C /* AlertData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertData.swift; sourceTree = "<group>"; };
 		3454ED23280C1EED00C60E3C /* AlertHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertHandler.swift; sourceTree = "<group>"; };
@@ -89,10 +91,8 @@
 		3454ED2E280C9FBB00C60E3C /* LoginError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LoginError.swift; path = NewRingingRoom/Views/Login/LoginError.swift; sourceTree = SOURCE_ROOT; };
 		3471D43926C18F9700A20FA8 /* LoginOverview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginOverview.swift; sourceTree = "<group>"; };
 		3471D43B26C191E000A20FA8 /* AutoLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoLoginView.swift; sourceTree = "<group>"; };
-		3471D43D26C192A600A20FA8 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		34A22A6326C04D5600FE255C /* Bool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bool.swift; sourceTree = "<group>"; };
 		34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeLoginView.swift; sourceTree = "<group>"; };
-		34A22A6926C0565800FE255C /* WelcomeLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeLoginViewModel.swift; sourceTree = "<group>"; };
 		34B20F0726D05B9A00468F81 /* Resolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
 		34BD256526BF0255000E932C /* Global.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -199,7 +199,6 @@
 				34A22A6626C0563500FE255C /* AutoLogin */,
 				3454ED2E280C9FBB00C60E3C /* LoginError.swift */,
 				3471D43926C18F9700A20FA8 /* LoginOverview.swift */,
-				3471D43D26C192A600A20FA8 /* LoginViewModel.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -240,6 +239,7 @@
 			isa = PBXGroup;
 			children = (
 				3454ED29280C3FD700C60E3C /* ThreadUtil.swift */,
+				3454CBAE287DABD800FB2495 /* ErrorUtil.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -292,6 +292,7 @@
 			children = (
 				341C9F4726B8851400EB093A /* HTTPClient.swift */,
 				3410D3492735A92D00B0C8EC /* APIService.swift */,
+				3454CBA7287CC66700FB2495 /* AuthenicationService.swift */,
 				3410D3482735A92D00B0C8EC /* APIModel.swift */,
 				3454ED1E280C1E6E00C60E3C /* APIError.swift */,
 				3454ED25280C280F00C60E3C /* Region.swift */,
@@ -312,7 +313,6 @@
 			isa = PBXGroup;
 			children = (
 				341D38E42722080B00E340CF /* Sheets */,
-				34A22A6926C0565800FE255C /* WelcomeLoginViewModel.swift */,
 				34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */,
 			);
 			path = WelcomeLogin;
@@ -418,22 +418,22 @@
 				341C9F4A26B885E500EB093A /* User.swift in Sources */,
 				341D38F82722D15B00E340CF /* ShareSheet.swift in Sources */,
 				345052B72812C04200143E22 /* MainView.swift in Sources */,
+				3454CBAF287DABD800FB2495 /* ErrorUtil.swift in Sources */,
 				341D38FC2722DB4D00E340CF /* NetworkStatus.swift in Sources */,
 				341D38EA272209EC00E340CF /* AgreeToPrivacyPolicyView.swift in Sources */,
 				3471D43C26C191E000A20FA8 /* AutoLoginView.swift in Sources */,
 				34BD256626BF0255000E932C /* Global.swift in Sources */,
 				341C9F4C26B8868A00EB093A /* Tower.swift in Sources */,
+				3454CBA8287CC66700FB2495 /* AuthenicationService.swift in Sources */,
 				3410D34B2735A92D00B0C8EC /* APIService.swift in Sources */,
 				34A22A6426C04D5600FE255C /* Bool.swift in Sources */,
 				341C9F4826B8851400EB093A /* HTTPClient.swift in Sources */,
-				3471D43E26C192A600A20FA8 /* LoginViewModel.swift in Sources */,
 				341D38E12721CECE00E340CF /* KeychainService.swift in Sources */,
 				341D38F62722CFFE00E340CF /* WebViewModel.swift in Sources */,
 				34A22A6826C0564E00FE255C /* WelcomeLoginView.swift in Sources */,
 				3454ED2F280C9FBB00C60E3C /* LoginError.swift in Sources */,
 				3454ED26280C280F00C60E3C /* Region.swift in Sources */,
 				341D38F42722CFFE00E340CF /* SwiftUIWebView.swift in Sources */,
-				34A22A6A26C0565800FE255C /* WelcomeLoginViewModel.swift in Sources */,
 				3454ED2A280C3FD700C60E3C /* ThreadUtil.swift in Sources */,
 				341C9F2C26B87C6900EB093A /* NewRingingRoomApp.swift in Sources */,
 				3454ED1F280C1E6E00C60E3C /* APIError.swift in Sources */,

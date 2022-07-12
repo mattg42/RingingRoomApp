@@ -36,15 +36,14 @@ struct NewRingingRoomApp: App {
     }
     
     @StateObject var router = AppRouter()
-    
-    let apiService = APIService()
-    
+    @StateObject var user = User()
+        
     var body: some Scene {
         WindowGroup {
             Group {
                 switch router.currentModule {
                 case .login:
-                    LoginOverview(apiService: apiService, router: router)
+                    LoginOverview()
                 case .main:
                     MainOverview()
                 case .ringing:
@@ -52,6 +51,8 @@ struct NewRingingRoomApp: App {
                 }
             }
             .tint(Color.main)
+            .environmentObject(router)
+            .environmentObject(user)
         }
     }
 }

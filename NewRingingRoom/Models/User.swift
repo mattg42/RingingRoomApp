@@ -8,16 +8,10 @@
 import Foundation
 
 class User: ObservableObject {
-    
-    static var shared = User()
-    
-    private init() {}
-    
     var email: String = ""
     var password: String = ""
     var username: String = ""
     var ringerID: String = ""
     
     var towers = [Tower]()
-    
 }

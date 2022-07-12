@@ -17,9 +17,7 @@ enum ActiveLoginSheet: Identifiable {
 }
 
 struct WelcomeLoginView: View {
-    
-    @EnvironmentObject var viewModel: LoginViewModel
-    
+        
     @Environment(\.colorScheme) var colorScheme
     
     var backgroundColor:Color {
@@ -32,6 +30,8 @@ struct WelcomeLoginView: View {
         }
     }
     
+    @State var authenicationService = AuthenticationService()
+    
     @State private var email = ""
     @State private var password = ""
     @State private var stayLoggedIn = false
@@ -42,7 +42,7 @@ struct WelcomeLoginView: View {
     @State private var validEmail = false
     @State private var validPassword = false
     
-    var loginDisabled:Bool {
+    private var loginDisabled:Bool {
         get {
             !(validEmail && validPassword)
         }
@@ -59,11 +59,12 @@ struct WelcomeLoginView: View {
     
     @State private var activeLoginSheet: ActiveLoginSheet? = nil
     
-    @State var showingServers = false
+    @State private var showingServers = false
     
     var body: some View {
         ZStack {
-            backgroundColor.edgesIgnoringSafeArea(.all) //background view
+            backgroundColor
+                .edgesIgnoringSafeArea(.all)
             VStack {
                 Group {
                     Spacer()
@@ -107,9 +108,9 @@ struct WelcomeLoginView: View {
                     content: {
                         VStack {
                             ForEach(Region.allCases.sorted(), id: \.self) { region in
-                                if region != viewModel.apiService.region {
+                                if region != authenicationService.region {
                                     Button(action: {
-                                        viewModel.apiService.region = region
+                                        authenicationService.region = region
                                         withAnimation {
                                             showingServers = false
                                         }
@@ -135,16 +136,14 @@ struct WelcomeLoginView: View {
                                     showingServers.toggle()
                                 }
                             }) {
-                                Text(viewModel.apiService.region.displayName)
+                                Text(authenicationService.region.displayName)
                             }
                         }
                         
                     }
                 )
-                Button {
-                    Task {
-                        await viewModel.login(email: email.lowercased(), password: password)
-                    }
+                AsyncButton {
+                    await login()
                 } label: {
                     ZStack {
                         Color.main
@@ -158,15 +157,19 @@ struct WelcomeLoginView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .disabled(loginDisabled)
                 HStack {
-                    Button(action: {
-                        self.activeLoginSheet = .forgotPassword; self.loginScreenIsActive = false
-                    }) {
+                    Button {
+                        self.activeLoginSheet = .forgotPassword
+                        self.loginScreenIsActive = false
+                    } label: {
                         Text("Forgot password?")
                             .font(.callout)
                     }
                     
                     Spacer()
-                    Button(action: { self.activeLoginSheet = .createAccount; self.loginScreenIsActive = false} ) {
+                    Button {
+                        self.activeLoginSheet = .createAccount
+                        self.loginScreenIsActive = false
+                    } label: {
                         Text("Create an account")
                             .font(.callout)
                     }
@@ -179,7 +182,7 @@ struct WelcomeLoginView: View {
             self.loginScreenIsActive = true
             if self.accountCreated {
                 Task {
-                    await self.viewModel.login(email: email, password: password)
+                    await login()
                 }
             }
         }, content: { item in
@@ -198,5 +201,11 @@ struct WelcomeLoginView: View {
                 UIApplication.shared.open(url)
             }
         })
+    }
+    
+    func login() async {
+        await ErrorUtil.alertable {
+            try await authenicationService.login(email: email.lowercased(), password: password)
+        }
     }
 }

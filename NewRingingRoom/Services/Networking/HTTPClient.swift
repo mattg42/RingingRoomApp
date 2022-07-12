@@ -10,12 +10,10 @@ import Combine
 import SwiftUI
 
 protocol HTTPClient {
-    var region: Region { get set }
-    var token: String? { get set }
-    
+    var region: Region { get }
     var domain: String { get }
-    
-    func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, auth: Bool, model: T.Type) async -> Result<T, APIError>
+        
+    func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, model: T.Type)  async throws -> T
 }
 
 extension HTTPClient {
@@ -24,7 +22,7 @@ extension HTTPClient {
         "\(region.server)ringingroom.com"
     }
     
-    func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON? = nil, headers: JSON? = nil, auth: Bool = true, model: T.Type) async -> Result<T, APIError> {
+    fileprivate func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON? = nil, headers: JSON? = nil, token: String? = nil, model: T.Type) async throws -> T {
         
         var components = URLComponents()
         components.scheme = "https"
@@ -32,17 +30,15 @@ extension HTTPClient {
         components.path = "/api/\(path)"
         
         guard let url = components.url else {
-            return .failure(.invalidURL(attemptedURL: "https://\(domain)/api/\(path)"))
+            throw APIError.invalidURL(attemptedURL: "https://\(domain)/api/\(path)")
         }
         
         var request = URLRequest(url: url)
         
         request.httpMethod = method.rawValue
         
-        if auth {
-            if let token = token {
-                request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            }
+        if let token = token {
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
         if let headers = headers {
@@ -64,24 +60,51 @@ extension HTTPClient {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse else {
-                return .failure(.noResponse)
+                throw APIError.noResponse
             }
             switch response.statusCode {
             case 200...299:
                 let decodedResponse = try JSONDecoder().decode(model, from: data)
-                return .success(decodedResponse)
+                return decodedResponse
             case 401:
-                return .failure(.unauthorized)
+                throw APIError.unauthorized
             default:
-                return .failure(.http(code: response.statusCode))
+                throw APIError.http(code: response.statusCode)
             }
         } catch let error as DecodingError {
-            return .failure(.decode(error: error))
+            throw APIError.decode(error: error)
         } catch let error as URLError {
-            return .failure(.url(error: error))
+            throw APIError.url(error: error)
+        } catch let error as APIError {
+            throw error
         } catch {
-            return .failure(.unknown(message: error.localizedDescription))
+            throw APIError.unknown(message: error.localizedDescription)
         }
+    }
+}
+
+protocol UnauthenticatedClient: HTTPClient {
+    var region: Region { get set }
+        
+    func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, model: T.Type)  async throws -> T
+}
+
+extension UnauthenticatedClient {
+    func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON? = nil, headers: JSON? = nil, model: T.Type)  async throws -> T {
+        try await request(path: path, method: method, json: json, headers: headers, token: nil, model: model)
+    }
+}
+
+protocol AuthenticatedClient: HTTPClient {
+    var region: Region { get }
+    
+    var token: String { get }
+    
+    func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, model: T.Type)  async throws -> T}
+
+extension AuthenticatedClient {
+    func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON? = nil, headers: JSON? = nil, model: T.Type)  async throws -> T {
+        try await request(path: path, method: method, json: json, headers: headers, token: token, model: model)
     }
 }
 
