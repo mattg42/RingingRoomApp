@@ -8,7 +8,7 @@
 import Foundation
 
 enum ErrorUtil {
-    static func alertable(_ closure: () async throws -> Void) async {
+    static func `do`(_ closure: () async throws -> Void) async {
         do {
             try await closure()
         } catch let error as Alertable {
@@ -18,7 +18,7 @@ enum ErrorUtil {
         }
     }
     
-    static func alertable(_ closure: () throws -> Void) {
+    static func `do`(_ closure: () throws -> Void) {
         do {
             try closure()
         } catch let error as Alertable {

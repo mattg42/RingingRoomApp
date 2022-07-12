@@ -16,12 +16,13 @@ struct AutoLoginView: View {
     var body: some View {
         ZStack {
             Color.main
+            
             HStack {
-                Image("rrLogo").resizable()
+                Image("rrLogo")
+                    .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 256, height: 256)
             }
-            
         }
         .edgesIgnoringSafeArea(.all)
         .onOpenURL(perform: { url in
@@ -44,7 +45,7 @@ struct AutoLoginView: View {
         
         let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
         
-        await ErrorUtil.alertable {
+        await ErrorUtil.do {
             let password = try KeychainService.getPasswordFor(account: email, server: authenticationService.domain )
             user.email = email
             user.password = password
@@ -55,7 +56,6 @@ struct AutoLoginView: View {
             if let towerID = autoJoinTowerID {
                 let apiService = APIService(token: token, region: authenticationService.region)
                 let details = try await apiService.getTowerDetails(towerID: towerID)
-                details.
             }
         }
     }

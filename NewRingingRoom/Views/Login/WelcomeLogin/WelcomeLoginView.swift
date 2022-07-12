@@ -20,13 +20,11 @@ struct WelcomeLoginView: View {
         
     @Environment(\.colorScheme) var colorScheme
     
-    var backgroundColor:Color {
-        get {
-            if colorScheme == .light {
-                return Color(red: 211/255, green: 209/255, blue: 220/255)
-            } else {
-                return Color(white: 0.085)
-            }
+    var backgroundColor: Color {
+        if colorScheme == .light {
+            return Color(red: 211/255, green: 209/255, blue: 220/255)
+        } else {
+            return Color(white: 0.085)
         }
     }
     
@@ -36,16 +34,13 @@ struct WelcomeLoginView: View {
     @State private var password = ""
     @State private var stayLoggedIn = false
     
-    @State private var autoJoinTower = false
     @State private var autoJoinTowerID = 0
     
     @State private var validEmail = false
     @State private var validPassword = false
     
-    private var loginDisabled:Bool {
-        get {
-            !(validEmail && validPassword)
-        }
+    private var loginDisabled: Bool {
+        !(validEmail && validPassword)
     }
     
     @State private var showingAccountCreationView = false
@@ -65,29 +60,38 @@ struct WelcomeLoginView: View {
         ZStack {
             backgroundColor
                 .edgesIgnoringSafeArea(.all)
+            
             VStack {
                 Group {
                     Spacer()
+                    
                     VStack {
                         Text("Welcome to")
+                        
                         Text("Ringing Room")
                             .font(Font.custom("Simonetta-Regular", size: 55, relativeTo: .title))
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                             .padding(.bottom, 1)
+                        
                         Text("A virtual belltower")
                     }
                 }
+                
                 Spacer()
+                
                 TextField("Email", text: $email)
                     .onChange(of: email, perform: { _ in
-                        validEmail = email.trimmingCharacters(in: .whitespaces).isValidEmail()
+                        validEmail = email
+                            .trimmingCharacters(in: .whitespaces)
+                            .isValidEmail()
                     })
                     .autocapitalization(.none)
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
                     .disableAutocorrection(true)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                
                 SecureField("Password", text: $password)
                     .onChange(of: password, perform: { _ in
                         validPassword = password.count > 0
@@ -101,47 +105,25 @@ struct WelcomeLoginView: View {
                     Text("Keep me logged in")
                 }
                 .toggleStyle(SwitchToggleStyle(tint: .main))
-                DisclosureGroup(
+                
+                HStack {
+                    Text("Server")
                     
-                    isExpanded: $showingServers,
+                    Spacer()
                     
-                    content: {
-                        VStack {
-                            ForEach(Region.allCases.sorted(), id: \.self) { region in
-                                if region != authenicationService.region {
-                                    Button(action: {
-                                        authenicationService.region = region
-                                        withAnimation {
-                                            showingServers = false
-                                        }
-                                    }) {
-                                        HStack {
-                                            Spacer()
-                                            
-                                            Text(region.displayName)
-                                        }
-                                    }
-                                }
-                            }
-                            .padding(.top, 1)
+                    Picker(authenicationService.region.displayName, selection: Binding {
+                        authenicationService.region
+                    } set: { newRegion in
+                        authenicationService.region = newRegion
+                    }) {
+                        ForEach(Region.allCases.sorted(), id: \.self) { region in
+                            Text(region.displayName)
                         }
-                        .padding(.top, 5)
-                    },
-                    label: {
-                        HStack {
-                            Text("Server")
-                            Spacer()
-                            Button(action: {
-                                withAnimation {
-                                    showingServers.toggle()
-                                }
-                            }) {
-                                Text(authenicationService.region.displayName)
-                            }
-                        }
-                        
+                        .padding(.top, 1)
                     }
-                )
+                    .pickerStyle(.menu)
+                }
+                
                 AsyncButton {
                     await login()
                 } label: {
@@ -156,19 +138,21 @@ struct WelcomeLoginView: View {
                 }
                 .fixedSize(horizontal: false, vertical: true)
                 .disabled(loginDisabled)
+                
                 HStack {
                     Button {
-                        self.activeLoginSheet = .forgotPassword
-                        self.loginScreenIsActive = false
+                        activeLoginSheet = .forgotPassword
+                        loginScreenIsActive = false
                     } label: {
                         Text("Forgot password?")
                             .font(.callout)
                     }
                     
                     Spacer()
+                    
                     Button {
-                        self.activeLoginSheet = .createAccount
-                        self.loginScreenIsActive = false
+                        activeLoginSheet = .createAccount
+                        loginScreenIsActive = false
                     } label: {
                         Text("Create an account")
                             .font(.callout)
@@ -179,8 +163,8 @@ struct WelcomeLoginView: View {
             .padding()
         }
         .sheet(item: $activeLoginSheet, onDismiss: {
-            self.loginScreenIsActive = true
-            if self.accountCreated {
+            loginScreenIsActive = true
+            if accountCreated {
                 Task {
                     await login()
                 }
@@ -188,10 +172,10 @@ struct WelcomeLoginView: View {
         }, content: { item in
             switch item {
             case .forgotPassword:
-                ResetPasswordView(email: self.$email)
+                ResetPasswordView(email: $email)
                     .accentColor(Color.main)
             case .createAccount:
-                AccountCreationView(email: self.$email, password: self.$password, accountCreated: self.$accountCreated)
+                AccountCreationView(email: $email, password: $password, accountCreated: $accountCreated)
             }
         })
         .onOpenURL(perform: { url in
@@ -204,8 +188,10 @@ struct WelcomeLoginView: View {
     }
     
     func login() async {
-        await ErrorUtil.alertable {
-            try await authenicationService.login(email: email.lowercased(), password: password)
+        await ErrorUtil.do {
+            let token = try await authenicationService.login(email: email.lowercased(), password: password)
+            print(token)
+            let apiService = APIService(token: token, region: authenicationService.region)
         }
     }
 }

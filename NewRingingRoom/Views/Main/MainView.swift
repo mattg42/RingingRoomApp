@@ -7,15 +7,62 @@
 
 import SwiftUI
 
+enum TabViewType {
+    case ring, help, store, settings
+}
+
 struct MainView: View {
-    var body: some View {
-        Text("main")
-            .task {
-                await setupUserAndTowers()
-            }
-    }
     
-    func setupUserAndTowers() async {
-        
+    @State var showingPrivacyPolicyView = false
+    
+    var body: some View {
+        TabView {
+            RingView()
+                .tag(TabViewType.ring)
+                .tabItem {
+                    Image(systemName: "list.bullet")
+                        .font(.title)
+                    Text("Towers")
+                }
+//            StoreView()
+//                .tag(TabViewType.store)
+//                .tabItem {
+//                    Image(systemName: "cart")
+//                        .font(.title)
+//                    Text("Store")
+//                }
+//            HelpView(asSheet: false, isPresented: self.$isPresentingHelpView)
+//                .tag(TabViewType.help)
+//                .tabItem {
+//                    Image(systemName: "questionmark.circle")
+//                        .font(.title)
+//                    Text("Help")
+//                }
+//            AccountView()
+//                .tag(TabViewType.settings)
+//                .tabItem {
+//                    Image(systemName: "person.crop.circle.fill")
+//                        .font(.title)
+//                    Text("Account")
+//                }
+        }
+        .sheet(isPresented: $showingPrivacyPolicyView, content: {
+            PrivacyPolicyWebView(isPresented: $showingPrivacyPolicyView)
+            
+        })
+//        .onOpenURL(perform: { url in
+//            let pathComponents = url.pathComponents.dropFirst()
+//            print(pathComponents)
+//            if let firstPath = pathComponents.first {
+//                if firstPath == "privacy" {
+//                    showingPrivacyPolicyView = true
+//                } else if let towerID = Int(firstPath) {
+//                    if NetworkManager.token != nil {
+//                        joinTower(id: towerID)
+//                    }
+//                }
+//            }
+//        })
+        .accentColor(Color.main)
     }
 }
