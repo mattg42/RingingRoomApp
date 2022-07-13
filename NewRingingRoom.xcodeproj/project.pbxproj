@@ -32,6 +32,11 @@
 		341D39052722E5C000E340CF /* Simonetta-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 341D39002722E5C000E340CF /* Simonetta-Italic.ttf */; };
 		341D39062722E5C000E340CF /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 341D39012722E5C000E340CF /* OFL.txt */; };
 		341D39072722E5C000E340CF /* Simonetta-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 341D39022722E5C000E340CF /* Simonetta-BlackItalic.ttf */; };
+		3435AD86287EFE6F00C8CF41 /* TowerInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3435AD85287EFE6F00C8CF41 /* TowerInfo.swift */; };
+		3435AD88287F02AF00C8CF41 /* BellCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3435AD87287F02AE00C8CF41 /* BellCircle.swift */; };
+		3435AD8A287F061500C8CF41 /* Ringer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3435AD89287F061500C8CF41 /* Ringer.swift */; };
+		3435AD8C287F0BE800C8CF41 /* SocketIOService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3435AD8B287F0BE800C8CF41 /* SocketIOService.swift */; };
+		3435AD8E287F196100C8CF41 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3435AD8D287F196100C8CF41 /* Message.swift */; };
 		345052B72812C04200143E22 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345052B62812C04200143E22 /* MainView.swift */; };
 		3454CBA8287CC66700FB2495 /* AuthenicationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454CBA7287CC66700FB2495 /* AuthenicationService.swift */; };
 		3454CBAF287DABD800FB2495 /* ErrorUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454CBAE287DABD800FB2495 /* ErrorUtil.swift */; };
@@ -90,6 +95,12 @@
 		341D39002722E5C000E340CF /* Simonetta-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Simonetta-Italic.ttf"; sourceTree = "<group>"; };
 		341D39012722E5C000E340CF /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OFL.txt; sourceTree = "<group>"; };
 		341D39022722E5C000E340CF /* Simonetta-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Simonetta-BlackItalic.ttf"; sourceTree = "<group>"; };
+		3435AD84287E3AF300C8CF41 /* NewRingingRoom copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "NewRingingRoom copy-Info.plist"; path = "/Users/matthew/Library/Mobile Documents/com~apple~CloudDocs/Xcode/Xcode Projects/NewRingingRoom/NewRingingRoomXC/NewRingingRoom copy-Info.plist"; sourceTree = "<absolute>"; };
+		3435AD85287EFE6F00C8CF41 /* TowerInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TowerInfo.swift; sourceTree = "<group>"; };
+		3435AD87287F02AE00C8CF41 /* BellCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BellCircle.swift; sourceTree = "<group>"; };
+		3435AD89287F061500C8CF41 /* Ringer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ringer.swift; sourceTree = "<group>"; };
+		3435AD8B287F0BE800C8CF41 /* SocketIOService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketIOService.swift; sourceTree = "<group>"; };
+		3435AD8D287F196100C8CF41 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		345052B62812C04200143E22 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		3454CBA7287CC66700FB2495 /* AuthenicationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenicationService.swift; sourceTree = "<group>"; };
 		3454CBAE287DABD800FB2495 /* ErrorUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorUtil.swift; sourceTree = "<group>"; };
@@ -137,6 +148,7 @@
 				341D38FD2722E5C000E340CF /* Simonetta */,
 				341C9F2A26B87C6900EB093A /* NewRingingRoom */,
 				341C9F2926B87C6900EB093A /* Products */,
+				3435AD84287E3AF300C8CF41 /* NewRingingRoom copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -196,6 +208,7 @@
 			isa = PBXGroup;
 			children = (
 				341D38E02721CECE00E340CF /* KeychainService.swift */,
+				3435AD8B287F0BE800C8CF41 /* SocketIOService.swift */,
 				341D38FB2722DB4D00E340CF /* NetworkStatus.swift */,
 				3454ED22280C1ED800C60E3C /* Errors */,
 				3454ED1D280C1E5900C60E3C /* Networking */,
@@ -253,7 +266,11 @@
 			isa = PBXGroup;
 			children = (
 				341C9F4926B885E500EB093A /* User.swift */,
+				3435AD8D287F196100C8CF41 /* Message.swift */,
 				341C9F4B26B8868A00EB093A /* Tower.swift */,
+				3435AD87287F02AE00C8CF41 /* BellCircle.swift */,
+				3435AD89287F061500C8CF41 /* Ringer.swift */,
+				3435AD85287EFE6F00C8CF41 /* TowerInfo.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -462,6 +479,7 @@
 				3454ED24280C1EED00C60E3C /* AlertHandler.swift in Sources */,
 				341D38E72722082100E340CF /* AccountCreationView.swift in Sources */,
 				341D38EF2722CFB100E340CF /* PrivacyPolicyView.swift in Sources */,
+				3435AD8E287F196100C8CF41 /* Message.swift in Sources */,
 				3454ED28280C39CB00C60E3C /* AsyncButton.swift in Sources */,
 				3454CBC1287DFC1D00FB2495 /* QuickStartGuide.swift in Sources */,
 				3454CBC5287DFC6900FB2495 /* FAQs.swift in Sources */,
@@ -469,6 +487,7 @@
 				3471D43A26C18F9700A20FA8 /* LoginOverview.swift in Sources */,
 				341C9F4A26B885E500EB093A /* User.swift in Sources */,
 				341D38F82722D15B00E340CF /* ShareSheet.swift in Sources */,
+				3435AD88287F02AF00C8CF41 /* BellCircle.swift in Sources */,
 				345052B72812C04200143E22 /* MainView.swift in Sources */,
 				3454CBAF287DABD800FB2495 /* ErrorUtil.swift in Sources */,
 				341D38FC2722DB4D00E340CF /* NetworkStatus.swift in Sources */,
@@ -484,6 +503,7 @@
 				341C9F4826B8851400EB093A /* HTTPClient.swift in Sources */,
 				341D38E12721CECE00E340CF /* KeychainService.swift in Sources */,
 				3454CBBF287DF46000FB2495 /* HelpSection.swift in Sources */,
+				3435AD8A287F061500C8CF41 /* Ringer.swift in Sources */,
 				3454CBBD287DEAE100FB2495 /* AboutView.swift in Sources */,
 				341D38F62722CFFE00E340CF /* WebViewModel.swift in Sources */,
 				34A22A6826C0564E00FE255C /* WelcomeLoginView.swift in Sources */,
@@ -496,9 +516,11 @@
 				3454CBB8287DD31800FB2495 /* AccountView.swift in Sources */,
 				3454ED1F280C1E6E00C60E3C /* APIError.swift in Sources */,
 				3454ED21280C1E8C00C60E3C /* AlertData.swift in Sources */,
+				3435AD86287EFE6F00C8CF41 /* TowerInfo.swift in Sources */,
 				341D38E82722082100E340CF /* ResetPasswordView.swift in Sources */,
 				3454CBB4287DD2BC00FB2495 /* StoreView.swift in Sources */,
 				3454CBBA287DE38300FB2495 /* MailView.swift in Sources */,
+				3435AD8C287F0BE800C8CF41 /* SocketIOService.swift in Sources */,
 				341D38F52722CFFE00E340CF /* WebView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -632,6 +654,7 @@
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = NewRingingRoom/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TestApp;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -654,6 +677,7 @@
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = NewRingingRoom/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TestApp;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
