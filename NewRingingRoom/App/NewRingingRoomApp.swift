@@ -25,7 +25,7 @@ enum AppModule {
 }
 
 @main
-struct NewRingingRoomApp: App {
+struct TestApp: App {
         
     init() {
         let freshInstall = !UserDefaults.standard.bool(forKey: "alreadyInstalled")

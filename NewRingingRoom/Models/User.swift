@@ -7,11 +7,11 @@
 
 import Foundation
 
-class User: ObservableObject {
-    var email: String = ""
-    var password: String = ""
-    var username: String = ""
-    var ringerID: String = ""
+struct User {
+    var email: String
+    var password: String
     
-    var towers = [Tower]()
+    var ringer: Ringer
+    
+    var towers: [Tower]
 }

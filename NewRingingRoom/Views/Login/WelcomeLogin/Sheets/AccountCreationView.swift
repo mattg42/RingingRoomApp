@@ -104,8 +104,8 @@ struct AccountCreationView: View {
         await ErrorUtil.do {
             try await authenticationService.registerUser(username: username, email: email.lowercased(), password: password)
             ThreadUtil.runInMain {
-                self.accountCreated = true
-                self.presentationMode.wrappedValue.dismiss()
+                accountCreated = true
+                dismiss()
             }
         }
     }

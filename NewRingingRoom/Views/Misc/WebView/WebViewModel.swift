@@ -14,10 +14,10 @@ import SwiftUI
 class WebViewModel: ObservableObject {
     var estimatedProgress: Double = 0.0 {
         didSet {
-            DispatchQueue.main.async { [self] in
-                if estimatedProgress >= 1.0 {
+            DispatchQueue.main.async { [weak self] in
+                if self?.estimatedProgress ?? 1 >= 1.0 {
                     withAnimation(.linear(duration: 0.3)) {
-                        self.progress = 1
+                        self?.progress = 1
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: { [weak self] in
                         withAnimation(.linear(duration: 0.2)) {
@@ -29,9 +29,9 @@ class WebViewModel: ObservableObject {
                     })
                     
                 } else {
-                    alpha = 1.0
+                    self?.alpha = 1.0
                     withAnimation {
-                        progress = estimatedProgress
+                        self?.progress = self?.estimatedProgress ?? 1
                     }
                 }
             }

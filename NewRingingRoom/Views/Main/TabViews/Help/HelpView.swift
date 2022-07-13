@@ -10,7 +10,8 @@ import SwiftUI
 import Combine
 
 struct HelpView: View {
-    @Environment(\.isInSheet) var isInSheet: Bool
+    
+    let asSheet: Bool
     
     var body: some View {
         NavigationView {
@@ -25,7 +26,8 @@ struct HelpView: View {
                 }
             }
             .navigationBarTitle("Help")
-            .conditionalDismiss(shouldDisplay: isInSheet)
+            .conditionalDismiss(shouldDisplay: asSheet)
+            .isInSheet(asSheet)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }

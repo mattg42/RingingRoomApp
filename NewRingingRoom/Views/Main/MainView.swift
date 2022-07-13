@@ -24,20 +24,20 @@ struct MainView: View {
                         .font(.title)
                     Text("Towers")
                 }
-//            StoreView()
-//                .tag(TabViewType.store)
-//                .tabItem {
-//                    Image(systemName: "cart")
-//                        .font(.title)
-//                    Text("Store")
-//                }
-//            HelpView(asSheet: false, isPresented: self.$isPresentingHelpView)
-//                .tag(TabViewType.help)
-//                .tabItem {
-//                    Image(systemName: "questionmark.circle")
-//                        .font(.title)
-//                    Text("Help")
-//                }
+            StoreView()
+                .tag(TabViewType.store)
+                .tabItem {
+                    Image(systemName: "cart")
+                        .font(.title)
+                    Text("Store")
+                }
+            HelpView(asSheet: false)
+                .tag(TabViewType.help)
+                .tabItem {
+                    Image(systemName: "questionmark.circle")
+                        .font(.title)
+                    Text("Help")
+                }
 //            AccountView()
 //                .tag(TabViewType.settings)
 //                .tabItem {
