@@ -20,6 +20,8 @@ struct WelcomeLoginView: View {
         
     @Environment(\.colorScheme) var colorScheme
     
+    @EnvironmentObject var appRouter: AppRouter
+    
     var backgroundColor: Color {
         if colorScheme == .light {
             return Color(red: 211/255, green: 209/255, blue: 220/255)
@@ -28,7 +30,7 @@ struct WelcomeLoginView: View {
         }
     }
     
-    @State var authenicationService = AuthenticationService()
+    @State var authenticationService = AuthenticationService()
     
     @State private var email = ""
     @State private var password = ""
@@ -49,9 +51,7 @@ struct WelcomeLoginView: View {
     @State private var loginScreenIsActive = true
     
     @State private var accountCreated = false
-    
-    var monitor = NetworkStatus.shared.monitor
-    
+        
     @State private var activeLoginSheet: ActiveLoginSheet? = nil
     
     @State private var showingServers = false
@@ -111,10 +111,10 @@ struct WelcomeLoginView: View {
                     
                     Spacer()
                     
-                    Picker(authenicationService.region.displayName, selection: Binding {
-                        authenicationService.region
+                    Picker(authenticationService.region.displayName, selection: Binding {
+                        authenticationService.region
                     } set: { newRegion in
-                        authenicationService.region = newRegion
+                        authenticationService.region = newRegion
                     }) {
                         ForEach(Region.allCases.sorted(), id: \.self) { region in
                             Text(region.displayName)
@@ -189,9 +189,16 @@ struct WelcomeLoginView: View {
     
     func login() async {
         await ErrorUtil.do {
-            let token = try await authenicationService.login(email: email.lowercased(), password: password)
-            print(token)
-            let apiService = APIService(token: token, region: authenicationService.region)
+            let (user, apiService) = try await authenticationService.login(email: email.lowercased(), password: password)
+            
+            UserDefaults.standard.set(stayLoggedIn, forKey: "keepMeLoggedIn")
+            
+            if stayLoggedIn {
+                UserDefaults.standard.set(email, forKey: "userEmail")
+                try KeychainService.storePasswordFor(account: email, password: password, server: authenticationService.domain)
+            }
+            
+            appRouter.moveTo(.main(user: user, apiService: apiService))
         }
     }
 }

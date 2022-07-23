@@ -21,7 +21,9 @@ public enum AlertHandler {
                 action()
             }))
         }
-        UIApplication.shared.keyWindowPresentedController?.present(ac, animated: true, completion: nil)
+        ThreadUtil.runInMain {
+            UIApplication.shared.keyWindowPresentedController?.present(ac, animated: true, completion: nil)
+        }
     }
     
     static func handle(error: Alertable) {
@@ -29,7 +31,7 @@ public enum AlertHandler {
     }
 }
 
-fileprivate extension UIApplication {
+extension UIApplication {
     
     var keyWindow: UIWindow? {
         // Get connected scenes
@@ -68,4 +70,7 @@ fileprivate extension UIApplication {
         return viewController
     }
     
+    var orientation: UIInterfaceOrientation? {
+        keyWindow?.windowScene?.interfaceOrientation
+    }
 }

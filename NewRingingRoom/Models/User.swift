@@ -10,8 +10,7 @@ import Foundation
 struct User {
     var email: String
     var password: String
-    
-    var ringer: Ringer
+    var username: String
     
     var towers: [Tower]
 }

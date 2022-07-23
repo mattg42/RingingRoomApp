@@ -14,4 +14,8 @@ public extension String {
         let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
         return emailPred.evaluate(with: self)
     }
+    
+    mutating func prefix(_ prefix:String) {
+        self = prefix + self
+    }
 }

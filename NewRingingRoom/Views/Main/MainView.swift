@@ -17,7 +17,7 @@ struct MainView: View {
     
     var body: some View {
         TabView {
-            RingView()
+            TowersView()
                 .tag(TabViewType.ring)
                 .tabItem {
                     Image(systemName: "list.bullet")

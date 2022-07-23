@@ -35,7 +35,7 @@ struct AuthenticationService: UnauthenticatedClient {
         )
     }
     
-    func login(email: String, password: String) async throws -> String {
+    func getToken(email: String, password: String) async throws -> String {
         let utf8str = "\(email.lowercased()):\(password)".data(using: .utf8)
         
         if let base64Encoded = utf8str?.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0)) {
@@ -49,5 +49,15 @@ struct AuthenticationService: UnauthenticatedClient {
         } else {
             throw APIError.encode
         }
+    }
+    
+    func login(email: String, password: String) async throws -> (User, APIService) {
+        let token = try await getToken(email: email.lowercased(), password: password)
+        let apiService = APIService(token: token, region: region)
+        
+        let towers = try await apiService.getTowers()
+        let userDetails = try await apiService.getUserDetails()
+        let user = User(email: email, password: password, username: userDetails.username, towers: towers)
+        return (user, apiService)
     }
 }

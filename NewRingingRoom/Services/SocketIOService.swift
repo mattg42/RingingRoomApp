@@ -22,7 +22,7 @@ class SocketIOService {
     private let manager: SocketManager
     private let socket: SocketIOClient
     
-    weak var delegate: BellCircleDelegate?
+    weak var delegate: SocketIODelegate?
     
     init(url: URL) {
         manager = SocketManager(socketURL: url)
@@ -30,34 +30,32 @@ class SocketIOService {
         setupListeners()
     }
     
-    func connect() {
+    func connect(completion: @escaping () -> ()) {
+        socket.on(clientEvent: .connect) { _, _ in
+            completion()
+        }
+        
         socket.connect()
     }
     
-    private let jsonDecoder = JSONDecoder()
-    
-    private func createRingerFrom(dict: [String: Any]) throws -> Ringer {
-        let jsonData = try JSONSerialization.data(withJSONObject: dict)
-        let newUser = try jsonDecoder.decode(Ringer.self, from: jsonData)
-        return newUser
+    func disconnect() {
+        socket.disconnect()
     }
     
     private func setupListeners() {
-        socket.on(clientEvent: .connect) {[weak self]  _, _ in
-            self?.delegate?.didConnectToServer()
+ 
+        socket.onAny { event in
+            print(event.event)
         }
         
         listen(for: "s_user_entered") { [weak self] data in
-            guard let user = try self?.createRingerFrom(dict: data) else {
-                fatalError("self not available")
-            }
+            let user = Ringer(from: data)
             self?.delegate?.userDidEnter(user)
         }
         
         listen(for: "s_user_left") { [weak self] data in
-            guard let user = try self?.createRingerFrom(dict: data) else {
-                fatalError("self not available")
-            }
+            let user = Ringer(from: data)
+
             self?.delegate?.userDidLeave(user)
         }
         
@@ -68,15 +66,17 @@ class SocketIOService {
         
         listen(for: "s_set_userlist") { [weak self] data in
             let userList = data["user_list"] as! [[String: Any]]
-
-            self?.delegate?.didReceiveUserList(
-                try userList.map { dict in
-                    guard let user = try self?.createRingerFrom(dict: dict) else {
-                        fatalError("self not available")
-                    }
-                    return user
-                }
-            )
+            for newRinger in userList {
+                let ringerID = newRinger["user_id"] as! Int
+                let name = newRinger["username"] as! String
+                self?.delegate?.userDidEnter(Ringer(name: name, id: ringerID))
+            }
+//            self?.delegate?.didReceiveUserList(
+//                userList.map { dict in
+//                    let user = Ringer(from: data)
+//                    return user
+//                }
+//            )
         }
         
         listen(for: "s_bell_rung") { [weak self] data in
@@ -91,7 +91,7 @@ class SocketIOService {
         
         listen(for: "s_assign_user") { [weak self] data in
             let bell = data["bell"] as! Int
-            let userID = data["user"] as! Int
+            let userID = (data["user"] as? Int) ?? 0
             self?.delegate?.didAssign(ringerID: userID, to: bell)
         }
         
@@ -125,14 +125,15 @@ class SocketIOService {
     
     func send(event: String, with data: SocketData) {
         socket.emit(event, data)
+        print("sent event \(event) with data \(data)")
     }
     
-    private func listen(for event: String, callback: @escaping ([String: Any]) throws -> Void) {
+    func listen(for event: String, callback: @escaping ([String: Any]) throws -> Void) {
         socket.on(event) { data, _ in
             do {
                 try callback(data[0] as! [String: Any])
             } catch {
-                AlertHandler.presentAlert(title: "SocketIO error", message: "Error: \(error.localizedDescription). Please screenshot and send to ringingroomapp@gmail.com.", dismiss: .cancel(title: "OK", action: nil))
+                AlertHandler.presentAlert(title: "SocketIO error", message: "Error: \(error.localizedDescription) Please screenshot and send to ringingroomapp@gmail.com.", dismiss: .cancel(title: "OK", action: nil))
             }
         }
     }
