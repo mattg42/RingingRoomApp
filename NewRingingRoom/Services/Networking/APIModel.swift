@@ -20,13 +20,14 @@ enum APIModel {
         var visited: String
     }
     
-    struct TowerInfo: Decodable {
-        var tower_id: String
+    struct TowerDetails: Decodable {
+        var tower_id: Int
         var tower_name: String
         var server_address: String
         var additional_sizes_enabled: Bool
         var host_mode_permitted: Bool
         var half_muffled: Bool
+        var fully_muffled: Bool
     }
     
     struct User: Decodable {

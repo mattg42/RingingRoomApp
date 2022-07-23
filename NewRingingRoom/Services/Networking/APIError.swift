@@ -20,7 +20,7 @@ enum APIError: Error, Alertable {
     var alertData: AlertData {
         switch self {
         case .decode(let error):
-            return AlertData(title: "Decoding error", message: "There was an error decoding the server response: \(error.localizedDescription). Please make sure the app is updated.")
+            return AlertData(title: "Decoding error", message: "There was an error decoding the server response: \(error.localizedDescription) Please make sure the app is updated.")
         case .url(let error):
             return AlertData(title: "Couldn't reach server", message: "There was an error reaching the server: \(error.localizedDescription)")
         case .invalidURL(let url):

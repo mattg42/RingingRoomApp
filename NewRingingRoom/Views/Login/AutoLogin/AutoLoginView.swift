@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct AutoLoginView: View {
-    
-    @EnvironmentObject var user: User
+        
+    @EnvironmentObject var appRouter: AppRouter
     
     @State private var autoJoinTowerID: Int?
     
@@ -47,16 +47,8 @@ struct AutoLoginView: View {
         
         await ErrorUtil.do {
             let password = try KeychainService.getPasswordFor(account: email, server: authenticationService.domain )
-            user.email = email
-            user.password = password
-            print("retrieved password")
-            
-            let token = try await authenticationService.login(email: email, password: password)
-            
-            if let towerID = autoJoinTowerID {
-                let apiService = APIService(token: token, region: authenticationService.region)
-                let details = try await apiService.getTowerDetails(towerID: towerID)
-            }
+            let (user, apiService) = try await authenticationService.login(email: email.lowercased(), password: password)
+            appRouter.moveTo(.main(user: user, apiService: apiService))
         }
     }
 }

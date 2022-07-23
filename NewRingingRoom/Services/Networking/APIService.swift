@@ -18,13 +18,16 @@ struct APIService: AuthenticatedClient {
             .map { tower in
                 Tower(towerModel: tower)
             }
+            .sorted(by: {
+                $0.visited > $1.visited
+            })
     }
     
     func getUserDetails() async throws -> APIModel.User {
         try await request(path: "user", method: .get, model: APIModel.User.self)
     }
     
-    func getTowerDetails(towerID: Int) async throws -> APIModel.TowerInfo {
-        try await request(path: "tower/\(towerID)", method: .get, model: APIModel.TowerInfo.self)
+    func getTowerDetails(towerID: Int) async throws -> APIModel.TowerDetails {
+        try await request(path: "tower/\(towerID)", method: .get, model: APIModel.TowerDetails.self)
     }
 }

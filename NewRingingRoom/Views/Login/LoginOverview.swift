@@ -15,7 +15,15 @@ enum LoginState {
 
 struct LoginOverview: View {
     
-    @State var loginState: LoginState = .welcome
+    init(_ loginState: LoginState? = nil) {
+        if let loginState {
+            self.loginState = loginState
+        } else {
+            self.loginState = UserDefaults.standard.bool(forKey: "keepMeLoggedIn") ? .auto : .welcome
+        }
+    }
+    
+    let loginState: LoginState
     
     var body: some View {
         Group {
