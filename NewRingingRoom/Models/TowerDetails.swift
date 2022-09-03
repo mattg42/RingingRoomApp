@@ -34,12 +34,12 @@ struct TowerInfo {
         self.serverAddress = towerDetails.server_address
         self.towerID = towerDetails.tower_id
         self.towerName = towerDetails.tower_name
-        if towerDetails.fully_muffled {
-            muffled = .full
-        } else if towerDetails.half_muffled {
-            muffled = .half
-        } else {
+//        if towerDetails.fully_muffled {
+//            muffled = .full
+//        } else if towerDetails.half_muffled {
+//            muffled = .half
+//        } else {
             muffled = .none
-        }
+//        }
     }
 }

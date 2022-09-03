@@ -65,18 +65,13 @@ class SocketIOService {
         }
         
         listen(for: "s_set_userlist") { [weak self] data in
-            let userList = data["user_list"] as! [[String: Any]]
-            for newRinger in userList {
-                let ringerID = newRinger["user_id"] as! Int
-                let name = newRinger["username"] as! String
-                self?.delegate?.userDidEnter(Ringer(name: name, id: ringerID))
-            }
-//            self?.delegate?.didReceiveUserList(
-//                userList.map { dict in
-//                    let user = Ringer(from: data)
-//                    return user
-//                }
-//            )
+            let userList = (data["user_list"] as! [[String: Any]])
+                .reduce(into: [Int: Ringer]()) { partialResult, newRinger in
+                    let ringer = Ringer(from: newRinger)
+                    partialResult[ringer.ringerID] = ringer
+                }
+            
+            self?.delegate?.didReceiveUserList(userList)
         }
         
         listen(for: "s_bell_rung") { [weak self] data in

@@ -110,18 +110,23 @@ struct WelcomeLoginView: View {
                     Text("Server")
                     
                     Spacer()
-                    
-                    Picker(authenticationService.region.displayName, selection: Binding {
-                        authenticationService.region
-                    } set: { newRegion in
-                        authenticationService.region = newRegion
-                    }) {
-                        ForEach(Region.allCases.sorted(), id: \.self) { region in
-                            Text(region.displayName)
+                    Menu(authenticationService.region.displayName) {
+                        ForEach(Region.allCases.sorted()) { region in
+                            Image
+                            Button(region.displayName) {
+                                authenticationService.region = region
+                            }
                         }
                         .padding(.top, 1)
                     }
-                    .pickerStyle(.menu)
+//                    Picker(authenticationService.region.displayName, selection: Binding {
+//                        authenticationService.region
+//                    } set: { newRegion in
+//                        authenticationService.region = newRegion
+//                    }) {
+//
+//                    }
+//                    .pickerStyle(.menu)
                 }
                 
                 AsyncButton {

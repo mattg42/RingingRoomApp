@@ -78,8 +78,6 @@ struct AudioService {
     let starling = Starling()
     
     init() {
-
-        
         loadSounds()
     }
     

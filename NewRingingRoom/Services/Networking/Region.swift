@@ -7,7 +7,9 @@
 
 import Foundation
 
-enum Region: CaseIterable, Comparable {
+enum Region: CaseIterable, Comparable, Identifiable {
+    var id: Self { self }
+    
     case anzab, na, sg, uk
 }
 

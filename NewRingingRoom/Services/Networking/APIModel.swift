@@ -27,7 +27,7 @@ enum APIModel {
         var additional_sizes_enabled: Bool
         var host_mode_permitted: Bool
         var half_muffled: Bool
-        var fully_muffled: Bool
+//        var fully_muffled: Bool
     }
     
     struct User: Decodable {
