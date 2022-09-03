@@ -2,265 +2,228 @@
 //  RopeCircleView.swift
 //  NewRingingRoom
 //
-//  Created by Matthew on 14/07/2022.
+//  Created by Matthew on 19/08/2022.
 //
 
 import SwiftUI
 
-struct RopeCircle:View {
+struct RopeCircleView: View {
     
-    let orientationChanged = NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
-        .makeConnectable()
-        .autoconnect()
+    @EnvironmentObject var viewModel: RingingRoomViewModel
     
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    @Environment(\.verticalSizeClass) var verticalSizeClass
-    
-    @Environment(\.colorScheme) var colorScheme
-    
-    var backgroundColor:Color {
-        get {
-            if colorScheme == .light {
-                return Color(red: 211/255, green: 209/255, blue: 220/255)
-            } else {
-                return Color(white: 0.085)
-            }
-        }
-    }
-    
-    @EnvironmentObject var ringingRoomViewModel: RingingRoomViewModel
-    
-    @StateObject var viewModel = RopeCircleViewModel()
-    
-    var isSplit:Bool {
-        get {
-            !(horizontalSizeClass == .compact || (UIApplication.shared.orientation?.isPortrait ?? true))
-        }
-    }
-    
-    @AppStorage("autoRotate") var autoRotate: Bool = true
-    
-    @State var currentCall = ""
-    @State var callTextOpacity = 0.0
-    
-    @State var perspective = 1
-        
-    var centre = CGPoint(x: 0, y: 0)
-    
-    @State var bellMode = BellMode.ring
-    
-    var imageWidth: CGFloat {
-        if ringingRoomViewModel.bellType == .tower {
-            return CGFloat(viewModel.imageSize)/3
-        } else {
-            return CGFloat(viewModel.imageSize) * 0.7
-        }
-    }
-    
-    var imageHeight: CGFloat {
-        if ringingRoomViewModel.bellType == .tower {
-            return CGFloat(viewModel.imageSize)
-        } else {
-            return CGFloat(viewModel.imageSize) * 0.6
-        }
-    }
-    
+    @State var imageSize: CGFloat = 0
+    @State var radius: CGFloat = 0
+    @State var bellPositions = [CGPoint]()
     
     var body: some View {
         GeometryReader { geo in
-            ZStack {
-                if viewModel.bellPositions.count == ringingRoomViewModel.size {
-                    ForEach(0..<ringingRoomViewModel.size, id: \.self) { bellNumber in
-                        Button(action: {
-                            if bellMode == .ring {
-                                ringingRoomViewModel.ringBell(number: bellNumber + 1)
-                            } else {
-                                perspective = bellNumber+1
-                                bellMode = .ring
-                            }
-                        }) {
-                            HStack(spacing: 0) {
-                                Text(String(bellNumber+1))
-                                    .opacity(isLeft(bellNumber) ? 0 : 1)
-                                    .font(getFont())
-                                Image(getImage(bellNumber))
-                                    .antialiased(true)
-                                    .resizable()
-                                    .frame(width: imageWidth, height: imageHeight)
-                                    .rotation3DEffect(
-                                        .degrees((ringingRoomViewModel.bellType == .tower) ? 0 : isLeft(bellNumber) ? 180 : 0),
-                                        axis: (x: 0.0, y: 1.0, z: 0.0),
-                                        anchor: .center,
-                                        perspective: 1.0
-                                    )
-                                    .padding(.horizontal, (ringingRoomViewModel.bellType == .tower) ? 0 : -5)
-                                
-                                Text(String(bellNumber+1))
-                                    .opacity(isLeft(bellNumber) ? 1 : 0)
-                                    .font(getFont())
-                            }
-                            
+            ForEach(1...viewModel.size, id: \.self) { bellNumber in
+                Button {
+                    viewModel.ringBell(number: bellNumber)
+                } label: {
+                    HStack {
+                        if isLeft(bellNumber) {
+                            Text(String(bellNumber))
+                                .font(.body)
                         }
-                        .disabled(bellMode == .ring ? !canRing(bellNumber) : false)
-                        .opacity(bellMode == .ring ? canRing(bellNumber) ? 1 : 0.35 : 1)
-                        .buttonStyle(TouchDown(isAvailable: true, callButton:false))
-                        .foregroundColor(.primary)
-                        .position(viewModel.bellPositions[bellNumber])
+                        ropeImage(number: bellNumber)
+                        if !isLeft(bellNumber) {
+                            Text(String(bellNumber))
+                                .font(.body)
+                        }
                     }
                 }
-                if bellMode == .ring {
-                    GeometryReader { assignmentsGeo in
-                        ScrollView(.vertical, showsIndicators: false) {
-                            VStack(spacing: -3) {
-                                ForEach(0..<ringingRoomViewModel.assignments.count, id: \.self) { i in
-                                    HStack {
-                                        Text("\(i+1)")
-                                            .font(.callout)
-                                            .lineLimit(1)
-                                            .minimumScaleFactor(0.7)
-                                            .frame(width: 20, alignment: .trailing)
-                                        Text("\(ringingRoomViewModel.assignments[i]?.name ?? "")")
-                                            .font(.callout)
-                                            .lineLimit(1)
-                                            .frame(width: viewModel.assignmentsWidth, alignment: .leading)
+                .position(bellPositions[bellNumber - 1])
+            }
+            .onChange(of: viewModel.size) { _ in
+                calculateImageSize(size: geo.size)
+                getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+            }
+            .onChange(of: viewModel.perspective) { _ in
+                getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
 
-                                    }
-                                    .foregroundColor(colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
-                                }.fixedSize(horizontal:true, vertical:false)
-
-                            }.fixedSize(horizontal:true, vertical:false)
-
-                        }
-                        .offset(x: 0, y: ringingRoomViewModel.size == 5 ? -10 : 0)
-                        .frame(maxHeight: viewModel.assignmentsHeight)
-                        .fixedSize()
-
-                        .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
-                    }
-                } else {
-                    Text("Tap the bell that you would like to be positioned bottom right, or tap the rotate button again to cancel.")
-                        .multilineTextAlignment(.center)
-                        .frame(width: 180)
-                        .font(.body)
-                        .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
-                        .foregroundColor(colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
-                }
-                
-                ZStack {
-                    backgroundColor
-                        .cornerRadius(15)
-                        .blur(radius: 15, opaque: false)
-                        .shadow(color: backgroundColor, radius: 10, x: 0.0, y: 0.0)
-                        .opacity(0.9)
-
-                    Text(currentCall)
-                        .font(.largeTitle)
-                        .bold()
-                        .padding()
-
-                }
-                .opacity(callTextOpacity)
-                .fixedSize()
-                .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
-
-                HStack {
-                    Spacer()
-                    VStack {
-                        Spacer()
-                        Button(action: {
-                            bellMode.toggle()
-                            //put into change perspective mode
-                        }) {
-                            ZStack {
-                                Color.main.cornerRadius(10)
-                                Image("Arrow.4.circle.white").resizable()
-                                    .frame(width: 37, height: 37)
-                            }
-                            .fixedSize()
-                        }
-                        .animation(nil)
-                    }
-                }
-                .padding()
             }
-            .onChange(of: geo.size) { newSize in
-                viewModel.updateImage(screenSize: newSize, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY), size: ringingRoomViewModel.size, bellType: ringingRoomViewModel.bellType, perspective: perspective)
+            .onChange(of: viewModel.bellType) { _ in
+                calculateImageSize(size: geo.size)
+                getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
             }
-            .onChange(of: ringingRoomViewModel.size) { newSize in
-                viewModel.updateImage(screenSize: geo.size, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY), size: newSize, bellType: ringingRoomViewModel.bellType, perspective: perspective)
-            }
-            .onChange(of: ringingRoomViewModel.bellType) { newBellType in
-                viewModel.updateImage(screenSize: geo.size, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY), size: ringingRoomViewModel.size, bellType: newBellType, perspective: perspective)
-            }
-            .onChange(of: imageWidth) { _ in
-                viewModel.getAssignmentsWidth(size: ringingRoomViewModel.size, perspective: perspective, bellType: ringingRoomViewModel.bellType, imageWidth: imageWidth)
-            }
-            .onChange(of: imageHeight) { _ in
-                viewModel.getAssignmentsHeight(size: ringingRoomViewModel.size, perspective: perspective, bellType: ringingRoomViewModel.bellType, imageHeight: imageHeight)
-            }
-            .onChange(of: perspective) { newPerspective in
-                viewModel.calculateBellPositions(centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY), size: ringingRoomViewModel.size, bellType: ringingRoomViewModel.bellType, perspective: newPerspective)
-            }
-        }
-        .onChange(of: ringingRoomViewModel.call) { call in
-            if call.isEmpty {
-                currentCall = call
-                callTextOpacity  = 1
-            } else {
-                withAnimation {
-                    callTextOpacity = 0
-                }
-            }
-        }
-        .onChange(of: ringingRoomViewModel.assignments) { assignments in
-            if autoRotate {
-                if let ringer  = ringingRoomViewModel.ringer {
-                    perspective = (assignments.allIndicesOfRinger(ringer).first ?? 0) + 1
-                }
+            .onChange(of: geo.size) { _ in
+                calculateImageSize(size: geo.size)
+                getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
             }
         }
     }
     
- 
+    @ViewBuilder
+    func ropeImage(number: Int) -> some View {
+        Image(
+            (viewModel.bellType == .tower ? "t-" : "h-") +
+            (viewModel.bellStates[number - 1] == .hand ? "handstroke" : "backstroke") +
+            (number == 1 ? "-treble" : "")
+        )
+        .resizable()
+        .frame(width: imageWidth(size: imageSize, bellType: viewModel.bellType), height: imageHeight(size: imageSize, bellType: viewModel.bellType))
+        .rotation3DEffect(
+            .degrees((viewModel.bellType == .tower) ? 0 : isLeft(number) ? 180 : 0),
+            axis: (x: 0.0, y: 1.0, z: 0.0),
+            anchor: .center,
+            perspective: 1.0
+        )
+        
+    }
     
-    func getFont() -> Font {
-        if horizontalSizeClass == .compact &&  verticalSizeClass == .compact {
-            if ringingRoomViewModel.size > 13 {
-                return .footnote
+    func imageWidth(size: CGFloat, bellType: BellType) -> CGFloat {
+        if bellType == .tower {
+            return size / 3
+        } else {
+            return size * 0.7
+        }
+    }
+    
+    func imageHeight(size: CGFloat, bellType: BellType) -> CGFloat {
+        if bellType == .tower {
+            return size
+        } else {
+            return size * 0.6
+        }
+    }
+    
+    func calculateImageSize(size: CGSize) {
+        var newImageSize: CGFloat = 0.0
+        
+        var newRadius = min(size.width/2, size.height/2)
+        
+        newRadius = min(newRadius, 300)
+        
+        let originalRadius = newRadius
+        let theta = CGFloat.pi / CGFloat(viewModel.size)
+        
+        newImageSize = sin(theta) * newRadius * 2
+        (newImageSize, newRadius) = reduceOverlap(width: size.width, height: size.height, imageSize: newImageSize, radius: newRadius, theta: theta)
+        
+        newImageSize = min(newImageSize, originalRadius*0.6)
+        
+        (imageSize, radius) = reduceOverlap(width: size.width, height: size.height, imageSize: newImageSize, radius: newRadius, theta: theta)
+    }
+    
+    func getNewPositions(radius: CGFloat, centre:CGPoint) {
+        
+        let angleIncrement = 360.0 / Double(viewModel.size)
+        let startAngle = 360 - (-angleIncrement / 2 + angleIncrement * Double(viewModel.perspective))
+        
+        var newPositions = [CGPoint]()
+                
+        var currentAngle = startAngle
+        
+        for _ in 0..<viewModel.size {
+            let x = -CGFloat(sin(Angle(degrees: currentAngle).radians)) * radius
+            var y = CGFloat(cos(Angle(degrees: currentAngle).radians)) * radius
+            
+            if viewModel.size % 4 == 0 {
+                if ((90.0)...(270.0)).contains(currentAngle) {
+                    y -= 7.5
+                } else {
+                    y += 7.5
+                }
             }
             
+            let bellPos = CGPoint(x: centre.x + x, y: centre.y + y)
+            
+            newPositions.append(bellPos)
+            currentAngle += angleIncrement
+            if currentAngle > 360 {
+                currentAngle -= 360
+            }
         }
-        return .body
+        
+        bellPositions = newPositions
     }
     
-    func isLeft(_ num:Int) -> Bool {
-        if perspective <= Int(ringingRoomViewModel.size/2) {
-            return (perspective..<perspective+Int(ringingRoomViewModel.size/2)).contains(num)
-        } else {
-            return !(perspective-Int(ringingRoomViewModel.size/2)..<perspective).contains(num)
+    func reduceOverlap(width: CGFloat, height: CGFloat, imageSize: CGFloat, radius: CGFloat, theta: Double) -> (CGFloat, CGFloat) {
+        var vOverlap = 0.0
+        var hOverlap = 0.0
+        
+        var maxOverlap = 0.0
+        
+        var newRadius = radius
+        var newImageSize = imageSize
+        
+        
+        var a = radius
+        
+        if viewModel.size % 2 == 0 {
+            a = cos(theta) * newRadius
         }
-    }
-    
-    func canRing(_ number:Int) -> Bool {
-        if ringingRoomViewModel.towerInfo.isHost {
-            return true
-        } else if ringingRoomViewModel.hostMode {
-            if ringingRoomViewModel.assignments[number] == ringingRoomViewModel.ringer {
-                return true
+        
+        vOverlap = a + imageHeight(size: imageSize, bellType: viewModel.bellType) / 2 - height / 2
+        
+        if viewModel.size % 4 == 0 {
+            vOverlap += 7.5
+        }
+        
+        a = radius
+        if viewModel.size % 2 == 1 {
+            a =  cos(theta/2) * newRadius
+        } else if viewModel.size % 4 == 0 {
+            a = cos(theta) * newRadius
+        }
+        
+        hOverlap = a + imageWidth(size: imageSize, bellType: viewModel.bellType) / 2 - width / 2
+        
+        if viewModel.size == 4 {
+            hOverlap += 30
+        }
+        
+        maxOverlap = max(vOverlap, hOverlap)
+        print(vOverlap, hOverlap, maxOverlap)
+        
+        if viewModel.size == 4 {
+            if maxOverlap >= -20 {
+                newRadius = radius - 5
+                
+                newImageSize = sin(theta) * newRadius * 2
+                return reduceOverlap(width: width, height: height, imageSize: newImageSize, radius: newRadius, theta: theta)
+            } else if maxOverlap < -25 {
+                
+                newRadius = radius + 5
+                
+                return reduceOverlap(width: width, height: height, imageSize: newImageSize, radius: newRadius, theta: theta)
+                
+                
             } else {
-                return false
+                return (newImageSize, newRadius)
             }
         } else {
-            return true
+            
+            if maxOverlap >= -5 {
+                newRadius = radius - 5
+                
+                newImageSize = sin(theta) * newRadius * 2
+                return reduceOverlap(width: width, height: height, imageSize: newImageSize, radius: newRadius, theta: theta)
+            } else if maxOverlap < -7.5 {
+                
+                newRadius = radius + 2.5
+                
+                return reduceOverlap(width: width, height: height, imageSize: newImageSize, radius: newRadius, theta: theta)
+                
+                
+            } else {
+                return (newImageSize, newRadius)
+            }
         }
     }
     
-    func getImage(_ number:Int) -> String {
-        var imageName = ringingRoomViewModel.bellType.rawValue.first!.lowercased() + "-" + (ringingRoomViewModel.bellStates[number].boolValue ? "handstroke" : "backstroke")
-        if imageName.first! == "t" && number == 0 && ringingRoomViewModel.bellStates[number].boolValue {
-            imageName += "-treble"
+    private func isLeft(_ num: Int) -> Bool {
+        if viewModel.perspective <= Int(viewModel.size/2) {
+            return num > viewModel.perspective && num <= (viewModel.perspective + Int(viewModel.size/2))
+        } else {
+            return !(num > viewModel.perspective + Int(viewModel.size/2) && num <= viewModel.perspective)
         }
-        return imageName
     }
-    
+}
+
+struct RopeCircleView_Previews: PreviewProvider {
+    static var previews: some View {
+        RopeCircleView()
+    }
 }

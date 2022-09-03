@@ -28,7 +28,7 @@ enum APIError: Error, Alertable {
         case .noResponse:
             return AlertData(title: "No response", message: "There was no response from the server. Please try again.")
         case .unauthorized:
-            return AlertData(title: "Unauthorized", message: "Please restart the app.")
+            return AlertData(title: "Unable to login", message: "Your email or password is incorrect.")
         case .encode:
             return AlertData(title: "Encoding error", message: "There was an error encoding your username or password.")
         case .http(let code):
