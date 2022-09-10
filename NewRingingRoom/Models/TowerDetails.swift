@@ -8,7 +8,7 @@
 import Foundation
 
 enum Muffled {
-    case none, half, full
+    case none, half, full, toll
 }
 
 struct TowerInfo {
@@ -34,12 +34,14 @@ struct TowerInfo {
         self.serverAddress = towerDetails.server_address
         self.towerID = towerDetails.tower_id
         self.towerName = towerDetails.tower_name
-//        if towerDetails.fully_muffled {
-//            muffled = .full
-//        } else if towerDetails.half_muffled {
-//            muffled = .half
-//        } else {
+        if towerDetails.fully_muffled && towerDetails.half_muffled {
+            muffled = .toll
+        } else if towerDetails.half_muffled {
+            muffled = .half
+        } else if towerDetails.fully_muffled {
+            muffled = .full
+        } else {
             muffled = .none
-//        }
+        }
     }
 }

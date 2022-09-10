@@ -7,15 +7,6 @@
 
 import SwiftUI
 
-fileprivate struct AsyncButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .opacity(configuration.isPressed ? 0.35 : 1)
-            .animation(nil, value: configuration.isPressed)
-            .foregroundColor(.main)
-    }
-}
-
 struct AsyncButton<Label: View>: View {
     var action: () async -> Void
     @ViewBuilder var label: () -> Label
@@ -32,13 +23,20 @@ struct AsyncButton<Label: View>: View {
                 print("set button ksjdfhaskldjfl;djsakhlkadsjh")
             }
         } label: {
-            ZStack {
+            if isPerformingTask {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .foregroundColor(.white)
+                    .tint(.white)
+            } else {
                 label()
-                    .opacity(isPerformingTask ? 0.35 : 1)
             }
+
+//            .opacity(isPerformingTask ? 0.35 : 1)
+
         }
         .disabled(isPerformingTask)
-        .buttonStyle(AsyncButtonStyle())
+        .contentShape(RoundedRectangle(cornerRadius: 5))
     }
 }
 

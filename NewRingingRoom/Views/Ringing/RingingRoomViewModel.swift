@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 extension Double {
     func truncate(places: Int) -> Double {
@@ -15,97 +16,6 @@ extension Double {
 
 enum TowerControlsViewSelection {
     case users, chat
-}
-
-class BellCircleConnector: SocketIODelegate {
-    init(towerInfo: TowerInfo, socketIOService: SocketIOService, onConnected: @escaping (BellCircleSetup) -> (), setup: BellCircleSetup = BellCircleSetup()) {
-        self.towerInfo = towerInfo
-        self.socketIOService = socketIOService
-        self.onConnected = onConnected
-        self.setup = setup
-        
-        self.socketIOService.delegate = self
-    }
-    
-    
-    let towerInfo: TowerInfo
-    let socketIOService: SocketIOService
-    
-    let onConnected: (BellCircleSetup) -> ()
-    
-    var setup = BellCircleSetup() {
-        didSet {
-            if setup.gotAllValues {
-                onConnected(setup)
-            }
-        }
-    }
-    
-    func sizeDidChange(to newSize: Int) {
-        setup.size = newSize
-        setup.assignments = Array(repeating: nil, count: newSize)
-    }
-    
-    func userDidEnter(_ ringer: Ringer) {
-        setup.ringer = ringer
-    }
-    
-    func userDidLeave(_ ringer: Ringer) {
-            
-    }
-    
-    func didReceiveGlobalState(_ globalState: [BellStroke]) {
-        
-    }
-    
-    func didReceiveUserList(_ userList: [Int: Ringer]) {
-        setup.users = userList
-    }
-    
-    func bellDidRing(number: Int, globalState: [BellStroke]) {
-        
-    }
-    
-    func didAssign(ringerID: Int, to bell: Int) {
-        setup.assignments?[bell] = ringerID
-    }
-    
-    func audioDidChange(to bellType: BellType) {
-        setup.bellType = bellType
-        
-    }
-    
-    func hostModeDidChange(to hostMode: Bool) {
-        setup.hostMode = hostMode
-    }
-    
-    func didReceiveMessage(_ message: Message) {
-        
-    }
-    
-    func didReceiveCall(_ call: String) {
-        
-    }
-    
-    
-}
-
-struct BellCircleSetup {
-    var size: Int?
-    var users: [Int: Ringer]?
-    var assignments: [Int?]?
-    var bellType: BellType?
-    var hostMode: Bool?
-    var ringer: Ringer?
-    
-    var gotAllValues: Bool {
-        size != nil &&
-        users != nil &&
-        assignments != nil &&
-        bellType != nil &&
-        hostMode != nil &&
-        ringer != nil
-    }
 }
 
 enum BellType: String, CaseIterable, Identifiable {
@@ -165,22 +75,13 @@ enum BellMode {
 
 class RingingRoomViewModel: ObservableObject {
     
-    init(socketIOService: SocketIOService, towerInfo: TowerInfo, apiService: APIService, user: User, bellCircleSetup: BellCircleSetup) {
+    init(socketIOService: SocketIOService, towerInfo: TowerInfo, apiService: APIService, user: User) {
         self.socketIOService = socketIOService
         self.towerInfo = towerInfo
         self.apiService = apiService
         self.user = user
-        
-        self.ringer = bellCircleSetup.ringer!
-        self.size = bellCircleSetup.size!
-        self.assignments = bellCircleSetup.assignments!
-        self.hostMode = bellCircleSetup.hostMode!
-        self.bellType = bellCircleSetup.bellType!
-        self.users = bellCircleSetup.users!
-            
+
         self.socketIOService.delegate = self
-        
-        self.send(event: "c_request_global_state", with: ["tower_id": towerInfo.towerID])
     }
     
     func ringBell(number: Int) {
@@ -192,14 +93,15 @@ class RingingRoomViewModel: ObservableObject {
     }
     
     func connect() {
-        socketIOService.connect { [ weak self] in
+        socketIOService.connect { [weak self] in
             if let self {
                 self.send(event: "c_join", with: ["tower_id": self.towerInfo.towerID, "user_token": self.apiService.token, "anonymous_user": false])
+                self.audioService.starling.prepareToStart()
             }
         }
     }
     
-    let ringer: Ringer
+    @Published var ringer: Ringer?
     
     let apiService: APIService
     let user: User
@@ -217,13 +119,14 @@ class RingingRoomViewModel: ObservableObject {
     
     @Published var perspective = 1
     
-    @Published var size: Int
-    @Published var bellType: BellType
-    @Published var users: [Int: Ringer]
-    @Published var assignments: [Int?]
-    @Published var call = ""
+    @Published var size = 0
+    @Published var bellType = BellType.tower
+    @Published var users = [Int: Ringer]()
+    @Published var assignments = [Int?]()
     @Published var bellStates = [BellStroke]()
-    @Published var hostMode: Bool
+    @Published var hostMode = false
+    
+    let callPublisher = PassthroughSubject<String, Never>()
     
     private let audioService = AudioService()
     
@@ -302,7 +205,10 @@ protocol SocketIODelegate: AnyObject {
 
 extension RingingRoomViewModel: SocketIODelegate {
     func userDidEnter(_ ringer: Ringer) {
-
+        if self.ringer == nil {
+            self.ringer = ringer
+            send(event: "c_request_global_state", with: ["tower_id": towerInfo.towerID])
+        }
         
         guard !users.keys.contains(ringer.ringerID) else { return }
         users[ringer.ringerID] = ringer
@@ -337,6 +243,10 @@ extension RingingRoomViewModel: SocketIODelegate {
         if bellType == .tower {
             fileName = "T" + fileName
             switch towerInfo.muffled {
+            case .toll:
+                if (number != size) || globalState[number - 1] == .back {
+                    fileName += "-muf"
+                }
             case .full:
                 fileName += "-muf"
             case .half:
@@ -395,9 +305,6 @@ extension RingingRoomViewModel: SocketIODelegate {
     func didReceiveCall(_ call: String) {
         audioService.play(call)
         
-        self.call = call
-        ThreadUtil.runInMain(after: 1.5) {
-            self.call = ""
-        }
+        callPublisher.send(call)
     }
 }
