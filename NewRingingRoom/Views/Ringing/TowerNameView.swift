@@ -13,6 +13,7 @@ struct TowerNameView: View {
     var body: some View {
         ZStack {
             Color.main
+                .cornerRadius(5)
             
             Text(viewModel.towerInfo.towerName)
                 .foregroundColor(.white)
@@ -21,6 +22,7 @@ struct TowerNameView: View {
                 .minimumScaleFactor(0.5)
                 .padding(.vertical, 4)
         }
+        .fixedSize(horizontal: false, vertical: true)
     }
 }
 

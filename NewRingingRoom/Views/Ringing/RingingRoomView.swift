@@ -13,8 +13,9 @@ struct RingingRoomView: View {
     var body: some View {
         ZStack {
             Color("ringingBackground")
+                .ignoresSafeArea(.all)
             
-            HStack {
+            VStack {
                 TowerNameView()
                 
                 HStack {
@@ -38,12 +39,15 @@ struct RingingRoomView: View {
                 
                 Spacer()
                 
-                RopeCircleView()
-                
-                Spacer()
-                
-                RingingButtonsView()
+                if viewModel.ringer != nil {
+                    RopeCircleView()
+                    
+                    Spacer()
+                    
+                    RingingButtonsView()
+                }
             }
+            .padding([.horizontal, .bottom], 5)
         }
         .sheet(isPresented: $showingTowerControls) {
             TowerControlsView()

@@ -96,9 +96,7 @@ extension UnauthenticatedClient {
     }
 }
 
-protocol AuthenticatedClient: HTTPClient {
-    var region: Region { get }
-    
+protocol AuthenticatedClient: HTTPClient {    
     var token: String { get }
     
     func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, model: T.Type)  async throws -> T}

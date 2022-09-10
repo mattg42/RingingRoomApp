@@ -53,6 +53,7 @@ struct TowersView: View {
                                             Spacer()
                                         }
                                     }
+                                    .foregroundColor(.main)
                                     .frame(height: 35)
                                     .padding(.horizontal)
                                     .contentShape(Rectangle())
@@ -186,13 +187,9 @@ struct TowersView: View {
             
             let socketIOService = SocketIOService(url: URL(string: towerDetails.server_address)!)
             
-            let bellCircleConnector = BellCircleConnector(towerInfo: towerInfo, socketIOService: socketIOService) { bellCircleSetup in
-                let ringingRoomViewModel = RingingRoomViewModel(socketIOService: socketIOService, towerInfo: towerInfo, apiService: apiService, user: user, bellCircleSetup: bellCircleSetup)
+            let ringingRoomViewModel = RingingRoomViewModel(socketIOService: socketIOService, towerInfo: towerInfo, apiService: apiService, user: user)
                 
-                appRouter.moveTo(.ringing(viewModel: ringingRoomViewModel))
-            }
-            
-            bellCircleConnector.socketIOService.send(event: "c_join", with: ["tower_id": id, "user_token": apiService.token, "anonymous_user": false;])
+            appRouter.moveTo(.ringing(viewModel: ringingRoomViewModel))
         }
     }
     

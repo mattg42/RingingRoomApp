@@ -112,36 +112,36 @@ struct WelcomeLoginView: View {
                     Spacer()
                     Menu(authenticationService.region.displayName) {
                         ForEach(Region.allCases.sorted()) { region in
-                            Image
                             Button(region.displayName) {
                                 authenticationService.region = region
                             }
                         }
                         .padding(.top, 1)
                     }
-//                    Picker(authenticationService.region.displayName, selection: Binding {
-//                        authenticationService.region
-//                    } set: { newRegion in
-//                        authenticationService.region = newRegion
-//                    }) {
-//
-//                    }
-//                    .pickerStyle(.menu)
                 }
                 
                 AsyncButton {
                     await login()
                 } label: {
-                    ZStack {
-                        Color.main
-                            .cornerRadius(5)
-                            .opacity(loginDisabled ? 0.35 : 1)
-                        Text("Login")
-                            .foregroundColor(Color(.white))
-                            .padding(10)
-                    }
+                    Text("Login")
                 }
-                .fixedSize(horizontal: false, vertical: true)
+                .foregroundColor(.white)
+                .contentShape(RoundedRectangle(cornerRadius: 5))
+
+                .padding(10)
+                .contentShape(RoundedRectangle(cornerRadius: 5))
+
+                .frame(maxWidth: .infinity)
+                .contentShape(RoundedRectangle(cornerRadius: 5))
+
+                .background(
+                    Color.main
+                        .cornerRadius(5)
+                        .opacity(loginDisabled ? 0.35 : 1)
+//                        .frame(maxWidth: .infinity)
+                )
+//                .frame(maxWidth: .infinity)
+                .contentShape(RoundedRectangle(cornerRadius: 5))
                 .disabled(loginDisabled)
                 
                 HStack {

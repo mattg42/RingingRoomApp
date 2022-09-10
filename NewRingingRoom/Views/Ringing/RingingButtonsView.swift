@@ -57,10 +57,10 @@ struct RingingButtonsView: View {
 
     var body: some View {
         VStack(spacing: 5) {
-            if viewModel.assignments.contains(where: { $0 == viewModel.ringer }) {
+            if viewModel.assignments.contains(viewModel.ringer!.ringerID) {
                 HStack(spacing: 5) {
                     ForEach(0..<viewModel.size, id: \.self) { i in
-                        if viewModel.assignments[viewModel.size - 1 - i] == viewModel.ringer {
+                        if viewModel.assignments[viewModel.size - 1 - i] == viewModel.ringer!.ringerID {
                             Button {
                                 viewModel.ringBell(number: viewModel.size - i)
                             } label: {
@@ -70,7 +70,6 @@ struct RingingButtonsView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 5)
             }
             
             HStack(spacing: 5) {

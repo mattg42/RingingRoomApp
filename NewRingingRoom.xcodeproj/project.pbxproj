@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		3410D34A2735A92D00B0C8EC /* APIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3410D3482735A92D00B0C8EC /* APIModel.swift */; };
 		3410D34B2735A92D00B0C8EC /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3410D3492735A92D00B0C8EC /* APIService.swift */; };
+		341A25BA28CBEE1D00D702FE /* BellsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A25B928CBEE1D00D702FE /* BellsView.swift */; };
+		341A25BC28CBEE3000D702FE /* AssignmentsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A25BB28CBEE3000D702FE /* AssignmentsListView.swift */; };
 		341C9F2C26B87C6900EB093A /* NewRingingRoomApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341C9F2B26B87C6900EB093A /* NewRingingRoomApp.swift */; };
 		341C9F3026B87C6B00EB093A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 341C9F2F26B87C6B00EB093A /* Assets.xcassets */; };
 		341C9F3326B87C6B00EB093A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 341C9F3226B87C6B00EB093A /* Preview Assets.xcassets */; };
@@ -126,6 +128,7 @@
 		3471D43C26C191E000A20FA8 /* AutoLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3471D43B26C191E000A20FA8 /* AutoLoginView.swift */; };
 		34A22A6426C04D5600FE255C /* Bool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6326C04D5600FE255C /* Bool.swift */; };
 		34A22A6826C0564E00FE255C /* WelcomeLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */; };
+		34A7CFF328CCC54A007C6CF2 /* CallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF228CCC54A007C6CF2 /* CallView.swift */; };
 		34B20F0826D05B9A00468F81 /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B20F0726D05B9A00468F81 /* Resolver.swift */; };
 		34BA523328B106E20084033C /* TouchdownButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BA523228B106E20084033C /* TouchdownButtonStyle.swift */; };
 		34BD256626BF0255000E932C /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BD256526BF0255000E932C /* Global.swift */; };
@@ -139,6 +142,8 @@
 /* Begin PBXFileReference section */
 		3410D3482735A92D00B0C8EC /* APIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIModel.swift; sourceTree = "<group>"; };
 		3410D3492735A92D00B0C8EC /* APIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		341A25B928CBEE1D00D702FE /* BellsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BellsView.swift; sourceTree = "<group>"; };
+		341A25BB28CBEE3000D702FE /* AssignmentsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentsListView.swift; sourceTree = "<group>"; };
 		341C9F2826B87C6900EB093A /* NewRingingRoom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NewRingingRoom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		341C9F2B26B87C6900EB093A /* NewRingingRoomApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewRingingRoomApp.swift; sourceTree = "<group>"; };
 		341C9F2F26B87C6B00EB093A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -258,6 +263,7 @@
 		3471D43B26C191E000A20FA8 /* AutoLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoLoginView.swift; sourceTree = "<group>"; };
 		34A22A6326C04D5600FE255C /* Bool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bool.swift; sourceTree = "<group>"; };
 		34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeLoginView.swift; sourceTree = "<group>"; };
+		34A7CFF228CCC54A007C6CF2 /* CallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallView.swift; sourceTree = "<group>"; };
 		34B20F0726D05B9A00468F81 /* Resolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
 		34BA523228B106E20084033C /* TouchdownButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchdownButtonStyle.swift; sourceTree = "<group>"; };
 		34BD256526BF0255000E932C /* Global.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
@@ -617,6 +623,9 @@
 				34E99ADB28B0446300C80EF1 /* RingingRoomView.swift */,
 				34E99ADD28B045F300C80EF1 /* TowerNameView.swift */,
 				34E99ADF28B0473100C80EF1 /* RopeCircleView.swift */,
+				341A25B928CBEE1D00D702FE /* BellsView.swift */,
+				341A25BB28CBEE3000D702FE /* AssignmentsListView.swift */,
+				34A7CFF228CCC54A007C6CF2 /* CallView.swift */,
 				34E99AE428B05A1400C80EF1 /* RingingButtonsView.swift */,
 				34E99AE128B059F600C80EF1 /* TowerControls */,
 			);
@@ -769,6 +778,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34A7CFF328CCC54A007C6CF2 /* CallView.swift in Sources */,
 				34706FC728804A38004127CD /* CGFloat.swift in Sources */,
 				341D38EC27220AD400E340CF /* String.swift in Sources */,
 				34B20F0826D05B9A00468F81 /* Resolver.swift in Sources */,
@@ -792,8 +802,10 @@
 				341C9F4A26B885E500EB093A /* User.swift in Sources */,
 				341D38F82722D15B00E340CF /* ShareSheet.swift in Sources */,
 				345052B72812C04200143E22 /* MainView.swift in Sources */,
+				341A25BA28CBEE1D00D702FE /* BellsView.swift in Sources */,
 				3454CBAF287DABD800FB2495 /* ErrorUtil.swift in Sources */,
 				341D38FC2722DB4D00E340CF /* NetworkStatus.swift in Sources */,
+				341A25BC28CBEE3000D702FE /* AssignmentsListView.swift in Sources */,
 				341D38EA272209EC00E340CF /* AgreeToPrivacyPolicyView.swift in Sources */,
 				346118BC2883010D006AA770 /* RingingRoomViewModel.swift in Sources */,
 				3454CBB2287DD2B000FB2495 /* TowersView.swift in Sources */,
