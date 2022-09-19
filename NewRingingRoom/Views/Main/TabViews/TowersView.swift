@@ -53,10 +53,11 @@ struct TowersView: View {
                                             Spacer()
                                         }
                                     }
+                                    .contentShape(Rectangle())
+
                                     .foregroundColor(.main)
                                     .frame(height: 35)
                                     .padding(.horizontal)
-                                    .contentShape(Rectangle())
                                     .cornerRadius(10)
                                     .id(tower.towerID)
                                 }

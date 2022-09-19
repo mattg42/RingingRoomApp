@@ -18,6 +18,7 @@ struct SettingsView: View {
     
     @State var size = 0
     @State var bellType = BellType.tower
+    @State var hostMode = false
     
     var body: some View {
         Form {
@@ -32,25 +33,27 @@ struct SettingsView: View {
                 }
             }
             Section {
-                //            HStack {
-                //                Image(systemName: "speaker.fill")
-                
-                //            Slider(value: $volume, in: 0.0...1.0, label: { Text("Volume slider") })
-                
                 Slider(value: $volume, in: 0.0...1.0, minimumValueLabel: Image(systemName: "speaker.fill"), maximumValueLabel: Image(systemName: "speaker.3.fill"), label: { Text("Volume slider") })
                     .onChange(of: volume) { newValue in
                         viewModel.changeVolume(to: newValue)
                     }
-                
-                
-                //                Image(systemName: "speaker.3.fill")
-                //            }
-                // change bell sound
-                // set at hand
             }
             
             Section {
-                Toggle("Host mode", isOn: $viewModel.hostMode)
+                Toggle("Host mode", isOn: $hostMode)
+                    .onAppear {
+                        hostMode = viewModel.hostMode
+                    }
+                    .onChange(of: viewModel.hostMode) { newValue in
+                        if hostMode != newValue {
+                            hostMode = newValue
+                        }
+                    }
+                    .onChange(of: hostMode) { newValue in
+                        if viewModel.hostMode != newValue {
+                            viewModel.send(.hostModeSet(to: newValue))
+                        }
+                    }
                 
                 Picker("Number of bells", selection: $size) {
                     ForEach(viewModel.towerInfo.towerSizes, id: \.self) { size in
@@ -58,7 +61,6 @@ struct SettingsView: View {
                             .tag(size)
                     }
                 }
-                
                 .onAppear {
                     size = viewModel.size
                 }
@@ -80,7 +82,6 @@ struct SettingsView: View {
                             .tag(bell)
                     }
                 }
-                
                 .onAppear {
                     bellType = viewModel.bellType
                 }

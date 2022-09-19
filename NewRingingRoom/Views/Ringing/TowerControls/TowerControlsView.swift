@@ -15,17 +15,28 @@ enum TowerControlViewSelection: String, CaseIterable, Identifiable {
 
 struct TowerControlsView: View {
     
-    @State var viewSelection = TowerControlViewSelection.settings
+    @SceneStorage("selection") var viewSelection = TowerControlViewSelection.settings
+    
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         VStack(spacing: 0) {
-            Picker("", selection: $viewSelection) {
-                ForEach(TowerControlViewSelection.allCases) { selection in
-                    Text(selection.rawValue.capitalized)
-                        .tag(selection)
+            HStack {
+                Picker("", selection: $viewSelection) {
+                    ForEach(TowerControlViewSelection.allCases) { selection in
+                        Text(selection.rawValue.capitalized)
+                            .tag(selection)
+                    }
                 }
+                .pickerStyle(.segmented)
+
+                Button("Back") {
+                    withAnimation {
+                        dismiss()
+                    }
+                }
+                
             }
-            .pickerStyle(.segmented)
             .padding(.horizontal)
             .padding(.bottom, 2)
             
@@ -45,11 +56,5 @@ struct TowerControlsView: View {
         }
         .padding(.vertical)
         .background(Color(uiColor: .systemGroupedBackground))
-    }
-}
-
-struct TowerControlsView_Previews: PreviewProvider {
-    static var previews: some View {
-        TowerControlsView()
     }
 }

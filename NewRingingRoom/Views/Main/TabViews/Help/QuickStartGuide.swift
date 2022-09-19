@@ -22,11 +22,11 @@ struct QuickStartGuideView: View {
                 NavigationLink("Full Quick Start Guide", destination: ScrollView {
                     QuickStartGuideTextView()
                 }
-                    .conditionalDismiss(shouldDisplay: isInSheet)
+                    .conditionalDismissToolbarButton()
                 )
             }
         }
-        .conditionalDismiss(shouldDisplay: isInSheet)
+        .conditionalDismissToolbarButton()
         .navigationBarTitle("Quick Start Guide", displayMode: .inline)
     }
 }

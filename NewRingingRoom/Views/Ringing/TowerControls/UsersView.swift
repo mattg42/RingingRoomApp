@@ -39,14 +39,17 @@ struct FillInButton: View {
                 
                 tempUsers.shuffle()
                 
-                for i in 0..<viewModel.size {
-                    if viewModel.assignments[i] == nil {
-                        if tempUsers.count > 0 {
-                            let user = tempUsers.removeFirst()
-                            viewModel.send(.assignUser(bell: i + 1, user: user))
-                        } else {
-                            viewModel.send(.assignUser(bell: i + 1, user: Ringer.wheatley.ringerID))
-                        }
+                let bells = viewModel.assignments.enumerated()
+                    .filter({ $0.element == nil })
+                    .map(\.offset)
+                    .shuffled()
+                
+                for bell in bells {
+                    if tempUsers.count > 0 {
+                        let user = tempUsers.removeFirst()
+                        viewModel.send(.assignUser(bell: bell + 1, user: user))
+                    } else {
+                        viewModel.send(.assignUser(bell: bell + 1, user: Ringer.wheatley.ringerID))
                     }
                 }
             }
