@@ -8,10 +8,15 @@
 import SwiftUI
 
 struct AsyncButton<Label: View>: View {
+    
+    var progressViewColor: Color = .primary
+
     var action: () async -> Void
+    
     @ViewBuilder var label: () -> Label
     
     @State private var isPerformingTask = false
+    
     
     var body: some View {
         Button {
@@ -20,14 +25,13 @@ struct AsyncButton<Label: View>: View {
             Task {
                 await action()
                 isPerformingTask = false
-                print("set button ksjdfhaskldjfl;djsakhlkadsjh")
             }
         } label: {
             if isPerformingTask {
                 ProgressView()
                     .progressViewStyle(.circular)
-                    .foregroundColor(.white)
-                    .tint(.white)
+                    .foregroundColor(progressViewColor)
+                    .tint(progressViewColor)
             } else {
                 label()
             }
@@ -41,8 +45,8 @@ struct AsyncButton<Label: View>: View {
 }
 
 extension AsyncButton where Label == Text {
-    init(_ label: String, action: @escaping () async -> Void) {
-        self.init(action: action) {
+    init(_ label: String, progressViewColor: Color = .primary, action: @escaping () async -> Void) {
+        self.init(progressViewColor: progressViewColor, action: action) {
             Text(label)
         }
     }

@@ -16,9 +16,9 @@ struct SettingsView: View {
     
     @State var volume = UserDefaults.standard.optionalDouble(forKey: "volume") ?? 1
     
-    @State var size = 0
-    @State var bellType = BellType.tower
-    @State var hostMode = false
+    @SceneStorage("size") var size = 0
+    @SceneStorage("bellType") var bellType = BellType.tower
+    @SceneStorage("hostMode") var hostMode = false
     
     var body: some View {
         Form {
@@ -102,6 +102,14 @@ struct SettingsView: View {
                     viewModel.send(.setBells)
                     dismiss.callAsFunction()
                 }
+            }
+            
+            Section {
+                Button("Change perspective") {
+                    viewModel.bellMode = .rotate
+                    dismiss.callAsFunction()
+                }
+                .buttonStyle(.borderless)
             }
             
             Section {

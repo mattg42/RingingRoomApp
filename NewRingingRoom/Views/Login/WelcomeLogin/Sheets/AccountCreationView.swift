@@ -59,11 +59,8 @@ struct AccountCreationView: View {
                 }
                 
                 Section {
-                    AsyncButton(action: createAccount) {
-                        Text("Create account")
-                    }
+                    AsyncButton("Create account", action: createAccount)
                     .disabled(!agreedToPrivacyPolicy)
-                    
                 }
             }
             .navigationBarTitle("Create Account", displayMode: .inline)

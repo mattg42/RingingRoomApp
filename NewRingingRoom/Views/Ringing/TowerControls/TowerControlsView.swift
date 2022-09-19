@@ -35,6 +35,7 @@ struct TowerControlsView: View {
                         dismiss()
                     }
                 }
+                .padding(.leading, 7)
                 
             }
             .padding(.horizontal)

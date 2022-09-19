@@ -19,7 +19,12 @@ struct BellsView: View {
         ForEach(1...viewModel.size, id: \.self) { bellNumber in
             if bellPositions.count == viewModel.size {
                 Button {
-                    viewModel.ringBell(number: bellNumber)
+                    if viewModel.bellMode == .ring {
+                        viewModel.ringBell(number: bellNumber)
+                    } else {
+                        viewModel.perspective = bellNumber
+                        viewModel.bellMode = .ring                      
+                    }
                 } label: {
                     HStack {
                         if !isLeft(bellNumber) {

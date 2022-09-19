@@ -8,6 +8,8 @@
 import SwiftUI
 struct RingingRoomView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
+    
+    @Environment(\.scenePhase) var scenePhase
         
     @State var showingTowerControls = false
     @State var showingHelp = false
@@ -69,11 +71,18 @@ struct RingingRoomView: View {
         .fullScreenCover(isPresented: $showingTowerControls) {
             TowerControlsView()
         }
-//        .sheet(isPresented: $showingHelp, content: {
-//            HelpView(showDismiss: true)
-//        })
+        .sheet(isPresented: $showingHelp, content: {
+            HelpView(showDismiss: true)
+        })
         .onAppear {
             viewModel.connect()
+        }
+        .onChange(of: scenePhase) { newValue in
+            if newValue == .active {
+                viewModel.connect()
+            } else {
+                viewModel.disconnect()
+            }
         }
     }
 }
