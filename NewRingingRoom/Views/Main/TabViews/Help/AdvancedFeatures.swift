@@ -23,12 +23,12 @@ struct AdvancedFeaturesView: View {
                 NavigationLink("Full Advanced Features", destination: ScrollView {
                     AdvancedFeaturesTextView()
                 }
-                    .conditionalDismiss(shouldDisplay: isInSheet)
+                    .conditionalDismissToolbarButton()
                 )
             }
         }
         .navigationBarTitle("Advanced Features", displayMode: .inline)
-        .conditionalDismiss(shouldDisplay: isInSheet)
+        .conditionalDismissToolbarButton()
     }
 }
 

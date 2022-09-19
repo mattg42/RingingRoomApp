@@ -180,7 +180,7 @@ struct HelpSectionView: View {
                 Spacer()
             }
         }
-        .conditionalDismiss(shouldDisplay: isInSheet)
+        .conditionalDismissToolbarButton()
         .padding()
         .navigationBarTitle(helpSection.title, displayMode: .inline)
     }

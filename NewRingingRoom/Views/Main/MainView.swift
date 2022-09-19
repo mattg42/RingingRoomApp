@@ -31,7 +31,7 @@ struct MainView: View {
                         .font(.title)
                     Text("Store")
                 }
-            HelpView(asSheet: false)
+            HelpView(showDismiss: false)
                 .tag(TabViewType.help)
                 .tabItem {
                     Image(systemName: "questionmark.circle")

@@ -52,7 +52,7 @@ struct FAQsView: View {
             }
             .padding()
         }
-        .conditionalDismiss(shouldDisplay: isInSheet)
+        .conditionalDismissToolbarButton()
         .navigationBarTitle("FAQs", displayMode: .inline)
     }
 }

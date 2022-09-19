@@ -13,48 +13,47 @@ struct ChatView: View {
     @State private var currentMessage = ""
 
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                ScrollViewReader { value in
-                    VStack(spacing: 5) {
-                        if viewModel.messages.count > 0 {
-                            ForEach(0..<viewModel.messages.count, id: \.self) { i in
-                                HStack {
-                                    (Text(viewModel.messages[i].sender).bold() + Text(": \(viewModel.messages[i].message)"))
-                                        .id(i)
-                                    Spacer()
+        Group {
+            ZStack {
+                Color.primary.colorInvert().cornerRadius(10)
+                
+                VStack(spacing: 0) {
+                    ScrollView {
+                        ScrollViewReader { value in
+                            VStack(spacing: 5) {
+                                if viewModel.messages.count > 0 {
+                                    ForEach(0..<viewModel.messages.count, id: \.self) { i in
+                                        HStack {
+                                            (Text(viewModel.messages[i].sender).bold() + Text(": \(viewModel.messages[i].message)"))
+                                                .id(i)
+                                            Spacer()
+                                        }
+                                    }
+                                    .onAppear {
+                                        value.scrollTo(viewModel.messages.count - 1)
+                                    }
                                 }
-                            }
-                            .onAppear {
-                                value.scrollTo(viewModel.messages.count - 1)
                             }
                         }
                     }
                 }
+                .padding()
             }
-            .padding(.bottom, 8)
-            
-            Spacer()
             
             HStack(alignment: .center) {
                 TextField("Message", text: $currentMessage)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .shadow(color: Color.white.opacity(0), radius: 1, x: 0, y: 0)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .shadow(color: Color.white.opacity(0), radius: 1, x: 0, y: 0)
                 
                 Button("Send") {
                     sendMessage()
                 }
                 .foregroundColor(Color.main)
             }
-            .padding(.horizontal, 3)
-            .padding(.bottom, 7)
         }
-        .clipped()
-        .padding(.horizontal, 7)
-        .padding(.vertical, 7)
-        .onAppear {
-            print("chat view appeared")
-        }
+        
+        .padding(.horizontal)
+        .padding(.top)
     }
     
     func sendMessage() {

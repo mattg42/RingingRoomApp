@@ -19,24 +19,28 @@ extension EnvironmentValues {
     }
 }
 
-extension View {
-    func isInSheet(_ isInSheet: Bool) -> some View {
-        environment(\.isInSheet, isInSheet)
+private struct DismissFunctionKey: EnvironmentKey {
+    static let defaultValue: DismissAction? = nil
+}
+
+extension EnvironmentValues {
+    var dismissFunction: DismissAction? {
+        get { self[DismissFunctionKey.self] }
+        set { self[DismissFunctionKey.self] = newValue }
     }
 }
 
-struct ConditionalDismissModifier: ViewModifier {
-    var shouldDisplay: Bool
-    
-    @Environment(\.dismiss) var dismiss
+struct ConditionalDismissModifier: ViewModifier {    
+    @Environment(\.dismissFunction) var dismiss
+    @Environment(\.isInSheet) var isInSheet
     
     func body(content: Content) -> some View {
         content
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    if shouldDisplay {
+                    if isInSheet {
                         Button {
-                            dismiss()
+                            dismiss!()
                         } label: {
                             Text("Dismiss")
                         }
@@ -47,9 +51,9 @@ struct ConditionalDismissModifier: ViewModifier {
 }
 
 extension View {
-    func conditionalDismiss(shouldDisplay: Bool) -> some View {
+    func conditionalDismissToolbarButton() -> some View {
         self
-            .modifier(ConditionalDismissModifier(shouldDisplay: shouldDisplay))
+            .modifier(ConditionalDismissModifier())
     }
 }
 

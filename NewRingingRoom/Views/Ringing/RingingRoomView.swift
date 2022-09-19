@@ -10,6 +10,8 @@ struct RingingRoomView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
         
     @State var showingTowerControls = false
+    @State var showingHelp = false
+
     var body: some View {
         ZStack {
             Color("ringingBackground")
@@ -19,6 +21,21 @@ struct RingingRoomView: View {
                 TowerNameView()
                 
                 HStack {
+                    Button {
+                        showingHelp = true
+                    } label: {
+                        ZStack {
+                            Color.main
+                                .cornerRadius(5)
+                            
+                            Text("Help")
+                                .foregroundColor(.white)
+                                .bold()
+                                .padding(3)
+                        }
+                        .fixedSize()
+                    }
+                    
                     Spacer()
                     
                     Button {
@@ -49,9 +66,12 @@ struct RingingRoomView: View {
             }
             .padding([.horizontal, .bottom], 5)
         }
-        .sheet(isPresented: $showingTowerControls) {
+        .fullScreenCover(isPresented: $showingTowerControls) {
             TowerControlsView()
         }
+//        .sheet(isPresented: $showingHelp, content: {
+//            HelpView(showDismiss: true)
+//        })
         .onAppear {
             viewModel.connect()
         }

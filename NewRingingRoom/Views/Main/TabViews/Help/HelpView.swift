@@ -11,8 +11,10 @@ import Combine
 
 struct HelpView: View {
     
-    let asSheet: Bool
+    @Environment(\.dismiss) var dismiss
     
+    let showDismiss: Bool
+        
     var body: some View {
         NavigationView {
             Form {
@@ -26,17 +28,15 @@ struct HelpView: View {
                 }
             }
             .navigationBarTitle("Help")
-            .conditionalDismiss(shouldDisplay: asSheet)
-            .isInSheet(asSheet)
+            .conditionalDismissToolbarButton()
         }
+        .environment(\.dismissFunction, dismiss)
+        .environment(\.isInSheet, showDismiss)
         .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
 struct HelpTextView: View {
-    @Environment(\.isInSheet) var isInSheet: Bool
-    
-    
     var body: some View {
         ScrollView {
             VStack(spacing: 0.0)    {
@@ -54,7 +54,7 @@ struct HelpTextView: View {
             }
             .padding(.vertical)
         }
-        .conditionalDismiss(shouldDisplay: isInSheet)
+        .conditionalDismissToolbarButton()
         .navigationBarTitle("Help", displayMode: .inline)
     }
 }
