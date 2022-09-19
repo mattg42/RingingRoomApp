@@ -196,9 +196,3 @@ struct RopeCircleView: View {
         }
     }
 }
-
-struct RopeCircleView_Previews: PreviewProvider {
-    static var previews: some View {
-        RopeCircleView()
-    }
-}

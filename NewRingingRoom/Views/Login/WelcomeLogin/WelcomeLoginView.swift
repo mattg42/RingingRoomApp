@@ -119,7 +119,7 @@ struct WelcomeLoginView: View {
                     .pickerStyle(.menu)
                 }
                 
-                AsyncButton {
+                AsyncButton(progressViewColor: .white) {
                     await login()
                 } label: {
                     Text("Login")
