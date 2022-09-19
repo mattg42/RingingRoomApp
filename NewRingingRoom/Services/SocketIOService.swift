@@ -9,6 +9,47 @@ import Foundation
 import SocketIO
 import Combine
 
+enum ClientSocketEvent {
+    case join
+    case userLeft
+    case requestGlobalState
+    case bellRung(bell: Int, stroke: Bool)
+    case assignUser(bell: Int, user: Int)
+    case audioChange(to: BellType)
+    case hostModeSet(to: Bool)
+    case sizeChange(to: Int)
+    case messageSent(message: String, time: String)
+    case call(_ call: String)
+    case setBells
+    
+    var eventName: String {
+        switch self {
+        case .join:
+            return "c_join"
+        case .userLeft:
+            return "c_user_left"
+        case .requestGlobalState:
+            return "c_request_global_state"
+        case .bellRung:
+            return "c_bell_rung"
+        case .assignUser:
+            return "c_assign_user"
+        case .audioChange:
+            return "c_audio_change"
+        case .hostModeSet:
+            return "c_host_mode"
+        case .sizeChange:
+            return "c_size_change"
+        case .messageSent:
+            return "c_msg_sent"
+        case .call:
+            return "c_call"
+        case .setBells:
+            return "c_set_bells"
+        }
+    }
+}
+
 class SocketIOService {
     
     private struct SocketIOError: LocalizedError {
@@ -28,6 +69,10 @@ class SocketIOService {
         manager = SocketManager(socketURL: url)
         socket = manager.defaultSocket
         setupListeners()
+    }
+    
+    deinit {
+        print("socket deinit")
     }
     
     func connect(completion: @escaping () -> ()) {
@@ -109,7 +154,7 @@ class SocketIOService {
             let user = data["user"] as! String
             let message = data["msg"] as! String
 
-            self?.delegate?.didReceiveMessage(Message(user: user, message: message))
+            self?.delegate?.didReceiveMessage(Message(sender: user, message: message))
         }
         
         listen(for: "s_call") { [weak self] data in

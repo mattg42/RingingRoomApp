@@ -61,6 +61,9 @@
 		3454ED2D280C607D00C60E3C /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 3454ED2C280C607D00C60E3C /* SocketIO */; };
 		3454ED2F280C9FBB00C60E3C /* LoginError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454ED2E280C9FBB00C60E3C /* LoginError.swift */; };
 		346118BC2883010D006AA770 /* RingingRoomViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346118BB2883010D006AA770 /* RingingRoomViewModel.swift */; };
+		3464DC7228D7E27900633BD5 /* UsersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3464DC7128D7E27900633BD5 /* UsersView.swift */; };
+		3464DC7428D7E28300633BD5 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3464DC7328D7E28300633BD5 /* ChatView.swift */; };
+		3464DC7628D7E28B00633BD5 /* WheatleyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3464DC7528D7E28B00633BD5 /* WheatleyView.swift */; };
 		34706F75287F4FA7004127CD /* Te4-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 34706F3B287F4FA7004127CD /* Te4-muf.wav */; };
 		34706F76287F4FA7004127CD /* all.wav in Resources */ = {isa = PBXBuildFile; fileRef = 34706F3C287F4FA7004127CD /* all.wav */; };
 		34706F77287F4FA7004127CD /* T4-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 34706F3D287F4FA7004127CD /* T4-muf.wav */; };
@@ -129,6 +132,7 @@
 		34A22A6426C04D5600FE255C /* Bool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6326C04D5600FE255C /* Bool.swift */; };
 		34A22A6826C0564E00FE255C /* WelcomeLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */; };
 		34A7CFF328CCC54A007C6CF2 /* CallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF228CCC54A007C6CF2 /* CallView.swift */; };
+		34A7CFF528CCE571007C6CF2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF428CCE571007C6CF2 /* SettingsView.swift */; };
 		34B20F0826D05B9A00468F81 /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B20F0726D05B9A00468F81 /* Resolver.swift */; };
 		34BA523328B106E20084033C /* TouchdownButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BA523228B106E20084033C /* TouchdownButtonStyle.swift */; };
 		34BD256626BF0255000E932C /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BD256526BF0255000E932C /* Global.swift */; };
@@ -196,6 +200,9 @@
 		3454ED29280C3FD700C60E3C /* ThreadUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadUtil.swift; sourceTree = "<group>"; };
 		3454ED2E280C9FBB00C60E3C /* LoginError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LoginError.swift; path = NewRingingRoom/Views/Login/LoginError.swift; sourceTree = SOURCE_ROOT; };
 		346118BB2883010D006AA770 /* RingingRoomViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingingRoomViewModel.swift; sourceTree = "<group>"; };
+		3464DC7128D7E27900633BD5 /* UsersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersView.swift; sourceTree = "<group>"; };
+		3464DC7328D7E28300633BD5 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		3464DC7528D7E28B00633BD5 /* WheatleyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WheatleyView.swift; sourceTree = "<group>"; };
 		34706F3B287F4FA7004127CD /* Te4-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Te4-muf.wav"; sourceTree = "<group>"; };
 		34706F3C287F4FA7004127CD /* all.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = all.wav; sourceTree = "<group>"; };
 		34706F3D287F4FA7004127CD /* T4-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T4-muf.wav"; sourceTree = "<group>"; };
@@ -264,6 +271,7 @@
 		34A22A6326C04D5600FE255C /* Bool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bool.swift; sourceTree = "<group>"; };
 		34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeLoginView.swift; sourceTree = "<group>"; };
 		34A7CFF228CCC54A007C6CF2 /* CallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallView.swift; sourceTree = "<group>"; };
+		34A7CFF428CCE571007C6CF2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		34B20F0726D05B9A00468F81 /* Resolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
 		34BA523228B106E20084033C /* TouchdownButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchdownButtonStyle.swift; sourceTree = "<group>"; };
 		34BD256526BF0255000E932C /* Global.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
@@ -636,6 +644,10 @@
 			isa = PBXGroup;
 			children = (
 				34E99AE228B05A0300C80EF1 /* TowerControlsView.swift */,
+				34A7CFF428CCE571007C6CF2 /* SettingsView.swift */,
+				3464DC7128D7E27900633BD5 /* UsersView.swift */,
+				3464DC7328D7E28300633BD5 /* ChatView.swift */,
+				3464DC7528D7E28B00633BD5 /* WheatleyView.swift */,
 			);
 			path = TowerControls;
 			sourceTree = "<group>";
@@ -786,6 +798,7 @@
 				34E99AE028B0473100C80EF1 /* RopeCircleView.swift in Sources */,
 				34E99ADE28B045F300C80EF1 /* TowerNameView.swift in Sources */,
 				3410D34A2735A92D00B0C8EC /* APIModel.swift in Sources */,
+				3464DC7428D7E28300633BD5 /* ChatView.swift in Sources */,
 				3454CBC7287DFD1500FB2495 /* ViewHelpers.swift in Sources */,
 				3454ED24280C1EED00C60E3C /* AlertHandler.swift in Sources */,
 				341D38E72722082100E340CF /* AccountCreationView.swift in Sources */,
@@ -803,6 +816,7 @@
 				341D38F82722D15B00E340CF /* ShareSheet.swift in Sources */,
 				345052B72812C04200143E22 /* MainView.swift in Sources */,
 				341A25BA28CBEE1D00D702FE /* BellsView.swift in Sources */,
+				34A7CFF528CCE571007C6CF2 /* SettingsView.swift in Sources */,
 				3454CBAF287DABD800FB2495 /* ErrorUtil.swift in Sources */,
 				341D38FC2722DB4D00E340CF /* NetworkStatus.swift in Sources */,
 				341A25BC28CBEE3000D702FE /* AssignmentsListView.swift in Sources */,
@@ -815,6 +829,7 @@
 				34706FB5287F6F01004127CD /* Starling.swift in Sources */,
 				341C9F4C26B8868A00EB093A /* Tower.swift in Sources */,
 				3454CBA8287CC66700FB2495 /* AuthenicationService.swift in Sources */,
+				3464DC7628D7E28B00633BD5 /* WheatleyView.swift in Sources */,
 				3410D34B2735A92D00B0C8EC /* APIService.swift in Sources */,
 				34A22A6426C04D5600FE255C /* Bool.swift in Sources */,
 				341C9F4826B8851400EB093A /* HTTPClient.swift in Sources */,
@@ -830,6 +845,7 @@
 				3454ED26280C280F00C60E3C /* Region.swift in Sources */,
 				341D38F42722CFFE00E340CF /* SwiftUIWebView.swift in Sources */,
 				3454ED2A280C3FD700C60E3C /* ThreadUtil.swift in Sources */,
+				3464DC7228D7E27900633BD5 /* UsersView.swift in Sources */,
 				341C9F2C26B87C6900EB093A /* NewRingingRoomApp.swift in Sources */,
 				3454CBB8287DD31800FB2495 /* AccountView.swift in Sources */,
 				3454ED1F280C1E6E00C60E3C /* APIError.swift in Sources */,

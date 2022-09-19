@@ -84,18 +84,23 @@ class RingingRoomViewModel: ObservableObject {
         self.socketIOService.delegate = self
     }
     
+    deinit {
+        print("class deinit")
+        socketIOService.disconnect()
+    }
+    
     func ringBell(number: Int) {
-        send(event: "c_bell_rung", with: ["bell": number, "stroke": bellStates[number - 1].boolValue, "tower_id": towerInfo.towerID])
+        send(.bellRung(bell: number, stroke: bellStates[number - 1].boolValue))
     }
     
     func makeCall(_ call: Call) {
-        send(event: "c_call", with: ["call": call.string, "tower_id": towerInfo.towerID])
+        send(.call(call.string))
     }
     
     func connect() {
         socketIOService.connect { [weak self] in
             if let self {
-                self.send(event: "c_join", with: ["tower_id": self.towerInfo.towerID, "user_token": self.apiService.token, "anonymous_user": false])
+                self.send(.join)
                 self.audioService.starling.prepareToStart()
             }
         }
@@ -109,8 +114,34 @@ class RingingRoomViewModel: ObservableObject {
     private let socketIOService: SocketIOService
     let towerInfo: TowerInfo
     
-    func send(event: String, with data: [String: Any]) {
-        socketIOService.send(event: event, with: data)
+    func send(_ event: ClientSocketEvent) {
+        let payload = {
+            switch event {
+            case .join:
+                return ["tower_id": towerInfo.towerID, "user_token": apiService.token, "anonymous_user": false]
+            case .userLeft:
+                return ["user_name": user.username, "tower_id": towerInfo.towerID, "user_token": apiService.token, "anonymous_user": false]
+            case .requestGlobalState:
+                return ["tower_id": towerInfo.towerID]
+            case .bellRung(let bell, let stroke):
+                return ["bell": bell, "stroke": stroke, "tower_id": towerInfo.towerID]
+            case .assignUser(let bell, let user):
+                return ["tower_id": towerInfo.towerID, "bell": bell, "user": user]
+            case .audioChange(let bellType):
+                return ["tower_id": towerInfo.towerID, "new_audio": bellType.rawValue]
+            case .hostModeSet(let newMode):
+                return ["tower_id": towerInfo.towerID, "new_mode": newMode]
+            case .sizeChange(let newSize):
+                return ["tower_id": towerInfo.towerID, "new_size": newSize]
+            case .messageSent(let message, let time):
+                return ["user": user.username, "email": user.email, "msg": message, "tower_id": towerInfo.towerID, "time": time]
+            case .call(let call):
+                return ["call": call, "tower_id": towerInfo.towerID]
+            case .setBells:
+                return ["tower_id": towerInfo.towerID]
+            }
+        }()
+        socketIOService.send(event: event.eventName, with: payload)
     }
     
     func disconnect() {
@@ -125,32 +156,21 @@ class RingingRoomViewModel: ObservableObject {
     @Published var assignments = [Int?]()
     @Published var bellStates = [BellStroke]()
     @Published var hostMode = false
+    @Published var bellMode = BellMode.ring
+    
+    var hasPermissions: Bool {
+        !towerInfo.hostModePermitted || towerInfo.isHost || !hostMode
+    }
     
     let callPublisher = PassthroughSubject<String, Never>()
     
     private let audioService = AudioService()
     
-    func changeVolume(to volume: Float) {
-        audioService.starling.changeVolume(to: volume)
+    func changeVolume(to volume: Double) {
+        let mappedVolume = pow(volume, 3)
+        UserDefaults.standard.set(mappedVolume, forKey: "volume")
+        audioService.starling.changeVolume(to: Float(mappedVolume))
     }
-    
-//    func sortUsers() {
-//        print(users)
-//        var tempUsers = users
-//        var newUsers = [Ringer]()
-//        for assignment in assignments {
-//            if let assignment {
-//                if !newUsers.contains(assignment) {
-//                    tempUsers.remove(assignment)
-//                    newUsers.append(assignment)
-//                }
-//            }
-//        }
-//        tempUsers.sortAlphabetically()
-//        newUsers += tempUsers
-//        print(newUsers)
-//        users = newUsers
-//    }
     
     @Published var isLargeSize = false
     
@@ -173,20 +193,6 @@ class RingingRoomViewModel: ObservableObject {
     
     var autoRotate = UserDefaults.standard.optionalBool(forKey: "autoRotate") ?? true
     
-    @Published var bellMode = BellMode.ring
-    
-//    @objc func updateAssignments() {
-//        print("updating assignments")
-//        for (index, assignment) in assignmentsBuffer.enumerated() {
-//            if assignment != nil {
-//                assignments[index] = assignment!
-//            }
-//        }
-//
-//
-//
-//        assignmentsBuffer = Array(repeating: nil, count: size)
-//    }
 }
 
 protocol SocketIODelegate: AnyObject {
@@ -207,7 +213,7 @@ extension RingingRoomViewModel: SocketIODelegate {
     func userDidEnter(_ ringer: Ringer) {
         if self.ringer == nil {
             self.ringer = ringer
-            send(event: "c_request_global_state", with: ["tower_id": towerInfo.towerID])
+            send(.requestGlobalState)
         }
         
         guard !users.keys.contains(ringer.ringerID) else { return }
@@ -215,6 +221,10 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func userDidLeave(_ ringer: Ringer) {
+        if ringer.id == self.ringer?.ringerID {
+            
+        }
+        
         users.removeValue(forKey: ringer.ringerID)
         
         while assignments.contains(ringer.ringerID) {
