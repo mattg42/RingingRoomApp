@@ -110,14 +110,13 @@ struct WelcomeLoginView: View {
                     Text("Server")
                     
                     Spacer()
-                    Menu(authenticationService.region.displayName) {
+                    Picker(authenticationService.region.displayName, selection: $authenticationService.region) {
                         ForEach(Region.allCases.sorted()) { region in
-                            Button(region.displayName) {
-                                authenticationService.region = region
-                            }
+                            Text(region.displayName)
+                                .tag(region)
                         }
-                        .padding(.top, 1)
                     }
+                    .pickerStyle(.menu)
                 }
                 
                 AsyncButton {
