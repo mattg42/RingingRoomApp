@@ -105,7 +105,7 @@ struct CallButton: View {
             }
             .frame(height: 30)
         }
-        .buttonStyle(.bellTouchdown)
+        .buttonStyle(.callTouchdown)
     }
 }
 

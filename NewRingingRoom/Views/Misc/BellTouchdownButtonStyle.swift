@@ -16,9 +16,7 @@ struct BellTouchdownButtonStyle: PrimitiveButtonStyle {
     @State var disabled = false
     
     @GestureState var location = CGPoint.zero
-    
-    @State var time = Date.now
-    
+        
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .opacity(opacity)
@@ -28,7 +26,6 @@ struct BellTouchdownButtonStyle: PrimitiveButtonStyle {
                         if !disabled && location == .zero {
                             disabled = true
                             configuration.trigger()
-                            time = .now
                             opacity = 0.35
                             withAnimation(.linear(duration: cooldown)) {
                                 opacity = 1
