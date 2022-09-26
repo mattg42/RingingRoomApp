@@ -38,7 +38,7 @@ struct BellsView: View {
                         }
                     }
                 }
-                .buttonStyle(.touchdown)
+                .buttonStyle(.bellTouchdown)
                 .position(bellPositions[bellNumber - 1])
             }
         }

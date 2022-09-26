@@ -89,9 +89,9 @@ class SocketIOService {
     
     private func setupListeners() {
  
-        socket.onAny { event in
-            print(event.event)
-        }
+//        socket.onAny { event in
+//            print(event.event)
+//        }
         
         listen(for: "s_user_entered") { [weak self] data in
             let user = Ringer(from: data)
@@ -165,7 +165,7 @@ class SocketIOService {
     
     func send(event: String, with data: SocketData) {
         socket.emit(event, data)
-        print("sent event \(event) with data \(data)")
+//        print("sent event \(event) with data \(data)")
     }
     
     func listen(for event: String, callback: @escaping ([String: Any]) throws -> Void) {

@@ -60,6 +60,7 @@
 		3454ED2A280C3FD700C60E3C /* ThreadUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454ED29280C3FD700C60E3C /* ThreadUtil.swift */; };
 		3454ED2D280C607D00C60E3C /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 3454ED2C280C607D00C60E3C /* SocketIO */; };
 		3454ED2F280C9FBB00C60E3C /* LoginError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454ED2E280C9FBB00C60E3C /* LoginError.swift */; };
+		345734F528E0D05D00A912ED /* CallTouchdownButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345734F428E0D05D00A912ED /* CallTouchdownButtonStyle.swift */; };
 		346118BC2883010D006AA770 /* RingingRoomViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346118BB2883010D006AA770 /* RingingRoomViewModel.swift */; };
 		3464DC7228D7E27900633BD5 /* UsersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3464DC7128D7E27900633BD5 /* UsersView.swift */; };
 		3464DC7428D7E28300633BD5 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3464DC7328D7E28300633BD5 /* ChatView.swift */; };
@@ -134,7 +135,7 @@
 		34A7CFF328CCC54A007C6CF2 /* CallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF228CCC54A007C6CF2 /* CallView.swift */; };
 		34A7CFF528CCE571007C6CF2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF428CCE571007C6CF2 /* SettingsView.swift */; };
 		34B20F0826D05B9A00468F81 /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B20F0726D05B9A00468F81 /* Resolver.swift */; };
-		34BA523328B106E20084033C /* TouchdownButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BA523228B106E20084033C /* TouchdownButtonStyle.swift */; };
+		34BA523328B106E20084033C /* BellTouchdownButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BA523228B106E20084033C /* BellTouchdownButtonStyle.swift */; };
 		34BD256626BF0255000E932C /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BD256526BF0255000E932C /* Global.swift */; };
 		34E99ADC28B0446300C80EF1 /* RingingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99ADB28B0446300C80EF1 /* RingingRoomView.swift */; };
 		34E99ADE28B045F300C80EF1 /* TowerNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99ADD28B045F300C80EF1 /* TowerNameView.swift */; };
@@ -199,6 +200,7 @@
 		3454ED27280C39CB00C60E3C /* AsyncButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncButton.swift; sourceTree = "<group>"; };
 		3454ED29280C3FD700C60E3C /* ThreadUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadUtil.swift; sourceTree = "<group>"; };
 		3454ED2E280C9FBB00C60E3C /* LoginError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LoginError.swift; path = NewRingingRoom/Views/Login/LoginError.swift; sourceTree = SOURCE_ROOT; };
+		345734F428E0D05D00A912ED /* CallTouchdownButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallTouchdownButtonStyle.swift; sourceTree = "<group>"; };
 		346118BB2883010D006AA770 /* RingingRoomViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingingRoomViewModel.swift; sourceTree = "<group>"; };
 		3464DC7128D7E27900633BD5 /* UsersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersView.swift; sourceTree = "<group>"; };
 		3464DC7328D7E28300633BD5 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
@@ -273,7 +275,7 @@
 		34A7CFF228CCC54A007C6CF2 /* CallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallView.swift; sourceTree = "<group>"; };
 		34A7CFF428CCE571007C6CF2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		34B20F0726D05B9A00468F81 /* Resolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
-		34BA523228B106E20084033C /* TouchdownButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchdownButtonStyle.swift; sourceTree = "<group>"; };
+		34BA523228B106E20084033C /* BellTouchdownButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BellTouchdownButtonStyle.swift; sourceTree = "<group>"; };
 		34BD256526BF0255000E932C /* Global.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
 		34E99ADB28B0446300C80EF1 /* RingingRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingingRoomView.swift; sourceTree = "<group>"; };
 		34E99ADD28B045F300C80EF1 /* TowerNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TowerNameView.swift; sourceTree = "<group>"; };
@@ -451,7 +453,8 @@
 				341D38EE2722CFB100E340CF /* PrivacyPolicyView.swift */,
 				341D38F72722D15B00E340CF /* ShareSheet.swift */,
 				3454ED27280C39CB00C60E3C /* AsyncButton.swift */,
-				34BA523228B106E20084033C /* TouchdownButtonStyle.swift */,
+				34BA523228B106E20084033C /* BellTouchdownButtonStyle.swift */,
+				345734F428E0D05D00A912ED /* CallTouchdownButtonStyle.swift */,
 			);
 			path = Misc;
 			sourceTree = "<group>";
@@ -825,6 +828,7 @@
 				3454CBB2287DD2B000FB2495 /* TowersView.swift in Sources */,
 				3471D43C26C191E000A20FA8 /* AutoLoginView.swift in Sources */,
 				3454CBC3287DFC3C00FB2495 /* AdvancedFeatures.swift in Sources */,
+				345734F528E0D05D00A912ED /* CallTouchdownButtonStyle.swift in Sources */,
 				34BD256626BF0255000E932C /* Global.swift in Sources */,
 				34706FB5287F6F01004127CD /* Starling.swift in Sources */,
 				341C9F4C26B8868A00EB093A /* Tower.swift in Sources */,
@@ -857,7 +861,7 @@
 				3454CBBA287DE38300FB2495 /* MailView.swift in Sources */,
 				3435AD8C287F0BE800C8CF41 /* SocketIOService.swift in Sources */,
 				341D38F52722CFFE00E340CF /* WebView.swift in Sources */,
-				34BA523328B106E20084033C /* TouchdownButtonStyle.swift in Sources */,
+				34BA523328B106E20084033C /* BellTouchdownButtonStyle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

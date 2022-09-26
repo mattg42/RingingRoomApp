@@ -15,14 +15,14 @@ enum TowerControlViewSelection: String, CaseIterable, Identifiable {
 
 struct TowerControlsView: View {
     
-    @SceneStorage("selection") var viewSelection = TowerControlViewSelection.settings
+    @EnvironmentObject var viewModel: RingingRoomViewModel
     
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Picker("", selection: $viewSelection) {
+                Picker("", selection: $viewModel.towerControlsViewSelection) {
                     ForEach(TowerControlViewSelection.allCases) { selection in
                         Text(selection.rawValue.capitalized)
                             .tag(selection)
@@ -31,17 +31,16 @@ struct TowerControlsView: View {
                 .pickerStyle(.segmented)
 
                 Button("Back") {
-                    withAnimation {
-                        dismiss()
-                    }
+//                    withAnimation {
+                    dismiss()
+//                    }
                 }
                 .padding(.leading, 7)
                 
             }
             .padding(.horizontal)
             .padding(.bottom, 2)
-            
-            switch viewSelection {
+            switch viewModel.towerControlsViewSelection {
             case .settings:
                 SettingsView()
             case .users:

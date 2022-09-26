@@ -54,6 +54,10 @@ struct RingingRoomView: View {
                         }
                         .fixedSize()
                     }
+                    .fullScreenCover(isPresented: $showingTowerControls) {
+//                        Button("BAck") { showingTowerControls = false }
+                                    TowerControlsView()
+                    }
                 }
                 
                 Spacer()
@@ -67,9 +71,6 @@ struct RingingRoomView: View {
                 }
             }
             .padding([.horizontal, .bottom], 5)
-        }
-        .fullScreenCover(isPresented: $showingTowerControls) {
-            TowerControlsView()
         }
         .sheet(isPresented: $showingHelp, content: {
             HelpView(showDismiss: true)

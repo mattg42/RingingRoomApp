@@ -14,7 +14,8 @@ enum TowerListType: String, CaseIterable, Identifiable {
 }
 
 struct TowersView: View {
-    
+    @State var showingTowerControls = false
+
     @State private var joinTowerShowing = false
     @State private var createTowerShowing = false
     
@@ -175,6 +176,17 @@ struct TowersView: View {
                 .padding([.horizontal, .top])
                 .navigationTitle("Towers")
                 .navigationBarTitleDisplayMode(.inline)
+                
+                .fullScreenCover(isPresented: $showingTowerControls) {
+                    //            TowerControlsView()
+                    Button("Asdasd") {
+                        showingTowerControls = false
+                    }
+                }
+                
+                Button("asdasd") {
+                    showingTowerControls = true
+                }
             }
             .navigationViewStyle(StackNavigationViewStyle())
     }

@@ -66,7 +66,7 @@ struct RingingButtonsView: View {
                             } label: {
                                 RingButton(number: viewModel.size - i)
                             }
-                            .buttonStyle(.touchdown)
+                            .buttonStyle(.bellTouchdown)
                         }
                     }
                 }
@@ -105,7 +105,7 @@ struct CallButton: View {
             }
             .frame(height: 30)
         }
-        .buttonStyle(.touchdown)
+        .buttonStyle(.bellTouchdown)
     }
 }
 
