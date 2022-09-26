@@ -14,10 +14,6 @@ extension Double {
     }
 }
 
-enum TowerControlsViewSelection {
-    case users, chat
-}
-
 enum BellType: String, CaseIterable, Identifiable {
     var id: Self { self }
     
@@ -85,11 +81,11 @@ class RingingRoomViewModel: ObservableObject {
     }
     
     deinit {
-        print("class deinit")
         socketIOService.disconnect()
     }
     
     func ringBell(number: Int) {
+        ringTime = .now
         send(.bellRung(bell: number, stroke: bellStates[number - 1].boolValue))
     }
     
@@ -167,23 +163,23 @@ class RingingRoomViewModel: ObservableObject {
     private let audioService = AudioService()
     
     func changeVolume(to volume: Double) {
+        UserDefaults.standard.set(volume, forKey: "volume")
+
         let mappedVolume = pow(volume, 3)
-        UserDefaults.standard.set(mappedVolume, forKey: "volume")
         audioService.starling.changeVolume(to: Float(mappedVolume))
     }
     
     @Published var isLargeSize = false
-    
-    @Published var towerControlsViewSelection = TowerControlsViewSelection.users
-    
+        
     @Published var newMessages = 0
     @Published var messages = [Message]()
     
     var canSeeMessages: Bool {
-        towerControlsViewSelection == .chat && showingTowerControls
+        false
     }
     
     @Published var showingTowerControls = false
+    @Published var towerControlsViewSelection = TowerControlViewSelection.settings
     
     var sortUsersTimer = Timer()
     var updateAssignmentsTimer = Timer()
@@ -193,6 +189,7 @@ class RingingRoomViewModel: ObservableObject {
     
     var autoRotate = UserDefaults.standard.optionalBool(forKey: "autoRotate") ?? true
     
+    var ringTime: Date = .now
 }
 
 protocol SocketIODelegate: AnyObject {
@@ -213,7 +210,6 @@ extension RingingRoomViewModel: SocketIODelegate {
     func userDidEnter(_ ringer: Ringer) {
         if self.ringer == nil {
             self.ringer = ringer
-            send(.requestGlobalState)
         }
         
         guard !users.keys.contains(ringer.ringerID) else { return }
@@ -246,6 +242,7 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func bellDidRing(number: Int, globalState: [BellStroke]) {
+        print(Date.now.timeIntervalSince(ringTime))
         bellStates = globalState
         
         guard var fileName = bellType.sounds[size]?[number - 1] else { return }
@@ -292,17 +289,24 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func sizeDidChange(to newSize: Int) {
-        
-        if newSize > size {
-            for _ in 1...(newSize - size) {
-                assignments.append(nil)
+        if size != newSize {
+            if size == 0 {
+                send(.requestGlobalState)
             }
+            
+            if newSize > size {
+                for _ in 1...(newSize - size) {
+                    assignments.append(nil)
+                }
+            } else {
+                assignments = Array(assignments[..<newSize])
+            }
+            
+            bellStates = Array(repeating: .hand, count: newSize)
+            size = newSize
         } else {
-            assignments = Array(assignments[..<newSize])
+            send(.requestGlobalState)
         }
-        
-        bellStates = Array(repeating: .hand, count: newSize)
-        size = newSize
     }
     
     func didReceiveMessage(_ message: Message) {

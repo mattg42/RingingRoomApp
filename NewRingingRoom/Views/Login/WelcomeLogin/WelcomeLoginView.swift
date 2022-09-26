@@ -119,28 +119,20 @@ struct WelcomeLoginView: View {
                     .pickerStyle(.menu)
                 }
                 
-                AsyncButton(progressViewColor: .white) {
+                
+                AsyncButton(progressViewColor: .white, progressViewPadding: 5) {
                     await login()
                 } label: {
                     Text("Login")
-                }
-                .foregroundColor(.white)
-                .contentShape(RoundedRectangle(cornerRadius: 5))
-
-                .padding(10)
-                .contentShape(RoundedRectangle(cornerRadius: 5))
-
-                .frame(maxWidth: .infinity)
-                .contentShape(RoundedRectangle(cornerRadius: 5))
-
-                .background(
+                        .padding(.vertical, 5)
+                } background: {
                     Color.main
                         .cornerRadius(5)
                         .opacity(loginDisabled ? 0.35 : 1)
-//                        .frame(maxWidth: .infinity)
-                )
-//                .frame(maxWidth: .infinity)
-                .contentShape(RoundedRectangle(cornerRadius: 5))
+                }
+                .fixedSize(horizontal: false, vertical: true)
+                .contentShape(Rectangle())
+                .foregroundColor(.white)
                 .disabled(loginDisabled)
                 
                 HStack {

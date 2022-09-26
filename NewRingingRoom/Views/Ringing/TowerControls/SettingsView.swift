@@ -14,7 +14,7 @@ struct SettingsView: View {
     
     @Environment(\.dismiss) var dismiss
     
-    @State var volume = UserDefaults.standard.optionalDouble(forKey: "volume") ?? 1
+    @SceneStorage("volume") var volume = UserDefaults.standard.optionalDouble(forKey: "volume") ?? 1
     
     @SceneStorage("size") var size = 0
     @SceneStorage("bellType") var bellType = BellType.tower

@@ -72,7 +72,7 @@ struct TestApp: App {
         let session = AVAudioSession.sharedInstance()
         
         do {
-            try session.setCategory(.playback, mode: AVAudioSession.Mode.voicePrompt, options: [.duckOthers, .interruptSpokenAudioAndMixWithOthers])
+            try session.setCategory(.playback, mode: .default, options: [.duckOthers, .interruptSpokenAudioAndMixWithOthers])
             
             try session.setPreferredIOBufferDuration(0.002)
             try session.setActive(true, options: .notifyOthersOnDeactivation)
