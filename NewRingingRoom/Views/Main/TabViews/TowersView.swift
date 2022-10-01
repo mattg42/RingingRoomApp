@@ -14,6 +14,10 @@ enum TowerListType: String, CaseIterable, Identifiable {
 }
 
 struct TowersView: View {
+
+    let user: User
+    let apiService: APIService
+
     @State var showingTowerControls = false
 
     @State private var joinTowerShowing = false
@@ -21,9 +25,7 @@ struct TowersView: View {
     
     @State private var towerID = ""
     @State private var towerName = ""
-    
-    @Environment(\.user) var user
-    @Environment(\.apiService) var apiService
+
     @EnvironmentObject var appRouter: AppRouter
     
     var body: some View {

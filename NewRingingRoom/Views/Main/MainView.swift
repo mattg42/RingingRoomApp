@@ -13,11 +13,14 @@ enum TabViewType {
 
 struct MainView: View {
     
+    let user: User
+    let apiService: APIService
+    
     @State var showingPrivacyPolicyView = false
     
     var body: some View {
         TabView {
-            TowersView()
+            TowersView(user: user, apiService: apiService)
                 .tag(TabViewType.ring)
                 .tabItem {
                     Image(systemName: "list.bullet")

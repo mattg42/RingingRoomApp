@@ -25,40 +25,6 @@ enum AppModule {
     case ringing(viewModel: RingingRoomViewModel)
 }
 
-private struct APIServiceKey: EnvironmentKey {
-    static let defaultValue: APIService = APIService(token: "", region: .uk)
-}
-
-extension EnvironmentValues {
-    var apiService: APIService {
-        get { self[APIServiceKey.self] }
-        set { self[APIServiceKey.self] = newValue }
-    }
-}
-
-extension View {
-    func embedApiSerivce(_ apiService: APIService) -> some View {
-        environment(\.apiService, apiService)
-    }
-}
-
-private struct UserKey: EnvironmentKey {
-    static let defaultValue: User = User(email: "", password: "", username: "", towers: [Tower]())
-}
-
-extension EnvironmentValues {
-    var user: User {
-        get { self[UserKey.self] }
-        set { self[UserKey.self] = newValue }
-    }
-}
-
-extension View {
-    func embedUser(_ user: User) -> some View {
-        environment(\.user, user)
-    }
-}
-
 @main
 struct TestApp: App {
         
@@ -90,9 +56,7 @@ struct TestApp: App {
                 case .login:
                     LoginOverview()
                 case .main(let user, let apiService):
-                    MainView()
-                        .embedUser(user)
-                        .embedApiSerivce(apiService)
+                    MainView(user: user, apiService: apiService)
                 case .ringing(let viewModel):
                     RingingRoomView()
                         .environmentObject(viewModel)
