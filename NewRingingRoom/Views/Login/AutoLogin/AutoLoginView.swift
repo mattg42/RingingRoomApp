@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AutoLoginView: View {
         
-    @EnvironmentObject var appRouter: AppRouter
+    @EnvironmentObject var router: Router<AppRoute>
     
     @State private var autoJoinTowerID: Int?
     
@@ -48,7 +48,7 @@ struct AutoLoginView: View {
         await ErrorUtil.do {
             let password = try KeychainService.getPasswordFor(account: email, server: authenticationService.domain )
             let (user, apiService) = try await authenticationService.login(email: email.lowercased(), password: password)
-            appRouter.moveTo(.main(user: user, apiService: apiService))
+            router.moveTo(.main(user: user, apiService: apiService))
         }
     }
 }

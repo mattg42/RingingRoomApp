@@ -13,14 +13,14 @@ enum ThreadUtil {
             if Thread.isMainThread {
                 closure()
             } else {
-                DispatchQueue.main.sync {
+                DispatchQueue.main.async {
                     closure()
                 }
             }
         } else {
             Task {
                 try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-                DispatchQueue.main.sync {
+                DispatchQueue.main.async {
                     closure()
                 }
             }

@@ -38,7 +38,7 @@
 		3435AD8A287F061500C8CF41 /* Ringer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3435AD89287F061500C8CF41 /* Ringer.swift */; };
 		3435AD8C287F0BE800C8CF41 /* SocketIOService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3435AD8B287F0BE800C8CF41 /* SocketIOService.swift */; };
 		3435AD8E287F196100C8CF41 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3435AD8D287F196100C8CF41 /* Message.swift */; };
-		345052B72812C04200143E22 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345052B62812C04200143E22 /* MainView.swift */; };
+		345052B72812C04200143E22 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345052B62812C04200143E22 /* HomeView.swift */; };
 		3454CBA8287CC66700FB2495 /* AuthenicationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454CBA7287CC66700FB2495 /* AuthenicationService.swift */; };
 		3454CBAF287DABD800FB2495 /* ErrorUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454CBAE287DABD800FB2495 /* ErrorUtil.swift */; };
 		3454CBB2287DD2B000FB2495 /* TowersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454CBB1287DD2B000FB2495 /* TowersView.swift */; };
@@ -132,6 +132,7 @@
 		3471D43C26C191E000A20FA8 /* AutoLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3471D43B26C191E000A20FA8 /* AutoLoginView.swift */; };
 		34A22A6426C04D5600FE255C /* Bool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6326C04D5600FE255C /* Bool.swift */; };
 		34A22A6826C0564E00FE255C /* WelcomeLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */; };
+		34A69FBB290B20160090679B /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A69FBA290B20160090679B /* MainView.swift */; };
 		34A7CFF328CCC54A007C6CF2 /* CallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF228CCC54A007C6CF2 /* CallView.swift */; };
 		34A7CFF528CCE571007C6CF2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF428CCE571007C6CF2 /* SettingsView.swift */; };
 		34B20F0826D05B9A00468F81 /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B20F0726D05B9A00468F81 /* Resolver.swift */; };
@@ -179,7 +180,7 @@
 		3435AD89287F061500C8CF41 /* Ringer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ringer.swift; sourceTree = "<group>"; };
 		3435AD8B287F0BE800C8CF41 /* SocketIOService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketIOService.swift; sourceTree = "<group>"; };
 		3435AD8D287F196100C8CF41 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
-		345052B62812C04200143E22 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		345052B62812C04200143E22 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		3454CBA7287CC66700FB2495 /* AuthenicationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenicationService.swift; sourceTree = "<group>"; };
 		3454CBAE287DABD800FB2495 /* ErrorUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorUtil.swift; sourceTree = "<group>"; };
 		3454CBB1287DD2B000FB2495 /* TowersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TowersView.swift; sourceTree = "<group>"; };
@@ -272,6 +273,7 @@
 		3471D43B26C191E000A20FA8 /* AutoLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoLoginView.swift; sourceTree = "<group>"; };
 		34A22A6326C04D5600FE255C /* Bool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bool.swift; sourceTree = "<group>"; };
 		34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeLoginView.swift; sourceTree = "<group>"; };
+		34A69FBA290B20160090679B /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		34A7CFF228CCC54A007C6CF2 /* CallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallView.swift; sourceTree = "<group>"; };
 		34A7CFF428CCE571007C6CF2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		34B20F0726D05B9A00468F81 /* Resolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
@@ -346,7 +348,6 @@
 				341D38ED2722CFA400E340CF /* Misc */,
 				341C9F4026B87FD500EB093A /* Login */,
 				341C9F4126B87FE500EB093A /* Main */,
-				34E99ADA28B0445700C80EF1 /* Ringing */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -400,8 +401,9 @@
 		341C9F4126B87FE500EB093A /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				345052B62812C04200143E22 /* MainView.swift */,
-				3454CBB0287DD29D00FB2495 /* TabViews */,
+				34A69FBA290B20160090679B /* MainView.swift */,
+				34A69FB9290B1FE40090679B /* Home */,
+				34E99ADA28B0445700C80EF1 /* Ringing */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -627,6 +629,15 @@
 			path = AutoLogin;
 			sourceTree = "<group>";
 		};
+		34A69FB9290B1FE40090679B /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				345052B62812C04200143E22 /* HomeView.swift */,
+				3454CBB0287DD29D00FB2495 /* TabViews */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
 		34E99ADA28B0445700C80EF1 /* Ringing */ = {
 			isa = PBXGroup;
 			children = (
@@ -817,7 +828,7 @@
 				3471D43A26C18F9700A20FA8 /* LoginOverview.swift in Sources */,
 				341C9F4A26B885E500EB093A /* User.swift in Sources */,
 				341D38F82722D15B00E340CF /* ShareSheet.swift in Sources */,
-				345052B72812C04200143E22 /* MainView.swift in Sources */,
+				345052B72812C04200143E22 /* HomeView.swift in Sources */,
 				341A25BA28CBEE1D00D702FE /* BellsView.swift in Sources */,
 				34A7CFF528CCE571007C6CF2 /* SettingsView.swift in Sources */,
 				3454CBAF287DABD800FB2495 /* ErrorUtil.swift in Sources */,
@@ -836,6 +847,7 @@
 				3464DC7628D7E28B00633BD5 /* WheatleyView.swift in Sources */,
 				3410D34B2735A92D00B0C8EC /* APIService.swift in Sources */,
 				34A22A6426C04D5600FE255C /* Bool.swift in Sources */,
+				34A69FBB290B20160090679B /* MainView.swift in Sources */,
 				341C9F4826B8851400EB093A /* HTTPClient.swift in Sources */,
 				341D38E12721CECE00E340CF /* KeychainService.swift in Sources */,
 				3454CBBF287DF46000FB2495 /* HelpSection.swift in Sources */,

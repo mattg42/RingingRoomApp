@@ -165,7 +165,6 @@ class SocketIOService {
     
     func send(event: String, with data: SocketData) {
         socket.emit(event, data)
-//        print("sent event \(event) with data \(data)")
     }
     
     func listen(for event: String, callback: @escaping ([String: Any]) throws -> Void) {

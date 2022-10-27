@@ -53,24 +53,10 @@ struct RingButton:View {
 }
 
 struct RingingButtonsView: View {
-    @EnvironmentObject var viewModel: RingingRoomViewModel
 
     var body: some View {
         VStack(spacing: 5) {
-            if viewModel.assignments.contains(viewModel.ringer!.ringerID) {
-                HStack(spacing: 5) {
-                    ForEach(0..<viewModel.size, id: \.self) { i in
-                        if viewModel.assignments[viewModel.size - 1 - i] == viewModel.ringer!.ringerID {
-                            Button {
-                                viewModel.ringBell(number: viewModel.size - i)
-                            } label: {
-                                RingButton(number: viewModel.size - i)
-                            }
-                            .buttonStyle(.bellTouchdown)
-                        }
-                    }
-                }
-            }
+            AssignedButtons()
             
             HStack(spacing: 5) {
                 CallButton(call: .bob)
@@ -87,6 +73,31 @@ struct RingingButtonsView: View {
     }
 }
 
+struct AssignedButtons: View {
+    
+    @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var state: RingingRoomState
+    
+    var body: some View {
+        if state.ringer != nil {
+            if state.assignments.contains(viewModel.unwrappedRinger.ringerID) {
+                HStack(spacing: 5) {
+                    ForEach(0..<state.size, id: \.self) { i in
+                        if state.assignments[state.size - 1 - i] == viewModel.unwrappedRinger.ringerID {
+                            Button {
+                                viewModel.ringBell(number: state.size - i)
+                            } label: {
+                                RingButton(number: state.size - i)
+                            }
+                            .buttonStyle(.bellTouchdown)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 struct CallButton: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
         
@@ -94,7 +105,7 @@ struct CallButton: View {
     
     var body: some View {
         Button {
-            viewModel.makeCall(call)
+            viewModel.send(.call(call.string))
         } label: {
             ZStack {
                 Color("ringingButtonBackground")
@@ -106,11 +117,5 @@ struct CallButton: View {
             .frame(height: 30)
         }
         .buttonStyle(.callTouchdown)
-    }
-}
-
-struct RingingButtonsView_Previews: PreviewProvider {
-    static var previews: some View {
-        RingingButtonsView()
     }
 }

@@ -9,12 +9,13 @@ import SwiftUI
 
 struct FillInButton: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var state: RingingRoomState
     
     var body: some View {
         Button {
-            var tempUsers = Array(viewModel.users.keys)
+            var tempUsers = Array(state.users.keys)
             if !tempUsers.contains(Ringer.wheatley.ringerID) {
-                for assignment in viewModel.assignments {
+                for assignment in state.assignments {
                     if let assignment {
                         tempUsers.removeFirstInstance(of: assignment)
                     }
@@ -22,8 +23,8 @@ struct FillInButton: View {
                 
                 tempUsers = tempUsers.shuffled()
                 
-                for i in 0..<viewModel.size {
-                    if viewModel.assignments[i] == nil {
+                for i in 0..<state.size {
+                    if state.assignments[i] == nil {
                         let user = tempUsers.removeFirst()
                         viewModel.send(.assignUser(bell: i + 1, user: user))
                     }
@@ -31,7 +32,7 @@ struct FillInButton: View {
             } else {
                 tempUsers.removeFirstInstance(of: Ringer.wheatley.ringerID)
                 
-                for assignment in viewModel.assignments {
+                for assignment in state.assignments {
                     if let assignment {
                         tempUsers.removeFirstInstance(of: assignment)
                     }
@@ -39,7 +40,7 @@ struct FillInButton: View {
                 
                 tempUsers.shuffle()
                 
-                let bells = viewModel.assignments.enumerated()
+                let bells = state.assignments.enumerated()
                     .filter({ $0.element == nil })
                     .map(\.offset)
                     .shuffled()
@@ -56,18 +57,19 @@ struct FillInButton: View {
         } label: {
             Text("Fill In")
         }
-        .disabled(viewModel.users.count < viewModel.size && !viewModel.users.keys.contains(Ringer.wheatley.ringerID))
-        .opacity(viewModel.users.count < viewModel.size && !viewModel.users.keys.contains(Ringer.wheatley.ringerID) ? 0.35 : 1)
+        .disabled(state.users.count < state.size && !state.users.keys.contains(Ringer.wheatley.ringerID))
+        .opacity(state.users.count < state.size && !state.users.keys.contains(Ringer.wheatley.ringerID) ? 0.35 : 1)
     }
 }
 
 struct UnassignAllButton: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
-
+    @EnvironmentObject var state: RingingRoomState
+    
     var body: some View {
         Button {
-            for i in 0..<viewModel.size {
-                if viewModel.assignments[i] != nil {
+            for i in 0..<state.size {
+                if state.assignments[i] != nil {
                     viewModel.send(.assignUser(bell: i + 1, user: 0))
                 }
             }
@@ -79,13 +81,14 @@ struct UnassignAllButton: View {
 
 struct UsersListView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var state: RingingRoomState
     
     @Binding var selectedUser: Int
     
     var sortedUsers: [Int] {
         var users = [Int]()
         
-        for assignment in viewModel.assignments {
+        for assignment in state.assignments {
             if let assignment {
                 if !users.contains(assignment) {
                     users.append(assignment)
@@ -93,12 +96,12 @@ struct UsersListView: View {
             }
         }
         
-        users.append(contentsOf: viewModel.users.keys
+        users.append(contentsOf: state.users.keys
             .filter { user in
-                !viewModel.assignments.contains(user)
+                !state.assignments.contains(user)
             }
             .sorted { user1, user2 in
-                viewModel.users[user1]!.name < viewModel.users[user2]!.name
+                state.users[user1]!.name < state.users[user2]!.name
             }
         )
         
@@ -125,12 +128,13 @@ struct UsersListView: View {
 
 struct AssigmentButtons: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
-    
+    @EnvironmentObject var state: RingingRoomState
+
     var selectedUser: Int
     
     var body: some View {
         VStack(alignment: .trailing, spacing: 7) {
-            ForEach(0..<viewModel.assignments.count, id: \.self) { number in
+            ForEach(0..<state.assignments.count, id: \.self) { number in
                 HStack(alignment: .center, spacing: 5) {
                     if canUnassign(at: number) {
                         Button {
@@ -152,12 +156,13 @@ struct AssigmentButtons: View {
     }
     
     func canUnassign(at bell: Int) -> Bool {
-        viewModel.assignments[bell] != nil && (viewModel.hasPermissions || viewModel.assignments[bell] == viewModel.ringer!.ringerID)
+        state.assignments[bell] != nil && (viewModel.hasPermissions || state.assignments[bell] == viewModel.unwrappedRinger.ringerID)
     }
 }
 
 struct UnassignButton: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var state: RingingRoomState
 
     let number: Int
     let selectedUser: Int
@@ -187,9 +192,9 @@ struct UnassignButton: View {
             }
             .fixedSize()
         }
-        .disabled(viewModel.assignments[number] != nil)
-        .opacity(viewModel.assignments[number] == nil ? 1 : 0.35)
-        .animation(.linear(duration: 0.15), value: viewModel.assignments)
+        .disabled(state.assignments[number] != nil)
+        .opacity(state.assignments[number] == nil ? 1 : 0.35)
+        .animation(.linear(duration: 0.15), value: state.assignments)
         .fixedSize(horizontal: true, vertical: true)
     }
 }
@@ -220,7 +225,7 @@ struct UsersView: View {
             }
             .onAppear {
                 if selectedUser == 0 {
-                    selectedUser = viewModel.ringer!.ringerID
+                    selectedUser = viewModel.unwrappedRinger.ringerID
                 }
             }
         }
@@ -231,17 +236,17 @@ struct UsersView: View {
 
 struct RingerView:View {
     
-    @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var state: RingingRoomState
 
     var user: Int
     var selectedUser: Bool
         
     var body: some View {
         HStack {
-            Text(!viewModel.assignments.contains(user) ? "-" : getString())
+            Text(!state.assignments.contains(user) ? "-" : getString())
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
-            Text(viewModel.users[user]!.name)
+            Text(state.users[user]!.name)
                 .fontWeight(selectedUser ? .bold : .regular)
                 .lineLimit(1)
                 .layoutPriority(2)
@@ -253,7 +258,7 @@ struct RingerView:View {
     }
     
     func getString() -> String {
-        let indices = viewModel.assignments.enumerated()
+        let indices = state.assignments.enumerated()
             .filter { $0.element == user }
             .map(\.offset)
         

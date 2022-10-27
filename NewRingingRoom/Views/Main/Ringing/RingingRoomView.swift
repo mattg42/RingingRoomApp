@@ -10,6 +10,9 @@ struct RingingRoomView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
     
     @Environment(\.scenePhase) var scenePhase
+    
+//    @Binding var user: User
+//    let apiService: APIService
         
     @State var showingTowerControls = false
     @State var showingHelp = false
@@ -37,6 +40,7 @@ struct RingingRoomView: View {
                         }
                         .fixedSize()
                     }
+
                     
                     Spacer()
                     
@@ -54,27 +58,27 @@ struct RingingRoomView: View {
                         }
                         .fixedSize()
                     }
-                    .fullScreenCover(isPresented: $showingTowerControls) {
-//                        Button("BAck") { showingTowerControls = false }
-                                    TowerControlsView()
-                    }
+
                 }
+                .sheet(isPresented: $showingHelp, content: {
+                    HelpView(showDismiss: true)
+                })
                 
                 Spacer()
                 
-                if viewModel.ringer != nil {
-                    RopeCircleView()
+                RopeCircleView()
                     
-                    Spacer()
+                Spacer()
                     
-                    RingingButtonsView()
-                }
+                RingingButtonsView()
             }
             .padding([.horizontal, .bottom], 5)
         }
-        .sheet(isPresented: $showingHelp, content: {
-            HelpView(showDismiss: true)
-        })
+        .fullScreenCover(isPresented: $showingTowerControls) {
+            //                        Button("BAck") { showingTowerControls = false }
+            TowerControlsView()
+        }
+  
         .onAppear {
             viewModel.connect()
         }

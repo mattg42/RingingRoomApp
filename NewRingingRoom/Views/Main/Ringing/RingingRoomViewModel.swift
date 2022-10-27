@@ -69,14 +69,40 @@ enum BellMode {
     case ring, rotate
 }
 
+class RingingRoomState: ObservableObject {
+    
+    @Published var ringer: Ringer?
+    
+    @Published var perspective = 1
+    
+    @Published var size = 0
+    @Published var bellType = BellType.tower
+    @Published var users = [Int: Ringer]()
+    @Published var assignments = [Int?]()
+    @Published var bellStates = [BellStroke]()
+    @Published var hostMode = false
+    @Published var bellMode = BellMode.ring
+    
+    @Published var isLargeSize = false
+    
+    @Published var newMessages = 0
+    @Published var messages = [Message]()
+    
+    @Published var showingTowerControls = false
+}
+
+class TowerControlsState: ObservableObject {
+    @Published var towerControlsViewSelection = TowerControlViewSelection.settings
+}
+
 class RingingRoomViewModel: ObservableObject {
     
-    init(socketIOService: SocketIOService, towerInfo: TowerInfo, apiService: APIService, user: User) {
+    init(socketIOService: SocketIOService, router: Router<MainRoute>, towerInfo: TowerInfo, token: String, user: User) {
         self.socketIOService = socketIOService
         self.towerInfo = towerInfo
-        self.apiService = apiService
+        self.token = token
         self.user = user
-
+        self.router = router
         self.socketIOService.delegate = self
     }
     
@@ -86,11 +112,7 @@ class RingingRoomViewModel: ObservableObject {
     
     func ringBell(number: Int) {
         ringTime = .now
-        send(.bellRung(bell: number, stroke: bellStates[number - 1].boolValue))
-    }
-    
-    func makeCall(_ call: Call) {
-        send(.call(call.string))
+        send(.bellRung(bell: number, stroke: state.bellStates[number - 1].boolValue))
     }
     
     func connect() {
@@ -102,21 +124,38 @@ class RingingRoomViewModel: ObservableObject {
         }
     }
     
-    @Published var ringer: Ringer?
+    var state = RingingRoomState()
+    let towerControlsState = TowerControlsState()
     
-    let apiService: APIService
+    var unwrappedRinger: Ringer {
+        if let ringer = state.ringer {
+            return ringer
+        } else {
+            AlertHandler.presentAlert(title: "An error occured", message: "Please leave the tower and rejoin", dismiss: .cancel(title: "Leave", action: { [weak self] in
+                self?.send(.userLeft)
+            }))
+            return Ringer(name: "", id: 0)
+        }
+    }
+    
+    let router: Router<MainRoute>
+    let token: String
     let user: User
     
-    private let socketIOService: SocketIOService
+    let socketIOService: SocketIOService
     let towerInfo: TowerInfo
+    
+    func disconnect() {
+        socketIOService.disconnect()
+    }
     
     func send(_ event: ClientSocketEvent) {
         let payload = {
             switch event {
             case .join:
-                return ["tower_id": towerInfo.towerID, "user_token": apiService.token, "anonymous_user": false]
+                return ["tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false]
             case .userLeft:
-                return ["user_name": user.username, "tower_id": towerInfo.towerID, "user_token": apiService.token, "anonymous_user": false]
+                return ["user_name": user.username, "tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false]
             case .requestGlobalState:
                 return ["tower_id": towerInfo.towerID]
             case .bellRung(let bell, let stroke):
@@ -140,22 +179,8 @@ class RingingRoomViewModel: ObservableObject {
         socketIOService.send(event: event.eventName, with: payload)
     }
     
-    func disconnect() {
-        socketIOService.disconnect()
-    }
-    
-    @Published var perspective = 1
-    
-    @Published var size = 0
-    @Published var bellType = BellType.tower
-    @Published var users = [Int: Ringer]()
-    @Published var assignments = [Int?]()
-    @Published var bellStates = [BellStroke]()
-    @Published var hostMode = false
-    @Published var bellMode = BellMode.ring
-    
     var hasPermissions: Bool {
-        !towerInfo.hostModePermitted || towerInfo.isHost || !hostMode
+        !towerInfo.hostModePermitted || towerInfo.isHost || !state.hostMode
     }
     
     let callPublisher = PassthroughSubject<String, Never>()
@@ -169,17 +194,13 @@ class RingingRoomViewModel: ObservableObject {
         audioService.starling.changeVolume(to: Float(mappedVolume))
     }
     
-    @Published var isLargeSize = false
-        
-    @Published var newMessages = 0
-    @Published var messages = [Message]()
+
     
     var canSeeMessages: Bool {
         false
     }
     
-    @Published var showingTowerControls = false
-    @Published var towerControlsViewSelection = TowerControlViewSelection.settings
+
     
     var sortUsersTimer = Timer()
     var updateAssignmentsTimer = Timer()
@@ -208,56 +229,56 @@ protocol SocketIODelegate: AnyObject {
 
 extension RingingRoomViewModel: SocketIODelegate {
     func userDidEnter(_ ringer: Ringer) {
-        if self.ringer == nil {
-            self.ringer = ringer
+        if self.state.ringer == nil {
+            self.state.ringer = ringer
         }
         
-        guard !users.keys.contains(ringer.ringerID) else { return }
-        users[ringer.ringerID] = ringer
+        guard !state.users.keys.contains(ringer.ringerID) else { return }
+        state.users[ringer.ringerID] = ringer
     }
     
     func userDidLeave(_ ringer: Ringer) {
-        if ringer.id == self.ringer?.ringerID {
-            
+        if ringer.id == unwrappedRinger.ringerID {
+            router.moveTo(.home)
         }
         
-        users.removeValue(forKey: ringer.ringerID)
+        state.users.removeValue(forKey: ringer.ringerID)
         
-        while assignments.contains(ringer.ringerID) {
-            if let index = assignments.firstIndex(of: ringer.ringerID) {
-                assignments[index] = nil
+        while state.assignments.contains(ringer.ringerID) {
+            if let index = state.assignments.firstIndex(of: ringer.ringerID) {
+                state.assignments[index] = nil
             }
         }
     }
     
     func didReceiveGlobalState(_ globalState: [BellStroke]) {
-        if size == 0 {
+        if state.size == 0 {
             sizeDidChange(to: globalState.count)
         }
-        bellStates = globalState
+        state.bellStates = globalState
     }
     
     func didReceiveUserList(_ userList: [Int: Ringer]) {
-        users = userList
+        state.users = userList
     }
     
     func bellDidRing(number: Int, globalState: [BellStroke]) {
         print(Date.now.timeIntervalSince(ringTime))
-        bellStates = globalState
+        state.bellStates = globalState
         
-        guard var fileName = bellType.sounds[size]?[number - 1] else { return }
+        guard var fileName = state.bellType.sounds[state.size]?[number - 1] else { return }
         
-        if bellType == .tower {
+        if state.bellType == .tower {
             fileName = "T" + fileName
             switch towerInfo.muffled {
             case .toll:
-                if (number != size) || globalState[number - 1] == .back {
+                if (number != state.size) || globalState[number - 1] == .back {
                     fileName += "-muf"
                 }
             case .full:
                 fileName += "-muf"
             case .half:
-                if bellStates[number-1] == .hand {
+                if state.bellStates[number-1] == .hand {
                     fileName += "-muf"
                 }
             default:
@@ -271,39 +292,63 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func didAssign(ringerID: Int, to bell: Int) {
-        if users.keys.contains(ringerID) {
-            assignments[bell - 1] = ringerID
+        if state.users.keys.contains(ringerID) {
+            state.assignments[bell - 1] = ringerID
         } else if ringerID == 0 {
-            assignments[bell - 1] = nil
+            state.assignments[bell - 1] = nil
         } else {
             AlertHandler.presentAlert(title: "Error", message: "The users list is out of sync. Please leave the tower and rejoin.", dismiss: .cancel(title: "OK", action: nil))
+            return
+        }
+        
+        if ringerID == unwrappedRinger.ringerID || ringerID == 0 {
+            if autoRotate {
+                setPersective()
+            }
         }
     }
     
     func audioDidChange(to newBellType: BellType) {
-        bellType = newBellType
+        state.bellType = newBellType
     }
     
     func hostModeDidChange(to newMode: Bool) {
-        hostMode = newMode
+        state.hostMode = newMode
+    }
+    
+    func setPersective() {
+        state.perspective = (
+            state.assignments
+                .enumerated()
+                .first(where: { $0.element == state.ringer?.ringerID })?
+                .offset ?? 0
+        ) + 1
     }
     
     func sizeDidChange(to newSize: Int) {
-        if size != newSize {
-            if size == 0 {
+        if state.size != newSize {
+            if state.size == 0 {
                 send(.requestGlobalState)
             }
             
-            if newSize > size {
-                for _ in 1...(newSize - size) {
-                    assignments.append(nil)
+            if newSize > state.size {
+                for _ in 1...(newSize - state.size) {
+                    state.assignments.append(nil)
                 }
             } else {
-                assignments = Array(assignments[..<newSize])
+                state.assignments = Array(state.assignments[..<newSize])
             }
             
-            bellStates = Array(repeating: .hand, count: newSize)
-            size = newSize
+            if autoRotate {
+                setPersective()
+            } else {
+                if state.perspective > newSize {
+                    state.perspective = 1
+                }
+            }
+            
+            state.bellStates = Array(repeating: .hand, count: newSize)
+            state.size = newSize
         } else {
             send(.requestGlobalState)
         }
@@ -311,9 +356,9 @@ extension RingingRoomViewModel: SocketIODelegate {
     
     func didReceiveMessage(_ message: Message) {
         if !canSeeMessages {
-            newMessages += 1
+            state.newMessages += 1
         }
-        messages.append(message)
+        state.messages.append(message)
     }
     
     func didReceiveCall(_ call: String) {
