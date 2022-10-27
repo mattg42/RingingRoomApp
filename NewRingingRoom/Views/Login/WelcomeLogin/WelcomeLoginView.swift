@@ -20,8 +20,8 @@ struct WelcomeLoginView: View {
         
     @Environment(\.colorScheme) var colorScheme
     
-    @EnvironmentObject var appRouter: AppRouter
-    
+    @EnvironmentObject var router: Router<AppRoute>
+
     var backgroundColor: Color {
         if colorScheme == .light {
             return Color(red: 211/255, green: 209/255, blue: 220/255)
@@ -194,7 +194,7 @@ struct WelcomeLoginView: View {
                 try KeychainService.storePasswordFor(account: email, password: password, server: authenticationService.domain)
             }
             
-            appRouter.moveTo(.main(user: user, apiService: apiService))
+            router.moveTo(.main(user: user, apiService: apiService))
         }
     }
 }

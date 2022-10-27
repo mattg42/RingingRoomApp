@@ -25,9 +25,3 @@ struct TowerNameView: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 }
-
-struct TowerNameView_Previews: PreviewProvider {
-    static var previews: some View {
-        TowerNameView()
-    }
-}

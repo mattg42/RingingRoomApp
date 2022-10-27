@@ -30,6 +30,11 @@ enum APIModel {
         var fully_muffled: Bool
     }
     
+    struct TowerCreationDetails: Decodable {
+        var tower_id: Int
+        var server_address: String
+    }
+    
     struct User: Decodable {
         var username: String
         var email: String

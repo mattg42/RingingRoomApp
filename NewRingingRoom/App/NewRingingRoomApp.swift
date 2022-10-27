@@ -9,24 +9,33 @@ import SwiftUI
 import Combine
 import AVFoundation
 
-class AppRouter: ObservableObject {
-    @Published var currentModule: AppModule = .login
-        
-    func moveTo(_ newModule: AppModule) {
+class Router<Route>: ObservableObject {
+    
+    init(defaultRoute: Route) {
+        currentRoute = defaultRoute
+    }
+    
+    @Published var currentRoute: Route
+    
+    func moveTo(_ newRoute: Route) {
         ThreadUtil.runInMain {
-            self.currentModule = newModule
+            self.currentRoute = newRoute
         }
     }
 }
 
-enum AppModule {
+enum AppRoute {
     case login
     case main(user: User, apiService: APIService)
+}
+
+enum MainRoute {
+    case home
     case ringing(viewModel: RingingRoomViewModel)
 }
 
 @main
-struct TestApp: App {
+struct RingingRoomApp: App {
         
     init() {
         let freshInstall = !UserDefaults.standard.bool(forKey: "alreadyInstalled")
@@ -47,19 +56,16 @@ struct TestApp: App {
         }
     }
     
-    @StateObject var router = AppRouter()
+    @StateObject var router = Router<AppRoute>(defaultRoute: .login)
         
     var body: some Scene {
         WindowGroup {
             Group {
-                switch router.currentModule {
+                switch router.currentRoute {
                 case .login:
                     LoginOverview()
                 case .main(let user, let apiService):
                     MainView(user: user, apiService: apiService)
-                case .ringing(let viewModel):
-                    RingingRoomView()
-                        .environmentObject(viewModel)
                 }
             }
             .tint(Color.main)

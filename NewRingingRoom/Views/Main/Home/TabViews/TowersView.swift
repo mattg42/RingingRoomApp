@@ -15,7 +15,7 @@ enum TowerListType: String, CaseIterable, Identifiable {
 
 struct TowersView: View {
 
-    let user: User
+    @Binding var user: User
     let apiService: APIService
 
     @State var showingTowerControls = false
@@ -26,7 +26,7 @@ struct TowersView: View {
     @State private var towerID = ""
     @State private var towerName = ""
 
-    @EnvironmentObject var appRouter: AppRouter
+    @EnvironmentObject var router: Router<MainRoute>
     
     var body: some View {
             NavigationView {
@@ -69,7 +69,7 @@ struct TowersView: View {
                     }
                     .padding(.bottom, 5)
                     
-                    Delimiter()
+                    Divider()
                     
                     DisclosureGroup(isExpanded: $joinTowerShowing) {
                         HStack {
@@ -128,15 +128,17 @@ struct TowersView: View {
                         }
                     }
                     
-                    Delimiter()
+                    Divider()
                     
                     DisclosureGroup(isExpanded: $createTowerShowing) {
                         ZStack {
-                            TextField("Enter name of new tower", text: $towerName).textFieldStyle(RoundedBorderTextFieldStyle())
+                            TextField("Enter name of new tower", text: $towerName)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                             
                             if towerName.count > 0 {
                                 HStack {
                                     Spacer()
+                                    
                                     Button {
                                         towerName = ""
                                     } label: {
@@ -149,10 +151,13 @@ struct TowersView: View {
                         }
                         .padding(.top, 8)
                         ZStack {
-                            Button(action: createTower) {
+                            AsyncButton {
+                                await createTower()
+                            } label: {
                                 ZStack {
                                     Color.main
                                         .cornerRadius(5)
+                                    
                                     Text("Create Tower")
                                         .foregroundColor(.white)
                                 }
@@ -178,17 +183,6 @@ struct TowersView: View {
                 .padding([.horizontal, .top])
                 .navigationTitle("Towers")
                 .navigationBarTitleDisplayMode(.inline)
-                
-                .fullScreenCover(isPresented: $showingTowerControls) {
-                    //            TowerControlsView()
-                    Button("Asdasd") {
-                        showingTowerControls = false
-                    }
-                }
-                
-                Button("asdasd") {
-                    showingTowerControls = true
-                }
             }
             .navigationViewStyle(StackNavigationViewStyle())
     }
@@ -198,22 +192,38 @@ struct TowersView: View {
             let towerDetails = try await apiService.getTowerDetails(towerID: id)
             let isHost = user.towers.first(where: { $0.towerID == id })?.host ?? false
             
-            let towerInfo = TowerInfo(towerDetails: towerDetails, isHost: isHost)
-            
-            let socketIOService = SocketIOService(url: URL(string: towerDetails.server_address)!)
-            
-            let ringingRoomViewModel = RingingRoomViewModel(socketIOService: socketIOService, towerInfo: towerInfo, apiService: apiService, user: user)
-                
-            appRouter.moveTo(.ringing(viewModel: ringingRoomViewModel))
+            connectToTower(towerDetails: towerDetails, isHost: isHost)
         }
     }
     
-    func createTower() {
+    func connectToTower(towerDetails: APIModel.TowerDetails, isHost: Bool) {
+        let towerInfo = TowerInfo(towerDetails: towerDetails, isHost: isHost)
         
+        let socketIOService = SocketIOService(url: URL(string: towerDetails.server_address)!)
+        
+        let ringingRoomViewModel = RingingRoomViewModel(socketIOService: socketIOService, router: router, towerInfo: towerInfo, token: apiService.token, user: user)
+        
+        router.moveTo(.ringing(viewModel: ringingRoomViewModel))
+        
+        Task(priority: .medium) {
+            await ErrorUtil.do {
+                let towers = try await apiService.getTowers()
+                user.towers = towers
+            }
+        }
+    }
+    
+    func createTower() async {
+        await ErrorUtil.do {
+            let towerCreationDetails = try await apiService.createTower(called: towerName)
+            let towerDetails = APIModel.TowerDetails(tower_id: towerCreationDetails.tower_id, tower_name: towerName, server_address: towerCreationDetails.server_address, additional_sizes_enabled: false, host_mode_permitted: false, half_muffled: false, fully_muffled: false)
+            
+            connectToTower(towerDetails: towerDetails, isHost: true)
+        }
     }
 }
 
-struct Delimiter: View {
+struct Divider: View {
     var body: some View {
         Rectangle()
             .fill(Color.secondary)

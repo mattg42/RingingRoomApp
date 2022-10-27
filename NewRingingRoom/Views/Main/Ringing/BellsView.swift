@@ -10,20 +10,22 @@ import SwiftUI
 struct BellsView: View {
     
     @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var state: RingingRoomState
+
     
     let bellPositions: [CGPoint]
     let imageWidth: CGFloat
     let imageHeight: CGFloat
     
     var body: some View {
-        ForEach(1...viewModel.size, id: \.self) { bellNumber in
-            if bellPositions.count == viewModel.size {
+        ForEach(1...state.size, id: \.self) { bellNumber in
+            if bellPositions.count == state.size {
                 Button {
-                    if viewModel.bellMode == .ring {
+                    if state.bellMode == .ring {
                         viewModel.ringBell(number: bellNumber)
                     } else {
-                        viewModel.perspective = bellNumber
-                        viewModel.bellMode = .ring                      
+                        state.perspective = bellNumber
+                        state.bellMode = .ring
                     }
                 } label: {
                     HStack {
@@ -47,13 +49,13 @@ struct BellsView: View {
     @ViewBuilder
     func ropeImage(number: Int) -> some View {
         Image(
-            (viewModel.bellType == .tower ? "t-" : "h-") +
-            (viewModel.bellStates[number - 1] == .hand ? number == 1 ? "handstroke-treble" : "handstroke" : "backstroke")
+            (state.bellType == .tower ? "t-" : "h-") +
+            (state.bellStates[number - 1] == .hand ? number == 1 ? "handstroke-treble" : "handstroke" : "backstroke")
         )
         .resizable()
         .frame(width: imageWidth, height: imageHeight)
         .rotation3DEffect(
-            .degrees((viewModel.bellType == .tower) ? 0 : isLeft(number) ? 180 : 0),
+            .degrees((state.bellType == .tower) ? 0 : isLeft(number) ? 180 : 0),
             axis: (x: 0.0, y: 1.0, z: 0.0),
             anchor: .center,
             perspective: 1.0
@@ -62,10 +64,10 @@ struct BellsView: View {
     }
     
     private func isLeft(_ num: Int) -> Bool {
-        if viewModel.perspective <= Int(viewModel.size/2) {
-            return num > viewModel.perspective && num <= (viewModel.perspective + Int(viewModel.size/2))
+        if state.perspective <= Int(state.size/2) {
+            return num > state.perspective && num <= (state.perspective + Int(state.size/2))
         } else {
-            return !(num > viewModel.perspective + Int(viewModel.size/2) && num <= viewModel.perspective)
+            return !(num > state.perspective + Int(state.size/2) && num <= state.perspective)
         }
     }
 }

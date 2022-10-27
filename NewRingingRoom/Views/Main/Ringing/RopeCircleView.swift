@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RopeCircleView: View {
     
-    @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var state: RingingRoomState
     
     @State var imageSize: CGFloat = 0
     @State var radius: CGFloat = 0
@@ -17,37 +17,39 @@ struct RopeCircleView: View {
 
     
     var body: some View {
-        GeometryReader { geo in
-            ZStack {
-                BellsView(bellPositions: bellPositions, imageWidth: imageWidth(size: imageSize, bellType: viewModel.bellType), imageHeight: imageHeight(size: imageSize, bellType: viewModel.bellType))
-                .onChange(of: viewModel.size) { _ in
-                    calculateImageSize(size: geo.size)
-                    getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
-                }
-                .onChange(of: viewModel.perspective) { _ in
-                    getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
-
-                }
-                .onChange(of: viewModel.bellType) { _ in
-                    calculateImageSize(size: geo.size)
-                    getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
-                }
-                .onChange(of: geo.size) { _ in
-                    calculateImageSize(size: geo.size)
-                    getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
-                }
-                .onAppear {
-                    print("Rope circle appeared")
-                }
-                
-                AssignmentsListView(bellPositions: bellPositions, imageWidth: imageWidth(size: imageSize, bellType: viewModel.bellType), imageHeight: imageHeight(size: imageSize, bellType: viewModel.bellType), geo: geo)
-                
-                CallView()
-                .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
-                .onAppear {
-                    calculateImageSize(size: geo.size)
-                    getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
-                    print("calculated")
+        if state.ringer != nil {
+            GeometryReader { geo in
+                ZStack {
+                    BellsView(bellPositions: bellPositions, imageWidth: imageWidth(size: imageSize, bellType: state.bellType), imageHeight: imageHeight(size: imageSize, bellType: state.bellType))
+                        .onChange(of: state.size) { _ in
+                            calculateImageSize(size: geo.size)
+                            getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                        }
+                        .onChange(of: state.perspective) { _ in
+                            getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                            
+                        }
+                        .onChange(of: state.bellType) { _ in
+                            calculateImageSize(size: geo.size)
+                            getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                        }
+                        .onChange(of: geo.size) { _ in
+                            calculateImageSize(size: geo.size)
+                            getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                        }
+                        .onAppear {
+                            print("Rope circle appeared")
+                        }
+                    
+                    AssignmentsListView(bellPositions: bellPositions, imageWidth: imageWidth(size: imageSize, bellType: state.bellType), imageHeight: imageHeight(size: imageSize, bellType: state.bellType), geo: geo)
+                    
+                    CallView()
+                        .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                        .onAppear {
+                            calculateImageSize(size: geo.size)
+                            getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                            print("calculated")
+                        }
                 }
             }
         }
@@ -73,18 +75,18 @@ struct RopeCircleView: View {
     
     func getNewPositions(radius: CGFloat, centre:CGPoint) {
         
-        let angleIncrement = 360.0 / Double(viewModel.size)
-        let startAngle = 360 - (-angleIncrement / 2 + angleIncrement * Double(viewModel.perspective))
+        let angleIncrement = 360.0 / Double(state.size)
+        let startAngle = 360 - (-angleIncrement / 2 + angleIncrement * Double(state.perspective))
         
         var newPositions = [CGPoint]()
                 
         var currentAngle = startAngle
         
-        for _ in 0..<viewModel.size {
+        for _ in 0..<state.size {
             let x = -CGFloat(sin(Angle(degrees: currentAngle).radians)) * radius
             var y = CGFloat(cos(Angle(degrees: currentAngle).radians)) * radius
             
-            if viewModel.size % 4 == 0 {
+            if state.size % 4 == 0 {
                 if ((90.0)...(270.0)).contains(currentAngle) {
                     y -= 7.5
                 } else {
@@ -112,7 +114,7 @@ struct RopeCircleView: View {
         newRadius = min(newRadius, 300)
         
         let originalRadius = newRadius
-        let theta = CGFloat.pi / CGFloat(viewModel.size)
+        let theta = CGFloat.pi / CGFloat(state.size)
         
         newImageSize = sin(theta) * newRadius * 2
         (newImageSize, newRadius) = reduceOverlap(width: size.width, height: size.height, imageSize: newImageSize, radius: newRadius, theta: theta)
@@ -134,33 +136,33 @@ struct RopeCircleView: View {
         
         var a = radius
         
-        if viewModel.size % 2 == 0 {
+        if state.size % 2 == 0 {
             a = cos(theta) * newRadius
         }
         
-        vOverlap = a + imageHeight(size: imageSize, bellType: viewModel.bellType) / 2 - height / 2
+        vOverlap = a + imageHeight(size: imageSize, bellType: state.bellType) / 2 - height / 2
         
-        if viewModel.size % 4 == 0 {
+        if state.size % 4 == 0 {
             vOverlap += 7.5
         }
         
         a = radius
-        if viewModel.size % 2 == 1 {
+        if state.size % 2 == 1 {
             a =  cos(theta/2) * newRadius
-        } else if viewModel.size % 4 == 0 {
+        } else if state.size % 4 == 0 {
             a = cos(theta) * newRadius
         }
         
-        hOverlap = a + imageWidth(size: imageSize, bellType: viewModel.bellType) / 2 - width / 2
+        hOverlap = a + imageWidth(size: imageSize, bellType: state.bellType) / 2 - width / 2
         
-        if viewModel.size == 4 {
+        if state.size == 4 {
             hOverlap += 30
         }
         
         maxOverlap = max(vOverlap, hOverlap)
         print(vOverlap, hOverlap, maxOverlap)
         
-        if viewModel.size == 4 {
+        if state.size == 4 {
             if maxOverlap >= -20 {
                 newRadius = radius - 5
                 

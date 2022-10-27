@@ -10,8 +10,10 @@ import SwiftUI
 struct SettingsView: View {
     
     @EnvironmentObject var viewModel: RingingRoomViewModel
-    @EnvironmentObject var router: AppRouter
+    @EnvironmentObject var state: RingingRoomState
     
+    @EnvironmentObject var router: Router<MainRoute>
+
     @Environment(\.dismiss) var dismiss
     
     @SceneStorage("volume") var volume = UserDefaults.standard.optionalDouble(forKey: "volume") ?? 1
@@ -42,15 +44,15 @@ struct SettingsView: View {
             Section {
                 Toggle("Host mode", isOn: $hostMode)
                     .onAppear {
-                        hostMode = viewModel.hostMode
+                        hostMode = state.hostMode
                     }
-                    .onChange(of: viewModel.hostMode) { newValue in
+                    .onChange(of: state.hostMode) { newValue in
                         if hostMode != newValue {
                             hostMode = newValue
                         }
                     }
                     .onChange(of: hostMode) { newValue in
-                        if viewModel.hostMode != newValue {
+                        if state.hostMode != newValue {
                             viewModel.send(.hostModeSet(to: newValue))
                         }
                     }
@@ -62,15 +64,15 @@ struct SettingsView: View {
                     }
                 }
                 .onAppear {
-                    size = viewModel.size
+                    size = state.size
                 }
-                .onChange(of: viewModel.size) { newValue in
+                .onChange(of: state.size) { newValue in
                     if size != newValue {
                         size = newValue
                     }
                 }
                 .onChange(of: size) { newValue in
-                    if viewModel.size != newValue {
+                    if state.size != newValue {
                         viewModel.send(.sizeChange(to: newValue))
                     }
                 }
@@ -83,15 +85,15 @@ struct SettingsView: View {
                     }
                 }
                 .onAppear {
-                    bellType = viewModel.bellType
+                    bellType = state.bellType
                 }
-                .onChange(of: viewModel.bellType) { newValue in
+                .onChange(of: state.bellType) { newValue in
                     if bellType != newValue {
                         bellType = newValue
                     }
                 }
                 .onChange(of: bellType) { newValue in
-                    if viewModel.bellType != newValue {
+                    if state.bellType != newValue {
                         viewModel.send(.audioChange(to: newValue))
                     }
                 }
@@ -106,7 +108,7 @@ struct SettingsView: View {
             
             Section {
                 Button("Change perspective") {
-                    viewModel.bellMode = .rotate
+                    state.bellMode = .rotate
                     dismiss.callAsFunction()
                 }
                 .buttonStyle(.borderless)
@@ -117,7 +119,7 @@ struct SettingsView: View {
                     viewModel.send(.userLeft)
                     dismiss.callAsFunction()
                     
-                    router.moveTo(.main(user: viewModel.user, apiService: viewModel.apiService))
+                    router.moveTo(.home)
                 }
             }
         }

@@ -37,10 +37,8 @@ struct CallView: View {
             }
             
             callTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
-                ThreadUtil.runInMain {
-                    withAnimation {
-                        callTextOpacity = 0
-                    }
+                withAnimation {
+                    callTextOpacity = 0
                 }
             })
             

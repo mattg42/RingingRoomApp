@@ -15,14 +15,14 @@ enum TowerControlViewSelection: String, CaseIterable, Identifiable {
 
 struct TowerControlsView: View {
     
-    @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var state: TowerControlsState
     
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Picker("", selection: $viewModel.towerControlsViewSelection) {
+                Picker("", selection: $state.towerControlsViewSelection) {
                     ForEach(TowerControlViewSelection.allCases) { selection in
                         Text(selection.rawValue.capitalized)
                             .tag(selection)
@@ -40,7 +40,7 @@ struct TowerControlsView: View {
             }
             .padding(.horizontal)
             .padding(.bottom, 2)
-            switch viewModel.towerControlsViewSelection {
+            switch state.towerControlsViewSelection {
             case .settings:
                 SettingsView()
             case .users:

@@ -30,4 +30,8 @@ struct APIService: AuthenticatedClient {
     func getTowerDetails(towerID: Int) async throws -> APIModel.TowerDetails {
         try await request(path: "tower/\(towerID)", method: .get, model: APIModel.TowerDetails.self)
     }
+    
+    func createTower(called name: String) async throws -> APIModel.TowerCreationDetails {
+        try await request(path: "tower", method: .post, json: ["tower_name": name], model: APIModel.TowerCreationDetails.self)
+    }
 }

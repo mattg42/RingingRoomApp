@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ChatView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
-    
+    @EnvironmentObject var state: RingingRoomState
+
     @State private var currentMessage = ""
 
     var body: some View {
@@ -21,16 +22,16 @@ struct ChatView: View {
                     ScrollView {
                         ScrollViewReader { value in
                             VStack(spacing: 5) {
-                                if viewModel.messages.count > 0 {
-                                    ForEach(0..<viewModel.messages.count, id: \.self) { i in
+                                if state.messages.count > 0 {
+                                    ForEach(0..<state.messages.count, id: \.self) { i in
                                         HStack {
-                                            (Text(viewModel.messages[i].sender).bold() + Text(": \(viewModel.messages[i].message)"))
+                                            (Text(state.messages[i].sender).bold() + Text(": \(state.messages[i].message)"))
                                                 .id(i)
                                             Spacer()
                                         }
                                     }
                                     .onAppear {
-                                        value.scrollTo(viewModel.messages.count - 1)
+                                        value.scrollTo(state.messages.count - 1)
                                     }
                                 }
                             }
