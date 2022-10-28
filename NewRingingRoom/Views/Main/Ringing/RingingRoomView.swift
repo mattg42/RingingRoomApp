@@ -8,6 +8,7 @@
 import SwiftUI
 struct RingingRoomView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var monitor: NetworkMonitor
     
     @Environment(\.scenePhase) var scenePhase
     
@@ -16,7 +17,8 @@ struct RingingRoomView: View {
         
     @State var showingTowerControls = false
     @State var showingHelp = false
-
+    @State var showingConnectionErrorAlert = false
+    
     var body: some View {
         ZStack {
             Color("ringingBackground")
@@ -73,15 +75,46 @@ struct RingingRoomView: View {
                 RingingButtonsView()
             }
             .padding([.horizontal, .bottom], 5)
+            
+            ZStack {
+                Color.black
+                    .edgesIgnoringSafeArea(.all)
+                    .opacity(0.3)
+                
+                ZStack {
+                    Rectangle()
+                        .fill(Color("ringingButtonBackground"))
+                        .cornerRadius(10)
+                    
+                    VStack(spacing: 14.0) {
+                        Text("""
+Your device is not connected
+to the internet.
+""").bold()
+                        Text("""
+This alert will disappear
+when the internet
+connection is restored.
+""")
+                    }
+                    .multilineTextAlignment(.center)
+                    .font(.callout)
+                    .padding()
+                }
+                .fixedSize()
+            }
+            .opacity(showingConnectionErrorAlert ? 1 : 0)
         }
         .fullScreenCover(isPresented: $showingTowerControls) {
             //                        Button("BAck") { showingTowerControls = false }
             TowerControlsView()
         }
-  
         .onAppear {
             viewModel.connect()
         }
+        .onChange(of: monitor.status, perform: { newValue in
+            showingConnectionErrorAlert = newValue != .satisfied
+        })
         .onChange(of: scenePhase) { newValue in
             if newValue == .active {
                 viewModel.connect()

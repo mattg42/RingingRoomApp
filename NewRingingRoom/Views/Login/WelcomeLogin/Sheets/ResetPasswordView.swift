@@ -42,7 +42,7 @@ struct ResetPasswordView: View {
         email = email.trimmingCharacters(in: .whitespaces).lowercased()
         let authenicationService = AuthenticationService()
         
-        await ErrorUtil.do {
+        await ErrorUtil.do(networkRequest: true) {
             guard email.isValidEmail() else {
                 throw LoginError.emailNotValid
             }

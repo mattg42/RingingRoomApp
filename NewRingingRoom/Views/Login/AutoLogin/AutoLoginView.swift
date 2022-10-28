@@ -10,6 +10,7 @@ import SwiftUI
 struct AutoLoginView: View {
         
     @EnvironmentObject var router: Router<AppRoute>
+    @EnvironmentObject var monitor: NetworkMonitor
     
     @State private var autoJoinTowerID: Int?
     
@@ -40,12 +41,11 @@ struct AutoLoginView: View {
     }
         
     func login() async {
-
         let authenticationService = AuthenticationService()
         
         let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
         
-        await ErrorUtil.do {
+        await ErrorUtil.do(networkRequest: true) {
             let password = try KeychainService.getPasswordFor(account: email, server: authenticationService.domain )
             let (user, apiService) = try await authenticationService.login(email: email.lowercased(), password: password)
             router.moveTo(.main(user: user, apiService: apiService))

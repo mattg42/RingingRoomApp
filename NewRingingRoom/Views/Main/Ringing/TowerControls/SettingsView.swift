@@ -117,7 +117,6 @@ struct SettingsView: View {
             Section {
                 Button("Leave tower") {
                     viewModel.send(.userLeft)
-                    dismiss.callAsFunction()
                     
                     router.moveTo(.home)
                 }

@@ -188,7 +188,7 @@ struct TowersView: View {
     }
     
     func joinTower(id: Int) async {
-        await ErrorUtil.do {
+        await ErrorUtil.do(networkRequest: true) {
             let towerDetails = try await apiService.getTowerDetails(towerID: id)
             let isHost = user.towers.first(where: { $0.towerID == id })?.host ?? false
             
@@ -206,7 +206,7 @@ struct TowersView: View {
         router.moveTo(.ringing(viewModel: ringingRoomViewModel))
         
         Task(priority: .medium) {
-            await ErrorUtil.do {
+            await ErrorUtil.do(networkRequest: true) {
                 let towers = try await apiService.getTowers()
                 user.towers = towers
             }
@@ -214,7 +214,7 @@ struct TowersView: View {
     }
     
     func createTower() async {
-        await ErrorUtil.do {
+        await ErrorUtil.do(networkRequest: true) {
             let towerCreationDetails = try await apiService.createTower(called: towerName)
             let towerDetails = APIModel.TowerDetails(tower_id: towerCreationDetails.tower_id, tower_name: towerName, server_address: towerCreationDetails.server_address, additional_sizes_enabled: false, host_mode_permitted: false, half_muffled: false, fully_muffled: false)
             
