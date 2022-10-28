@@ -98,7 +98,7 @@ struct AccountCreationView: View {
         
         let authenticationService = AuthenticationService()
         
-        await ErrorUtil.do {
+        await ErrorUtil.do(networkRequest: true) {
             try await authenticationService.registerUser(username: username, email: email.lowercased(), password: password)
             ThreadUtil.runInMain {
                 accountCreated = true

@@ -184,7 +184,7 @@ struct WelcomeLoginView: View {
     }
     
     func login() async {
-        await ErrorUtil.do {
+        await ErrorUtil.do(networkRequest: true) {
             let (user, apiService) = try await authenticationService.login(email: email.lowercased(), password: password)
             
             UserDefaults.standard.set(stayLoggedIn, forKey: "keepMeLoggedIn")

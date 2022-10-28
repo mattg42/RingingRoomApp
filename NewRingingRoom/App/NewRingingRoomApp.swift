@@ -18,6 +18,7 @@ class Router<Route>: ObservableObject {
     @Published var currentRoute: Route
     
     func moveTo(_ newRoute: Route) {
+        print("Called")
         ThreadUtil.runInMain {
             self.currentRoute = newRoute
         }
@@ -57,7 +58,8 @@ struct RingingRoomApp: App {
     }
     
     @StateObject var router = Router<AppRoute>(defaultRoute: .login)
-        
+    @ObservedObject var monitor = NetworkMonitor.shared
+
     var body: some Scene {
         WindowGroup {
             Group {
@@ -70,6 +72,7 @@ struct RingingRoomApp: App {
             }
             .tint(Color.main)
             .environmentObject(router)
+            .environmentObject(monitor)
         }
     }
 }
