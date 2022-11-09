@@ -46,8 +46,27 @@ struct AutoLoginView: View {
         let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
         
         await ErrorUtil.do(networkRequest: true) {
-            let password = try KeychainService.getPasswordFor(account: email, server: authenticationService.domain )
+            let password: String
+            
+            do {
+                password = try KeychainService.getPasswordFor(account: email, server: authenticationService.domain)
+            } catch let error as KeychainError {
+                switch error {
+                case .itemNotFound:
+                    print("got here")
+                    password = try KeychainService.getPasswordFor(account: "MatthewwGoodship@icloud.com", server: "ringingroom.com")
+                    print("didn't get here")
+                    try KeychainService.deletePasswordFor(account: email, server: "ringingroom.com")
+                    try KeychainService.storePasswordFor(account: email, password: password, server: authenticationService.domain)
+                default:
+                    throw error
+                }
+            } catch {
+                throw error
+            }
+            
             let (user, apiService) = try await authenticationService.login(email: email.lowercased(), password: password)
+            
             router.moveTo(.main(user: user, apiService: apiService))
         }
     }

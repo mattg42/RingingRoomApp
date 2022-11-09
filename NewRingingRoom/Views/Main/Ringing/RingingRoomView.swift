@@ -11,9 +11,6 @@ struct RingingRoomView: View {
     @EnvironmentObject var monitor: NetworkMonitor
     
     @Environment(\.scenePhase) var scenePhase
-    
-//    @Binding var user: User
-//    let apiService: APIService
         
     @State var showingTowerControls = false
     @State var showingHelp = false

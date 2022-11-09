@@ -185,6 +185,10 @@ struct TowersView: View {
                 .navigationBarTitleDisplayMode(.inline)
             }
             .navigationViewStyle(StackNavigationViewStyle())
+            .onOpenURL { url in
+                print("url from main view")
+                AlertHandler.presentAlert(title: "", message: "", dismiss: .cancel(title: "", action: nil))
+            }
     }
     
     func joinTower(id: Int) async {

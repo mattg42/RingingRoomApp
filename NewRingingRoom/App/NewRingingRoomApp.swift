@@ -27,7 +27,7 @@ class Router<Route>: ObservableObject {
 
 enum AppRoute {
     case login
-    case main(user: User, apiService: APIService)
+    case main(user: User, apiService: APIService, autoJoinTower: Int?)
 }
 
 enum MainRoute {
@@ -66,8 +66,8 @@ struct RingingRoomApp: App {
                 switch router.currentRoute {
                 case .login:
                     LoginOverview()
-                case .main(let user, let apiService):
-                    MainView(user: user, apiService: apiService)
+                case .main(let user, let apiService, let autoJoinTower):
+                    MainView(user: user, apiService: apiService, autoJoinTower: autoJoinTower)
                 }
             }
             .tint(Color.main)

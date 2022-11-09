@@ -14,6 +14,7 @@ enum TabViewType {
 struct HomeView: View {
     
     @Binding var user: User
+    @Binding var autoJoinTower: Int?
     let apiService: APIService
     
     @State var showingPrivacyPolicyView = false
@@ -53,19 +54,19 @@ struct HomeView: View {
             PrivacyPolicyWebView(isPresented: $showingPrivacyPolicyView)
             
         })
-//        .onOpenURL(perform: { url in
-//            let pathComponents = url.pathComponents.dropFirst()
-//            print(pathComponents)
-//            if let firstPath = pathComponents.first {
-//                if firstPath == "privacy" {
-//                    showingPrivacyPolicyView = true
-//                } else if let towerID = Int(firstPath) {
-//                    if NetworkManager.token != nil {
-//                        joinTower(id: towerID)
-//                    }
-//                }
-//            }
-//        })
+        .onOpenURL(perform: { url in
+            let pathComponents = url.pathComponents.dropFirst()
+            print(pathComponents)
+            if let firstPath = pathComponents.first {
+                if firstPath == "privacy" {
+                    showingPrivacyPolicyView = true
+                } else if let towerID = Int(firstPath) {
+                    if NetworkManager.token != nil {
+                        joinTower(id: towerID)
+                    }
+                }
+            }
+        })
         .accentColor(Color.main)
     }
 }
