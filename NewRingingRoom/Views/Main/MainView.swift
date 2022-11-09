@@ -9,9 +9,10 @@ import SwiftUI
 
 struct MainView: View {
     
-    init(user: User, apiService: APIService) {
+    init(user: User, apiService: APIService, autoJoinTower: Int?) {
         self.user = user
         self.apiService = apiService
+        self.autoJoinTower = autoJoinTower
     }
     
     @State var user: User
@@ -19,11 +20,13 @@ struct MainView: View {
     
     @StateObject var router = Router<MainRoute>(defaultRoute: .home)
 
+    @State var autoJoinTower: Int?
+    
     var body: some View {
         Group {
             switch router.currentRoute {
             case .home:
-                HomeView(user: $user, apiService: apiService)
+                HomeView(user: $user, apiService: apiService, autoJoinTower: $autoJoinTower)
             case .ringing(let viewModel):
                 RingingRoomView()
                     .environmentObject(viewModel)
