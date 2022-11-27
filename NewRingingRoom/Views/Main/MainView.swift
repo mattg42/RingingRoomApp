@@ -15,7 +15,7 @@ struct MainView: View {
         self._router = StateObject(wrappedValue: Router<MainRoute>(defaultRoute: route))
     }
     
-    @State var user: User
+    @State private var user: User
     let apiService: APIService
     
     @StateObject var router: Router<MainRoute>

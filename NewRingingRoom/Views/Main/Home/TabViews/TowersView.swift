@@ -18,7 +18,7 @@ struct TowersView: View {
     @Binding var user: User
     let apiService: APIService
 
-    @State var showingTowerControls = false
+    @State private var showingTowerControls = false
 
     @State private var joinTowerShowing = false
     @State private var createTowerShowing = false
@@ -57,7 +57,6 @@ struct TowersView: View {
                                         }
                                     }
                                     .contentShape(Rectangle())
-
                                     .foregroundColor(.main)
                                     .frame(height: 35)
                                     .padding(.horizontal)

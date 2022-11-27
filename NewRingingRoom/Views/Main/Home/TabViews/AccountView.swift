@@ -15,7 +15,7 @@ struct AccountView: View {
     let user: User
     let apiService: APIService
     
-    @State var presentingAlert = false
+    @State private var presentingAlert = false
     
     var body: some View {
         NavigationView {

@@ -11,11 +11,11 @@ struct BellTouchdownButtonStyle: PrimitiveButtonStyle {
     
     private let cooldown = 0.25
     
-    @State var opacity = 1.0
+    @State private var opacity = 1.0
     
-    @State var disabled = false
+    @State private var disabled = false
     
-    @GestureState var location = CGPoint.zero
+    @GestureState private var location = CGPoint.zero
         
     func makeBody(configuration: Configuration) -> some View {
         configuration.label

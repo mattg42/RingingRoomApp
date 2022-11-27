@@ -17,6 +17,10 @@ enum ActiveLoginSheet: Identifiable {
 }
 
 struct WelcomeLoginView: View {
+    
+    enum TextFields {
+        case email, password
+    }
         
     @Environment(\.colorScheme) var colorScheme
     
@@ -30,7 +34,7 @@ struct WelcomeLoginView: View {
         }
     }
     
-    @State var authenticationService = AuthenticationService()
+    @State private var authenticationService = AuthenticationService()
     
     @State private var email = ""
     @State private var password = ""
@@ -55,6 +59,8 @@ struct WelcomeLoginView: View {
     @State private var activeLoginSheet: ActiveLoginSheet? = nil
     
     @State private var showingServers = false
+    
+    @FocusState private var focused: TextFields?
     
     var body: some View {
         ZStack {
@@ -91,6 +97,7 @@ struct WelcomeLoginView: View {
                     .keyboardType(.emailAddress)
                     .disableAutocorrection(true)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .focused($focused, equals: .email)
                 
                 SecureField("Password", text: $password)
                     .onChange(of: password, perform: { _ in
@@ -100,6 +107,7 @@ struct WelcomeLoginView: View {
                     .textContentType(.password)
                     .disableAutocorrection(true)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .focused($focused, equals: .password)
                 
                 Toggle(isOn: $stayLoggedIn) {
                     Text("Keep me logged in")
@@ -118,7 +126,6 @@ struct WelcomeLoginView: View {
                     }
                     .pickerStyle(.menu)
                 }
-                
                 
                 AsyncButton(progressViewColor: .white, progressViewPadding: 5) {
                     await login()
@@ -184,6 +191,7 @@ struct WelcomeLoginView: View {
     }
     
     func login() async {
+        focused = nil
         await ErrorUtil.do(networkRequest: true) {
             let (user, apiService) = try await authenticationService.login(email: email.lowercased(), password: password)
             

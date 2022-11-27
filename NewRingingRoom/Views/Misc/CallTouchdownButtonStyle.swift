@@ -13,13 +13,13 @@ struct CallTouchdownButtonStyle: PrimitiveButtonStyle {
     
     private let cooldown = 0.25
     
-    @State var opacity = 1.0
+    @State private var opacity = 1.0
     
-    @State var disabled = false
+    @State private var disabled = false
     
     @GestureState var location = CGPoint.zero
     
-    @State var timer: Timer? = nil
+    @State private var timer: Timer? = nil
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
