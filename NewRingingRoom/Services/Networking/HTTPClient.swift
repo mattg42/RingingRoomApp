@@ -12,6 +12,7 @@ import SwiftUI
 protocol HTTPClient {
     var region: Region { get }
     var domain: String { get }
+    var retryAction: (() async -> Void)? { get set }
         
     func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, model: T.Type)  async throws -> T
 }
@@ -75,7 +76,7 @@ extension HTTPClient {
         } catch let error as DecodingError {
             throw APIError.decode(error: error)
         } catch let error as URLError {
-            throw APIError.url(error: error)
+            throw APIError.url(error: error, retryAction: retryAction)
         } catch let error as APIError {
             throw error
         } catch {

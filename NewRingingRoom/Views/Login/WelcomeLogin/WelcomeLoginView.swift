@@ -194,7 +194,7 @@ struct WelcomeLoginView: View {
                 try KeychainService.storePasswordFor(account: email, password: password, server: authenticationService.domain)
             }
             
-            router.moveTo(.main(user: user, apiService: apiService))
+            router.moveTo(.main(user: user, apiService: apiService, route: .home))
         }
     }
 }

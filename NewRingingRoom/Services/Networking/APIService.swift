@@ -12,6 +12,8 @@ struct APIService: AuthenticatedClient {
     let token: String
     let region: Region
     
+    var retryAction: (() async -> ())? = nil
+    
     func getTowers() async throws -> [Tower] {
         try await request(path: "my_towers", method: .get, model: [String: APIModel.Tower].self)
             .values

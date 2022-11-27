@@ -10,7 +10,6 @@ import Combine
 import AVFoundation
 
 class Router<Route>: ObservableObject {
-    
     init(defaultRoute: Route) {
         currentRoute = defaultRoute
     }
@@ -18,7 +17,6 @@ class Router<Route>: ObservableObject {
     @Published var currentRoute: Route
     
     func moveTo(_ newRoute: Route) {
-        print("Called")
         ThreadUtil.runInMain {
             self.currentRoute = newRoute
         }
@@ -27,12 +25,13 @@ class Router<Route>: ObservableObject {
 
 enum AppRoute {
     case login
-    case main(user: User, apiService: APIService, autoJoinTower: Int?)
+    case main(user: User, apiService: APIService, route: MainRoute)
 }
 
 enum MainRoute {
     case home
     case ringing(viewModel: RingingRoomViewModel)
+    case joinTower(towerID: Int, towerDetails: APIModel.TowerDetails?)
 }
 
 @main
@@ -66,8 +65,8 @@ struct RingingRoomApp: App {
                 switch router.currentRoute {
                 case .login:
                     LoginOverview()
-                case .main(let user, let apiService, let autoJoinTower):
-                    MainView(user: user, apiService: apiService, autoJoinTower: autoJoinTower)
+                case .main(let user, let apiService, let route):
+                    MainView(user: user, apiService: apiService, route: route)
                 }
             }
             .tint(Color.main)
