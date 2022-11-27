@@ -14,7 +14,9 @@ struct AuthenticationService: UnauthenticatedClient {
             UserDefaults.standard.set(region.server, forKey: UserDefaults.Keys.Server)
         }
     }
-        
+    
+    var retryAction: (() async -> Void)? = nil
+    
     @discardableResult func registerUser(username: String, email: String, password: String) async throws -> APIModel.User {
         try await request(
             path: "user",

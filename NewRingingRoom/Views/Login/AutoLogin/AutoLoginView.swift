@@ -41,7 +41,7 @@ struct AutoLoginView: View {
     }
         
     func login() async {
-        let authenticationService = AuthenticationService()
+        var authenticationService = AuthenticationService()
         
         let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
         
@@ -54,7 +54,7 @@ struct AutoLoginView: View {
                 switch error {
                 case .itemNotFound:
                     print("got here")
-                    password = try KeychainService.getPasswordFor(account: "MatthewwGoodship@icloud.com", server: "ringingroom.com")
+                    password = try KeychainService.getPasswordFor(account: email, server: "ringingroom.com")
                     print("didn't get here")
                     try KeychainService.deletePasswordFor(account: email, server: "ringingroom.com")
                     try KeychainService.storePasswordFor(account: email, password: password, server: authenticationService.domain)
@@ -65,15 +65,19 @@ struct AutoLoginView: View {
                 throw error
             }
             
-            let (user, apiService) = try await authenticationService.login(email: email.lowercased(), password: password)
-            
-            router.moveTo(.main(user: user, apiService: apiService))
+            let authenticate = { () async -> () in
+                await ErrorUtil.do {
+                    let (user, apiService) = try await authenticationService.login(email: email.lowercased(), password: password)
+                    
+                    if let towerID = autoJoinTowerID {
+                        router.moveTo(.main(user: user, apiService: apiService, route: .joinTower(towerID: towerID, towerDetails: nil)))
+                    } else {
+                        router.moveTo(.main(user: user, apiService: apiService, route: .home))
+                    }
+                }
+            }
+            authenticationService.retryAction = authenticate
+            await authenticate()
         }
-    }
-}
-
-struct AutoLoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        AutoLoginView()
     }
 }

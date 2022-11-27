@@ -138,6 +138,7 @@
 		34B20F0826D05B9A00468F81 /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B20F0726D05B9A00468F81 /* Resolver.swift */; };
 		34BA523328B106E20084033C /* BellTouchdownButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BA523228B106E20084033C /* BellTouchdownButtonStyle.swift */; };
 		34BD256626BF0255000E932C /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BD256526BF0255000E932C /* Global.swift */; };
+		34E7707E2931116E00EC5A0C /* JoinTowerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E7707D2931116E00EC5A0C /* JoinTowerView.swift */; };
 		34E99ADC28B0446300C80EF1 /* RingingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99ADB28B0446300C80EF1 /* RingingRoomView.swift */; };
 		34E99ADE28B045F300C80EF1 /* TowerNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99ADD28B045F300C80EF1 /* TowerNameView.swift */; };
 		34E99AE028B0473100C80EF1 /* RopeCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99ADF28B0473100C80EF1 /* RopeCircleView.swift */; };
@@ -279,6 +280,8 @@
 		34B20F0726D05B9A00468F81 /* Resolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
 		34BA523228B106E20084033C /* BellTouchdownButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BellTouchdownButtonStyle.swift; sourceTree = "<group>"; };
 		34BD256526BF0255000E932C /* Global.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
+		34E7707D2931116E00EC5A0C /* JoinTowerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinTowerView.swift; sourceTree = "<group>"; };
+		34E770802931428700EC5A0C /* NewRingingRoom.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NewRingingRoom.entitlements; sourceTree = "<group>"; };
 		34E99ADB28B0446300C80EF1 /* RingingRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingingRoomView.swift; sourceTree = "<group>"; };
 		34E99ADD28B045F300C80EF1 /* TowerNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TowerNameView.swift; sourceTree = "<group>"; };
 		34E99ADF28B0473100C80EF1 /* RopeCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RopeCircleView.swift; sourceTree = "<group>"; };
@@ -319,6 +322,7 @@
 		341C9F2A26B87C6900EB093A /* NewRingingRoom */ = {
 			isa = PBXGroup;
 			children = (
+				34E770802931428700EC5A0C /* NewRingingRoom.entitlements */,
 				34706F39287F4F9B004127CD /* Resources */,
 				341D38DF2721CEC200E340CF /* Utils */,
 				341C9F4526B8805B00EB093A /* App */,
@@ -402,6 +406,7 @@
 			isa = PBXGroup;
 			children = (
 				34A69FBA290B20160090679B /* MainView.swift */,
+				34E7707D2931116E00EC5A0C /* JoinTowerView.swift */,
 				34A69FB9290B1FE40090679B /* Home */,
 				34E99ADA28B0445700C80EF1 /* Ringing */,
 			);
@@ -836,6 +841,7 @@
 				341A25BC28CBEE3000D702FE /* AssignmentsListView.swift in Sources */,
 				341D38EA272209EC00E340CF /* AgreeToPrivacyPolicyView.swift in Sources */,
 				346118BC2883010D006AA770 /* RingingRoomViewModel.swift in Sources */,
+				34E7707E2931116E00EC5A0C /* JoinTowerView.swift in Sources */,
 				3454CBB2287DD2B000FB2495 /* TowersView.swift in Sources */,
 				3471D43C26C191E000A20FA8 /* AutoLoginView.swift in Sources */,
 				3454CBC3287DFC3C00FB2495 /* AdvancedFeatures.swift in Sources */,
@@ -1001,6 +1007,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = NewRingingRoom/NewRingingRoomDebug.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"NewRingingRoom/Preview Content\"";
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
@@ -1014,6 +1022,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1024,6 +1033,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = NewRingingRoom/NewRingingRoom.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"NewRingingRoom/Preview Content\"";
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
@@ -1037,6 +1048,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

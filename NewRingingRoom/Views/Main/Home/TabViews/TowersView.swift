@@ -48,11 +48,11 @@ struct TowersView: View {
                         ScrollViewReader { reader in
                             VStack {
                                 ForEach(user.towers) { tower in
-                                    AsyncButton {
-                                        await joinTower(id: tower.towerID)
+                                    Button {
+                                        router.moveTo(.joinTower(towerID: tower.towerID, towerDetails: nil))
                                     } label: {
                                         HStack() {
-                                            Text(String(tower.towerName))
+                                            Text(tower.towerName)
                                             Spacer()
                                         }
                                     }
@@ -99,8 +99,8 @@ struct TowersView: View {
                                 }
                             }
                             
-                            AsyncButton {
-                                await joinTower(id: Int(towerID)!)
+                            Button {
+                                router.moveTo(.joinTower(towerID: Int(towerID)!, towerDetails: nil))
                             } label: {
                                 ZStack {
                                     Color.main
@@ -191,38 +191,12 @@ struct TowersView: View {
             }
     }
     
-    func joinTower(id: Int) async {
-        await ErrorUtil.do(networkRequest: true) {
-            let towerDetails = try await apiService.getTowerDetails(towerID: id)
-            let isHost = user.towers.first(where: { $0.towerID == id })?.host ?? false
-            
-            connectToTower(towerDetails: towerDetails, isHost: isHost)
-        }
-    }
-    
-    func connectToTower(towerDetails: APIModel.TowerDetails, isHost: Bool) {
-        let towerInfo = TowerInfo(towerDetails: towerDetails, isHost: isHost)
-        
-        let socketIOService = SocketIOService(url: URL(string: towerDetails.server_address)!)
-        
-        let ringingRoomViewModel = RingingRoomViewModel(socketIOService: socketIOService, router: router, towerInfo: towerInfo, token: apiService.token, user: user)
-        
-        router.moveTo(.ringing(viewModel: ringingRoomViewModel))
-        
-        Task(priority: .medium) {
-            await ErrorUtil.do(networkRequest: true) {
-                let towers = try await apiService.getTowers()
-                user.towers = towers
-            }
-        }
-    }
-    
     func createTower() async {
         await ErrorUtil.do(networkRequest: true) {
             let towerCreationDetails = try await apiService.createTower(called: towerName)
             let towerDetails = APIModel.TowerDetails(tower_id: towerCreationDetails.tower_id, tower_name: towerName, server_address: towerCreationDetails.server_address, additional_sizes_enabled: false, host_mode_permitted: false, half_muffled: false, fully_muffled: false)
             
-            connectToTower(towerDetails: towerDetails, isHost: true)
+            router.moveTo(.joinTower(towerID: towerDetails.tower_id, towerDetails: towerDetails))
         }
     }
 }

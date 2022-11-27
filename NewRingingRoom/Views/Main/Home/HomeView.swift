@@ -13,8 +13,9 @@ enum TabViewType {
 
 struct HomeView: View {
     
+    @EnvironmentObject var router: Router<MainRoute>
+    
     @Binding var user: User
-    @Binding var autoJoinTower: Int?
     let apiService: APIService
     
     @State var showingPrivacyPolicyView = false
@@ -61,9 +62,7 @@ struct HomeView: View {
                 if firstPath == "privacy" {
                     showingPrivacyPolicyView = true
                 } else if let towerID = Int(firstPath) {
-                    if NetworkManager.token != nil {
-                        joinTower(id: towerID)
-                    }
+                    router.moveTo(.joinTower(towerID: towerID, towerDetails: nil))
                 }
             }
         })
