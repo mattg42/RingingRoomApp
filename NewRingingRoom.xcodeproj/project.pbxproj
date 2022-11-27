@@ -38,6 +38,7 @@
 		3435AD8A287F061500C8CF41 /* Ringer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3435AD89287F061500C8CF41 /* Ringer.swift */; };
 		3435AD8C287F0BE800C8CF41 /* SocketIOService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3435AD8B287F0BE800C8CF41 /* SocketIOService.swift */; };
 		3435AD8E287F196100C8CF41 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3435AD8D287F196100C8CF41 /* Message.swift */; };
+		3441A9C52934298C0059D907 /* Colours.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3441A9C42934298C0059D907 /* Colours.swift */; };
 		345052B72812C04200143E22 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345052B62812C04200143E22 /* HomeView.swift */; };
 		3454CBA8287CC66700FB2495 /* AuthenicationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454CBA7287CC66700FB2495 /* AuthenicationService.swift */; };
 		3454CBAF287DABD800FB2495 /* ErrorUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454CBAE287DABD800FB2495 /* ErrorUtil.swift */; };
@@ -181,6 +182,7 @@
 		3435AD89287F061500C8CF41 /* Ringer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ringer.swift; sourceTree = "<group>"; };
 		3435AD8B287F0BE800C8CF41 /* SocketIOService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketIOService.swift; sourceTree = "<group>"; };
 		3435AD8D287F196100C8CF41 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		3441A9C42934298C0059D907 /* Colours.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colours.swift; sourceTree = "<group>"; };
 		345052B62812C04200143E22 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		3454CBA7287CC66700FB2495 /* AuthenicationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenicationService.swift; sourceTree = "<group>"; };
 		3454CBAE287DABD800FB2495 /* ErrorUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorUtil.swift; sourceTree = "<group>"; };
@@ -360,6 +362,7 @@
 			isa = PBXGroup;
 			children = (
 				34BD256526BF0255000E932C /* Global.swift */,
+				3441A9C42934298C0059D907 /* Colours.swift */,
 			);
 			path = Statics;
 			sourceTree = "<group>";
@@ -816,6 +819,7 @@
 				34706FD928821E75004127CD /* RingingRoomService.swift in Sources */,
 				34E99AE028B0473100C80EF1 /* RopeCircleView.swift in Sources */,
 				34E99ADE28B045F300C80EF1 /* TowerNameView.swift in Sources */,
+				3441A9C52934298C0059D907 /* Colours.swift in Sources */,
 				3410D34A2735A92D00B0C8EC /* APIModel.swift in Sources */,
 				3464DC7428D7E28300633BD5 /* ChatView.swift in Sources */,
 				3454CBC7287DFD1500FB2495 /* ViewHelpers.swift in Sources */,

@@ -41,7 +41,7 @@ struct RingButton:View {
     
     var body: some View {
         ZStack {
-            Color("ringingButtonBackground")
+            Color(.ringingButtonBackground)
                 .cornerRadius(5)
             Text(String(number))
                 .foregroundColor(.primary)
@@ -108,7 +108,7 @@ struct CallButton: View {
             viewModel.send(.call(call.string))
         } label: {
             ZStack {
-                Color("ringingButtonBackground")
+                Color(.ringingButtonBackground)
                     .cornerRadius(5)
                 Text(call.display)
                     .foregroundColor(.primary)

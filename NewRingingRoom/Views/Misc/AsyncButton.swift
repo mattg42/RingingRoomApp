@@ -62,18 +62,19 @@ struct AsyncButton<Label: View, Background: View>: View {
         } label: {
             ZStack {
                 background
-                if isPerformingTask {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .foregroundColor(progressViewColor)
-                        .tint(progressViewColor)
-                        .padding(progressViewPadding)
-                } else {
-                    label
+                Group {
+                    if isPerformingTask {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .foregroundColor(progressViewColor)
+                            .tint(progressViewColor)
+                    } else {
+                        label
+                    }
                 }
+                .padding(progressViewPadding)
             }
         }
         .disabled(isPerformingTask)
-        .contentShape(RoundedRectangle(cornerRadius: 5))
     }
 }

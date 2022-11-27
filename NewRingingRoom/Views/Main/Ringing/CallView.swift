@@ -17,10 +17,10 @@ struct CallView: View {
     
     var body: some View {
         ZStack {
-            Color("ringingBackground")
+            Color(.ringingRoomBackground)
                 .cornerRadius(15)
                 .blur(radius: 15, opaque: false)
-                .shadow(color: Color("ringingBackground"), radius: 10, x: 0.0, y: 0.0)
+                .shadow(color: Color(.ringingRoomBackground), radius: 10, x: 0.0, y: 0.0)
                 .opacity(0.9)
             
             Text(callText)
