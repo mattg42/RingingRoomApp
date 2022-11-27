@@ -24,44 +24,66 @@ struct RingingRoomView: View {
             VStack {
                 TowerNameView()
                 
-                HStack {
-                    Button {
-                        showingHelp = true
-                    } label: {
-                        ZStack {
-                            Color.main
-                                .cornerRadius(5)
-                            
-                            Text("Help")
-                                .foregroundColor(.white)
-                                .bold()
-                                .padding(3)
+                ZStack {
+                    HStack {
+                        Button {
+                            showingHelp = true
+                        } label: {
+                            ZStack {
+                                Color.main
+                                    .cornerRadius(5)
+                                
+                                Text("Help")
+                                    .foregroundColor(.white)
+                                    .bold()
+                                    .padding(3)
+                            }
+                            .fixedSize()
                         }
-                        .fixedSize()
+                        
+                        Spacer()
                     }
-
                     
-                    Spacer()
-                    
-                    Button {
-                        showingTowerControls = true
-                    } label: {
-                        ZStack {
-                            Color.main
-                                .cornerRadius(5)
-                            
-                            Text("Controls")
-                                .foregroundColor(.white)
-                                .bold()
-                                .padding(3)
+                    HStack {
+                        Button {
+                            viewModel.send(.setBells)
+                        } label: {
+                            ZStack {
+                                Color.main
+                                    .cornerRadius(5)
+                                
+                                Text("Set at hand")
+                                    .foregroundColor(.white)
+                                    .bold()
+                                    .padding(3)
+                            }
+                            .fixedSize()
                         }
-                        .fixedSize()
                     }
-
+                    
+                    HStack {
+                        Spacer ()
+                        
+                        Button {
+                            showingTowerControls = true
+                        } label: {
+                            ZStack {
+                                Color.main
+                                    .cornerRadius(5)
+                                
+                                Text("Controls")
+                                    .foregroundColor(.white)
+                                    .bold()
+                                    .padding(3)
+                            }
+                            .fixedSize()
+                        }
+                        
+                    }
+                    .sheet(isPresented: $showingHelp, content: {
+                        HelpView(showDismiss: true)
+                    })
                 }
-                .sheet(isPresented: $showingHelp, content: {
-                    HelpView(showDismiss: true)
-                })
                 
                 Spacer()
                 

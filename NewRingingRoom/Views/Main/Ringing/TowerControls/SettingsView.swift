@@ -98,14 +98,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            
-            Section {
-                Button("Set at hand") {
-                    viewModel.send(.setBells)
-                    dismiss.callAsFunction()
-                }
-            }
-            
+
             Section {
                 Button("Change perspective") {
                     state.bellMode = .rotate
