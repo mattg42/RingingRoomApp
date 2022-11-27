@@ -25,7 +25,7 @@ struct JoinTowerView: View {
     let towerDetails: APIModel.TowerDetails?
     
     var body: some View {
-        Color("ringingBackground")
+        Color(.ringingRoomBackground)
             .ignoresSafeArea()
             .task {
                 await joinTower(id: towerID, towerDetails: towerDetails)

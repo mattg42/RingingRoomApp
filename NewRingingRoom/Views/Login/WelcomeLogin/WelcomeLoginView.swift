@@ -127,11 +127,11 @@ struct WelcomeLoginView: View {
                     .pickerStyle(.menu)
                 }
                 
-                AsyncButton(progressViewColor: .white, progressViewPadding: 5) {
+                AsyncButton(progressViewColor: .white, progressViewPadding: 10) {
                     await login()
                 } label: {
                     Text("Login")
-                        .padding(.vertical, 5)
+//                        .padding(.vertical, 5)
                 } background: {
                     Color.main
                         .cornerRadius(5)

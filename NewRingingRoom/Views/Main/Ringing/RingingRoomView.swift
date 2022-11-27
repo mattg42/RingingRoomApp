@@ -18,7 +18,7 @@ struct RingingRoomView: View {
     
     var body: some View {
         ZStack {
-            Color("ringingBackground")
+            Color(.ringingRoomBackground)
                 .ignoresSafeArea(.all)
             
             VStack {
@@ -80,7 +80,7 @@ struct RingingRoomView: View {
                 
                 ZStack {
                     Rectangle()
-                        .fill(Color("ringingButtonBackground"))
+                        .fill(Color(.ringingButtonBackground))
                         .cornerRadius(10)
                     
                     VStack(spacing: 14.0) {
