@@ -11,9 +11,9 @@ struct RopeCircleView: View {
     
     @EnvironmentObject var state: RingingRoomState
     
-    @State var imageSize: CGFloat = 0
-    @State var radius: CGFloat = 0
-    @State var bellPositions = [CGPoint]()
+    @State private var imageSize: CGFloat = 0
+    @State private var radius: CGFloat = 0
+    @State private var bellPositions = [CGPoint]()
 
     
     var body: some View {

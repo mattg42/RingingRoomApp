@@ -13,7 +13,7 @@ struct WebView: View {
     
     var showControls: Bool
     
-    @State var actionSheetIsPresented = false
+    @State private var actionSheetIsPresented = false
     
     var body: some View {
         VStack(spacing: 0) {

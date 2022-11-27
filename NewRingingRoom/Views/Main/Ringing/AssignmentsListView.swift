@@ -16,8 +16,8 @@ struct AssignmentsListView: View {
     let imageHeight: CGFloat
     let geo: GeometryProxy
     
-    @State var assignmentsWidth: CGFloat = .zero
-    @State var assignmentsHeight: CGFloat = .zero
+    @State private var assignmentsWidth: CGFloat = .zero
+    @State private var assignmentsHeight: CGFloat = .zero
     
     var body: some View {
          Group {

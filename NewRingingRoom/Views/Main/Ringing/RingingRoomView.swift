@@ -12,9 +12,9 @@ struct RingingRoomView: View {
     
     @Environment(\.scenePhase) var scenePhase
         
-    @State var showingTowerControls = false
-    @State var showingHelp = false
-    @State var showingConnectionErrorAlert = false
+    @State private var showingTowerControls = false
+    @State private var showingHelp = false
+    @State private var showingConnectionErrorAlert = false
     
     var body: some View {
         ZStack {

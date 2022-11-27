@@ -11,9 +11,9 @@ struct CallView: View {
     
     @EnvironmentObject var viewModel: RingingRoomViewModel
     
-    @State var callTextOpacity = 0.0
-    @State var callText = ""
-    @State var callTimer: Timer? = nil
+    @State private var callTextOpacity = 0.0
+    @State private var callText = ""
+    @State private var callTimer: Timer? = nil
     
     var body: some View {
         ZStack {

@@ -203,7 +203,7 @@ struct UsersView: View {
     
     @EnvironmentObject var viewModel: RingingRoomViewModel
     
-    @State var selectedUser = 0
+    @State private var selectedUser = 0
     
     var body: some View {
         Form {
