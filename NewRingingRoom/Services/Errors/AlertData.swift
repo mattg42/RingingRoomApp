@@ -13,6 +13,7 @@ public typealias Action = () -> Void
 enum DissmissType {
     case cancel(title: String?, action: Action?)
     case retry(action: Action)
+    case logout(action: Action)
 }
 
 struct AlertData {

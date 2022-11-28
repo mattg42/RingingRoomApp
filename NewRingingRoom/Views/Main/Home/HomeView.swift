@@ -62,6 +62,7 @@ struct HomeView: View {
         }
         .onAppear {
             tabViewSelection = .ring
+            print("Called")
         }
         .sheet(isPresented: $showingPrivacyPolicyView, content: {
             PrivacyPolicyWebView(isPresented: $showingPrivacyPolicyView)

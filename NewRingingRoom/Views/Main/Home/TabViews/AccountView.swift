@@ -36,21 +36,13 @@ struct AccountView: View {
                     
                     Section {
                         Button {
-                            presentingAlert = true
+                            AlertHandler.presentAlert(title: "Are you sure you want to log out?", message: nil, dismiss: .logout(action: logout))
                         } label: {
                             HStack {
                                 Spacer()
                                 Text("Log out")
                                 Spacer()
                             }
-                        }
-                        .alert(isPresented: $presentingAlert) {
-                            Alert(
-                                title: Text("Are you sure you want to log out?"),
-                                message: nil,
-                                primaryButton: .destructive(Text("Yes"), action: self.logout),
-                                secondaryButton: .cancel(Text("Cancel"), action: { presentingAlert = false })
-                            )
                         }
                     }
                 }

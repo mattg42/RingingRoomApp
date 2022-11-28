@@ -94,7 +94,6 @@ connection is restored.
             .opacity(showingConnectionErrorAlert ? 1 : 0)
         }
         .fullScreenCover(isPresented: $showingTowerControls) {
-            //                        Button("BAck") { showingTowerControls = false }
             TowerControlsView()
         }
         .onAppear {

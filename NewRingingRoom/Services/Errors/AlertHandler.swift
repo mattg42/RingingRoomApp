@@ -9,18 +9,31 @@ import Foundation
 import UIKit
 
 public enum AlertHandler {
-    static func presentAlert(title: String, message: String, dismiss: DissmissType) {
+    static func presentAlert(title: String, message: String?, dismiss: DissmissType) {
         let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
         switch dismiss {
         case .cancel(let title, let action):
-            ac.addAction(UIAlertAction(title: title, style: .cancel, handler: { _ in
+            let alertAction = UIAlertAction(title: title, style: .cancel, handler: { _ in
                 action?()
-            }))
+            })
+            alertAction.titleTextColor = .systemBlue
+            ac.addAction(alertAction)
         case .retry(let action):
-            ac.addAction(UIAlertAction(title: "Retry", style: .default, handler: { _ in
+            let alertAction = UIAlertAction(title: "Retry", style: .default, handler: { _ in
                 action()
-            }))
+            })
+            alertAction.titleTextColor = .systemBlue
+            ac.addAction(alertAction)
+        case .logout(let action):
+            let logoutAlertAction = UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
+                action()
+            })
+            let cancelAlertAction = UIAlertAction(title: "Cancel", style: .cancel)
+            cancelAlertAction.titleTextColor = .systemBlue
+            ac.addAction(logoutAlertAction)
+            ac.addAction(cancelAlertAction)
         }
+        
         ThreadUtil.runInMain {
             UIApplication.shared.keyWindowPresentedController?.present(ac, animated: true, completion: nil)
         }
@@ -28,6 +41,16 @@ public enum AlertHandler {
     
     static func handle(error: Alertable) {
         presentAlert(title: error.alertData.title, message: error.alertData.message, dismiss: error.alertData.dismiss)
+    }
+}
+
+extension UIAlertAction {
+    var titleTextColor: UIColor? {
+        get {
+            return self.value(forKey: "titleTextColor") as? UIColor
+        } set {
+            self.setValue(newValue, forKey: "titleTextColor")
+        }
     }
 }
 
