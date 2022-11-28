@@ -24,3 +24,7 @@ struct RingingControlButtonStyle: ButtonStyle {
         .fixedSize()
     }
 }
+
+extension ButtonStyle where Self == RingingControlButtonStyle {
+    static var ringingControlButton: RingingControlButtonStyle { RingingControlButtonStyle() }
+}

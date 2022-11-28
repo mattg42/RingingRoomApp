@@ -465,8 +465,8 @@
 				341D38EE2722CFB100E340CF /* PrivacyPolicyView.swift */,
 				341D38F72722D15B00E340CF /* ShareSheet.swift */,
 				3454ED27280C39CB00C60E3C /* AsyncButton.swift */,
-				34BA523228B106E20084033C /* BellTouchdownButtonStyle.swift */,
 				3441A9C629342FE60059D907 /* RingingControlButtonStyle.swift */,
+				34BA523228B106E20084033C /* BellTouchdownButtonStyle.swift */,
 				345734F428E0D05D00A912ED /* CallTouchdownButtonStyle.swift */,
 			);
 			path = Misc;
