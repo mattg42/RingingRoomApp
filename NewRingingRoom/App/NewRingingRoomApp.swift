@@ -52,7 +52,6 @@ struct RingingRoomApp: App {
             try session.setPreferredIOBufferDuration(0.002)
             try session.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
-            print("audio error")
         }
     }
     
