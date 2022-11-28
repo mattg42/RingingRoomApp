@@ -26,59 +26,28 @@ struct RingingRoomView: View {
                 
                 ZStack {
                     HStack {
-                        Button {
-                            showingHelp = true
-                        } label: {
-                            ZStack {
-                                Color.main
-                                    .cornerRadius(5)
-                                
-                                Text("Help")
-                                    .foregroundColor(.white)
-                                    .bold()
-                                    .padding(3)
-                            }
-                            .fixedSize()
+                        Button("Help") {
+                            showingTowerControls = true
                         }
+                        .buttonStyle(RingingControlButtonStyle())
                         
                         Spacer()
                     }
                     
                     HStack {
-                        Button {
-                            viewModel.send(.setBells)
-                        } label: {
-                            ZStack {
-                                Color.main
-                                    .cornerRadius(5)
-                                
-                                Text("Set at hand")
-                                    .foregroundColor(.white)
-                                    .bold()
-                                    .padding(3)
-                            }
-                            .fixedSize()
+                        Button("Set at hand") {
+                            showingTowerControls = true
                         }
+                        .buttonStyle(RingingControlButtonStyle())
                     }
                     
                     HStack {
                         Spacer ()
                         
-                        Button {
+                        Button("Controls") {
                             showingTowerControls = true
-                        } label: {
-                            ZStack {
-                                Color.main
-                                    .cornerRadius(5)
-                                
-                                Text("Controls")
-                                    .foregroundColor(.white)
-                                    .bold()
-                                    .padding(3)
-                            }
-                            .fixedSize()
                         }
-                        
+                        .buttonStyle(RingingControlButtonStyle())
                     }
                     .sheet(isPresented: $showingHelp, content: {
                         HelpView(showDismiss: true)
