@@ -51,7 +51,7 @@ struct TowersView: View {
                                     Button {
                                         router.moveTo(.joinTower(towerID: tower.towerID, towerDetails: nil))
                                     } label: {
-                                        HStack() {
+                                        HStack {
                                             Text(tower.towerName)
                                             Spacer()
                                         }
