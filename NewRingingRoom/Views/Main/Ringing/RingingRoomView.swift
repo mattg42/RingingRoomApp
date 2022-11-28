@@ -29,7 +29,7 @@ struct RingingRoomView: View {
                         Button("Help") {
                             showingTowerControls = true
                         }
-                        .buttonStyle(RingingControlButtonStyle())
+                        .buttonStyle(.ringingControlButton)
                         
                         Spacer()
                     }
@@ -38,7 +38,7 @@ struct RingingRoomView: View {
                         Button("Set at hand") {
                             showingTowerControls = true
                         }
-                        .buttonStyle(RingingControlButtonStyle())
+                        .buttonStyle(.ringingControlButton)
                     }
                     
                     HStack {
@@ -47,7 +47,7 @@ struct RingingRoomView: View {
                         Button("Controls") {
                             showingTowerControls = true
                         }
-                        .buttonStyle(RingingControlButtonStyle())
+                        .buttonStyle(.ringingControlButton)
                     }
                     .sheet(isPresented: $showingHelp, content: {
                         HelpView(showDismiss: true)
