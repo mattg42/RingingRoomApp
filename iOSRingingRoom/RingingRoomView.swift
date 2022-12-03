@@ -1095,13 +1095,11 @@ struct RopeCircle:View {
         var newRadius = Double(min(size.width/2, size.height/2))
         
         newRadius = min(newRadius, 300)
-//        radius *= 0.9
         
         let originalRadius = newRadius
         let theta = Double.pi/Double(bellCircle.size)
                 
         newImageSize = sin(theta) * newRadius * 2
-//
         (newImageSize, newRadius) = reduceOverlap(width: size.width, height: size.height, imageSize: newImageSize, radius: newRadius, theta: theta)
         
         newImageSize = min(newImageSize, originalRadius*0.6)
@@ -1152,7 +1150,6 @@ struct RopeCircle:View {
         bellCircle.oldScreenSize = size.truncate(places: 5)
         bellCircle.oldBellCircleSize = bellCircle.size
         
-//        imageSize *= 1.2
         if bellCircle.bellType == .tower {
             return CGFloat(bellCircle.imageSize)
         } else {
@@ -1162,7 +1159,6 @@ struct RopeCircle:View {
     }
     
     func getBellPositionsAndSizes(frame:CGRect, centre:CGPoint) -> [CGPoint] {
-
             return self.bellCircle.getNewPositions(radius: CGFloat(bellCircle.radius), centre: centre)
     }
     

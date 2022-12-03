@@ -35,7 +35,12 @@ class User:ObservableObject {
     
     var loggedIn:Bool = false
     @Published var name:String = ""
-    var email:String = ""
+    var email:String = "" {
+        didSet {
+            email = email.lowercased()
+            objectWillChange.send()
+        }
+    }
     var password = ""
         
     @Published var myTowers = [Tower(id: 0, name: "", host: 0, recent: 0, visited: "", creator: 0, bookmark: 0)]

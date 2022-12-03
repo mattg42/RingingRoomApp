@@ -1,0 +1,781 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 52;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		341A270928CC044500D702FE /* Simonetta-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 341A269328CC044400D702FE /* Simonetta-Black.ttf */; };
+		341A270A28CC044500D702FE /* Simonetta-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 341A269428CC044400D702FE /* Simonetta-Regular.ttf */; };
+		341A270B28CC044500D702FE /* Simonetta-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 341A269528CC044400D702FE /* Simonetta-Italic.ttf */; };
+		341A270C28CC044500D702FE /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 341A269628CC044400D702FE /* OFL.txt */; };
+		341A270D28CC044500D702FE /* Simonetta-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 341A269728CC044400D702FE /* Simonetta-BlackItalic.ttf */; };
+		341A270E28CC044500D702FE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 341A269828CC044400D702FE /* README.md */; };
+		341A270F28CC044500D702FE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A269A28CC044400D702FE /* SettingsView.swift */; };
+		341A271028CC044500D702FE /* AudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A269B28CC044400D702FE /* AudioController.swift */; };
+		341A271128CC044500D702FE /* EasyAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A269C28CC044400D702FE /* EasyAudio.swift */; };
+		341A271228CC044500D702FE /* Bell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A269D28CC044400D702FE /* Bell.swift */; };
+		341A271328CC044500D702FE /* AutoLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A269E28CC044400D702FE /* AutoLogin.swift */; };
+		341A271428CC044500D702FE /* mailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A269F28CC044400D702FE /* mailView.swift */; };
+		341A271528CC044500D702FE /* KeychainServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26A028CC044400D702FE /* KeychainServices.swift */; };
+		341A271628CC044500D702FE /* resetPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26A128CC044400D702FE /* resetPasswordView.swift */; };
+		341A271728CC044500D702FE /* SocketIOManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26A228CC044400D702FE /* SocketIOManager.swift */; };
+		341A271828CC044500D702FE /* StoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26A328CC044400D702FE /* StoreView.swift */; };
+		341A271928CC044500D702FE /* bulletLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26A428CC044400D702FE /* bulletLine.swift */; };
+		341A271A28CC044500D702FE /* TowerParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26A528CC044400D702FE /* TowerParameters.swift */; };
+		341A271B28CC044500D702FE /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26A728CC044400D702FE /* ViewModel.swift */; };
+		341A271C28CC044500D702FE /* SwiftUIWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26A828CC044400D702FE /* SwiftUIWebView.swift */; };
+		341A271D28CC044500D702FE /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26A928CC044400D702FE /* WebView.swift */; };
+		341A271F28CC044500D702FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 341A26AB28CC044400D702FE /* Assets.xcassets */; };
+		341A272028CC044500D702FE /* RingingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26AC28CC044400D702FE /* RingingRoomView.swift */; };
+		341A272128CC044500D702FE /* AgreeToPrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26AD28CC044400D702FE /* AgreeToPrivacyPolicyView.swift */; };
+		341A272228CC044500D702FE /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26AE28CC044400D702FE /* User.swift */; };
+		341A272328CC044500D702FE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 341A26B028CC044400D702FE /* Preview Assets.xcassets */; };
+		341A272428CC044500D702FE /* ChatManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26B128CC044400D702FE /* ChatManager.swift */; };
+		341A272B28CC044500D702FE /* Te4-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26BA28CC044400D702FE /* Te4-muf.wav */; };
+		341A272C28CC044500D702FE /* all.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26BB28CC044400D702FE /* all.wav */; };
+		341A272D28CC044500D702FE /* T4-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26BC28CC044400D702FE /* T4-muf.wav */; };
+		341A272E28CC044500D702FE /* TE-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26BD28CC044400D702FE /* TE-muf.wav */; };
+		341A272F28CC044500D702FE /* H8.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26BE28CC044400D702FE /* H8.wav */; };
+		341A273028CC044500D702FE /* H9.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26BF28CC044400D702FE /* H9.wav */; };
+		341A273128CC044500D702FE /* T5-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26C028CC044400D702FE /* T5-muf.wav */; };
+		341A273228CC044500D702FE /* stand.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26C128CC044400D702FE /* stand.wav */; };
+		341A273328CC044500D702FE /* TE.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26C228CC044400D702FE /* TE.wav */; };
+		341A273428CC044500D702FE /* T3.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26C328CC044400D702FE /* T3.wav */; };
+		341A273528CC044500D702FE /* T2.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26C428CC044400D702FE /* T2.wav */; };
+		341A273628CC044500D702FE /* T7-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26C528CC044400D702FE /* T7-muf.wav */; };
+		341A273728CC044500D702FE /* bob.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26C628CC044400D702FE /* bob.wav */; };
+		341A273828CC044500D702FE /* T0.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26C728CC044400D702FE /* T0.wav */; };
+		341A273928CC044500D702FE /* T1.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26C828CC044400D702FE /* T1.wav */; };
+		341A273A28CC044500D702FE /* H6f.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26C928CC044400D702FE /* H6f.wav */; };
+		341A273B28CC044500D702FE /* TT.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26CA28CC044400D702FE /* TT.wav */; };
+		341A273C28CC044500D702FE /* T5.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26CB28CC044400D702FE /* T5.wav */; };
+		341A273D28CC044500D702FE /* T4.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26CC28CC044400D702FE /* T4.wav */; };
+		341A273E28CC044500D702FE /* T6.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26CD28CC044400D702FE /* T6.wav */; };
+		341A273F28CC044500D702FE /* look.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26CE28CC044400D702FE /* look.wav */; };
+		341A274028CC044500D702FE /* T7.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26CF28CC044400D702FE /* T7.wav */; };
+		341A274128CC044500D702FE /* T6-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26D028CC044400D702FE /* T6-muf.wav */; };
+		341A274228CC044500D702FE /* T3-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26D128CC044400D702FE /* T3-muf.wav */; };
+		341A274328CC044500D702FE /* Te2.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26D228CC044400D702FE /* Te2.wav */; };
+		341A274428CC044500D702FE /* Te3.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26D328CC044400D702FE /* Te3.wav */; };
+		341A274528CC044500D702FE /* Te3-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26D428CC044400D702FE /* Te3-muf.wav */; };
+		341A274628CC044500D702FE /* Te1.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26D528CC044400D702FE /* Te1.wav */; };
+		341A274728CC044500D702FE /* T9.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26D628CC044400D702FE /* T9.wav */; };
+		341A274828CC044500D702FE /* T8.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26D728CC044400D702FE /* T8.wav */; };
+		341A274928CC044500D702FE /* single.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26D828CC044400D702FE /* single.wav */; };
+		341A274A28CC044500D702FE /* T6flat.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26D928CC044400D702FE /* T6flat.wav */; };
+		341A274B28CC044500D702FE /* Te4.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26DA28CC044400D702FE /* Te4.wav */; };
+		341A274C28CC044500D702FE /* T2-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26DB28CC044400D702FE /* T2-muf.wav */; };
+		341A274D28CC044500D702FE /* T2sharp-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26DC28CC044400D702FE /* T2sharp-muf.wav */; };
+		341A274E28CC044500D702FE /* Te2-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26DD28CC044400D702FE /* Te2-muf.wav */; };
+		341A274F28CC044500D702FE /* T9-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26DE28CC044400D702FE /* T9-muf.wav */; };
+		341A275028CC044500D702FE /* HA.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26DF28CC044400D702FE /* HA.wav */; };
+		341A275128CC044500D702FE /* H7.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26E028CC044400D702FE /* H7.wav */; };
+		341A275228CC044500D702FE /* H6.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26E128CC044400D702FE /* H6.wav */; };
+		341A275328CC044500D702FE /* go.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26E228CC044400D702FE /* go.wav */; };
+		341A275428CC044500D702FE /* T0-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26E328CC044400D702FE /* T0-muf.wav */; };
+		341A275528CC044500D702FE /* HB.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26E428CC044400D702FE /* HB.wav */; };
+		341A275628CC044500D702FE /* H4.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26E528CC044400D702FE /* H4.wav */; };
+		341A275728CC044500D702FE /* H5.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26E628CC044400D702FE /* H5.wav */; };
+		341A275828CC044500D702FE /* HT.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26E728CC044400D702FE /* HT.wav */; };
+		341A275928CC044500D702FE /* HC.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26E828CC044400D702FE /* HC.wav */; };
+		341A275A28CC044500D702FE /* T2sharp.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26E928CC044400D702FE /* T2sharp.wav */; };
+		341A275B28CC044500D702FE /* H1.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26EA28CC044400D702FE /* H1.wav */; };
+		341A275C28CC044500D702FE /* T1-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26EB28CC044400D702FE /* T1-muf.wav */; };
+		341A275D28CC044500D702FE /* H0.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26EC28CC044400D702FE /* H0.wav */; };
+		341A275E28CC044500D702FE /* Te1-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26ED28CC044400D702FE /* Te1-muf.wav */; };
+		341A275F28CC044500D702FE /* TT-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26EE28CC044400D702FE /* TT-muf.wav */; };
+		341A276028CC044500D702FE /* T8-muf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26EF28CC044400D702FE /* T8-muf.wav */; };
+		341A276128CC044500D702FE /* H2.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26F028CC044400D702FE /* H2.wav */; };
+		341A276228CC044500D702FE /* HD.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26F128CC044400D702FE /* HD.wav */; };
+		341A276328CC044500D702FE /* HE.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26F228CC044400D702FE /* HE.wav */; };
+		341A276428CC044500D702FE /* H3.wav in Resources */ = {isa = PBXBuildFile; fileRef = 341A26F328CC044400D702FE /* H3.wav */; };
+		341A276628CC044500D702FE /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26F628CC044400D702FE /* MainApp.swift */; };
+		341A276728CC044500D702FE /* RingingRoomApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26F828CC044400D702FE /* RingingRoomApp.swift */; };
+		341A276828CC044500D702FE /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26F928CC044400D702FE /* HelpView.swift */; };
+		341A276928CC044500D702FE /* Starling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26FA28CC044400D702FE /* Starling.swift */; };
+		341A276A28CC044500D702FE /* SimpleLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26FB28CC044400D702FE /* SimpleLoginView.swift */; };
+		341A276B28CC044500D702FE /* RingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26FC28CC044400D702FE /* RingView.swift */; };
+		341A276C28CC044500D702FE /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 341A26FD28CC044500D702FE /* Launch Screen.storyboard */; };
+		341A276D28CC044500D702FE /* Tower.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A26FE28CC044500D702FE /* Tower.swift */; };
+		341A276E28CC044500D702FE /* AppController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A270028CC044500D702FE /* AppController.swift */; };
+		341A276F28CC044500D702FE /* accountCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A270128CC044500D702FE /* accountCreationView.swift */; };
+		341A277028CC044500D702FE /* CommunicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A270228CC044500D702FE /* CommunicationController.swift */; };
+		341A277228CC044500D702FE /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A270428CC044500D702FE /* PrivacyPolicyView.swift */; };
+		341A277328CC044500D702FE /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A270528CC044500D702FE /* ShareSheet.swift */; };
+		341A277428CC044500D702FE /* WelcomeLoginScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A270628CC044500D702FE /* WelcomeLoginScreen.swift */; };
+		341A277528CC044500D702FE /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 341A270728CC044500D702FE /* LICENSE */; };
+		349479B124DB1A1B006B4ABE /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 349479B024DB1A1B006B4ABE /* SocketIO */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		341A269328CC044400D702FE /* Simonetta-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Simonetta-Black.ttf"; sourceTree = "<group>"; };
+		341A269428CC044400D702FE /* Simonetta-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Simonetta-Regular.ttf"; sourceTree = "<group>"; };
+		341A269528CC044400D702FE /* Simonetta-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Simonetta-Italic.ttf"; sourceTree = "<group>"; };
+		341A269628CC044400D702FE /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OFL.txt; sourceTree = "<group>"; };
+		341A269728CC044400D702FE /* Simonetta-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Simonetta-BlackItalic.ttf"; sourceTree = "<group>"; };
+		341A269828CC044400D702FE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		341A269A28CC044400D702FE /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		341A269B28CC044400D702FE /* AudioController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioController.swift; sourceTree = "<group>"; };
+		341A269C28CC044400D702FE /* EasyAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EasyAudio.swift; sourceTree = "<group>"; };
+		341A269D28CC044400D702FE /* Bell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bell.swift; sourceTree = "<group>"; };
+		341A269E28CC044400D702FE /* AutoLogin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoLogin.swift; sourceTree = "<group>"; };
+		341A269F28CC044400D702FE /* mailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = mailView.swift; sourceTree = "<group>"; };
+		341A26A028CC044400D702FE /* KeychainServices.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainServices.swift; sourceTree = "<group>"; };
+		341A26A128CC044400D702FE /* resetPasswordView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = resetPasswordView.swift; sourceTree = "<group>"; };
+		341A26A228CC044400D702FE /* SocketIOManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketIOManager.swift; sourceTree = "<group>"; };
+		341A26A328CC044400D702FE /* StoreView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreView.swift; sourceTree = "<group>"; };
+		341A26A428CC044400D702FE /* bulletLine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = bulletLine.swift; sourceTree = "<group>"; };
+		341A26A528CC044400D702FE /* TowerParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TowerParameters.swift; sourceTree = "<group>"; };
+		341A26A728CC044400D702FE /* ViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
+		341A26A828CC044400D702FE /* SwiftUIWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIWebView.swift; sourceTree = "<group>"; };
+		341A26A928CC044400D702FE /* WebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		341A26AB28CC044400D702FE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		341A26AC28CC044400D702FE /* RingingRoomView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RingingRoomView.swift; sourceTree = "<group>"; };
+		341A26AD28CC044400D702FE /* AgreeToPrivacyPolicyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AgreeToPrivacyPolicyView.swift; sourceTree = "<group>"; };
+		341A26AE28CC044400D702FE /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		341A26B028CC044400D702FE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		341A26B128CC044400D702FE /* ChatManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatManager.swift; sourceTree = "<group>"; };
+		341A26BA28CC044400D702FE /* Te4-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Te4-muf.wav"; sourceTree = "<group>"; };
+		341A26BB28CC044400D702FE /* all.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = all.wav; sourceTree = "<group>"; };
+		341A26BC28CC044400D702FE /* T4-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T4-muf.wav"; sourceTree = "<group>"; };
+		341A26BD28CC044400D702FE /* TE-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "TE-muf.wav"; sourceTree = "<group>"; };
+		341A26BE28CC044400D702FE /* H8.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = H8.wav; sourceTree = "<group>"; };
+		341A26BF28CC044400D702FE /* H9.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = H9.wav; sourceTree = "<group>"; };
+		341A26C028CC044400D702FE /* T5-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T5-muf.wav"; sourceTree = "<group>"; };
+		341A26C128CC044400D702FE /* stand.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = stand.wav; sourceTree = "<group>"; };
+		341A26C228CC044400D702FE /* TE.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = TE.wav; sourceTree = "<group>"; };
+		341A26C328CC044400D702FE /* T3.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T3.wav; sourceTree = "<group>"; };
+		341A26C428CC044400D702FE /* T2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T2.wav; sourceTree = "<group>"; };
+		341A26C528CC044400D702FE /* T7-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T7-muf.wav"; sourceTree = "<group>"; };
+		341A26C628CC044400D702FE /* bob.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bob.wav; sourceTree = "<group>"; };
+		341A26C728CC044400D702FE /* T0.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T0.wav; sourceTree = "<group>"; };
+		341A26C828CC044400D702FE /* T1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T1.wav; sourceTree = "<group>"; };
+		341A26C928CC044400D702FE /* H6f.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = H6f.wav; sourceTree = "<group>"; };
+		341A26CA28CC044400D702FE /* TT.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = TT.wav; sourceTree = "<group>"; };
+		341A26CB28CC044400D702FE /* T5.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T5.wav; sourceTree = "<group>"; };
+		341A26CC28CC044400D702FE /* T4.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T4.wav; sourceTree = "<group>"; };
+		341A26CD28CC044400D702FE /* T6.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T6.wav; sourceTree = "<group>"; };
+		341A26CE28CC044400D702FE /* look.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = look.wav; sourceTree = "<group>"; };
+		341A26CF28CC044400D702FE /* T7.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T7.wav; sourceTree = "<group>"; };
+		341A26D028CC044400D702FE /* T6-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T6-muf.wav"; sourceTree = "<group>"; };
+		341A26D128CC044400D702FE /* T3-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T3-muf.wav"; sourceTree = "<group>"; };
+		341A26D228CC044400D702FE /* Te2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Te2.wav; sourceTree = "<group>"; };
+		341A26D328CC044400D702FE /* Te3.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Te3.wav; sourceTree = "<group>"; };
+		341A26D428CC044400D702FE /* Te3-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Te3-muf.wav"; sourceTree = "<group>"; };
+		341A26D528CC044400D702FE /* Te1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Te1.wav; sourceTree = "<group>"; };
+		341A26D628CC044400D702FE /* T9.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T9.wav; sourceTree = "<group>"; };
+		341A26D728CC044400D702FE /* T8.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T8.wav; sourceTree = "<group>"; };
+		341A26D828CC044400D702FE /* single.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = single.wav; sourceTree = "<group>"; };
+		341A26D928CC044400D702FE /* T6flat.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T6flat.wav; sourceTree = "<group>"; };
+		341A26DA28CC044400D702FE /* Te4.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Te4.wav; sourceTree = "<group>"; };
+		341A26DB28CC044400D702FE /* T2-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T2-muf.wav"; sourceTree = "<group>"; };
+		341A26DC28CC044400D702FE /* T2sharp-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T2sharp-muf.wav"; sourceTree = "<group>"; };
+		341A26DD28CC044400D702FE /* Te2-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Te2-muf.wav"; sourceTree = "<group>"; };
+		341A26DE28CC044400D702FE /* T9-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T9-muf.wav"; sourceTree = "<group>"; };
+		341A26DF28CC044400D702FE /* HA.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = HA.wav; sourceTree = "<group>"; };
+		341A26E028CC044400D702FE /* H7.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = H7.wav; sourceTree = "<group>"; };
+		341A26E128CC044400D702FE /* H6.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = H6.wav; sourceTree = "<group>"; };
+		341A26E228CC044400D702FE /* go.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = go.wav; sourceTree = "<group>"; };
+		341A26E328CC044400D702FE /* T0-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T0-muf.wav"; sourceTree = "<group>"; };
+		341A26E428CC044400D702FE /* HB.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = HB.wav; sourceTree = "<group>"; };
+		341A26E528CC044400D702FE /* H4.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = H4.wav; sourceTree = "<group>"; };
+		341A26E628CC044400D702FE /* H5.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = H5.wav; sourceTree = "<group>"; };
+		341A26E728CC044400D702FE /* HT.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = HT.wav; sourceTree = "<group>"; };
+		341A26E828CC044400D702FE /* HC.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = HC.wav; sourceTree = "<group>"; };
+		341A26E928CC044400D702FE /* T2sharp.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = T2sharp.wav; sourceTree = "<group>"; };
+		341A26EA28CC044400D702FE /* H1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = H1.wav; sourceTree = "<group>"; };
+		341A26EB28CC044400D702FE /* T1-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T1-muf.wav"; sourceTree = "<group>"; };
+		341A26EC28CC044400D702FE /* H0.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = H0.wav; sourceTree = "<group>"; };
+		341A26ED28CC044400D702FE /* Te1-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Te1-muf.wav"; sourceTree = "<group>"; };
+		341A26EE28CC044400D702FE /* TT-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "TT-muf.wav"; sourceTree = "<group>"; };
+		341A26EF28CC044400D702FE /* T8-muf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "T8-muf.wav"; sourceTree = "<group>"; };
+		341A26F028CC044400D702FE /* H2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = H2.wav; sourceTree = "<group>"; };
+		341A26F128CC044400D702FE /* HD.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = HD.wav; sourceTree = "<group>"; };
+		341A26F228CC044400D702FE /* HE.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = HE.wav; sourceTree = "<group>"; };
+		341A26F328CC044400D702FE /* H3.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = H3.wav; sourceTree = "<group>"; };
+		341A26F628CC044400D702FE /* MainApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
+		341A26F728CC044400D702FE /* Ringing RoomRelease.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "Ringing RoomRelease.entitlements"; sourceTree = "<group>"; };
+		341A26F828CC044400D702FE /* RingingRoomApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RingingRoomApp.swift; sourceTree = "<group>"; };
+		341A26F928CC044400D702FE /* HelpView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		341A26FA28CC044400D702FE /* Starling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Starling.swift; sourceTree = "<group>"; };
+		341A26FB28CC044400D702FE /* SimpleLoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleLoginView.swift; sourceTree = "<group>"; };
+		341A26FC28CC044400D702FE /* RingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RingView.swift; sourceTree = "<group>"; };
+		341A26FD28CC044500D702FE /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		341A26FE28CC044500D702FE /* Tower.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tower.swift; sourceTree = "<group>"; };
+		341A26FF28CC044500D702FE /* Ringing Room.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "Ringing Room.entitlements"; sourceTree = "<group>"; };
+		341A270028CC044500D702FE /* AppController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppController.swift; sourceTree = "<group>"; };
+		341A270128CC044500D702FE /* accountCreationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = accountCreationView.swift; sourceTree = "<group>"; };
+		341A270228CC044500D702FE /* CommunicationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommunicationController.swift; sourceTree = "<group>"; };
+		341A270328CC044500D702FE /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		341A270428CC044500D702FE /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
+		341A270528CC044500D702FE /* ShareSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
+		341A270628CC044500D702FE /* WelcomeLoginScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeLoginScreen.swift; sourceTree = "<group>"; };
+		341A270728CC044500D702FE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		3494797D24D9EFA7006B4ABE /* Ringing Room.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ringing Room.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3494797A24D9EFA7006B4ABE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				349479B124DB1A1B006B4ABE /* SocketIO in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		341A269228CC044400D702FE /* Simonetta */ = {
+			isa = PBXGroup;
+			children = (
+				341A269328CC044400D702FE /* Simonetta-Black.ttf */,
+				341A269428CC044400D702FE /* Simonetta-Regular.ttf */,
+				341A269528CC044400D702FE /* Simonetta-Italic.ttf */,
+				341A269628CC044400D702FE /* OFL.txt */,
+				341A269728CC044400D702FE /* Simonetta-BlackItalic.ttf */,
+			);
+			path = Simonetta;
+			sourceTree = "<group>";
+		};
+		341A269928CC044400D702FE /* iOSRingingRoom */ = {
+			isa = PBXGroup;
+			children = (
+				341A26B928CC044400D702FE /* RingingRoomAudio */,
+				341A269A28CC044400D702FE /* SettingsView.swift */,
+				341A269B28CC044400D702FE /* AudioController.swift */,
+				341A269C28CC044400D702FE /* EasyAudio.swift */,
+				341A269D28CC044400D702FE /* Bell.swift */,
+				341A269E28CC044400D702FE /* AutoLogin.swift */,
+				341A269F28CC044400D702FE /* mailView.swift */,
+				341A26A028CC044400D702FE /* KeychainServices.swift */,
+				341A26A128CC044400D702FE /* resetPasswordView.swift */,
+				341A26A228CC044400D702FE /* SocketIOManager.swift */,
+				341A26A328CC044400D702FE /* StoreView.swift */,
+				341A26A428CC044400D702FE /* bulletLine.swift */,
+				341A26A528CC044400D702FE /* TowerParameters.swift */,
+				341A26A628CC044400D702FE /* WebView */,
+				341A26AB28CC044400D702FE /* Assets.xcassets */,
+				341A26AC28CC044400D702FE /* RingingRoomView.swift */,
+				341A26AD28CC044400D702FE /* AgreeToPrivacyPolicyView.swift */,
+				341A26AE28CC044400D702FE /* User.swift */,
+				341A26AF28CC044400D702FE /* Preview Content */,
+				341A26B128CC044400D702FE /* ChatManager.swift */,
+				341A26F628CC044400D702FE /* MainApp.swift */,
+				341A26F728CC044400D702FE /* Ringing RoomRelease.entitlements */,
+				341A26F828CC044400D702FE /* RingingRoomApp.swift */,
+				341A26F928CC044400D702FE /* HelpView.swift */,
+				341A26FA28CC044400D702FE /* Starling.swift */,
+				341A26FB28CC044400D702FE /* SimpleLoginView.swift */,
+				341A26FC28CC044400D702FE /* RingView.swift */,
+				341A26FD28CC044500D702FE /* Launch Screen.storyboard */,
+				341A26FE28CC044500D702FE /* Tower.swift */,
+				341A26FF28CC044500D702FE /* Ringing Room.entitlements */,
+				341A270028CC044500D702FE /* AppController.swift */,
+				341A270128CC044500D702FE /* accountCreationView.swift */,
+				341A270228CC044500D702FE /* CommunicationController.swift */,
+				341A270328CC044500D702FE /* Info.plist */,
+				341A270428CC044500D702FE /* PrivacyPolicyView.swift */,
+				341A270528CC044500D702FE /* ShareSheet.swift */,
+				341A270628CC044500D702FE /* WelcomeLoginScreen.swift */,
+			);
+			path = iOSRingingRoom;
+			sourceTree = "<group>";
+		};
+		341A26A628CC044400D702FE /* WebView */ = {
+			isa = PBXGroup;
+			children = (
+				341A26A728CC044400D702FE /* ViewModel.swift */,
+				341A26A828CC044400D702FE /* SwiftUIWebView.swift */,
+				341A26A928CC044400D702FE /* WebView.swift */,
+			);
+			path = WebView;
+			sourceTree = "<group>";
+		};
+		341A26AF28CC044400D702FE /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				341A26B028CC044400D702FE /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		341A26B928CC044400D702FE /* RingingRoomAudio */ = {
+			isa = PBXGroup;
+			children = (
+				341A26BA28CC044400D702FE /* Te4-muf.wav */,
+				341A26BB28CC044400D702FE /* all.wav */,
+				341A26BC28CC044400D702FE /* T4-muf.wav */,
+				341A26BD28CC044400D702FE /* TE-muf.wav */,
+				341A26BE28CC044400D702FE /* H8.wav */,
+				341A26BF28CC044400D702FE /* H9.wav */,
+				341A26C028CC044400D702FE /* T5-muf.wav */,
+				341A26C128CC044400D702FE /* stand.wav */,
+				341A26C228CC044400D702FE /* TE.wav */,
+				341A26C328CC044400D702FE /* T3.wav */,
+				341A26C428CC044400D702FE /* T2.wav */,
+				341A26C528CC044400D702FE /* T7-muf.wav */,
+				341A26C628CC044400D702FE /* bob.wav */,
+				341A26C728CC044400D702FE /* T0.wav */,
+				341A26C828CC044400D702FE /* T1.wav */,
+				341A26C928CC044400D702FE /* H6f.wav */,
+				341A26CA28CC044400D702FE /* TT.wav */,
+				341A26CB28CC044400D702FE /* T5.wav */,
+				341A26CC28CC044400D702FE /* T4.wav */,
+				341A26CD28CC044400D702FE /* T6.wav */,
+				341A26CE28CC044400D702FE /* look.wav */,
+				341A26CF28CC044400D702FE /* T7.wav */,
+				341A26D028CC044400D702FE /* T6-muf.wav */,
+				341A26D128CC044400D702FE /* T3-muf.wav */,
+				341A26D228CC044400D702FE /* Te2.wav */,
+				341A26D328CC044400D702FE /* Te3.wav */,
+				341A26D428CC044400D702FE /* Te3-muf.wav */,
+				341A26D528CC044400D702FE /* Te1.wav */,
+				341A26D628CC044400D702FE /* T9.wav */,
+				341A26D728CC044400D702FE /* T8.wav */,
+				341A26D828CC044400D702FE /* single.wav */,
+				341A26D928CC044400D702FE /* T6flat.wav */,
+				341A26DA28CC044400D702FE /* Te4.wav */,
+				341A26DB28CC044400D702FE /* T2-muf.wav */,
+				341A26DC28CC044400D702FE /* T2sharp-muf.wav */,
+				341A26DD28CC044400D702FE /* Te2-muf.wav */,
+				341A26DE28CC044400D702FE /* T9-muf.wav */,
+				341A26DF28CC044400D702FE /* HA.wav */,
+				341A26E028CC044400D702FE /* H7.wav */,
+				341A26E128CC044400D702FE /* H6.wav */,
+				341A26E228CC044400D702FE /* go.wav */,
+				341A26E328CC044400D702FE /* T0-muf.wav */,
+				341A26E428CC044400D702FE /* HB.wav */,
+				341A26E528CC044400D702FE /* H4.wav */,
+				341A26E628CC044400D702FE /* H5.wav */,
+				341A26E728CC044400D702FE /* HT.wav */,
+				341A26E828CC044400D702FE /* HC.wav */,
+				341A26E928CC044400D702FE /* T2sharp.wav */,
+				341A26EA28CC044400D702FE /* H1.wav */,
+				341A26EB28CC044400D702FE /* T1-muf.wav */,
+				341A26EC28CC044400D702FE /* H0.wav */,
+				341A26ED28CC044400D702FE /* Te1-muf.wav */,
+				341A26EE28CC044400D702FE /* TT-muf.wav */,
+				341A26EF28CC044400D702FE /* T8-muf.wav */,
+				341A26F028CC044400D702FE /* H2.wav */,
+				341A26F128CC044400D702FE /* HD.wav */,
+				341A26F228CC044400D702FE /* HE.wav */,
+				341A26F328CC044400D702FE /* H3.wav */,
+			);
+			path = RingingRoomAudio;
+			sourceTree = "<group>";
+		};
+		3494797424D9EFA7006B4ABE = {
+			isa = PBXGroup;
+			children = (
+				341A269928CC044400D702FE /* iOSRingingRoom */,
+				341A270728CC044500D702FE /* LICENSE */,
+				341A269828CC044400D702FE /* README.md */,
+				341A269228CC044400D702FE /* Simonetta */,
+				3494797E24D9EFA7006B4ABE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3494797E24D9EFA7006B4ABE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3494797D24D9EFA7006B4ABE /* Ringing Room.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3494797C24D9EFA7006B4ABE /* iOSRingingRoom */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3494799124D9EFAA006B4ABE /* Build configuration list for PBXNativeTarget "iOSRingingRoom" */;
+			buildPhases = (
+				3494797924D9EFA7006B4ABE /* Sources */,
+				3494797A24D9EFA7006B4ABE /* Frameworks */,
+				3494797B24D9EFA7006B4ABE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = iOSRingingRoom;
+			packageProductDependencies = (
+				349479B024DB1A1B006B4ABE /* SocketIO */,
+			);
+			productName = iOSRingingRoom;
+			productReference = 3494797D24D9EFA7006B4ABE /* Ringing Room.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3494797524D9EFA7006B4ABE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1160;
+				LastUpgradeCheck = 1160;
+				ORGANIZATIONNAME = "Matthew Goodship";
+				TargetAttributes = {
+					3494797C24D9EFA7006B4ABE = {
+						CreatedOnToolsVersion = 11.6;
+					};
+				};
+			};
+			buildConfigurationList = 3494797824D9EFA7006B4ABE /* Build configuration list for PBXProject "Ringing Room" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 3494797424D9EFA7006B4ABE;
+			packageReferences = (
+				349479AF24DB1A1B006B4ABE /* XCRemoteSwiftPackageReference "socket" */,
+			);
+			productRefGroup = 3494797E24D9EFA7006B4ABE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3494797C24D9EFA7006B4ABE /* iOSRingingRoom */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3494797B24D9EFA7006B4ABE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				341A276128CC044500D702FE /* H2.wav in Resources */,
+				341A275728CC044500D702FE /* H5.wav in Resources */,
+				341A274B28CC044500D702FE /* Te4.wav in Resources */,
+				341A273528CC044500D702FE /* T2.wav in Resources */,
+				341A274D28CC044500D702FE /* T2sharp-muf.wav in Resources */,
+				341A275428CC044500D702FE /* T0-muf.wav in Resources */,
+				341A272F28CC044500D702FE /* H8.wav in Resources */,
+				341A275E28CC044500D702FE /* Te1-muf.wav in Resources */,
+				341A276028CC044500D702FE /* T8-muf.wav in Resources */,
+				341A273228CC044500D702FE /* stand.wav in Resources */,
+				341A272C28CC044500D702FE /* all.wav in Resources */,
+				341A273628CC044500D702FE /* T7-muf.wav in Resources */,
+				341A276328CC044500D702FE /* HE.wav in Resources */,
+				341A274628CC044500D702FE /* Te1.wav in Resources */,
+				341A270C28CC044500D702FE /* OFL.txt in Resources */,
+				341A273028CC044500D702FE /* H9.wav in Resources */,
+				341A275228CC044500D702FE /* H6.wav in Resources */,
+				341A273A28CC044500D702FE /* H6f.wav in Resources */,
+				341A274528CC044500D702FE /* Te3-muf.wav in Resources */,
+				341A274228CC044500D702FE /* T3-muf.wav in Resources */,
+				341A274F28CC044500D702FE /* T9-muf.wav in Resources */,
+				341A276C28CC044500D702FE /* Launch Screen.storyboard in Resources */,
+				341A277528CC044500D702FE /* LICENSE in Resources */,
+				341A273428CC044500D702FE /* T3.wav in Resources */,
+				341A275F28CC044500D702FE /* TT-muf.wav in Resources */,
+				341A275528CC044500D702FE /* HB.wav in Resources */,
+				341A272328CC044500D702FE /* Preview Assets.xcassets in Resources */,
+				341A272D28CC044500D702FE /* T4-muf.wav in Resources */,
+				341A275828CC044500D702FE /* HT.wav in Resources */,
+				341A275D28CC044500D702FE /* H0.wav in Resources */,
+				341A275128CC044500D702FE /* H7.wav in Resources */,
+				341A273F28CC044500D702FE /* look.wav in Resources */,
+				341A274028CC044500D702FE /* T7.wav in Resources */,
+				341A275B28CC044500D702FE /* H1.wav in Resources */,
+				341A274428CC044500D702FE /* Te3.wav in Resources */,
+				341A272B28CC044500D702FE /* Te4-muf.wav in Resources */,
+				341A275328CC044500D702FE /* go.wav in Resources */,
+				341A273328CC044500D702FE /* TE.wav in Resources */,
+				341A275628CC044500D702FE /* H4.wav in Resources */,
+				341A273828CC044500D702FE /* T0.wav in Resources */,
+				341A275A28CC044500D702FE /* T2sharp.wav in Resources */,
+				341A270A28CC044500D702FE /* Simonetta-Regular.ttf in Resources */,
+				341A273B28CC044500D702FE /* TT.wav in Resources */,
+				341A275028CC044500D702FE /* HA.wav in Resources */,
+				341A270E28CC044500D702FE /* README.md in Resources */,
+				341A273C28CC044500D702FE /* T5.wav in Resources */,
+				341A274728CC044500D702FE /* T9.wav in Resources */,
+				341A274928CC044500D702FE /* single.wav in Resources */,
+				341A273E28CC044500D702FE /* T6.wav in Resources */,
+				341A276428CC044500D702FE /* H3.wav in Resources */,
+				341A274A28CC044500D702FE /* T6flat.wav in Resources */,
+				341A270928CC044500D702FE /* Simonetta-Black.ttf in Resources */,
+				341A275928CC044500D702FE /* HC.wav in Resources */,
+				341A274128CC044500D702FE /* T6-muf.wav in Resources */,
+				341A274828CC044500D702FE /* T8.wav in Resources */,
+				341A273728CC044500D702FE /* bob.wav in Resources */,
+				341A276228CC044500D702FE /* HD.wav in Resources */,
+				341A270B28CC044500D702FE /* Simonetta-Italic.ttf in Resources */,
+				341A273928CC044500D702FE /* T1.wav in Resources */,
+				341A274C28CC044500D702FE /* T2-muf.wav in Resources */,
+				341A275C28CC044500D702FE /* T1-muf.wav in Resources */,
+				341A274E28CC044500D702FE /* Te2-muf.wav in Resources */,
+				341A273128CC044500D702FE /* T5-muf.wav in Resources */,
+				341A271F28CC044500D702FE /* Assets.xcassets in Resources */,
+				341A274328CC044500D702FE /* Te2.wav in Resources */,
+				341A272E28CC044500D702FE /* TE-muf.wav in Resources */,
+				341A273D28CC044500D702FE /* T4.wav in Resources */,
+				341A270D28CC044500D702FE /* Simonetta-BlackItalic.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3494797924D9EFA7006B4ABE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				341A271228CC044500D702FE /* Bell.swift in Sources */,
+				341A271A28CC044500D702FE /* TowerParameters.swift in Sources */,
+				341A271028CC044500D702FE /* AudioController.swift in Sources */,
+				341A271528CC044500D702FE /* KeychainServices.swift in Sources */,
+				341A276D28CC044500D702FE /* Tower.swift in Sources */,
+				341A271628CC044500D702FE /* resetPasswordView.swift in Sources */,
+				341A276828CC044500D702FE /* HelpView.swift in Sources */,
+				341A276728CC044500D702FE /* RingingRoomApp.swift in Sources */,
+				341A272128CC044500D702FE /* AgreeToPrivacyPolicyView.swift in Sources */,
+				341A276E28CC044500D702FE /* AppController.swift in Sources */,
+				341A271728CC044500D702FE /* SocketIOManager.swift in Sources */,
+				341A271D28CC044500D702FE /* WebView.swift in Sources */,
+				341A271B28CC044500D702FE /* ViewModel.swift in Sources */,
+				341A277228CC044500D702FE /* PrivacyPolicyView.swift in Sources */,
+				341A271128CC044500D702FE /* EasyAudio.swift in Sources */,
+				341A276928CC044500D702FE /* Starling.swift in Sources */,
+				341A277028CC044500D702FE /* CommunicationController.swift in Sources */,
+				341A276B28CC044500D702FE /* RingView.swift in Sources */,
+				341A271428CC044500D702FE /* mailView.swift in Sources */,
+				341A271C28CC044500D702FE /* SwiftUIWebView.swift in Sources */,
+				341A271928CC044500D702FE /* bulletLine.swift in Sources */,
+				341A272028CC044500D702FE /* RingingRoomView.swift in Sources */,
+				341A272428CC044500D702FE /* ChatManager.swift in Sources */,
+				341A271328CC044500D702FE /* AutoLogin.swift in Sources */,
+				341A277428CC044500D702FE /* WelcomeLoginScreen.swift in Sources */,
+				341A271828CC044500D702FE /* StoreView.swift in Sources */,
+				341A270F28CC044500D702FE /* SettingsView.swift in Sources */,
+				341A276F28CC044500D702FE /* accountCreationView.swift in Sources */,
+				341A276628CC044500D702FE /* MainApp.swift in Sources */,
+				341A277328CC044500D702FE /* ShareSheet.swift in Sources */,
+				341A276A28CC044500D702FE /* SimpleLoginView.swift in Sources */,
+				341A272228CC044500D702FE /* User.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3494798F24D9EFAA006B4ABE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		3494799024D9EFAA006B4ABE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3494799224D9EFAA006B4ABE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "iOSRingingRoom/Ringing Room.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_ASSET_PATHS = "\"iOSRingingRoom/Preview Content\"";
+				DEVELOPMENT_TEAM = Q74YGQBJ89;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = iOSRingingRoom/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoomDebug;
+				PRODUCT_NAME = "Ringing Room";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3494799324D9EFAA006B4ABE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "iOSRingingRoom/Ringing RoomRelease.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_ASSET_PATHS = "\"iOSRingingRoom/Preview Content\"";
+				DEVELOPMENT_TEAM = Q74YGQBJ89;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = iOSRingingRoom/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoom;
+				PRODUCT_NAME = "Ringing Room";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3494797824D9EFA7006B4ABE /* Build configuration list for PBXProject "Ringing Room" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3494798F24D9EFAA006B4ABE /* Debug */,
+				3494799024D9EFAA006B4ABE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3494799124D9EFAA006B4ABE /* Build configuration list for PBXNativeTarget "iOSRingingRoom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3494799224D9EFAA006B4ABE /* Debug */,
+				3494799324D9EFAA006B4ABE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		349479AF24DB1A1B006B4ABE /* XCRemoteSwiftPackageReference "socket" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/socketio/socket.io-client-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 15.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		349479B024DB1A1B006B4ABE /* SocketIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 349479AF24DB1A1B006B4ABE /* XCRemoteSwiftPackageReference "socket" */;
+			productName = SocketIO;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 3494797524D9EFA7006B4ABE /* Project object */;
+}
