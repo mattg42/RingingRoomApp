@@ -12,6 +12,9 @@ struct RingingRoomView: View {
     
     @Environment(\.scenePhase) var scenePhase
         
+    @Binding var user: User
+    let apiService: APIService
+    
     @State private var showingTowerControls = false
     @State private var showingHelp = false
     @State private var showingConnectionErrorAlert = false
@@ -107,6 +110,13 @@ connection is restored.
                 viewModel.connect()
             } else {
                 viewModel.disconnect()
+            }
+        }
+        .onChange(of: viewModel.connected ) { _ in
+            Task(priority: .medium) {
+                await ErrorUtil.do(networkRequest: true) {
+                    user.towers = try await apiService.getTowers()
+                }
             }
         }
     }

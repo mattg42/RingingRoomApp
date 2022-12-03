@@ -68,17 +68,7 @@ struct HomeView: View {
             PrivacyPolicyWebView(isPresented: $showingPrivacyPolicyView)
             
         })
-        .onOpenURL(perform: { url in
-            let pathComponents = url.pathComponents.dropFirst()
-            print(pathComponents)
-            if let firstPath = pathComponents.first {
-                if firstPath == "privacy" {
-                    showingPrivacyPolicyView = true
-                } else if let towerID = Int(firstPath) {
-                    router.moveTo(.joinTower(towerID: towerID, towerDetails: nil))
-                }
-            }
-        })
+
         .accentColor(Color.main)
 
     }
