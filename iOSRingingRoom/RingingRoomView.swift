@@ -987,26 +987,7 @@ struct RopeCircle:View {
                         .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
                         .foregroundColor(self.colorScheme == .dark ? Color(white: 0.9) : Color(white: 0.1))
                 }
-                ZStack {
-                    backgroundColor
-                        .cornerRadius(15)
-                        .blur(radius: 15, opaque: false)
-                        .shadow(color: backgroundColor, radius: 10, x: 0.0, y: 0.0)
-                        //                                .opacity(bellCircle.currentCall != "" ? 0.9 : 0)
-                        .opacity(0.9)
-                    //                            if bellCircle.currentCall != "" {
-
-                    Text(bellCircle.currentCall)
-                        .font(.largeTitle)
-                        .bold()
-                        .padding()
-                    //                                .opacity(bellCircle.currentCall != "" ? 1 : 0)
-                    //                                .background(backgroundColor)
-                    //                                                    }
-                }
-                .opacity(bellCircle.callTextOpacity)
-                .fixedSize()
-                .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
+                
 //                                }
 //                VStack {
 //                    Spacer()
