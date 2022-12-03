@@ -67,33 +67,32 @@ struct AssignmentsListView: View {
         
         guard bellPositions.count == state.size else { return }
         
-        var returnValue: CGFloat = 0
+        var height: CGFloat = 0
         if state.size == 5 {
             var top = state.perspective
             top += 3
             if top > 5 {
                 top -= 5
             }
-            returnValue = bellPositions[state.perspective - 1].y - bellPositions[top - 1].y
+            height = bellPositions[state.perspective - 1].y - bellPositions[top - 1].y
         } else if state.perspective <= Int(state.size/2) {
-            returnValue = bellPositions[state.perspective - 1].y - bellPositions[state.perspective - 1 + Int(ceil(Double(state.size / 2)))].y
+            height = bellPositions[state.perspective - 1].y - bellPositions[state.perspective - 1 + Int(ceil(Double(state.size / 2)))].y
         } else {
-            returnValue = bellPositions[state.perspective - 1].y - bellPositions[state.perspective - 1 - Int(ceil(Double(state.size / 2)))].y
+            height = bellPositions[state.perspective - 1].y - bellPositions[state.perspective - 1 - Int(ceil(Double(state.size / 2)))].y
         }
-        returnValue -= 10
+        height -= 10
         
         if state.size != 4 {
-            returnValue -= imageHeight
+            height -= imageHeight
         }
-        print(returnValue)
-        assignmentsHeight = returnValue
+        assignmentsHeight = height
     }
     
     func getWidth(bellPositions: [CGPoint]) {
         
         guard bellPositions.count == state.size else { return }
         
-        var returnValue: CGFloat = 0
+        var width: CGFloat = 0
         
         var leftBellNumber = state.perspective + 2
         if leftBellNumber > state.size {
@@ -106,24 +105,24 @@ struct AssignmentsListView: View {
         let left = bellPositions[leftBellNumber-1].x
         let right = bellPositions[rightBellNumber-1].x
         
-        returnValue = right - left
+        width = right - left
         if state.size == 4 && state.bellType == .hand {
-            assignmentsWidth = returnValue
+            assignmentsWidth = width
             return
         }
-        returnValue -= imageWidth
+        width -= imageWidth
         if state.size == 4 {
-            assignmentsWidth = returnValue
+            assignmentsWidth = width
             return
         }
         if state.size != 4 {
-            returnValue -= 20
+            width -= 20
         }
         if ![4, 14, 16].contains(state.size) {
-            returnValue -= 30
+            width -= 30
         }
-        returnValue = min(returnValue, 160)
-        assignmentsWidth = returnValue
+        width = min(width, 160)
+        assignmentsWidth = width
     }
 
 }

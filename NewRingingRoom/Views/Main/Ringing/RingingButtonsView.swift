@@ -31,7 +31,7 @@ enum Call {
         if self == .stand {
             return "Stand"
         } else {
-            return self.string
+            return string
         }
     }
 }

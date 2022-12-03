@@ -129,7 +129,6 @@
 		34706FB5287F6F01004127CD /* Starling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34706FB4287F6F01004127CD /* Starling.swift */; };
 		34706FC728804A38004127CD /* CGFloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34706FC628804A38004127CD /* CGFloat.swift */; };
 		34706FD72880C04D004127CD /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34706FD62880C04D004127CD /* UserDefaults.swift */; };
-		34706FD928821E75004127CD /* RingingRoomService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34706FD828821E75004127CD /* RingingRoomService.swift */; };
 		3471D43A26C18F9700A20FA8 /* LoginOverview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3471D43926C18F9700A20FA8 /* LoginOverview.swift */; };
 		3471D43C26C191E000A20FA8 /* AutoLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3471D43B26C191E000A20FA8 /* AutoLoginView.swift */; };
 		34A22A6426C04D5600FE255C /* Bool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6326C04D5600FE255C /* Bool.swift */; };
@@ -137,7 +136,6 @@
 		34A69FBB290B20160090679B /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A69FBA290B20160090679B /* MainView.swift */; };
 		34A7CFF328CCC54A007C6CF2 /* CallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF228CCC54A007C6CF2 /* CallView.swift */; };
 		34A7CFF528CCE571007C6CF2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF428CCE571007C6CF2 /* SettingsView.swift */; };
-		34B20F0826D05B9A00468F81 /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B20F0726D05B9A00468F81 /* Resolver.swift */; };
 		34BA523328B106E20084033C /* BellTouchdownButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BA523228B106E20084033C /* BellTouchdownButtonStyle.swift */; };
 		34BD256626BF0255000E932C /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BD256526BF0255000E932C /* Global.swift */; };
 		34E7707E2931116E00EC5A0C /* JoinTowerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E7707D2931116E00EC5A0C /* JoinTowerView.swift */; };
@@ -273,7 +271,6 @@
 		34706FB4287F6F01004127CD /* Starling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Starling.swift; path = "../../../../../../../../../../Downloads/Starling-master/Starling/Starling.swift"; sourceTree = "<group>"; };
 		34706FC628804A38004127CD /* CGFloat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
 		34706FD62880C04D004127CD /* UserDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaults.swift; sourceTree = "<group>"; };
-		34706FD828821E75004127CD /* RingingRoomService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingingRoomService.swift; sourceTree = "<group>"; };
 		3471D43926C18F9700A20FA8 /* LoginOverview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginOverview.swift; sourceTree = "<group>"; };
 		3471D43B26C191E000A20FA8 /* AutoLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoLoginView.swift; sourceTree = "<group>"; };
 		34A22A6326C04D5600FE255C /* Bool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bool.swift; sourceTree = "<group>"; };
@@ -281,7 +278,6 @@
 		34A69FBA290B20160090679B /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		34A7CFF228CCC54A007C6CF2 /* CallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallView.swift; sourceTree = "<group>"; };
 		34A7CFF428CCE571007C6CF2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		34B20F0726D05B9A00468F81 /* Resolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resolver.swift; sourceTree = "<group>"; };
 		34BA523228B106E20084033C /* BellTouchdownButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BellTouchdownButtonStyle.swift; sourceTree = "<group>"; };
 		34BD256526BF0255000E932C /* Global.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
 		34E7707D2931116E00EC5A0C /* JoinTowerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinTowerView.swift; sourceTree = "<group>"; };
@@ -373,13 +369,11 @@
 			isa = PBXGroup;
 			children = (
 				341D38E02721CECE00E340CF /* KeychainService.swift */,
-				34706FD828821E75004127CD /* RingingRoomService.swift */,
 				34706FB1287F5038004127CD /* Audio */,
 				3435AD8B287F0BE800C8CF41 /* SocketIOService.swift */,
 				341D38FB2722DB4D00E340CF /* NetworkStatus.swift */,
 				3454ED22280C1ED800C60E3C /* Errors */,
 				3454ED1D280C1E5900C60E3C /* Networking */,
-				34B20F0726D05B9A00468F81 /* Resolver.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -819,8 +813,6 @@
 				34706FC728804A38004127CD /* CGFloat.swift in Sources */,
 				341D38EC27220AD400E340CF /* String.swift in Sources */,
 				3441A9C729342FE60059D907 /* RingingControlButtonStyle.swift in Sources */,
-				34B20F0826D05B9A00468F81 /* Resolver.swift in Sources */,
-				34706FD928821E75004127CD /* RingingRoomService.swift in Sources */,
 				34E99AE028B0473100C80EF1 /* RopeCircleView.swift in Sources */,
 				34E99ADE28B045F300C80EF1 /* TowerNameView.swift in Sources */,
 				3441A9C52934298C0059D907 /* Colours.swift in Sources */,

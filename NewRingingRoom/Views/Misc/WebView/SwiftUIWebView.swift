@@ -23,12 +23,12 @@ struct SwiftUIWebView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         webView.navigationDelegate = context.coordinator
         
-        return self.webView
+        return webView
     }
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
         if let url = URL(string: viewModel.link) {
-            self.webView.load(URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad))
+            webView.load(URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad))
         }
     }
 }
@@ -49,7 +49,7 @@ class Coordinator: NSObject, WKNavigationDelegate {
         
         estimatedProgressObserver = self.parent.webView.observe(\.estimatedProgress, options: [.new]) { [weak self] webView, _ in
             print(Float(webView.estimatedProgress))
-            guard let weakSelf = self else{return}
+            guard let weakSelf = self else { return }
             
             weakSelf.viewModel.estimatedProgress = webView.estimatedProgress
             
