@@ -138,6 +138,7 @@ class BellCircle: ObservableObject {
     @Published var bellStates = [Bool]()
         
     var halfMuffled = false
+    var fullyMuffled = false
     
     var autoRotate = UserDefaults.standard.optionalBool(forKey: "autoRotate") ?? true
     
@@ -270,7 +271,17 @@ class BellCircle: ObservableObject {
         guard var fileName = BellCircle.sounds[bellType]?[size]?[number-1] else { return }
         fileName.prefix(String(bellType.rawValue.first!))
         if bellType == .tower {
-            if halfMuffled {
+            if halfMuffled && fullyMuffled {
+                // toll mode
+                if number != size {
+                    fileName += "-muf"
+
+                } else if !bellStates[number - 1] {
+                    fileName += "-muf"
+                }
+            } else if fullyMuffled {
+                fileName += "-muf"
+            } else if halfMuffled {
                 if bellStates[number-1] {
                     fileName += "-muf"
                 }
