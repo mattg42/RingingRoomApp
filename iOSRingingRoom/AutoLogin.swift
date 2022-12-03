@@ -85,7 +85,8 @@ struct AutoLogin: View {
             BellCircle.current.serverAddress = response["server_address"] as! String
             BellCircle.current.additionalSizes = response["additional_sizes_enabled"] as? Bool ?? false
             BellCircle.current.hostModePermitted = response["host_mode_permitted"] as? Bool ?? true
-            BellCircle.current.halfMuffled = response["half_muffled"] as! Bool as? Bool ?? false
+            BellCircle.current.halfMuffled = response["half_muffled"] as? Bool ?? false
+            BellCircle.current.fullyMuffled = response["fully_muffled"] as? Bool ?? false
             
             if let tower = User.shared.myTowers.towerForID(BellCircle.current.towerID) {
                 DispatchQueue.main.async {
