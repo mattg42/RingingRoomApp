@@ -4,10 +4,10 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
+		<string>webcredentials:ringingroom.com</string>
+		<string>applinks:ringingroom.com</string>
 		<string>webcredentials:*.ringingroom.com</string>
 		<string>applinks:*.ringingroom.com</string>
-		<string>webcredentials:*.ringingroom.co.uk</string>
-		<string>applinks:*.ringingroom.co.uk</string>
 	</array>
 </dict>
 </plist>
