@@ -66,8 +66,7 @@ extension HTTPClient {
             switch response.statusCode {
             case 200...299:
                 print(String(data: data, encoding: .utf8)!)
-                let decodedResponse = try JSONDecoder().decode(model, from: data)
-                return decodedResponse
+                return try JSONDecoder().decode(model, from: data)
             case 401:
                 throw APIError.unauthorized
             default:
