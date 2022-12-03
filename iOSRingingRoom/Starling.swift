@@ -101,7 +101,7 @@ public class Starling {
     public func load(resource: String, type: String, for identifier: SoundIdentifier) {
         DispatchQueue.global(qos: .utility).async { [weak self] in
             if let blockSelf = self {
-                if let url = Bundle.main.url(forResource: resource, withExtension: type, subdirectory: "RingingRoomAudio") {
+                if let url = Bundle.main.url(forResource: resource, withExtension: type) {
                     blockSelf.load(sound: url, for: identifier)
                 } else {
                     blockSelf.handleNonFatalError(StarlingError.resourceNotFound(name: "\(resource).\(type)"))

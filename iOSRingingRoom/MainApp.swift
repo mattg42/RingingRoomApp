@@ -173,6 +173,7 @@ struct MainApp: View {
             BellCircle.current.additionalSizes = response["additional_sizes_enabled"] as? Bool ?? false
             BellCircle.current.hostModePermitted = response["host_mode_permitted"] as? Bool ?? false
             BellCircle.current.halfMuffled = response["half_muffled"] as? Bool ?? false
+            BellCircle.current.fullyMuffled = response["fully_muffled"] as? Bool ?? false
             
             DispatchQueue.main.async {
                 BellCircle.current.hostModeEnabled = false
