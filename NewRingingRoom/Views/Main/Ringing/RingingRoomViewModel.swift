@@ -207,6 +207,8 @@ class RingingRoomViewModel: ObservableObject {
     var autoRotate = UserDefaults.standard.optionalBool(forKey: "autoRotate") ?? true
     
     var ringTime: Date = .now
+    
+    @Published var connected = false
 }
 
 protocol SocketIODelegate: AnyObject {
@@ -227,6 +229,7 @@ extension RingingRoomViewModel: SocketIODelegate {
     func userDidEnter(_ ringer: Ringer) {
         if self.state.ringer == nil {
             self.state.ringer = ringer
+            connected = true
         }
         
         guard !state.users.keys.contains(ringer.ringerID) else { return }

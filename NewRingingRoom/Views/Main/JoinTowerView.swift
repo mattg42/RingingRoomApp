@@ -53,12 +53,5 @@ struct JoinTowerView: View {
         let ringingRoomViewModel = RingingRoomViewModel(socketIOService: socketIOService, router: router, towerInfo: towerInfo, token: apiService.token, user: user)
         
         router.moveTo(.ringing(viewModel: ringingRoomViewModel))
-        
-        Task(priority: .medium) {
-            await ErrorUtil.do(networkRequest: true) {
-                let towers = try await apiService.getTowers()
-                user.towers = towers
-            }
-        }
     }
 }
