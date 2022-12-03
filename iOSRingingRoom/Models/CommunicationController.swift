@@ -133,6 +133,7 @@ class NetworkManager {
     }
     
 }
+
 func convertToJson(_ data:Data?) -> [String:Any]? {
     if let data = data {
         do {

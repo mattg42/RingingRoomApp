@@ -188,6 +188,11 @@ struct ChangeAccountSettingView: View {
                                         User.shared.name = username
                                     }
                                 }
+                                if let email = json["email"] as? String {
+                                    DispatchQueue.main.async {
+                                        User.shared.email = email
+                                    }
+                                }
                             }
                             self.alertType = .success
                         })

@@ -16,19 +16,13 @@ enum Side {
     case left, right
 }
 
-enum BellType:String, CaseIterable {
+enum BellType: String, CaseIterable {
     case tower = "Tower", hand = "Hand"
 }
 
 
 class BellCircle: ObservableObject {
-    
-    var viewWidth:CGFloat = 0 {
-        didSet {
-            isLargeSize = viewWidth > UIScreen.main.bounds.width
-        }
-    }
-    
+
     @Published var isLargeSize = false
     
     @Published var towerControlsViewSelection = 1 {
@@ -211,6 +205,7 @@ class BellCircle: ObservableObject {
                 }
             }
         }
+        
         print("new positions")
         let angleIncrement:Double = 360/Double(size)
         let startAngle:Double = 360 - (-angleIncrement/2 + angleIncrement*Double(perspective))
@@ -245,6 +240,7 @@ class BellCircle: ObservableObject {
         if bellPositions.count != newPositions.count {
             objectWillChange.send()
         }
+        
         bellPositions = newPositions
         oldRadius = radius.truncate(places: 5)
         oldCentre = centre.truncate(places: 5)

@@ -236,7 +236,12 @@ struct AboutView:View {
                     
                     VStack(alignment: .leading, spacing: 4.5) {
                         Text("Ringing Room").bold()
+                        #if DEBUG
+                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String) (\(Bundle.main.infoDictionary?["CFBundleVersion"] as! String))").bold()
+                        #else
                         Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String)").bold()
+                        #endif
+                        
                         Text("by Matthew Goodship")
                             .foregroundColor(.secondary)
                         

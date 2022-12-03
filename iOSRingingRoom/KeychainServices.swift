@@ -153,8 +153,4 @@ class KeychainWrapper {
             throw KeychainWrapperError(status: status, type: .servicesError)
         }
     }
-    
-    
-    
 }
-
