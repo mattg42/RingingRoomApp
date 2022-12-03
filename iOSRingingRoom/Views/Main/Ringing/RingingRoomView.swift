@@ -96,6 +96,7 @@ connection is restored.
             }
             .opacity(showingConnectionErrorAlert ? 1 : 0)
         }
+        .ignoresSafeArea(.keyboard)
         .fullScreenCover(isPresented: $showingTowerControls) {
             TowerControlsView()
         }

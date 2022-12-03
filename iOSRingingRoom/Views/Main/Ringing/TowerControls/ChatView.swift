@@ -14,9 +14,10 @@ struct ChatView: View {
     @State private var currentMessage = ""
 
     var body: some View {
-        Group {
+        VStack(spacing: 0) {
             ZStack {
-                Color.primary.colorInvert().cornerRadius(10)
+                Color(.ringingButtonBackground)
+                    .cornerRadius(10)
                 
                 VStack(spacing: 0) {
                     ScrollView {
@@ -40,6 +41,7 @@ struct ChatView: View {
                 }
                 .padding()
             }
+            .padding(.bottom)
             
             HStack(alignment: .center) {
                 TextField("Message", text: $currentMessage)
@@ -52,7 +54,6 @@ struct ChatView: View {
                 .foregroundColor(Color.main)
             }
         }
-        
         .padding(.horizontal)
         .padding(.top)
     }
