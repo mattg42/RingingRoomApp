@@ -10,7 +10,7 @@ import SwiftUI
 enum TowerControlViewSelection: String, CaseIterable, Identifiable {
     var id: Self { self }
     
-    case settings, users, chat, wheatley
+    case settings, users, chat
 }
 
 struct TowerControlsView: View {
@@ -48,9 +48,7 @@ struct TowerControlsView: View {
                 
             case .chat:
                 ChatView()
-                
-            case .wheatley:
-                Text("Settings")
+            
                 
             }
         }
