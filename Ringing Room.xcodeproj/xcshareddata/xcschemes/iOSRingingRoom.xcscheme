@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "341C9F2726B87C6900EB093A"
-               BuildableName = "iOSRingingRoom.app"
-               BlueprintName = "iOSRingingRoom"
-               ReferencedContainer = "container:iOSRingingRoom.xcodeproj">
+               BuildableName = "Ringing Room.app"
+               BlueprintName = "Ringing Room"
+               ReferencedContainer = "container:Ringing Room.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "341C9F2726B87C6900EB093A"
-            BuildableName = "iOSRingingRoom.app"
-            BlueprintName = "iOSRingingRoom"
-            ReferencedContainer = "container:iOSRingingRoom.xcodeproj">
+            BuildableName = "Ringing Room.app"
+            BlueprintName = "Ringing Room"
+            ReferencedContainer = "container:Ringing Room.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "341C9F2726B87C6900EB093A"
-            BuildableName = "iOSRingingRoom.app"
-            BlueprintName = "iOSRingingRoom"
-            ReferencedContainer = "container:iOSRingingRoom.xcodeproj">
+            BuildableName = "Ringing Room.app"
+            BlueprintName = "Ringing Room"
+            ReferencedContainer = "container:Ringing Room.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

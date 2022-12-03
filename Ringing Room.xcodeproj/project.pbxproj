@@ -151,7 +151,7 @@
 		3410D3492735A92D00B0C8EC /* APIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		341A25B928CBEE1D00D702FE /* BellsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BellsView.swift; sourceTree = "<group>"; };
 		341A25BB28CBEE3000D702FE /* AssignmentsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentsListView.swift; sourceTree = "<group>"; };
-		341C9F2826B87C6900EB093A /* iOSRingingRoom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSRingingRoom.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		341C9F2826B87C6900EB093A /* Ringing Room.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ringing Room.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		341C9F2B26B87C6900EB093A /* NewRingingRoomApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewRingingRoomApp.swift; sourceTree = "<group>"; };
 		341C9F2F26B87C6B00EB093A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		341C9F3226B87C6B00EB093A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -312,7 +312,7 @@
 		341C9F2926B87C6900EB093A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				341C9F2826B87C6900EB093A /* iOSRingingRoom.app */,
+				341C9F2826B87C6900EB093A /* Ringing Room.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -672,9 +672,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		341C9F2726B87C6900EB093A /* iOSRingingRoom */ = {
+		341C9F2726B87C6900EB093A /* Ringing Room */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 341C9F3726B87C6B00EB093A /* Build configuration list for PBXNativeTarget "iOSRingingRoom" */;
+			buildConfigurationList = 341C9F3726B87C6B00EB093A /* Build configuration list for PBXNativeTarget "Ringing Room" */;
 			buildPhases = (
 				341C9F2426B87C6900EB093A /* Sources */,
 				341C9F2526B87C6900EB093A /* Frameworks */,
@@ -684,12 +684,12 @@
 			);
 			dependencies = (
 			);
-			name = iOSRingingRoom;
+			name = "Ringing Room";
 			packageProductDependencies = (
 				3454ED2C280C607D00C60E3C /* SocketIO */,
 			);
 			productName = NewRingingRoom;
-			productReference = 341C9F2826B87C6900EB093A /* iOSRingingRoom.app */;
+			productReference = 341C9F2826B87C6900EB093A /* Ringing Room.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -706,7 +706,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 341C9F2326B87C6900EB093A /* Build configuration list for PBXProject "iOSRingingRoom" */;
+			buildConfigurationList = 341C9F2326B87C6900EB093A /* Build configuration list for PBXProject "Ringing Room" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -722,7 +722,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				341C9F2726B87C6900EB093A /* iOSRingingRoom */,
+				341C9F2726B87C6900EB093A /* Ringing Room */,
 			);
 		};
 /* End PBXProject section */
@@ -1008,16 +1008,18 @@
 				CODE_SIGN_ENTITLEMENTS = iOSRingingRoom/iOSRingingRoom.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"iOSRingingRoom/Preview Content\"";
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = iOSRingingRoom/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TestApp;
+				INFOPLIST_KEY_CFBundleDisplayName = "Ringing Room";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1034,16 +1036,18 @@
 				CODE_SIGN_ENTITLEMENTS = iOSRingingRoom/iOSRingingRoom.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"iOSRingingRoom/Preview Content\"";
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = iOSRingingRoom/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TestApp;
+				INFOPLIST_KEY_CFBundleDisplayName = "Ringing Room";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1055,7 +1059,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		341C9F2326B87C6900EB093A /* Build configuration list for PBXProject "iOSRingingRoom" */ = {
+		341C9F2326B87C6900EB093A /* Build configuration list for PBXProject "Ringing Room" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				341C9F3526B87C6B00EB093A /* Debug */,
@@ -1064,7 +1068,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		341C9F3726B87C6B00EB093A /* Build configuration list for PBXNativeTarget "iOSRingingRoom" */ = {
+		341C9F3726B87C6B00EB093A /* Build configuration list for PBXNativeTarget "Ringing Room" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				341C9F3826B87C6B00EB093A /* Debug */,
