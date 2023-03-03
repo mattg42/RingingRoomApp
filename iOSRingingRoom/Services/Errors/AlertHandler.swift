@@ -11,6 +11,7 @@ import UIKit
 public enum AlertHandler {
     static func presentAlert(title: String, message: String?, dismiss: DissmissType) {
         let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
+
         switch dismiss {
         case .cancel(let title, let action):
             let alertAction = UIAlertAction(title: title, style: .cancel, handler: { _ in
@@ -35,6 +36,13 @@ public enum AlertHandler {
         }
         
         ThreadUtil.runInMain {
+            guard let view = UIApplication.shared.keyWindow else { return }
+            if let popoverPresentationController = ac.popoverPresentationController {
+                popoverPresentationController.sourceView = view
+                popoverPresentationController.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+                popoverPresentationController.permittedArrowDirections = []
+            }
+            
             UIApplication.shared.keyWindowPresentedController?.present(ac, animated: true, completion: nil)
         }
     }

@@ -46,7 +46,7 @@ struct ChatView: View {
             HStack(alignment: .center) {
                 TextField("Message", text: $currentMessage)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .shadow(color: Color.white.opacity(0), radius: 1, x: 0, y: 0)
+                    .submitLabel(.done)
                 
                 Button("Send") {
                     sendMessage()

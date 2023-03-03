@@ -17,7 +17,7 @@ enum KeychainError: Error, Alertable {
     var alertData: AlertData {
         switch self {
         case .badData:
-            return AlertData(title: "Keychain error", message: "Cannot convert data to password. Please restart the app. If the problem persists, please contact support at ringingroomapp@gmail.com.")
+            return AlertData(title: "Keychain error", message: "Cannot store password. Please choose a different password.")
         case .servicesError(let status):
             let message: String
             if let errorMessage = SecCopyErrorMessageString(status, nil) {
@@ -25,9 +25,9 @@ enum KeychainError: Error, Alertable {
             } else {
                 message = "Status Code: \(status)"
             }
-            return AlertData(title: "Keychain error", message: message)
+            return AlertData(title: "Keychain error: \(message)", message: "Please login again. If the problem persists, please contact support at ringingroomapp@gmail.com.")
         case .itemNotFound, .unableToConvertToString:
-            return AlertData(title: "Failed to retrieve password", message: "Please restart the app. If the problem persists, reinstall the app.")
+            return AlertData(title: "Failed to retrieve password", message: "Please login again. If the problem persists, please contact support at ringingroomapp@gmail.com.")
         }
     }
 }

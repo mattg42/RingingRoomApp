@@ -50,18 +50,9 @@ struct AutoLoginView: View {
             
             do {
                 password = try KeychainService.getPasswordFor(account: email, server: authenticationService.domain)
-            } catch let error as KeychainError {
-                switch error {
-                case .itemNotFound:
-                    print("got here")
-                    password = try KeychainService.getPasswordFor(account: email, server: "ringingroom.com")
-                    print("didn't get here")
-                    try KeychainService.deletePasswordFor(account: email, server: "ringingroom.com")
-                    try KeychainService.storePasswordFor(account: email, password: password, server: authenticationService.domain)
-                default:
-                    throw error
-                }
             } catch {
+                KeychainService.clear()
+                UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
                 throw error
             }
             

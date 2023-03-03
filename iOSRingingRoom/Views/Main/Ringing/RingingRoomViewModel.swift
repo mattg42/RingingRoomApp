@@ -92,7 +92,7 @@ class RingingRoomState: ObservableObject {
 }
 
 class TowerControlsState: ObservableObject {
-    @Published var towerControlsViewSelection = TowerControlViewSelection.settings
+    @Published var towerControlsViewSelection = TowerControlViewSelection.users
 }
 
 class RingingRoomViewModel: ObservableObject {
