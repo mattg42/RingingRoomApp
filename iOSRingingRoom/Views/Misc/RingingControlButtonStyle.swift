@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-struct RingingControlButtonStyle: ButtonStyle {
+struct RingingControlButtonStyleModifier: ViewModifier {
     
-    func makeBody(configuration: Configuration) -> some View {
+    func body(content: Content) -> some View {
         ZStack {
             Color.main
                 .cornerRadius(5)
             
-            configuration.label
+            content
                 .font(.body.bold())
                 .padding(.horizontal, 3.5)
                 .foregroundColor(.white)
@@ -25,6 +25,9 @@ struct RingingControlButtonStyle: ButtonStyle {
     }
 }
 
-extension ButtonStyle where Self == RingingControlButtonStyle {
-    static var ringingControlButton: RingingControlButtonStyle { RingingControlButtonStyle() }
+extension View {
+    func ringingControlButtonStyle() -> some View {
+        self
+            .modifier(RingingControlButtonStyleModifier())
+    }
 }

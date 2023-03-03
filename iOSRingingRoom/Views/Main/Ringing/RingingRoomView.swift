@@ -5,6 +5,45 @@
 //  Created by Matthew on 19/08/2022.
 //
 
+struct HelpButton: View {
+    @State private var showingHelp = false
+
+    var body: some View {
+        Button("Help") {
+            showingHelp = true
+        }
+        .ringingControlButtonStyle()
+        .sheet(isPresented: $showingHelp, content: {
+            HelpView(showDismiss: true)
+        })
+    }
+}
+
+struct TowerControlsButton: View {
+    @State private var showingTowerControls = false
+
+    var body: some View {
+        Button("Controls") {
+            showingTowerControls = true
+        }
+        .ringingControlButtonStyle()
+        .fullScreenCover(isPresented: $showingTowerControls) {
+            TowerControlsView()
+        }
+    }
+}
+
+struct SetAtHandButton: View {
+    @EnvironmentObject var viewModel: RingingRoomViewModel
+    
+    var body: some View {
+        Button("Set at hand") {
+            viewModel.send(.setBells)
+        }
+        .ringingControlButtonStyle()
+    }
+}
+
 import SwiftUI
 struct RingingRoomView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
@@ -15,8 +54,6 @@ struct RingingRoomView: View {
     @Binding var user: User
     let apiService: APIService
     
-    @State private var showingTowerControls = false
-    @State private var showingHelp = false
     @State private var showingConnectionErrorAlert = false
     
     var body: some View {
@@ -29,32 +66,19 @@ struct RingingRoomView: View {
                 
                 ZStack {
                     HStack {
-                        Button("Help") {
-                            showingTowerControls = true
-                        }
-                        .buttonStyle(.ringingControlButton)
-                        
+                        HelpButton()
+
                         Spacer()
                     }
                     
-                    HStack {
-                        Button("Set at hand") {
-                            showingTowerControls = true
-                        }
-                        .buttonStyle(.ringingControlButton)
-                    }
+                    SetAtHandButton()
                     
                     HStack {
                         Spacer ()
                         
-                        Button("Controls") {
-                            showingTowerControls = true
-                        }
-                        .buttonStyle(.ringingControlButton)
+                        TowerControlsButton()
                     }
-                    .sheet(isPresented: $showingHelp, content: {
-                        HelpView(showDismiss: true)
-                    })
+
                 }
                 
                 Spacer()
@@ -97,9 +121,7 @@ connection is restored.
             .opacity(showingConnectionErrorAlert ? 1 : 0)
         }
         .ignoresSafeArea(.keyboard)
-        .fullScreenCover(isPresented: $showingTowerControls) {
-            TowerControlsView()
-        }
+
         .onAppear {
             viewModel.connect()
         }
