@@ -33,7 +33,7 @@ struct AssignmentsListView: View {
                                         .minimumScaleFactor(0.7)
                                         .frame(width: 20, alignment: .trailing)
                                     
-                                    Text(" \(state.assignments[index] != nil ? state.users[state.assignments[index]!]?.name ?? "" : "")")
+                                    Text(" " + (state.assignments[index] != nil ? state.users.first(where: {$0.ringerID == state.assignments[index]!})?.name ?? "" : ""))
                                         .font(.callout)
                                         .lineLimit(1)
                                         .frame(width: assignmentsWidth, alignment: .leading)

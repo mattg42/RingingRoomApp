@@ -15,6 +15,7 @@ enum ClientSocketEvent {
     case requestGlobalState
     case bellRung(bell: Int, stroke: Bool)
     case assignUser(bell: Int, user: Int)
+    case unassignBell(bell: Int)
     case audioChange(to: BellType)
     case hostModeSet(to: Bool)
     case sizeChange(to: Int)
@@ -32,7 +33,7 @@ enum ClientSocketEvent {
             return "c_request_global_state"
         case .bellRung:
             return "c_bell_rung"
-        case .assignUser:
+        case .assignUser, .unassignBell:
             return "c_assign_user"
         case .audioChange:
             return "c_audio_change"
@@ -111,11 +112,8 @@ class SocketIOService {
         
         listen(for: "s_set_userlist") { [weak self] data in
             let userList = (data["user_list"] as! [[String: Any]])
-                .reduce(into: [Int: Ringer]()) { partialResult, newRinger in
-                    let ringer = Ringer(from: newRinger)
-                    partialResult[ringer.ringerID] = ringer
-                }
-            
+                .map({ Ringer(from: $0) })
+
             self?.delegate?.didReceiveUserList(userList)
         }
         
