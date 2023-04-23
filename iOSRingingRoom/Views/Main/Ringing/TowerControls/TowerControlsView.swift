@@ -45,11 +45,8 @@ struct TowerControlsView: View {
                 SettingsView()
             case .users:
                 UsersView()
-                
             case .chat:
                 ChatView()
-            
-                
             }
         }
         .padding(.vertical)

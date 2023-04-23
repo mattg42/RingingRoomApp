@@ -77,7 +77,7 @@ class RingingRoomState: ObservableObject {
     
     @Published var size = 0
     @Published var bellType = BellType.tower
-    @Published var users = [Int: Ringer]()
+    @Published var users = [Ringer]()
     @Published var assignments = [Int?]()
     @Published var bellStates = [BellStroke]()
     @Published var hostMode = false
@@ -153,15 +153,17 @@ class RingingRoomViewModel: ObservableObject {
         let payload = {
             switch event {
             case .join:
-                return ["tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false]
+                return ["tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false] as [String : Any]
             case .userLeft:
-                return ["user_name": user.username, "tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false]
+                return ["user_name": user.username, "tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false] 
             case .requestGlobalState:
                 return ["tower_id": towerInfo.towerID]
             case .bellRung(let bell, let stroke):
                 return ["bell": bell, "stroke": stroke, "tower_id": towerInfo.towerID]
             case .assignUser(let bell, let user):
                 return ["tower_id": towerInfo.towerID, "bell": bell, "user": user]
+            case .unassignBell(let bell):
+                return ["tower_id": towerInfo.towerID, "bell": bell, "user": 0]
             case .audioChange(let bellType):
                 return ["tower_id": towerInfo.towerID, "new_audio": bellType.rawValue]
             case .hostModeSet(let newMode):
@@ -216,7 +218,7 @@ protocol SocketIODelegate: AnyObject {
     func userDidEnter(_ ringer: Ringer)
     func userDidLeave(_ ringer: Ringer)
     func didReceiveGlobalState(_ globalState: [BellStroke])
-    func didReceiveUserList(_ userList: [Int: Ringer])
+    func didReceiveUserList(_ userList: [Ringer])
     func bellDidRing(number: Int, globalState: [BellStroke])
     func didAssign(ringerID: Int, to bell: Int)
     func audioDidChange(to: BellType)
@@ -232,18 +234,19 @@ extension RingingRoomViewModel: SocketIODelegate {
             connected = true
         }
         
-        guard !state.users.keys.contains(ringer.ringerID) else { return }
-        state.users[ringer.ringerID] = ringer
+        guard !state.users.contains(where: { $0 == ringer }) else { return }
+        state.users.append(ringer)
     }
     
     func userDidLeave(_ ringer: Ringer) {
         if ringer.id == unwrappedRinger.ringerID {
+            disconnect()
             router.moveTo(.home)
         }
         
-        state.users.removeValue(forKey: ringer.ringerID)
+        state.users.remove(ringer)
         
-        while state.assignments.contains(ringer.ringerID) {
+        while state.assignments.contains(where: { $0 == ringer.ringerID }) {
             if let index = state.assignments.firstIndex(of: ringer.ringerID) {
                 state.assignments[index] = nil
             }
@@ -257,7 +260,7 @@ extension RingingRoomViewModel: SocketIODelegate {
         state.bellStates = globalState
     }
     
-    func didReceiveUserList(_ userList: [Int: Ringer]) {
+    func didReceiveUserList(_ userList: [Ringer]) {
         state.users = userList
     }
     
@@ -291,11 +294,12 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func didAssign(ringerID: Int, to bell: Int) {
-        if state.users.keys.contains(ringerID) {
+        if state.users.contains(where: { $0.ringerID == ringerID }) {
             state.assignments[bell - 1] = ringerID
         } else if ringerID == 0 {
             state.assignments[bell - 1] = nil
         } else {
+            // TODO: Change action to acutally leave the tower
             AlertHandler.presentAlert(title: "Error", message: "The users list is out of sync. Please leave the tower and rejoin.", dismiss: .cancel(title: "OK", action: nil))
             return
         }
