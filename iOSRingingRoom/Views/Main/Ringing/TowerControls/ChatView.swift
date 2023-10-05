@@ -54,8 +54,7 @@ struct ChatView: View {
                 .foregroundColor(Color.main)
             }
         }
-        .padding(.horizontal)
-        .padding(.top)
+        .padding()
     }
     
     func sendMessage() {

@@ -5,6 +5,39 @@
 //  Created by Matthew on 19/08/2022.
 //
 
+enum RingingMenuView: Identifiable {
+    
+    var id: Self { self }
+    
+    case users, chat, settings, wheatley
+    
+    var title: String {
+        switch self {
+        case .users:
+            return "Users"
+        case .chat:
+            return "Chat"
+        case .settings:
+            return "Settings"
+        case .wheatley:
+            return "Wheatley"
+        }
+    }
+    
+    @ViewBuilder var view: some View {
+        switch self {
+        case .users:
+            UsersView()
+        case .chat:
+            ChatView()
+        case .settings:
+            SettingsView()
+        case .wheatley:
+            fatalError("not implemented yet")
+        }
+    }
+}
+
 struct HelpButton: View {
     @State private var showingHelp = false
 
@@ -48,13 +81,16 @@ import SwiftUI
 struct RingingRoomView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
     @EnvironmentObject var monitor: NetworkMonitor
-    
+    @EnvironmentObject var router: Router<MainRoute>
+
     @Environment(\.scenePhase) var scenePhase
         
     @Binding var user: User
     let apiService: APIService
     
     @State private var showingConnectionErrorAlert = false
+    
+    @State private var menuView: RingingMenuView? = nil
     
     var body: some View {
         ZStack {
@@ -76,7 +112,55 @@ struct RingingRoomView: View {
                     HStack {
                         Spacer ()
                         
-                        TowerControlsButton()
+//                        TowerControlsButton()
+                        
+                        Menu {
+                            Button("Users") {
+                                menuView = .users
+                            }
+
+                            
+                            Button("Settings") {
+                                menuView = .settings
+                            }
+                            
+                            Button("Chat") {
+                                menuView = .chat
+                            }
+                            
+                            Button("Leave tower") {
+                                viewModel.send(.leaveTower)
+                                
+                                router.moveTo(.home)
+                            }
+                        } label: {
+                            ZStack {
+                                Color.main
+                                    .cornerRadius(5)
+                                
+                                Image(systemName: "line.3.horizontal")
+                                    .font(.title)
+                                    .padding(3.5)
+                                    .foregroundColor(.white)
+                                    .padding(2)
+                                    .minimumScaleFactor(0.7)
+                            }
+                            .fixedSize()
+                            
+
+                        }
+                        .fullScreenCover(item: $menuView) { item in
+                            NavigationView {
+                                item.view
+                                    .navigationTitle(item.title)
+                                    .navigationBarTitleDisplayMode(.inline)
+                                    .toolbar {
+                                        Button("Back") {
+                                            menuView = nil
+                                        }
+                                    }
+                            }
+                        }
                     }
 
                 }
