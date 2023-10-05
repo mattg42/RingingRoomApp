@@ -102,17 +102,9 @@ struct SettingsView: View {
             Section {
                 Button("Change perspective") {
                     state.bellMode = .rotate
-                    dismiss.callAsFunction()
+                    dismiss()
                 }
                 .buttonStyle(.borderless)
-            }
-            
-            Section {
-                Button("Leave tower") {
-                    viewModel.send(.userLeft)
-                    
-                    router.moveTo(.home)
-                }
             }
         }
     }

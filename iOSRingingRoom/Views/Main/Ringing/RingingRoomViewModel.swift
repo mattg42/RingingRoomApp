@@ -132,7 +132,7 @@ class RingingRoomViewModel: ObservableObject {
             return ringer
         } else {
             AlertHandler.presentAlert(title: "An error occured", message: "Please leave the tower and rejoin", dismiss: .cancel(title: "Leave", action: { [weak self] in
-                self?.send(.userLeft)
+                self?.send(.leaveTower)
             }))
             return Ringer(name: "", id: 0)
         }
@@ -154,7 +154,7 @@ class RingingRoomViewModel: ObservableObject {
             switch event {
             case .join:
                 return ["tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false] as [String : Any]
-            case .userLeft:
+            case .leaveTower:
                 return ["user_name": user.username, "tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false] 
             case .requestGlobalState:
                 return ["tower_id": towerInfo.towerID]

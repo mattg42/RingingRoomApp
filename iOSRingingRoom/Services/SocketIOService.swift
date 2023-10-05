@@ -11,7 +11,7 @@ import Combine
 
 enum ClientSocketEvent {
     case join
-    case userLeft
+    case leaveTower
     case requestGlobalState
     case bellRung(bell: Int, stroke: Bool)
     case assignUser(bell: Int, user: Int)
@@ -27,7 +27,7 @@ enum ClientSocketEvent {
         switch self {
         case .join:
             return "c_join"
-        case .userLeft:
+        case .leaveTower:
             return "c_user_left"
         case .requestGlobalState:
             return "c_request_global_state"
