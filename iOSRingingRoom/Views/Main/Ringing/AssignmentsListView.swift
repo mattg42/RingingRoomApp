@@ -50,7 +50,7 @@ struct AssignmentsListView: View {
                     .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
                 }
             } else {
-                Text("Tap the bell that you would like to be positioned bottom right, or tap the rotate button again to cancel.")
+                Text("Tap the bell that you would like to be positioned bottom right.")
                     .multilineTextAlignment(.center)
                     .frame(width: 180)
                     .font(.body)
