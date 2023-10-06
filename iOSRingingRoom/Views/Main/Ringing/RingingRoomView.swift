@@ -42,10 +42,22 @@ struct HelpButton: View {
     @State private var showingHelp = false
 
     var body: some View {
-        Button("Help") {
+        Button {
             showingHelp = true
+        } label: {
+            ZStack {
+                Color.main
+                    .cornerRadius(5)
+                
+                Text("Help")
+                    .font(.body.bold())
+                    .padding(.horizontal, 3.5)
+                    .foregroundColor(.white)
+                    .padding(2)
+                    .minimumScaleFactor(0.7)
+            }
+            .fixedSize(horizontal: true, vertical: false)
         }
-        .ringingControlButtonStyle()
         .sheet(isPresented: $showingHelp, content: {
             HelpView(showDismiss: true)
         })
@@ -70,16 +82,29 @@ struct SetAtHandButton: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
     
     var body: some View {
-        Button("Set at hand") {
+        Button {
             viewModel.send(.setBells)
+        } label: {
+            ZStack {
+                Color.main
+                    .cornerRadius(5)
+                
+                Text("Set at hand")
+                    .font(.body.bold())
+                    .padding(.horizontal, 3.5)
+                    .foregroundColor(.white)
+                    .padding(2)
+                    .minimumScaleFactor(0.7)
+            }
+            .fixedSize(horizontal: true, vertical: false)
         }
-        .ringingControlButtonStyle()
     }
 }
 
 import SwiftUI
 struct RingingRoomView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var state: RingingRoomState
     @EnvironmentObject var monitor: NetworkMonitor
     @EnvironmentObject var router: Router<MainRoute>
 
@@ -97,7 +122,7 @@ struct RingingRoomView: View {
             Color(.ringingRoomBackground)
                 .ignoresSafeArea(.all)
             
-            VStack {
+            VStack(spacing: 0) {
                 TowerNameView()
                 
                 ZStack {
@@ -114,56 +139,88 @@ struct RingingRoomView: View {
                         
 //                        TowerControlsButton()
                         
-                        Menu {
-                            Button("Users") {
-                                menuView = .users
-                            }
-
-                            
-                            Button("Settings") {
-                                menuView = .settings
-                            }
-                            
-                            Button("Chat") {
-                                menuView = .chat
-                            }
-                            
-                            Button("Leave tower") {
-                                viewModel.send(.leaveTower)
-                                
-                                router.moveTo(.home)
-                            }
-                        } label: {
-                            ZStack {
-                                Color.main
-                                    .cornerRadius(5)
-                                
-                                Image(systemName: "line.3.horizontal")
-                                    .font(.title)
-                                    .padding(3.5)
-                                    .foregroundColor(.white)
-                                    .padding(2)
-                                    .minimumScaleFactor(0.7)
-                            }
-                            .fixedSize()
-                            
-
-                        }
-                        .fullScreenCover(item: $menuView) { item in
-                            NavigationView {
-                                item.view
-                                    .navigationTitle(item.title)
-                                    .navigationBarTitleDisplayMode(.inline)
-                                    .toolbar {
-                                        Button("Back") {
-                                            menuView = nil
-                                        }
+                        if state.bellMode == .ring {
+                            Menu {
+                                Section {
+                                    Button("Users") {
+                                        menuView = .users
                                     }
+                                    
+                                    Button("Settings") {
+                                        menuView = .settings
+                                    }
+                                    
+                                    Button("Chat") {
+                                        menuView = .chat
+                                    }
+                                }
+                                Section {
+                                    Button("Leave tower", role: .destructive) {
+                                        viewModel.send(.leaveTower)
+                                        
+                                        router.moveTo(.home)
+                                    }
+                                }
+                            } label: {
+                                ZStack {
+                                    Color.main
+                                        .cornerRadius(5)
+                                    
+                                    Image(systemName: "line.3.horizontal")
+                                        .font(.title)
+                                        .padding(3.5)
+                                        .foregroundColor(.white)
+                                        .padding(2)
+                                        .minimumScaleFactor(0.7)
+                                }
+                                .fixedSize()
+                                
+                                
                             }
+                            .fullScreenCover(item: $menuView) { item in
+                                NavigationView {
+                                    item.view
+                                        .navigationTitle(item.title)
+                                        .navigationBarTitleDisplayMode(.inline)
+                                        .toolbar {
+                                            
+                                            Button("Back") {
+                                                menuView = nil
+                                            }
+                                        }
+                                }
+                            }
+                        } else {
+                            Button {
+                                state.bellMode = .ring
+                            } label: {
+                                ZStack {
+                                    Color.main
+                                        .cornerRadius(5)
+                                    
+                                    Image(systemName: "line.3.horizontal")
+                                        .font(.title)
+                                        .padding(3.5)
+                                        .padding(2)
+                                        .minimumScaleFactor(0.7)
+                                        .opacity(0)
+                                    Text("Cancel")
+                                        .font(.body.bold())
+                                        .padding(.horizontal, 3.5)
+                                        .foregroundColor(.white)
+                                        .padding(2)
+                                        .minimumScaleFactor(0.7)
+                                }
+                                .fixedSize()
+                            }
+                            
                         }
                     }
 
                 }
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 5)
+
                 
                 Spacer()
                 

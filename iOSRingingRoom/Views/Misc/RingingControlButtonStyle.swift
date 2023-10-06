@@ -21,7 +21,7 @@ struct RingingControlButtonStyleModifier: ViewModifier {
                 .padding(2)
                 .minimumScaleFactor(0.7)
         }
-        .fixedSize()
+        .fixedSize(horizontal: true, vertical: false)
     }
 }
 
