@@ -18,9 +18,7 @@ struct ChatView: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
-                Color(.ringingButtonBackground)
-                    .cornerRadius(10)
-                
+
                 VStack(spacing: 0) {
                     ScrollView {
                         ScrollViewReader { value in
@@ -41,7 +39,6 @@ struct ChatView: View {
                         }
                     }
                 }
-//                .padding()
             }
             .padding(.bottom, 5)
             
@@ -57,8 +54,8 @@ struct ChatView: View {
                 .foregroundColor(Color.main)
             }
         }
-        .padding()
-//        .padding(.bottom, 32)
+        .padding(.horizontal)
+        .padding(.bottom)
         .onDisappear {
             hideKeyboard()
         }
