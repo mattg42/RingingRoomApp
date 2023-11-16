@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="EL0-wg-hiK">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                <color key="backgroundColor" name="main"/>
+                                <color key="tintColor" name="main"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="rrLogo" translatesAutoresizingMaskIntoConstraints="NO" id="EKw-tp-s8Z">
+                                <rect key="frame" x="79" y="320" width="256" height="256"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="256" id="46L-Ur-j4G"/>
+                                    <constraint firstAttribute="height" constant="256" id="iuV-6Y-es0"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="EL0-wg-hiK" secondAttribute="bottom" id="91T-8l-HY7"/>
+                            <constraint firstItem="EKw-tp-s8Z" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="Bnm-G8-TsS"/>
+                            <constraint firstItem="EL0-wg-hiK" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="Q3U-e9-R8p"/>
+                            <constraint firstAttribute="trailing" secondItem="EL0-wg-hiK" secondAttribute="trailing" id="ZuX-1v-YcH"/>
+                            <constraint firstItem="EL0-wg-hiK" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="aC8-vs-TgV"/>
+                            <constraint firstItem="EKw-tp-s8Z" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="bj2-9I-5YT"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52.173913043478265" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="rrLogo" width="512" height="512"/>
+        <namedColor name="main">
+            <color red="0.69803921568627447" green="0.15294117647058825" blue="0.43137254901960786" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

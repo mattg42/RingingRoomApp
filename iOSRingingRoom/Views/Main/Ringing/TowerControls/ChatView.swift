@@ -13,6 +13,8 @@ struct ChatView: View {
 
     @State private var currentMessage = ""
 
+    @FocusState private var focused: Bool
+    
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
@@ -39,14 +41,15 @@ struct ChatView: View {
                         }
                     }
                 }
-                .padding()
+//                .padding()
             }
-            .padding(.bottom)
+            .padding(.bottom, 5)
             
             HStack(alignment: .center) {
                 TextField("Message", text: $currentMessage)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .submitLabel(.done)
+                    .focused($focused)
                 
                 Button("Send") {
                     sendMessage()
@@ -55,6 +58,10 @@ struct ChatView: View {
             }
         }
         .padding()
+//        .padding(.bottom, 32)
+        .onDisappear {
+            hideKeyboard()
+        }
     }
     
     func sendMessage() {
