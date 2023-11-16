@@ -196,9 +196,7 @@ class RingingRoomViewModel: ObservableObject {
         audioService.starling.changeVolume(to: Float(mappedVolume))
     }
     
-    var canSeeMessages: Bool {
-        false
-    }
+    var canSeeMessages = false
     
     var sortUsersTimer = Timer()
     var updateAssignmentsTimer = Timer()

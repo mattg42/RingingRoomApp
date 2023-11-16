@@ -116,6 +116,7 @@ struct SetAtHandButton: View {
     }
 }
 
+
 struct RingingRoomMenuView: View {
     
     @Environment(\.dismiss) var dismiss
@@ -182,7 +183,7 @@ struct RingingRoomView: View {
             Color(.ringingRoomBackground)
                 .ignoresSafeArea(.all)
             
-            VStack(spacing: 0) {
+            VStack(spacing: 5) {
                 TowerNameView()
                 
                 ZStack {
@@ -267,14 +268,36 @@ struct RingingRoomView: View {
 
                 }
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 5)
 
                 
-                Spacer()
-                
-                RopeCircleView()
-                    
-                Spacer()
+                ZStack {
+                    RopeCircleView()
+                    HStack {
+                        Spacer()
+                        VStack {
+                            if state.newMessages > 0 {
+                                Button {
+                                    menuView = .chat
+                                } label: {
+                                    ZStack {
+                                        Image(systemName: "bubble.left.fill")
+                                            .accentColor(Color.main)
+                                            .font(.title)
+                                        
+                                        Text(String(state.newMessages))
+                                            .foregroundColor(.white)
+                                            .bold()
+                                            .offset(x: 0, y: -2)
+                                    }
+                                }
+                                .padding(.top, -2)
+                                .padding(.trailing, -3)
+                            }
+                            
+                            Spacer()
+                        }
+                    }
+                }
                     
                 RingingButtonsView()
             }

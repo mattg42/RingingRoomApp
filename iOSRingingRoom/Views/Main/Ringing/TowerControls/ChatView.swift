@@ -18,7 +18,6 @@ struct ChatView: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
-
                 VStack(spacing: 0) {
                     ScrollView {
                         ScrollViewReader { value in
@@ -56,8 +55,13 @@ struct ChatView: View {
         }
         .padding(.horizontal)
         .padding(.bottom)
+        .onAppear {
+            state.newMessages = 0
+            viewModel.canSeeMessages = true
+        }
         .onDisappear {
             hideKeyboard()
+            viewModel.canSeeMessages = false
         }
     }
     
