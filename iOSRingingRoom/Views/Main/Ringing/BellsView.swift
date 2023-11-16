@@ -42,6 +42,7 @@ struct BellsView: View {
                 }
                 .buttonStyle(.bellTouchdown)
                 .position(bellPositions[bellNumber - 1])
+                .disabled(state.hostMode && !viewModel.towerInfo.isHost && state.assignments[safe: bellNumber - 1] ?? 0 != viewModel.unwrappedRinger.ringerID)
             }
         }
     }
@@ -69,5 +70,12 @@ struct BellsView: View {
         } else {
             return !(num > state.perspective + Int(state.size/2) && num <= state.perspective)
         }
+    }
+}
+
+extension Collection {
+    /// Returns the element at the specified index if it is within bounds, otherwise nil.
+    subscript (safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }

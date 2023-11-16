@@ -233,6 +233,7 @@ struct RingingView: View {
                     }
                     
                     SetAtHandButton()
+                        .disabled(state.hostMode && !viewModel.towerInfo.isHost)
                     
                     HStack {
                         Spacer ()

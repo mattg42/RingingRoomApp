@@ -102,6 +102,7 @@ struct UsersView: View {
             Section(header: Text("Unassigned")) {
                 List(unassignedUsers) { user in
                     ListCell(user: user)
+                        .disabled(state.hostMode && !viewModel.towerInfo.isHost && user.ringerID != viewModel.unwrappedRinger.ringerID)
                 }
             }
             
@@ -147,15 +148,17 @@ struct UsersView: View {
                             Text("Select the bell to unassign.")
                         }
                         .tint(.main)
+                        .disabled(state.hostMode && !viewModel.towerInfo.isHost && user.ringerID != viewModel.unwrappedRinger.ringerID)
                 }
-                
-                
-                
             }
             
-            Section(footer: Text("Tap a name to assign or unassign.")) {
+            Section(footer: Text("Tap a name to assign or unassign." + (state.hostMode && !viewModel.towerInfo.isHost ? "\n\nHost mode is enabled, you may catch hold, but not assign others." : ""))) {
                 FillInButton()
+                    .disabled(state.hostMode && !viewModel.towerInfo.isHost)
+
                 UnassignAllButton()
+                    .disabled(state.hostMode && !viewModel.towerInfo.isHost)
+
             }
             
             
