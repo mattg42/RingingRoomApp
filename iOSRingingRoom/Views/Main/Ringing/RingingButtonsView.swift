@@ -100,7 +100,8 @@ struct AssignedButtons: View {
 
 struct CallButton: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
-        
+    @EnvironmentObject var state: RingingRoomState
+    
     var call: Call
     
     var body: some View {
@@ -117,5 +118,6 @@ struct CallButton: View {
             .frame(height: 30)
         }
         .buttonStyle(.callTouchdown)
+        .disabled(state.hostMode && !viewModel.towerInfo.isHost && !state.assignments.contains(where: { $0 == viewModel.unwrappedRinger.ringerID }))
     }
 }
