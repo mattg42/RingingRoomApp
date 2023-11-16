@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -130,7 +130,6 @@
 		3471D43A26C18F9700A20FA8 /* LoginOverview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3471D43926C18F9700A20FA8 /* LoginOverview.swift */; };
 		3471D43C26C191E000A20FA8 /* AutoLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3471D43B26C191E000A20FA8 /* AutoLoginView.swift */; };
 		3496CD57293B206A004311A3 /* Starling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3496CD56293B2069004311A3 /* Starling.swift */; };
-		3496CD59293B20D7004311A3 /* LoginError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3496CD58293B20D7004311A3 /* LoginError.swift */; };
 		34A22A6426C04D5600FE255C /* Bool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6326C04D5600FE255C /* Bool.swift */; };
 		34A22A6826C0564E00FE255C /* WelcomeLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */; };
 		34A69FBB290B20160090679B /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A69FBA290B20160090679B /* MainView.swift */; };
@@ -144,6 +143,8 @@
 		34E99AE028B0473100C80EF1 /* RopeCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99ADF28B0473100C80EF1 /* RopeCircleView.swift */; };
 		34E99AE328B05A0300C80EF1 /* TowerControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99AE228B05A0300C80EF1 /* TowerControlsView.swift */; };
 		34E99AE528B05A1400C80EF1 /* RingingButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99AE428B05A1400C80EF1 /* RingingButtonsView.swift */; };
+		34EC1A492B05B783004B0506 /* LoginError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34EC1A482B05B783004B0506 /* LoginError.swift */; };
+		34EC1A4D2B05C231004B0506 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 34EC1A4C2B05C231004B0506 /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -271,7 +272,6 @@
 		3471D43926C18F9700A20FA8 /* LoginOverview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginOverview.swift; sourceTree = "<group>"; };
 		3471D43B26C191E000A20FA8 /* AutoLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoLoginView.swift; sourceTree = "<group>"; };
 		3496CD56293B2069004311A3 /* Starling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Starling.swift; sourceTree = "<group>"; };
-		3496CD58293B20D7004311A3 /* LoginError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoginError.swift; path = ../../../../NewRingingRoom/NewRingingRoomXC/NewRingingRoom/Views/Login/LoginError.swift; sourceTree = "<group>"; };
 		3496CD5A293B227A004311A3 /* iOSRingingRoom.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOSRingingRoom.entitlements; sourceTree = "<group>"; };
 		34A22A6326C04D5600FE255C /* Bool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bool.swift; sourceTree = "<group>"; };
 		34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeLoginView.swift; sourceTree = "<group>"; };
@@ -286,6 +286,10 @@
 		34E99ADF28B0473100C80EF1 /* RopeCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RopeCircleView.swift; sourceTree = "<group>"; };
 		34E99AE228B05A0300C80EF1 /* TowerControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TowerControlsView.swift; sourceTree = "<group>"; };
 		34E99AE428B05A1400C80EF1 /* RingingButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingingButtonsView.swift; sourceTree = "<group>"; };
+		34EC1A482B05B783004B0506 /* LoginError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoginError.swift; path = ../../../../_Archive/NewRingingRoom/NewRingingRoomXC/NewRingingRoom/Views/Login/LoginError.swift; sourceTree = "<group>"; };
+		34EC1A4A2B05B848004B0506 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		34EC1A4B2B05B855004B0506 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		34EC1A4C2B05C231004B0506 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -303,6 +307,8 @@
 		341C9F1F26B87C6900EB093A = {
 			isa = PBXGroup;
 			children = (
+				34EC1A4A2B05B848004B0506 /* README.md */,
+				34EC1A4B2B05B855004B0506 /* LICENSE */,
 				341D38FD2722E5C000E340CF /* Simonetta */,
 				341C9F2A26B87C6900EB093A /* iOSRingingRoom */,
 				341C9F2926B87C6900EB093A /* Products */,
@@ -320,6 +326,7 @@
 		341C9F2A26B87C6900EB093A /* iOSRingingRoom */ = {
 			isa = PBXGroup;
 			children = (
+				34EC1A4C2B05C231004B0506 /* Launch Screen.storyboard */,
 				3496CD5A293B227A004311A3 /* iOSRingingRoom.entitlements */,
 				34706F39287F4F9B004127CD /* Resources */,
 				341D38DF2721CEC200E340CF /* Utils */,
@@ -391,7 +398,7 @@
 		341C9F4026B87FD500EB093A /* Login */ = {
 			isa = PBXGroup;
 			children = (
-				3496CD58293B20D7004311A3 /* LoginError.swift */,
+				34EC1A482B05B783004B0506 /* LoginError.swift */,
 				34A22A6526C0562D00FE255C /* WelcomeLogin */,
 				34A22A6626C0563500FE255C /* AutoLogin */,
 				3471D43926C18F9700A20FA8 /* LoginOverview.swift */,
@@ -738,6 +745,7 @@
 				34706FA0287F4FA7004127CD /* H4.wav in Resources */,
 				34706F7B287F4FA7004127CD /* T5-muf.wav in Resources */,
 				34706F84287F4FA7004127CD /* H6f.wav in Resources */,
+				34EC1A4D2B05C231004B0506 /* Launch Screen.storyboard in Resources */,
 				34706F85287F4FA7004127CD /* TT.wav in Resources */,
 				34706F7A287F4FA7004127CD /* H9.wav in Resources */,
 				34706F81287F4FA7004127CD /* bob.wav in Resources */,
@@ -858,7 +866,6 @@
 				3435AD8A287F061500C8CF41 /* Ringer.swift in Sources */,
 				34706FB0287F5007004127CD /* AudioService.swift in Sources */,
 				3454CBBD287DEAE100FB2495 /* AboutView.swift in Sources */,
-				3496CD59293B20D7004311A3 /* LoginError.swift in Sources */,
 				341D38F62722CFFE00E340CF /* WebViewModel.swift in Sources */,
 				34A22A6826C0564E00FE255C /* WelcomeLoginView.swift in Sources */,
 				3454CBB6287DD2EE00FB2495 /* HelpView.swift in Sources */,
@@ -869,6 +876,7 @@
 				341C9F2C26B87C6900EB093A /* NewRingingRoomApp.swift in Sources */,
 				3454CBB8287DD31800FB2495 /* AccountView.swift in Sources */,
 				3454ED1F280C1E6E00C60E3C /* APIError.swift in Sources */,
+				34EC1A492B05B783004B0506 /* LoginError.swift in Sources */,
 				3454ED21280C1E8C00C60E3C /* AlertData.swift in Sources */,
 				3435AD86287EFE6F00C8CF41 /* TowerDetails.swift in Sources */,
 				341D38E82722082100E340CF /* ResetPasswordView.swift in Sources */,
@@ -1008,7 +1016,7 @@
 				CODE_SIGN_ENTITLEMENTS = iOSRingingRoom/iOSRingingRoom.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"iOSRingingRoom/Preview Content\"";
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
 				ENABLE_PREVIEWS = YES;
@@ -1036,7 +1044,7 @@
 				CODE_SIGN_ENTITLEMENTS = iOSRingingRoom/iOSRingingRoom.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"iOSRingingRoom/Preview Content\"";
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
 				ENABLE_PREVIEWS = YES;

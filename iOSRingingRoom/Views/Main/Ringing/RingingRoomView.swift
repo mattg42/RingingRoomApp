@@ -5,11 +5,12 @@
 //  Created by Matthew on 19/08/2022.
 //
 
-enum RingingMenuView: Identifiable {
+enum RingingMenuView: Identifiable, CaseIterable {
     
     var id: Self { self }
     
-    case users, chat, settings, wheatley
+    case users, settings, chat
+//    ,wheatley
     
     var title: String {
         switch self {
@@ -19,8 +20,8 @@ enum RingingMenuView: Identifiable {
             return "Chat"
         case .settings:
             return "Settings"
-        case .wheatley:
-            return "Wheatley"
+//        case .wheatley:
+//            return "Wheatley"
         }
     }
     
@@ -32,10 +33,24 @@ enum RingingMenuView: Identifiable {
             ChatView()
         case .settings:
             SettingsView()
-        case .wheatley:
-            fatalError("not implemented yet")
+//        case .wheatley:
+//            Text("W")
         }
     }
+    
+    var image: String {
+        switch self {
+        case .users:
+            "person.3.fill"
+        case .settings:
+            "gear"
+        case .chat:
+            "text.bubble.fill"
+//        case .wheatley:
+//            "bell.fill"
+        }
+    }
+    
 }
 
 struct HelpButton: View {
@@ -98,6 +113,51 @@ struct SetAtHandButton: View {
             }
             .fixedSize(horizontal: true, vertical: false)
         }
+    }
+}
+
+struct RingingRoomMenuView: View {
+    
+    @Environment(\.dismiss) var dismiss
+    
+    @State var menuView: RingingMenuView
+    
+    var body: some View {
+        
+        TabView(selection: $menuView) {
+            
+            ForEach(RingingMenuView.allCases) { menu in
+                NavigationView {
+                    menu.view
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            Button("Done") {
+                                dismiss()
+                            }
+                        }
+                        .navigationTitle(menu.title)
+                    
+                    
+                    
+                }
+                .tag(menu)
+                .tabItem {
+                    Label {
+                        Text(menu.title)
+                    } icon: {
+                        Image(systemName: menu.image)
+                    }
+
+                }
+                
+            }
+            
+            
+            
+        }
+        
+        //        .ignoresSafeArea()
+        
     }
 }
 
@@ -174,21 +234,9 @@ struct RingingRoomView: View {
                                         .minimumScaleFactor(0.7)
                                 }
                                 .fixedSize()
-                                
-                                
                             }
-                            .fullScreenCover(item: $menuView) { item in
-                                NavigationView {
-                                    item.view
-                                        .navigationTitle(item.title)
-                                        .navigationBarTitleDisplayMode(.inline)
-                                        .toolbar {
-                                            
-                                            Button("Back") {
-                                                menuView = nil
-                                            }
-                                        }
-                                }
+                            .fullScreenCover(item: $menuView) { thing in
+                                RingingRoomMenuView(menuView: thing)
                             }
                         } else {
                             Button {
