@@ -41,21 +41,24 @@ struct SettingsView: View {
                     }
             }
             
-            Section {
-                Toggle("Host mode", isOn: $hostMode)
-                    .onAppear {
-                        hostMode = state.hostMode
-                    }
-                    .onChange(of: state.hostMode) { newValue in
-                        if hostMode != newValue {
-                            hostMode = newValue
+            Section(footer: state.hostMode && !viewModel.towerInfo.isHost ? Text("Host mode is enabled. Only hosts can change tower settings or assign bells.") : Text("")) {
+                if viewModel.towerInfo.hostModePermitted && viewModel.towerInfo.isHost {
+                    Toggle("Host mode", isOn: $hostMode)
+                        .onAppear {
+                            hostMode = state.hostMode
                         }
-                    }
-                    .onChange(of: hostMode) { newValue in
-                        if state.hostMode != newValue {
-                            viewModel.send(.hostModeSet(to: newValue))
+                        .onChange(of: state.hostMode) { newValue in
+                            if hostMode != newValue {
+                                hostMode = newValue
+                            }
                         }
-                    }
+                        .onChange(of: hostMode) { newValue in
+                            if state.hostMode != newValue {
+                                viewModel.send(.hostModeSet(to: newValue))
+                            }
+                        }
+                }
+                
                 
                 Picker("Number of bells", selection: $size) {
                     ForEach(viewModel.towerInfo.towerSizes, id: \.self) { size in
@@ -63,6 +66,7 @@ struct SettingsView: View {
                             .tag(size)
                     }
                 }
+                .disabled(state.hostMode && !viewModel.towerInfo.isHost)
                 .onAppear {
                     size = state.size
                 }
@@ -84,6 +88,7 @@ struct SettingsView: View {
                             .tag(bell)
                     }
                 }
+                .disabled(state.hostMode && !viewModel.towerInfo.isHost)
                 .onAppear {
                     bellType = state.bellType
                 }
