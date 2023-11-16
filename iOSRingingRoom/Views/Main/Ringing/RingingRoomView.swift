@@ -10,7 +10,7 @@ enum RingingMenuView: Identifiable, CaseIterable {
     var id: Self { self }
     
     case users, settings, chat
-//    ,wheatley
+    //    ,wheatley
     
     var title: String {
         switch self {
@@ -20,8 +20,8 @@ enum RingingMenuView: Identifiable, CaseIterable {
             return "Chat"
         case .settings:
             return "Settings"
-//        case .wheatley:
-//            return "Wheatley"
+            //        case .wheatley:
+            //            return "Wheatley"
         }
     }
     
@@ -33,8 +33,8 @@ enum RingingMenuView: Identifiable, CaseIterable {
             ChatView()
         case .settings:
             SettingsView()
-//        case .wheatley:
-//            Text("W")
+            //        case .wheatley:
+            //            Text("W")
         }
     }
     
@@ -46,8 +46,8 @@ enum RingingMenuView: Identifiable, CaseIterable {
             "gear"
         case .chat:
             "text.bubble.fill"
-//        case .wheatley:
-//            "bell.fill"
+            //        case .wheatley:
+            //            "bell.fill"
         }
     }
     
@@ -55,7 +55,7 @@ enum RingingMenuView: Identifiable, CaseIterable {
 
 struct HelpButton: View {
     @State private var showingHelp = false
-
+    
     var body: some View {
         Button {
             showingHelp = true
@@ -81,7 +81,7 @@ struct HelpButton: View {
 
 struct TowerControlsButton: View {
     @State private var showingTowerControls = false
-
+    
     var body: some View {
         Button("Controls") {
             showingTowerControls = true
@@ -118,10 +118,12 @@ struct SetAtHandButton: View {
 
 
 struct RingingRoomMenuView: View {
-    
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var state: RingingRoomState
     
     @State var menuView: RingingMenuView
+    
+    var showDone: Bool
     
     var body: some View {
         
@@ -132,15 +134,15 @@ struct RingingRoomMenuView: View {
                     menu.view
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
-                            Button("Done") {
-                                dismiss()
+                            if showDone {
+                                Button("Done") {
+                                    dismiss()
+                                }
                             }
                         }
                         .navigationTitle(menu.title)
-                    
-                    
-                    
                 }
+                .navigationViewStyle(StackNavigationViewStyle())
                 .tag(menu)
                 .tabItem {
                     Label {
@@ -148,48 +150,85 @@ struct RingingRoomMenuView: View {
                     } icon: {
                         Image(systemName: menu.image)
                     }
-
                 }
-                
+                .badge(menu == .chat ? state.newMessages : 0)
             }
-            
-            
-            
         }
-        
-        //        .ignoresSafeArea()
-        
     }
 }
 
 import SwiftUI
 struct RingingRoomView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
-    @EnvironmentObject var state: RingingRoomState
-    @EnvironmentObject var monitor: NetworkMonitor
-    @EnvironmentObject var router: Router<MainRoute>
-
+    
     @Environment(\.scenePhase) var scenePhase
-        
+    @Environment(\.horizontalSizeClass) var sizeClass
+    
     @Binding var user: User
+    
     let apiService: APIService
-    
-    @State private var showingConnectionErrorAlert = false
-    
-    @State private var menuView: RingingMenuView? = nil
     
     var body: some View {
         ZStack {
             Color(.ringingRoomBackground)
                 .ignoresSafeArea(.all)
             
+            GeometryReader { geo in
+                if sizeClass == .regular && geo.frame(in: .global).width > geo.frame(in: .global).height {
+                    HStack {
+                        RingingRoomMenuView(menuView: .users, showDone: false)
+                            .frame(width: 350)
+                        RingingView(wide: true)
+                    }
+                } else {
+                    RingingView(wide: false)
+                }
+            }
+        }
+        .ignoresSafeArea(.keyboard)
+        
+        .onAppear {
+            viewModel.connect()
+        }
+        
+        .onChange(of: scenePhase) { newValue in
+            if newValue == .active {
+                viewModel.connect()
+            } else {
+                viewModel.disconnect()
+            }
+        }
+        .onChange(of: viewModel.connected ) { _ in
+            Task(priority: .medium) {
+                await ErrorUtil.do(networkRequest: true) {
+                    user.towers = try await apiService.getTowers()
+                }
+            }
+        }
+    }
+}
+
+struct RingingView: View {
+    @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var state: RingingRoomState
+    @EnvironmentObject var monitor: NetworkMonitor
+    @EnvironmentObject var router: Router<MainRoute>
+    
+    @State private var showingConnectionErrorAlert = false
+    
+    var wide: Bool
+    
+    @State var menuView: RingingMenuView? = nil
+    
+    var body: some View {
+        ZStack {
             VStack(spacing: 5) {
                 TowerNameView()
                 
                 ZStack {
                     HStack {
                         HelpButton()
-
+                        
                         Spacer()
                     }
                     
@@ -198,107 +237,128 @@ struct RingingRoomView: View {
                     HStack {
                         Spacer ()
                         
-//                        TowerControlsButton()
-                        
-                        if state.bellMode == .ring {
-                            Menu {
-                                Section {
-                                    Button("Users") {
-                                        menuView = .users
-                                    }
-                                    
-                                    Button("Settings") {
-                                        menuView = .settings
-                                    }
-                                    
-                                    Button("Chat") {
-                                        menuView = .chat
-                                    }
-                                }
-                                Section {
-                                    Button("Leave tower", role: .destructive) {
-                                        viewModel.send(.leaveTower)
-                                        
-                                        router.moveTo(.home)
-                                    }
-                                }
+                        if wide {
+                            Button(role: .destructive) {
+                                viewModel.send(.leaveTower)
+                                
+                                router.moveTo(.home)
                             } label: {
                                 ZStack {
                                     Color.main
                                         .cornerRadius(5)
                                     
-                                    Image(systemName: "line.3.horizontal")
-                                        .font(.title)
-                                        .padding(3.5)
-                                        .foregroundColor(.white)
-                                        .padding(2)
-                                        .minimumScaleFactor(0.7)
-                                }
-                                .fixedSize()
-                            }
-                            .fullScreenCover(item: $menuView) { thing in
-                                RingingRoomMenuView(menuView: thing)
-                            }
-                        } else {
-                            Button {
-                                state.bellMode = .ring
-                            } label: {
-                                ZStack {
-                                    Color.main
-                                        .cornerRadius(5)
-                                    
-                                    Image(systemName: "line.3.horizontal")
-                                        .font(.title)
-                                        .padding(3.5)
-                                        .padding(2)
-                                        .minimumScaleFactor(0.7)
-                                        .opacity(0)
-                                    Text("Cancel")
+                                    Text("Leave tower")
                                         .font(.body.bold())
                                         .padding(.horizontal, 3.5)
                                         .foregroundColor(.white)
                                         .padding(2)
                                         .minimumScaleFactor(0.7)
                                 }
-                                .fixedSize()
+                                .fixedSize(horizontal: true, vertical: false)
+                            }
+                        } else {
+                            if state.bellMode == .ring {
+                                Menu {
+                                    Section {
+                                        Button("Users") {
+                                            menuView = .users
+                                        }
+                                        
+                                        Button("Settings") {
+                                            menuView = .settings
+                                        }
+                                        
+                                        Button("Chat") {
+                                            menuView = .chat
+                                        }
+                                    }
+                                    Section {
+                                        Button("Leave tower", role: .destructive) {
+                                            viewModel.send(.leaveTower)
+                                            
+                                            router.moveTo(.home)
+                                        }
+                                    }
+                                } label: {
+                                    ZStack {
+                                        Color.main
+                                            .cornerRadius(5)
+                                        
+                                        Image(systemName: "line.3.horizontal")
+                                            .font(.title)
+                                            .padding(3.5)
+                                            .foregroundColor(.white)
+                                            .padding(2)
+                                            .minimumScaleFactor(0.7)
+                                    }
+                                    .fixedSize()
+                                }
+                                .fullScreenCover(item: $menuView) { thing in
+                                    RingingRoomMenuView(menuView: thing, showDone: true)
+                                }
+                                
+                            } else {
+                                Button {
+                                    state.bellMode = .ring
+                                } label: {
+                                    ZStack {
+                                        Color.main
+                                            .cornerRadius(5)
+                                        
+                                        Image(systemName: "line.3.horizontal")
+                                            .font(.title)
+                                            .padding(3.5)
+                                            .padding(2)
+                                            .minimumScaleFactor(0.7)
+                                            .opacity(0)
+                                        Text("Cancel")
+                                            .font(.body.bold())
+                                            .padding(.horizontal, 3.5)
+                                            .foregroundColor(.white)
+                                            .padding(2)
+                                            .minimumScaleFactor(0.7)
+                                    }
+                                    .fixedSize()
+                                }
                             }
                             
                         }
                     }
-
+                    
                 }
                 .fixedSize(horizontal: false, vertical: true)
-
                 
                 ZStack {
                     RopeCircleView()
-                    HStack {
-                        Spacer()
-                        VStack {
-                            if state.newMessages > 0 {
-                                Button {
-                                    menuView = .chat
-                                } label: {
-                                    ZStack {
-                                        Image(systemName: "bubble.left.fill")
-                                            .accentColor(Color.main)
-                                            .font(.title)
-                                        
-                                        Text(String(state.newMessages))
-                                            .foregroundColor(.white)
-                                            .bold()
-                                            .offset(x: 0, y: -2)
-                                    }
-                                }
-                                .padding(.top, -2)
-                                .padding(.trailing, -3)
-                            }
-                            
+                    if !wide {
+                        HStack {
                             Spacer()
+                            VStack {
+                                if state.newMessages > 0 {
+                                    Button {
+                                        menuView = .chat
+                                    } label: {
+                                        ZStack {
+                                            Image(systemName: "bubble.left.fill")
+                                                .accentColor(Color.main)
+                                                .font(.title)
+                                            
+                                            Text(String(state.newMessages))
+                                                .foregroundColor(.white)
+                                                .bold()
+                                                .offset(x: 0, y: -2)
+                                        }
+                                    }
+                                    .padding(.top, -2)
+                                    .padding(.trailing, -3)
+                                }
+                                
+                                Spacer()
+                            }
                         }
                     }
                 }
-                    
+                
                 RingingButtonsView()
             }
             .padding([.horizontal, .bottom], 5)
@@ -332,27 +392,8 @@ connection is restored.
             }
             .opacity(showingConnectionErrorAlert ? 1 : 0)
         }
-        .ignoresSafeArea(.keyboard)
-
-        .onAppear {
-            viewModel.connect()
-        }
         .onChange(of: monitor.status, perform: { newValue in
             showingConnectionErrorAlert = newValue != .satisfied
         })
-        .onChange(of: scenePhase) { newValue in
-            if newValue == .active {
-                viewModel.connect()
-            } else {
-                viewModel.disconnect()
-            }
-        }
-        .onChange(of: viewModel.connected ) { _ in
-            Task(priority: .medium) {
-                await ErrorUtil.do(networkRequest: true) {
-                    user.towers = try await apiService.getTowers()
-                }
-            }
-        }
     }
 }

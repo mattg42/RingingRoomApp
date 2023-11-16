@@ -10,9 +10,9 @@ import SwiftUI
 struct ChatView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
     @EnvironmentObject var state: RingingRoomState
-
+    
     @State private var currentMessage = ""
-
+    
     @FocusState private var focused: Bool
     
     var body: some View {
