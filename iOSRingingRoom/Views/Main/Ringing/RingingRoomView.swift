@@ -190,9 +190,9 @@ struct RingingRoomView: View {
         .onAppear {
             viewModel.connect()
         }
-        
         .onChange(of: scenePhase) { newValue in
             if newValue == .active {
+                print("cocnnecting again")
                 viewModel.connect()
             } else {
                 viewModel.disconnect()

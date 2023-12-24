@@ -135,7 +135,11 @@ class SocketIOService {
         
         listen(for: "s_audio_change") { [weak self] data in
             let newAudio = data["new_audio"] as! String
-            self?.delegate?.audioDidChange(to: BellType(rawValue: newAudio)!)
+            print(newAudio)
+            guard let bellType = BellType(rawValue: newAudio) else {
+                return
+            }
+            self?.delegate?.audioDidChange(to: bellType)
         }
         
         listen(for: "s_host_mode") { [weak self] data in
