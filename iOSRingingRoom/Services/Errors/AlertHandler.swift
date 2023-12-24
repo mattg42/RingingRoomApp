@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 public enum AlertHandler {
-    static func presentAlert(title: String, message: String?, dismiss: DissmissType) {
+    static func presentAlert(title: String, message: String?, dismiss: DismissType) {
         let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
         switch dismiss {

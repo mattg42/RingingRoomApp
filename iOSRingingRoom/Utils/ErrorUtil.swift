@@ -27,7 +27,7 @@ enum ErrorUtil {
         } catch let error as Alertable {
             AlertHandler.handle(error: error)
         } catch {
-            fatalError()
+            AlertHandler.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: nil, action: nil))
         }
     }
     
@@ -37,7 +37,7 @@ enum ErrorUtil {
         } catch let error as Alertable {
             AlertHandler.handle(error: error)
         } catch {
-            fatalError()
+            AlertHandler.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: nil, action: nil))
         }
     }
 }
