@@ -152,7 +152,7 @@ struct UsersView: View {
                 }
             }
             
-            Section(footer: Text("Tap a name to assign or unassign." + (state.hostMode && !viewModel.towerInfo.isHost ? "\n\nHost mode is enabled, you may catch hold, but not assign others." : ""))) {
+            Section(footer: Text("Tap a name then a number to assign or unassign." + (state.hostMode && !viewModel.towerInfo.isHost ? "\n\nHost mode is enabled, you may catch hold, but not assign others." : ""))) {
                 FillInButton()
                     .disabled(state.hostMode && !viewModel.towerInfo.isHost)
 
