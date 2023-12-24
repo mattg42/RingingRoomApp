@@ -58,18 +58,24 @@ struct RopeCircleView: View {
     // MARK: - Bell image methods
     
     func imageWidth(size: CGFloat, bellType: BellType) -> CGFloat {
-        if bellType == .tower {
+        switch bellType {
+        case .tower:
             return size / 3
-        } else {
+        case .hand:
             return size * 0.7
+        case .cowbell:
+            return size * 0.7 * 0.87
         }
     }
     
     func imageHeight(size: CGFloat, bellType: BellType) -> CGFloat {
-        if bellType == .tower {
+        switch bellType {
+        case .tower:
             return size
-        } else {
-            return size * 0.6
+        case .hand:
+            return size * 0.7
+        case .cowbell:
+            return size * 0.7
         }
     }
     

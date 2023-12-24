@@ -10,14 +10,14 @@ import UIKit
 
 public typealias Action = () -> Void
 
-enum DissmissType {
+enum DismissType {
     case cancel(title: String?, action: Action?)
     case retry(action: Action)
     case logout(action: Action)
 }
 
 struct AlertData {
-    init(title: String, message: String, dissmiss: DissmissType) {
+    init(title: String, message: String, dissmiss: DismissType) {
         self.title = title
         self.message = message
         self.dismiss = dissmiss
@@ -32,7 +32,7 @@ struct AlertData {
     var title: String
     var message: String
     
-    var dismiss: DissmissType
+    var dismiss: DismissType
 }
 
 protocol Alertable {
