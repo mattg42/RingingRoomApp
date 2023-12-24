@@ -17,6 +17,14 @@ struct BellsView: View {
     let imageWidth: CGFloat
     let imageHeight: CGFloat
     
+    var imagePrefix: String {
+        switch state.bellType {
+        case .tower: "t-"
+        case .hand: "h-"
+        case .cowbell: "c-"
+        }
+    }
+    
     var body: some View {
         ForEach(1...state.size, id: \.self) { bellNumber in
             if bellPositions.count == state.size {
@@ -50,13 +58,14 @@ struct BellsView: View {
     @ViewBuilder
     func ropeImage(number: Int) -> some View {
         Image(
-            (state.bellType == .tower ? "t-" : "h-") +
-            (state.bellStates[number - 1] == .hand ? number == 1 ? "handstroke-treble" : "handstroke" : "backstroke")
+            (imagePrefix) +
+            (state.bellStates[number - 1] == .hand ? "handstroke" : "backstroke") +
+            (number == 1 ? "-treble" : "")
         )
         .resizable()
         .frame(width: imageWidth, height: imageHeight)
         .rotation3DEffect(
-            .degrees((state.bellType == .tower) ? 0 : isLeft(number) ? 180 : 0),
+            .degrees((state.bellType == .hand) ? isLeft(number) ? 180 : 0 : 0),
             axis: (x: 0.0, y: 1.0, z: 0.0),
             anchor: .center,
             perspective: 1.0

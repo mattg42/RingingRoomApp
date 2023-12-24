@@ -41,6 +41,7 @@ struct AutoLoginView: View {
     }
         
     func login() async {
+        //TODO: Refresh token on scenechange
         var authenticationService = AuthenticationService()
         
         let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
