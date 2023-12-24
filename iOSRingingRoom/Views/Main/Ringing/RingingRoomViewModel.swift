@@ -17,7 +17,7 @@ extension Double {
 enum BellType: String, CaseIterable, Identifiable {
     var id: Self { self }
     
-    case tower = "Tower", hand = "Hand"
+    case tower = "Tower", hand = "Hand", cowbell = "Cow"
     
     var sounds: [Int: [String]] {
         switch self {
@@ -43,7 +43,19 @@ enum BellType: String, CaseIterable, Identifiable {
                 14: ["3", "4", "5", "6f", "7", "8", "9", "0", "E", "T", "A", "B", "C", "D"],
                 16: ["1", "2", "3", "4", "5", "6f", "7", "8", "9", "0", "E", "T", "A", "B", "C", "D"],
             ]
+        case .cowbell:
+            return [
+                4: ["13", "14", "15", "16"],
+                5: ["12", "13", "14", "15", "16"],
+                6: ["11", "12", "13", "14", "15", "16"],
+                8: ["9", "10", "11", "12", "13", "14", "15", "16"],
+                10: ["7", "8", "9", "10", "11", "12", "13", "14", "15", "16"],
+                12: ["5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"],
+                14: ["3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"],
+                16: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"],
+            ]
         }
+        
     }
 }
 
@@ -284,8 +296,10 @@ extension RingingRoomViewModel: SocketIODelegate {
             default:
                 break
             }
-        } else {
+        } else if state.bellType == .hand {
             fileName = "H" + fileName
+        } else if state.bellType == .cowbell {
+            fileName = "C" + fileName
         }
         
         audioService.play(fileName)
