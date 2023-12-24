@@ -23,6 +23,12 @@ enum ClientSocketEvent {
     case call(_ call: String)
     case setBells
     
+    case setWheatleySetting(setting: [String: Int])
+    case setWheatleyRowGen
+    case wheatleyIsRinging
+    case wheatleyStopTouch
+    case resetWheatley
+    
     var eventName: String {
         switch self {
         case .join:
@@ -47,6 +53,16 @@ enum ClientSocketEvent {
             return "c_call"
         case .setBells:
             return "c_set_bells"
+        case .setWheatleySetting:
+            return "c_wheatley_setting"
+        case .setWheatleyRowGen:
+            return "c_wheatley_row_gen"
+        case .wheatleyIsRinging:
+            return "c_wheatley_is_ringing"
+        case .wheatleyStopTouch:
+            return "c_wheatley_stop_touch"
+        case .resetWheatley:
+            return "c_reset_wheatley"
         }
     }
 }
@@ -89,11 +105,7 @@ class SocketIOService {
     }
     
     private func setupListeners() {
- 
-//        socket.onAny { event in
-//            print(event.event)
-//        }
-        
+
         listen(for: "s_user_entered") { [weak self] data in
             let user = Ringer(from: data)
             self?.delegate?.userDidEnter(user)

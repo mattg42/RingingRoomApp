@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3410D34A2735A92D00B0C8EC /* APIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3410D3482735A92D00B0C8EC /* APIModel.swift */; };
 		3410D34B2735A92D00B0C8EC /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3410D3492735A92D00B0C8EC /* APIService.swift */; };
+		341814D32B06F40B0051EF06 /* WheatleySearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341814D22B06F40B0051EF06 /* WheatleySearchView.swift */; };
 		341A25BA28CBEE1D00D702FE /* BellsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A25B928CBEE1D00D702FE /* BellsView.swift */; };
 		341A25BC28CBEE3000D702FE /* AssignmentsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341A25BB28CBEE3000D702FE /* AssignmentsListView.swift */; };
 		341C9F2C26B87C6900EB093A /* NewRingingRoomApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341C9F2B26B87C6900EB093A /* NewRingingRoomApp.swift */; };
@@ -166,6 +167,7 @@
 /* Begin PBXFileReference section */
 		3410D3482735A92D00B0C8EC /* APIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIModel.swift; sourceTree = "<group>"; };
 		3410D3492735A92D00B0C8EC /* APIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		341814D22B06F40B0051EF06 /* WheatleySearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WheatleySearchView.swift; sourceTree = "<group>"; };
 		341A25B928CBEE1D00D702FE /* BellsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BellsView.swift; sourceTree = "<group>"; };
 		341A25BB28CBEE3000D702FE /* AssignmentsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentsListView.swift; sourceTree = "<group>"; };
 		341C9F2826B87C6900EB093A /* Ringing Room.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ringing Room.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -720,6 +722,7 @@
 				3464DC7128D7E27900633BD5 /* UsersView.swift */,
 				3464DC7328D7E28300633BD5 /* ChatView.swift */,
 				3464DC7528D7E28B00633BD5 /* WheatleyView.swift */,
+				341814D22B06F40B0051EF06 /* WheatleySearchView.swift */,
 			);
 			path = TowerControls;
 			sourceTree = "<group>";
@@ -942,6 +945,7 @@
 				3454ED1F280C1E6E00C60E3C /* APIError.swift in Sources */,
 				34EC1A492B05B783004B0506 /* LoginError.swift in Sources */,
 				3454ED21280C1E8C00C60E3C /* AlertData.swift in Sources */,
+				341814D32B06F40B0051EF06 /* WheatleySearchView.swift in Sources */,
 				3435AD86287EFE6F00C8CF41 /* TowerDetails.swift in Sources */,
 				341D38E82722082100E340CF /* ResetPasswordView.swift in Sources */,
 				3454CBB4287DD2BC00FB2495 /* StoreView.swift in Sources */,

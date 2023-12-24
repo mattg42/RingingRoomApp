@@ -167,7 +167,7 @@ class RingingRoomViewModel: ObservableObject {
             case .join:
                 return ["tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false] as [String : Any]
             case .leaveTower:
-                return ["user_name": user.username, "tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false] 
+                return ["user_name": user.username, "tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false]
             case .requestGlobalState:
                 return ["tower_id": towerInfo.towerID]
             case .bellRung(let bell, let stroke):
@@ -188,6 +188,16 @@ class RingingRoomViewModel: ObservableObject {
                 return ["call": call, "tower_id": towerInfo.towerID]
             case .setBells:
                 return ["tower_id": towerInfo.towerID]
+            case .setWheatleySetting(let setting):
+                return [:]
+            case .setWheatleyRowGen:
+                return [:]
+            case .wheatleyIsRinging:
+                return [:]
+            case .wheatleyStopTouch:
+                return [:]
+            case .resetWheatley:
+                return [:]
             }
         }()
         socketIOService.send(event: event.eventName, with: payload)
