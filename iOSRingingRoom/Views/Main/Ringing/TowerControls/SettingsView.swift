@@ -54,7 +54,11 @@ struct SettingsView: View {
                         }
                         .onChange(of: hostMode) { newValue in
                             if state.hostMode != newValue {
+                                print("sending")
                                 viewModel.send(.hostModeSet(to: newValue))
+                                
+                                // The server doesn't emit s_host_mode_ to the sender, so we update the state here
+                                state.hostMode = hostMode
                             }
                         }
                 }
