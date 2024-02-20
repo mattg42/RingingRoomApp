@@ -35,6 +35,12 @@ struct AccountView: View {
                     }
                     
                     Section {
+                        NavigationLink("About") {
+                            AboutView()
+                        }
+                    }
+                    
+                    Section {
                         Button {
                             AlertHandler.presentAlert(title: "Are you sure you want to log out?", message: nil, dismiss: .logout(action: logout))
                         } label: {

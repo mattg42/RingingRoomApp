@@ -60,7 +60,7 @@ struct AboutView: View {
                         
                         VStack(alignment: .leading, spacing: 0.0) {
                             Text("This app is fully open-source. To view the code, go to")
-                            Link("github.com/Matthew15625/iOSRingingRoom", destination: URL(string: "https://github.com/Matthew15625/iOSRingingRoom")!)
+                            Link("github.com/mattg42/RingingRoomApp", destination: URL(string: "https://github.com/mattg42/RingingRoomApp")!)
                         }
                     }
                     

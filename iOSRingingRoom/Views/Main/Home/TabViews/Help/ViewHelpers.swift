@@ -40,7 +40,7 @@ struct ConditionalDismissModifier: ViewModifier {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     if isInSheet {
                         Button {
-                            dismiss!()
+                            dismiss?()
                         } label: {
                             Text("Dismiss")
                         }
