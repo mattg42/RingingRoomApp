@@ -62,14 +62,15 @@ class SocketIOService {
     }
     
     private let manager: SocketManager
-    private let socket: SocketIOClient
+    private var socket: SocketIOClient
+    private let url: URL
     
     weak var delegate: SocketIODelegate?
     
     init(url: URL) {
+        self.url = url
         manager = SocketManager(socketURL: url)
         socket = manager.defaultSocket
-        setupListeners()
     }
     
     deinit {
@@ -77,6 +78,10 @@ class SocketIOService {
     }
     
     func connect(completion: @escaping () -> ()) {
+        socket = manager.defaultSocket
+
+        setupListeners()
+
         socket.on(clientEvent: .connect) { _, _ in
             completion()
         }
@@ -174,7 +179,7 @@ class SocketIOService {
             do {
                 try callback(data[0] as! [String: Any])
             } catch {
-                AlertHandler.presentAlert(title: "SocketIO error", message: "Error: \(error.localizedDescription) Please screenshot and send to ringingroomapp@gmail.com.", dismiss: .cancel(title: "OK", action: nil))
+                AlertHandler.presentAlert(title: "SocketIO error", message: "Error: \(error). Please screenshot and send to ringingroomapp@gmail.com.", dismiss: .cancel(title: "OK", action: nil))
             }
         }
     }
