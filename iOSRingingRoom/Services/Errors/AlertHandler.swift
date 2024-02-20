@@ -14,7 +14,7 @@ public enum AlertHandler {
 
         switch dismiss {
         case .cancel(let title, let action):
-            let alertAction = UIAlertAction(title: title, style: .cancel, handler: { _ in
+            let alertAction = UIAlertAction(title: title ?? "Dismiss", style: .cancel, handler: { _ in
                 action?()
             })
             alertAction.titleTextColor = .systemBlue
