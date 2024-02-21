@@ -7,9 +7,14 @@
 
 import Foundation
 
-struct APIService: AuthenticatedClient {
+class APIService: AuthenticatedClient {
+    init(token: String, region: Region, retryAction: (() async -> ())? = nil) {
+        self.token = token
+        self.region = region
+        self.retryAction = retryAction
+    }
 
-    let token: String
+    var token: String
     let region: Region
     
     var retryAction: (() async -> ())? = nil

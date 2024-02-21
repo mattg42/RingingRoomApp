@@ -50,7 +50,7 @@ struct JoinTowerView: View {
         
         let socketIOService = SocketIOService(url: URL(string: towerDetails.server_address)!)
         
-        let ringingRoomViewModel = RingingRoomViewModel(socketIOService: socketIOService, router: router, towerInfo: towerInfo, token: apiService.token, user: user)
+        let ringingRoomViewModel = RingingRoomViewModel(socketIOService: socketIOService, router: router, towerInfo: towerInfo, apiService: apiService, user: user)
         
         router.moveTo(.ringing(viewModel: ringingRoomViewModel))
     }
