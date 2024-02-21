@@ -99,12 +99,6 @@ class RingingRoomState: ObservableObject {
     
     @Published var newMessages = 0
     @Published var messages = [Message]()
-    
-    @Published var showingTowerControls = false
-}
-
-class TowerControlsState: ObservableObject {
-    @Published var towerControlsViewSelection = TowerControlViewSelection.users
 }
 
 class RingingRoomViewModel: ObservableObject {
@@ -137,7 +131,6 @@ class RingingRoomViewModel: ObservableObject {
     }
     
     var state = RingingRoomState()
-    let towerControlsState = TowerControlsState()
     
     var unwrappedRinger: Ringer {
         if let ringer = state.ringer {

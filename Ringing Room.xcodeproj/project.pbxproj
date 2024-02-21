@@ -134,7 +134,7 @@
 		34A22A6826C0564E00FE255C /* WelcomeLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */; };
 		34A69FBB290B20160090679B /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A69FBA290B20160090679B /* MainView.swift */; };
 		34A7CFF328CCC54A007C6CF2 /* CallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF228CCC54A007C6CF2 /* CallView.swift */; };
-		34A7CFF528CCE571007C6CF2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF428CCE571007C6CF2 /* SettingsView.swift */; };
+		34A7CFF528CCE571007C6CF2 /* ControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7CFF428CCE571007C6CF2 /* ControlsView.swift */; };
 		34B517992B3752EE0002565A /* C11.wav in Resources */ = {isa = PBXBuildFile; fileRef = 34B517892B3752EC0002565A /* C11.wav */; };
 		34B5179A2B3752EE0002565A /* C3.wav in Resources */ = {isa = PBXBuildFile; fileRef = 34B5178A2B3752EC0002565A /* C3.wav */; };
 		34B5179B2B3752EE0002565A /* C9.wav in Resources */ = {isa = PBXBuildFile; fileRef = 34B5178B2B3752ED0002565A /* C9.wav */; };
@@ -157,7 +157,6 @@
 		34E99ADC28B0446300C80EF1 /* RingingRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99ADB28B0446300C80EF1 /* RingingRoomView.swift */; };
 		34E99ADE28B045F300C80EF1 /* TowerNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99ADD28B045F300C80EF1 /* TowerNameView.swift */; };
 		34E99AE028B0473100C80EF1 /* RopeCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99ADF28B0473100C80EF1 /* RopeCircleView.swift */; };
-		34E99AE328B05A0300C80EF1 /* TowerControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99AE228B05A0300C80EF1 /* TowerControlsView.swift */; };
 		34E99AE528B05A1400C80EF1 /* RingingButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E99AE428B05A1400C80EF1 /* RingingButtonsView.swift */; };
 		34EC1A492B05B783004B0506 /* LoginError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34EC1A482B05B783004B0506 /* LoginError.swift */; };
 		34EC1A4D2B05C231004B0506 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 34EC1A4C2B05C231004B0506 /* Launch Screen.storyboard */; };
@@ -293,7 +292,7 @@
 		34A22A6726C0564E00FE255C /* WelcomeLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeLoginView.swift; sourceTree = "<group>"; };
 		34A69FBA290B20160090679B /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		34A7CFF228CCC54A007C6CF2 /* CallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallView.swift; sourceTree = "<group>"; };
-		34A7CFF428CCE571007C6CF2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		34A7CFF428CCE571007C6CF2 /* ControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsView.swift; sourceTree = "<group>"; };
 		34B517892B3752EC0002565A /* C11.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = C11.wav; sourceTree = "<group>"; };
 		34B5178A2B3752EC0002565A /* C3.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = C3.wav; sourceTree = "<group>"; };
 		34B5178B2B3752ED0002565A /* C9.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = C9.wav; sourceTree = "<group>"; };
@@ -316,7 +315,6 @@
 		34E99ADB28B0446300C80EF1 /* RingingRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingingRoomView.swift; sourceTree = "<group>"; };
 		34E99ADD28B045F300C80EF1 /* TowerNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TowerNameView.swift; sourceTree = "<group>"; };
 		34E99ADF28B0473100C80EF1 /* RopeCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RopeCircleView.swift; sourceTree = "<group>"; };
-		34E99AE228B05A0300C80EF1 /* TowerControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TowerControlsView.swift; sourceTree = "<group>"; };
 		34E99AE428B05A1400C80EF1 /* RingingButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingingButtonsView.swift; sourceTree = "<group>"; };
 		34EC1A482B05B783004B0506 /* LoginError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoginError.swift; path = ../../../../_Archive/NewRingingRoom/NewRingingRoomXC/NewRingingRoom/Views/Login/LoginError.swift; sourceTree = "<group>"; };
 		34EC1A4A2B05B848004B0506 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -715,8 +713,7 @@
 		34E99AE128B059F600C80EF1 /* TowerControls */ = {
 			isa = PBXGroup;
 			children = (
-				34E99AE228B05A0300C80EF1 /* TowerControlsView.swift */,
-				34A7CFF428CCE571007C6CF2 /* SettingsView.swift */,
+				34A7CFF428CCE571007C6CF2 /* ControlsView.swift */,
 				3464DC7128D7E27900633BD5 /* UsersView.swift */,
 				3464DC7328D7E28300633BD5 /* ChatView.swift */,
 				3464DC7528D7E28B00633BD5 /* WheatleyView.swift */,
@@ -906,7 +903,7 @@
 				341D38F82722D15B00E340CF /* ShareSheet.swift in Sources */,
 				345052B72812C04200143E22 /* HomeView.swift in Sources */,
 				341A25BA28CBEE1D00D702FE /* BellsView.swift in Sources */,
-				34A7CFF528CCE571007C6CF2 /* SettingsView.swift in Sources */,
+				34A7CFF528CCE571007C6CF2 /* ControlsView.swift in Sources */,
 				3454CBAF287DABD800FB2495 /* ErrorUtil.swift in Sources */,
 				341D38FC2722DB4D00E340CF /* NetworkStatus.swift in Sources */,
 				341A25BC28CBEE3000D702FE /* AssignmentsListView.swift in Sources */,
@@ -945,7 +942,6 @@
 				3435AD86287EFE6F00C8CF41 /* TowerDetails.swift in Sources */,
 				341D38E82722082100E340CF /* ResetPasswordView.swift in Sources */,
 				3454CBB4287DD2BC00FB2495 /* StoreView.swift in Sources */,
-				34E99AE328B05A0300C80EF1 /* TowerControlsView.swift in Sources */,
 				3454CBBA287DE38300FB2495 /* MailView.swift in Sources */,
 				3435AD8C287F0BE800C8CF41 /* SocketIOService.swift in Sources */,
 				341D38F52722CFFE00E340CF /* WebView.swift in Sources */,

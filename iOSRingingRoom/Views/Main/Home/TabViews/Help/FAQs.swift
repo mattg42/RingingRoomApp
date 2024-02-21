@@ -10,12 +10,12 @@ import SwiftUI
 
 struct FAQ: Identifiable {
     
-    var question: String
-    var answer: String
+    var question: LocalizedStringKey
+    var answer: LocalizedStringKey
     
     let id = UUID()
     
-    init(question: String, answer: String) {
+    init(question: LocalizedStringKey, answer: LocalizedStringKey) {
         self.question = question
         self.answer = answer
     }
@@ -27,7 +27,7 @@ struct FAQ: Identifiable {
         ),
         FAQ(
             question: "How can I stop notifications while I'm ringing?",
-            answer: "Turn on Do Not Disturb. This is a system setting that will silence your notifications. You can find this setting in two places: the settings app, and Control Centre. To find it in the setting app, go to settings, then swipe down to reveal the search bar. Tap it, and enter 'Do not disturb'. Tap on the first result. Then, turn on the Do Not Disturb toggle. Alternatively, you can find the setting in Control Centre. To get to Control Centre, swipe down from the top-right corner of the screen, or swipe up from the bottom if you are using an iPhone without a notch. Next, press the button with the crescent moon icon. If the moon turns purple with a white background, then Do Not Disturb is on. Remember to turn it off again once you have finished ringing."
+            answer: "Turn on Do Not Disturb. This is a system setting that will silence your notifications. You can find this setting in Control Centre. To get to Control Centre, swipe down from the top-right corner of the screen, or swipe up from the bottom if you are using an iPhone without a notch or dynamic island. Next, tap the button with the crescent moon icon. If the moon turns purple with a white background, then Do Not Disturb is on. Remember to turn it off again once you have finished ringing. For further help about Do Not Disturb, see [Apple's help page](https://support.apple.com/en-gb/105112)"
         ),
         FAQ(
             question: "My device keeps turning off",
@@ -60,6 +60,8 @@ struct FAQsView: View {
 extension Text {
     init(_ faq: FAQ) {
         self = Text(faq.question).bold()
-        self = self + Text("\n\n\(faq.answer)\n")
+        self = self + Text("\n\n")
+        self = self + Text(faq.answer)
+        self = self + Text("\n")
     }
 }

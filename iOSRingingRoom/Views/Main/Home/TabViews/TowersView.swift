@@ -18,8 +18,6 @@ struct TowersView: View {
     @Binding var user: User
     let apiService: APIService
 
-    @State private var showingTowerControls = false
-
     @State private var joinTowerShowing = false
     @State private var createTowerShowing = false
     

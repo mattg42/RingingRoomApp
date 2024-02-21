@@ -44,17 +44,17 @@ enum QuickStartGuideHelpSection: CaseIterable, HelpSection, Identifiable {
         switch self {
         case .accountSettings:
             return """
-To change your account settings such as email or password, you need to login to the ringingroom.com on your device or computer and change the settings there. Account setting will be added to the app in a later update.
+To change your account settings such as email or password, you need to login to the ringingroom.com website on your device or computer and change the settings there. Account settings will be added to the app in a later update.
 """
 """
-To change your account settings, go to the account tab. There you will find buttons to change your username, email, password, and to delete your account. To change a particular setting, press on the relevant 'change' button. This will bring up a form. Follow the instructions on the form to change the setting.
+To change your account settings, go to the account tab. There you will find buttons to change your username, email, password, and to delete your account. To change a particular setting, tap on the relevant 'change' button. This will bring up a form. Follow the instructions on the form to change the setting.
 """
         case .creatingOrJoiningATower:
             return """
-If you have visited a tower before, then you can join it by pressing on its name in the list of recent towers.
-If you are joining a tower for the first time, then, in the towers tab, press on 'Join tower by ID'. Type in the ID of the tower you wish to join, and press join.
+If you have visited a tower before, then you can join it by tapping on its name in the list of recent towers.
+If you are joining a tower for the first time, then, in the towers tab, tap 'Join tower by ID'. Type in the ID of the tower you wish to join, and tap join.
 
-To create a tower, go to the Towers view and press on 'Create new tower' to reveal a text box and the Create Tower button. Next, type the name of the new tower into the text box. Press Create Tower and you will be sent to a new tower with that name.
+To create a tower, go to the Towers view and tap on 'Create new tower' to reveal a text box and the Create Tower button. Next, type the name of the new tower into the text box. Press Create Tower and you will be sent to a new tower with that name.
 """
         case .ringingTheBells:
             return """
@@ -64,17 +64,17 @@ You may wish to change the number of bells in the tower, whether you are ringing
 """
         case .makingCalls:
             return """
-You can make calls by pressing the desired call button below the bell circle. This will display the call in large text, and play a sound of somebody making the call.
+You can make calls by tapping the desired call button below the bell circle. This will display the call in large text, and play a sound of somebody making the call.
 """
         case .leavingATower:
             return """
-To leave the tower, tap the 3-line button at the top-right of the Ringing view, then press Leave tower. Pressing this will remove you from the tower and bring you back to the Towers view.
+To leave the tower, tap the 3-line button at the top-right of the Ringing view, then tap Leave tower. Pressing this will remove you from the tower and bring you back to the Towers view.
 """
         case .volume:
             return """
 Ringing Room has a volume slider that lets you reduce the volume of the bells without affecting the system volume. This is useful if you are using Ringing Room and Zoom (or other apps such as Discord) at the same time on your device - you can lower the volume of the bells, without making peoples' voices quieter.
 
-To access the volume slider, you must be in a tower. Once in a tower, go to the tower settings. The volume slider will be near the top of the screen, with loudspeaker icons either side. Slide it to the right to increase the volume, and left to decrease the volume.
+To access the volume slider, you must be in a tower. Once in a tower, go to the tower controls. The volume slider will be near the top of the screen, with loudspeaker icons either side. Slide it to the right to increase the volume, and left to decrease the volume.
 """
         }
     }
@@ -123,7 +123,7 @@ There is also a button called 'Fill In'. This will randomly assign unassigned ri
 """
         case .wheatley:
             return """
-Wheatley is a computer ringer for Ringing Room, made by Ben White-Horne and Matthew Johnson and designed to be a 'ninja helper with no ego' - i.e. Wheatley will any number of bells to whatever you want to ring, but should fit in as much as possible to what you're ringing. Wheatley is now available directly inside Ringing Room, without any installation.
+Wheatley is a computer ringer for Ringing Room, made by Ben White-Horne and Matthew Johnson and designed to be a 'ninja helper with no ego' - i.e. Wheatley will ring any number of bells to whatever you want to ring, but should fit in as much as possible to what you're ringing. Wheatley is now available directly inside Ringing Room, without any installation.
 
 Enabling Wheatley
 Wheatley needs to be enabled on a per-tower basis with the switch in the tower settings. This can only be done through the website currently. Once Wheatley is enabled, a user called 'Wheatley' will be present in the users list. You can then assign Wheatley to bells like any other person. The Fill In button will randomly assign all human ringers first, then fill the remaining bells with Wheatley.
@@ -134,16 +134,16 @@ To start ringing a method with Wheatley (only on the website):
 Click on the "Methods" tab in the Wheatley box.
 Click in the text box that says "Start typing method name".
 Start typing the name of the method you want to ring. As you type, a list of potential method names will appear (filtered according to the tower size).
-Click on the method name you want to ring, or press "Enter" to select the first option.
+Click on the method name you want to ring, or click "Enter" to select the first option.
 If everything worked out, the first line of the Wheatley box should say "After 'Look To', Wheatley will ring <your method name>", and Wheatley will ring that method after Look To is called.
 
 Wheatley will still respond to all yours calls from the app, such as Look to, or Stand.
 """
         case .rotating:
             return """
-By default, whenever you are assigned a bell, that bell will appear in the bottom right corner of the bell circle. However, if you would like to have control over your perspective of the bell circle, press the 'Change perspective' button in the tower controls. This will take you back to the ringing view in Rotate mode. In Rotate mode, when you press a bell, instead of it ringing, it will change your perspective so that bell will be in the bottom right corner, and you will exit Rotate mode. To cancel Rotate mode without changing the perspective, press 'Cancel' in the top right of the screen.
+By default, whenever you are assigned a bell, that bell will appear in the bottom right corner of the bell circle. However, if you would like to have control over your perspective of the bell circle, tap the 'Change perspective' button in the tower controls. This will take you back to the ringing view in Rotate mode. In Rotate mode, when you tap a bell, instead of it ringing, it will change your perspective so that bell will be in the bottom right corner, and you will exit Rotate mode. To cancel Rotate mode without changing the perspective, tap 'Cancel' in the top right of the screen.
 
-In addition, in the Settings tab there is an option to disable the automatic rotation of the bell circle when you are assigned a bell.
+In addition, in the Controls tab there is an option to disable the automatic rotation of the bell circle when you are assigned a bell.
 """
         case .managingTowers:
             return """

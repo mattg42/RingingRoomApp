@@ -24,12 +24,12 @@ struct MainView: View {
         Group {
             switch router.currentRoute {
             case .home:
+//                Text("Hi")
                 HomeView(user: $user, apiService: apiService)
             case .ringing(let viewModel):
                 RingingRoomView(user: $user, apiService: apiService)
                     .environmentObject(viewModel)
                     .environmentObject(viewModel.state)
-                    .environmentObject(viewModel.towerControlsState)
             case .joinTower(let towerID, let towerDetails):
                 JoinTowerView(user: $user, apiService: apiService, towerID: towerID, towerDetails: towerDetails)
             }

@@ -58,10 +58,7 @@ struct AboutView: View {
                             Alert(title: Text("Mail not setup"), message: Text("Mail is not setup on your device."), dismissButton: .default(Text("OK")))
                         }
                         
-                        VStack(alignment: .leading, spacing: 0.0) {
-                            Text("This app is fully open-source. To view the code, go to")
-                            Link("github.com/mattg42/RingingRoomApp", destination: URL(string: "https://github.com/mattg42/RingingRoomApp")!)
-                        }
+                        Text("This app is fully open-source. To view the code, go to [github.com/mattg42/RingingRoomApp](https://github.com/mattg42/RingingRoomApp)")
                     }
                     
                     VStack(alignment: .leading, spacing: 8.0) {
