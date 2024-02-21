@@ -79,9 +79,13 @@ class SocketIOService {
     
     func connect(completion: @escaping () -> ()) {
         socket = manager.defaultSocket
-
+        
+        // Making sure the connection and listeners are reset if we try to reconnect
+        socket.disconnect()
+        socket.removeAllHandlers()
+        
         setupListeners()
-
+        
         socket.on(clientEvent: .connect) { _, _ in
             completion()
         }
@@ -167,6 +171,10 @@ class SocketIOService {
         listen(for: "s_call") { [weak self] data in
             let call = data["call"] as! String
             self?.delegate?.didReceiveCall(call)
+        }
+        
+        listen(for: "s_bad_token") { [weak self] data in
+            self?.delegate?.didReceiveBadToken()
         }
     }
     
