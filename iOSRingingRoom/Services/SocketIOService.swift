@@ -53,14 +53,6 @@ enum ClientSocketEvent {
 
 class SocketIOService {
     
-    private struct SocketIOError: LocalizedError {
-        let message: String
-        
-        var errorDescription: String? {
-            message
-        }
-    }
-    
     private let manager: SocketManager
     private var socket: SocketIOClient
     private let url: URL
@@ -115,21 +107,22 @@ class SocketIOService {
         }
         
         listen(for: "s_global_state") { [weak self] data in
-            let globalState = data["global_bell_state"] as! [Bool]
+            let globalState = try data.extract("global_bell_state", as: [Bool].self)
+            
             self?.delegate?.didReceiveGlobalState(globalState.map { BellStroke(bool: $0) })
         }
         
         listen(for: "s_set_userlist") { [weak self] data in
-            let userList = (data["user_list"] as! [[String: Any]])
+            let userList = (try data.extract("user_list", as: [[String: Any]].self))
                 .map({ Ringer(from: $0) })
 
             self?.delegate?.didReceiveUserList(userList)
         }
         
         listen(for: "s_bell_rung") { [weak self] data in
-            let bell = data["who_rang"] as! Int
-            let globalState = data["global_bell_state"] as! [Bool]
-            
+            let bell = try data.extract("who_rang", as: Int.self)
+            let globalState = try data.extract("global_bell_state", as: [Bool].self)
+
             self?.delegate?.bellDidRing(
                 number: bell,
                 globalState: globalState.map { BellStroke(bool: $0) }
@@ -137,39 +130,40 @@ class SocketIOService {
         }
         
         listen(for: "s_assign_user") { [weak self] data in
-            let bell = data["bell"] as! Int
-            let userID = (data["user"] as? Int) ?? 0
+            let bell = try data.extract("bell", as: Int.self)
+            let userID = try data.extract("user", as: Int.self, else: 0)
             self?.delegate?.didAssign(ringerID: userID, to: bell)
         }
         
         listen(for: "s_audio_change") { [weak self] data in
-            let newAudio = data["new_audio"] as! String
-            print(newAudio)
+            let newAudio = try data.extract("new_audio", as: String.self)
+            
             guard let bellType = BellType(rawValue: newAudio) else {
-                return
+                throw SocketIOError(message: "Unable to convert \(newAudio) to an audio type.")
             }
+            
             self?.delegate?.audioDidChange(to: bellType)
         }
         
         listen(for: "s_host_mode") { [weak self] data in
-            let newMode = data["new_mode"] as! Bool
+            let newMode = try data.extract("new_mode", as: Bool.self)
             self?.delegate?.hostModeDidChange(to: newMode)
         }
         
         listen(for: "s_size_change") { [weak self] data in
-            let newSize = data["size"] as! Int
+            let newSize = try data.extract("size", as: Int.self)
             self?.delegate?.sizeDidChange(to: newSize)
         }
         
         listen(for: "s_msg_sent") { [weak self] data in
-            let user = data["user"] as! String
-            let message = data["msg"] as! String
+            let user = try data.extract("user", as: String.self)
+            let message = try data.extract("msg", as: String.self)
 
             self?.delegate?.didReceiveMessage(Message(sender: user, message: message))
         }
         
         listen(for: "s_call") { [weak self] data in
-            let call = data["call"] as! String
+            let call = try data.extract("call", as: String.self)
             self?.delegate?.didReceiveCall(call)
         }
         
@@ -187,8 +181,29 @@ class SocketIOService {
             do {
                 try callback(data[0] as! [String: Any])
             } catch {
-                AlertHandler.presentAlert(title: "SocketIO error", message: "Error: \(error). Please screenshot and send to ringingroomapp@gmail.com.", dismiss: .cancel(title: "OK", action: nil))
+                AlertHandler.presentAlert(title: "SocketIO error", message: "Event: \(event). Error: \(error). Please screenshot and send to ringingroomapp@gmail.com.", dismiss: .cancel(title: "OK", action: nil))
             }
         }
+    }
+}
+
+fileprivate struct SocketIOError: LocalizedError {
+    let message: String
+    
+    var errorDescription: String? {
+        message
+    }
+}
+
+fileprivate extension Dictionary where Key == String, Value == Any {
+    func extract<T>(_ key: String, as: T.Type, else defaultValue: T? = nil) throws -> T {
+        guard let val = self[key] as? T else {
+            if let defaultValue {
+                return defaultValue
+            } else {
+                throw SocketIOError(message: "Unable to read \(key) from \(self)")
+            }
+        }
+        return val
     }
 }
