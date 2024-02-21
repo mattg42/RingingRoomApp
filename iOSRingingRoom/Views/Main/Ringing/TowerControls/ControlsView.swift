@@ -1,5 +1,5 @@
 //
-//  SettingsView.swift
+//  ControlsView.swift
 //  NewRingingRoom
 //
 //  Created by Matthew on 10/09/2022.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SettingsView: View {
+struct ControlsView: View {
     
     @EnvironmentObject var viewModel: RingingRoomViewModel
     @EnvironmentObject var state: RingingRoomState
@@ -41,7 +41,7 @@ struct SettingsView: View {
                     }
             }
             
-            Section(footer: state.hostMode && !viewModel.towerInfo.isHost ? Text("Host mode is enabled. Only hosts can change tower settings or assign bells.") : Text("")) {
+            Section(footer: state.hostMode && !viewModel.towerInfo.isHost ? Text("Host mode is enabled. Only hosts can change tower controls or assign bells.") : Text("")) {
                 if viewModel.towerInfo.hostModePermitted && viewModel.towerInfo.isHost {
                     Toggle("Host mode", isOn: $hostMode)
                         .onAppear {
