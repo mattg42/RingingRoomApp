@@ -63,6 +63,7 @@
 		3454ED2A280C3FD700C60E3C /* ThreadUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454ED29280C3FD700C60E3C /* ThreadUtil.swift */; };
 		3454ED2D280C607D00C60E3C /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 3454ED2C280C607D00C60E3C /* SocketIO */; };
 		345734F528E0D05D00A912ED /* CallTouchdownButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345734F428E0D05D00A912ED /* CallTouchdownButtonStyle.swift */; };
+		345B0D382B86B39F003C21AC /* WheatleyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345B0D372B86B39F003C21AC /* WheatleyState.swift */; };
 		346118BC2883010D006AA770 /* RingingRoomViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346118BB2883010D006AA770 /* RingingRoomViewModel.swift */; };
 		3464DC7228D7E27900633BD5 /* UsersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3464DC7128D7E27900633BD5 /* UsersView.swift */; };
 		3464DC7428D7E28300633BD5 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3464DC7328D7E28300633BD5 /* ChatView.swift */; };
@@ -222,6 +223,7 @@
 		3454ED27280C39CB00C60E3C /* AsyncButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncButton.swift; sourceTree = "<group>"; };
 		3454ED29280C3FD700C60E3C /* ThreadUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadUtil.swift; sourceTree = "<group>"; };
 		345734F428E0D05D00A912ED /* CallTouchdownButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallTouchdownButtonStyle.swift; sourceTree = "<group>"; };
+		345B0D372B86B39F003C21AC /* WheatleyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WheatleyState.swift; sourceTree = "<group>"; };
 		346118BB2883010D006AA770 /* RingingRoomViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingingRoomViewModel.swift; sourceTree = "<group>"; };
 		3464DC7128D7E27900633BD5 /* UsersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersView.swift; sourceTree = "<group>"; };
 		3464DC7328D7E28300633BD5 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
@@ -574,6 +576,16 @@
 			path = Errors;
 			sourceTree = "<group>";
 		};
+		345B0D362B86B380003C21AC /* Wheatley */ = {
+			isa = PBXGroup;
+			children = (
+				345B0D372B86B39F003C21AC /* WheatleyState.swift */,
+				3464DC7528D7E28B00633BD5 /* WheatleyView.swift */,
+				341814D22B06F40B0051EF06 /* WheatleySearchView.swift */,
+			);
+			path = Wheatley;
+			sourceTree = "<group>";
+		};
 		34706F39287F4F9B004127CD /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -721,8 +733,7 @@
 				34A7CFF428CCE571007C6CF2 /* SettingsView.swift */,
 				3464DC7128D7E27900633BD5 /* UsersView.swift */,
 				3464DC7328D7E28300633BD5 /* ChatView.swift */,
-				3464DC7528D7E28B00633BD5 /* WheatleyView.swift */,
-				341814D22B06F40B0051EF06 /* WheatleySearchView.swift */,
+				345B0D362B86B380003C21AC /* Wheatley */,
 			);
 			path = TowerControls;
 			sourceTree = "<group>";
@@ -921,6 +932,7 @@
 				3454CBC3287DFC3C00FB2495 /* AdvancedFeatures.swift in Sources */,
 				345734F528E0D05D00A912ED /* CallTouchdownButtonStyle.swift in Sources */,
 				34BD256626BF0255000E932C /* Global.swift in Sources */,
+				345B0D382B86B39F003C21AC /* WheatleyState.swift in Sources */,
 				341C9F4C26B8868A00EB093A /* Tower.swift in Sources */,
 				3454CBA8287CC66700FB2495 /* AuthenicationService.swift in Sources */,
 				3464DC7628D7E28B00633BD5 /* WheatleyView.swift in Sources */,

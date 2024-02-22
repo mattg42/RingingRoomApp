@@ -9,6 +9,29 @@ import Foundation
 import SocketIO
 import Combine
 
+enum WheatleySetting {
+    case sensitivity(Double)
+    case useUpDownIn(Bool)
+    case stopAtRounds(Bool)
+    case pealSpeed(Int)
+    case callComposition(Bool)
+    
+    var json: [String: Any] {
+        switch self {
+        case .sensitivity(let double):
+            ["sensitivity": double]
+        case .useUpDownIn(let bool):
+            ["use_up_down_in": bool]
+        case .stopAtRounds(let bool):
+            ["stop_at_rounds": bool]
+        case .pealSpeed(let int):
+            ["peal_speed": int]
+        case .callComposition(let bool):
+            ["call_composition": bool]
+        }
+    }
+}
+
 enum ClientSocketEvent {
     case join
     case leaveTower
@@ -23,9 +46,8 @@ enum ClientSocketEvent {
     case call(_ call: String)
     case setBells
     
-    case setWheatleySetting(setting: [String: Int])
-    case setWheatleyRowGen
-    case wheatleyIsRinging
+    case setWheatleySetting(setting: WheatleySetting)
+    case setWheatleyRowGen(rowGen: [String: Any])
     case wheatleyStopTouch
     case resetWheatley
     
@@ -57,8 +79,6 @@ enum ClientSocketEvent {
             return "c_wheatley_setting"
         case .setWheatleyRowGen:
             return "c_wheatley_row_gen"
-        case .wheatleyIsRinging:
-            return "c_wheatley_is_ringing"
         case .wheatleyStopTouch:
             return "c_wheatley_stop_touch"
         case .resetWheatley:
@@ -174,6 +194,12 @@ class SocketIOService {
         listen(for: "s_call") { [weak self] data in
             let call = data["call"] as! String
             self?.delegate?.didReceiveCall(call)
+        }
+        
+        listen(for: "s_wheatley_row_gen") { [weak self] data in
+            print(data)
+            let newMethod = try WheatleyMethod(dictionary: data)
+            self?.delegate?.methodDidChange(to: newMethod)
         }
     }
     

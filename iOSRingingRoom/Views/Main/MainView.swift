@@ -30,6 +30,7 @@ struct MainView: View {
                     .environmentObject(viewModel)
                     .environmentObject(viewModel.state)
                     .environmentObject(viewModel.towerControlsState)
+                    .environmentObject(viewModel.wheatleyState)
             case .joinTower(let towerID, let towerDetails):
                 JoinTowerView(user: $user, apiService: apiService, towerID: towerID, towerDetails: towerDetails)
             }

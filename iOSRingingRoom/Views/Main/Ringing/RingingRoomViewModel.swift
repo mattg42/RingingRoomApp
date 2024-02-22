@@ -138,6 +138,7 @@ class RingingRoomViewModel: ObservableObject {
     
     var state = RingingRoomState()
     let towerControlsState = TowerControlsState()
+    var wheatleyState = WheatleyState()
     
     var unwrappedRinger: Ringer {
         if let ringer = state.ringer {
@@ -189,15 +190,13 @@ class RingingRoomViewModel: ObservableObject {
             case .setBells:
                 return ["tower_id": towerInfo.towerID]
             case .setWheatleySetting(let setting):
-                return [:]
-            case .setWheatleyRowGen:
-                return [:]
-            case .wheatleyIsRinging:
-                return [:]
+                return ["tower_id": towerInfo.towerID, "settings": setting.json]
+            case .setWheatleyRowGen(let rowGen):
+                return ["tower_id": towerInfo.towerID, "row_gen": rowGen]
             case .wheatleyStopTouch:
-                return [:]
+                return ["tower_id": towerInfo.towerID]
             case .resetWheatley:
-                return [:]
+                return ["tower_id": towerInfo.towerID]
             }
         }()
         socketIOService.send(event: event.eventName, with: payload)
@@ -245,6 +244,7 @@ protocol SocketIODelegate: AnyObject {
     func hostModeDidChange(to: Bool)
     func didReceiveMessage(_ message: Message)
     func didReceiveCall(_ call: String)
+    func methodDidChange(to method: WheatleyMethod)
 }
 
 extension RingingRoomViewModel: SocketIODelegate {
@@ -390,5 +390,9 @@ extension RingingRoomViewModel: SocketIODelegate {
         audioService.play(call)
         
         callPublisher.send(call)
+    }
+    
+    func methodDidChange(to method: WheatleyMethod) {
+        wheatleyState.rowGen = method
     }
 }
