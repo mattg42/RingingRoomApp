@@ -215,6 +215,28 @@ class SocketIOService {
             let newMethod = try WheatleyMethod(dictionary: data)
             self?.delegate?.methodDidChange(to: newMethod)
         }
+        
+        listen(for: "s_wheatley_setting") { [weak self] data in
+            for (key, value) in data {
+                switch key {
+                case "sensitivity":
+                    let newSetting = try data.extract(key, as: Double.self)
+                case "use_up_down_in":
+                    let newSetting = try data.extract(key, as: Bool.self)
+                case "stop_at_rounds":
+                    let newSetting = try data.extract(key, as: Bool.self)
+                case "peal_speed":
+                    let newSetting = try data.extract(key, as: Int.self)
+                    self?.delegate?.pealSpeedDidChange(to: newSetting)
+                case "call_composition":
+                    let newSetting = try data.extract(key, as: Bool.self)
+                case "fixed_striking_interval":
+                    let newSetting = try data.extract(key, as: Bool.self)
+                default:
+                    throw SocketIOError(message: "Setting not found \(key)")
+                }
+            }
+        }
 
     }
     

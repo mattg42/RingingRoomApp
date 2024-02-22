@@ -10,8 +10,7 @@ import Combine
 
 class WheatleyState: ObservableObject {
     @Published var rowGen = WheatleyMethod(type: "", title: "", stage: 0, notation: "", url: "", bob: [Int: String](), single: [Int: String]())
-    @Published var hours = 0
-    @Published var mintues = 0
+    @Published var pealSpeed = 0
     
     @Published var fixedStrikingInterval = true
     @Published var wholePullAndOff = true

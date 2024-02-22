@@ -239,6 +239,7 @@ protocol SocketIODelegate: AnyObject {
     func didReceiveCall(_ call: String)
     func methodDidChange(to method: WheatleyMethod)
     func didReceiveBadToken()
+    func pealSpeedDidChange(to speed: Int)
 }
 
 extension RingingRoomViewModel: SocketIODelegate {
@@ -395,8 +396,12 @@ extension RingingRoomViewModel: SocketIODelegate {
             await ErrorUtil.do(networkRequest: true) { [weak self] in
                 try await self?.apiService.updateToken()
             }
-
+            
             connect()
         }
+    }
+    
+    func pealSpeedDidChange(to speed: Int) {
+        wheatleyState.pealSpeed = speed
     }
 }
