@@ -232,7 +232,7 @@ protocol SocketIODelegate: AnyObject {
     func didReceiveGlobalState(_ globalState: [BellStroke])
     func didReceiveUserList(_ userList: [Ringer])
     func bellDidRing(number: Int, globalState: [BellStroke])
-    func didAssign(ringerID: Int, to bell: Int)
+    func didAssign(ringerID: Int, to: Int)
     func audioDidChange(to: BellType)
     func hostModeDidChange(to: Bool)
     func didReceiveMessage(_ message: Message)
@@ -240,6 +240,9 @@ protocol SocketIODelegate: AnyObject {
     func methodDidChange(to method: WheatleyMethod)
     func didReceiveBadToken()
     func pealSpeedDidChange(to speed: Int)
+    func fixedStrikingIntervalDidChange(to newValue: Bool)
+    func wholePullAndOffDidChange(to newValue: Bool)
+    func stopAtRoundsDidChange(to newValue: Bool)
 }
 
 extension RingingRoomViewModel: SocketIODelegate {
@@ -403,5 +406,17 @@ extension RingingRoomViewModel: SocketIODelegate {
     
     func pealSpeedDidChange(to speed: Int) {
         wheatleyState.pealSpeed = speed
+    }
+    
+    func fixedStrikingIntervalDidChange(to newValue: Bool) {
+        wheatleyState.fixedStrikingInterval = newValue
+    }
+    
+    func wholePullAndOffDidChange(to newValue: Bool) {
+        wheatleyState.wholePullAndOff = newValue
+    }
+    
+    func stopAtRoundsDidChange(to newValue: Bool) {
+        wheatleyState.stopAtRounds = newValue
     }
 }

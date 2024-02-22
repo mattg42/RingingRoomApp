@@ -15,6 +15,7 @@ enum WheatleySetting {
     case stopAtRounds(Bool)
     case pealSpeed(Int)
     case callComposition(Bool)
+    case fixedStrikingInterval(Bool)
     
     var json: [String: Any] {
         switch self {
@@ -28,6 +29,8 @@ enum WheatleySetting {
             ["peal_speed": int]
         case .callComposition(let bool):
             ["call_composition": bool]
+        case .fixedStrikingInterval(let bool):
+            ["fixed_striking_interval": bool]
         }
     }
 }
@@ -220,18 +223,23 @@ class SocketIOService {
             for (key, value) in data {
                 switch key {
                 case "sensitivity":
+                    // Currently unused
                     let newSetting = try data.extract(key, as: Double.self)
                 case "use_up_down_in":
                     let newSetting = try data.extract(key, as: Bool.self)
+                    self?.delegate?.wholePullAndOffDidChange(to: newSetting)
                 case "stop_at_rounds":
                     let newSetting = try data.extract(key, as: Bool.self)
+                    self?.delegate?.stopAtRoundsDidChange(to: newSetting)
                 case "peal_speed":
                     let newSetting = try data.extract(key, as: Int.self)
                     self?.delegate?.pealSpeedDidChange(to: newSetting)
                 case "call_composition":
+                    // TODO: Compos
                     let newSetting = try data.extract(key, as: Bool.self)
                 case "fixed_striking_interval":
                     let newSetting = try data.extract(key, as: Bool.self)
+                    self?.delegate?.fixedStrikingIntervalDidChange(to: newSetting)
                 default:
                     throw SocketIOError(message: "Setting not found \(key)")
                 }
@@ -247,6 +255,7 @@ class SocketIOService {
     func listen(for event: String, callback: @escaping ([String: Any]) throws -> Void) {
         socket.on(event) { data, _ in
             do {
+                print(data[0] as! [String: Any])
                 try callback(data[0] as! [String: Any])
             } catch {
                 AlertHandler.presentAlert(title: "SocketIO error", message: "Event: \(event). Error: \(error). Please screenshot and send to ringingroomapp@gmail.com.", dismiss: .cancel(title: "OK", action: nil))

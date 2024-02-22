@@ -16,6 +16,10 @@ struct WheatleyView: View {
     @State var minutes = 55
     @State var pealSpeed = 175
     
+    @State var fixedStrikingInterval = true
+    @State var wholePullAndOff = true
+    @State var stopAtRounds = true
+    
     var wheatleyText: LocalizedStringKey {
         // Needs to be split up to get the markdown link working
         let urlString = "After 'Look To', Wheatley will ring [\(wheatleyState.rowGen.title)](https://rsw.me.uk/blueline/methods/view/\(wheatleyState.rowGen.url))."
@@ -94,17 +98,64 @@ struct WheatleyView: View {
                     minutes = wheatleyState.pealSpeed % 60
                 }
                 
-                Toggle("Fixed striking interval", isOn: .constant(false))
+                Toggle("Fixed striking interval", isOn: $fixedStrikingInterval)
+                    .onAppear {
+                        fixedStrikingInterval = wheatleyState.fixedStrikingInterval
+                    }
+                    .onChange(of: wheatleyState.fixedStrikingInterval) { newValue in
+                        if fixedStrikingInterval != newValue {
+                            fixedStrikingInterval = newValue
+                        }
+                    }
+                    .onChange(of: fixedStrikingInterval) { newValue in
+                        if wheatleyState.fixedStrikingInterval != newValue {
+                            viewModel.send(.setWheatleySetting(setting: .fixedStrikingInterval(newValue)))
+
+                            wheatleyState.fixedStrikingInterval = fixedStrikingInterval
+                        }
+                    }
+            }
+            
+            Section {
+                Toggle("Whole pull and off", isOn: $wholePullAndOff)
+                    .onAppear {
+                        wholePullAndOff = wheatleyState.wholePullAndOff
+                    }
+                    .onChange(of: wheatleyState.wholePullAndOff) { newValue in
+                        if wholePullAndOff != newValue {
+                            wholePullAndOff = newValue
+                        }
+                    }
+                    .onChange(of: wholePullAndOff) { newValue in
+                        if wheatleyState.wholePullAndOff != newValue {
+                            viewModel.send(.setWheatleySetting(setting: .useUpDownIn(newValue)))
+                            
+                            wheatleyState.wholePullAndOff = wholePullAndOff
+                        }
+                    }
                 
+                Toggle("Stop at rounds", isOn: $stopAtRounds)
+                    .onAppear {
+                        stopAtRounds = wheatleyState.stopAtRounds
+                    }
+                    .onChange(of: wheatleyState.stopAtRounds) { newValue in
+                        if stopAtRounds != newValue {
+                            stopAtRounds = newValue
+                        }
+                    }
+                    .onChange(of: stopAtRounds) { newValue in
+                        if wheatleyState.stopAtRounds != newValue {
+                            viewModel.send(.setWheatleySetting(setting: .stopAtRounds(newValue)))
+                            
+                            wheatleyState.stopAtRounds = stopAtRounds
+                        }
+                    }
             }
             
             Section {
-                Toggle("Whole pull and off", isOn: .constant(false))
-                Toggle("Stop at rounds", isOn: .constant(false))
-            }
-            
-            Section {
-                Button("Reset Wheatley", role: .destructive) {}
+                Button("Reset Wheatley", role: .destructive) {
+                    viewModel.send(.resetWheatley)
+                }
             }
         }
     }
