@@ -99,20 +99,14 @@ class RingingRoomState: ObservableObject {
     
     @Published var newMessages = 0
     @Published var messages = [Message]()
-    
-    @Published var showingTowerControls = false
-}
-
-class TowerControlsState: ObservableObject {
-    @Published var towerControlsViewSelection = TowerControlViewSelection.users
 }
 
 class RingingRoomViewModel: ObservableObject {
     
-    init(socketIOService: SocketIOService, router: Router<MainRoute>, towerInfo: TowerInfo, token: String, user: User) {
+    init(socketIOService: SocketIOService, router: Router<MainRoute>, towerInfo: TowerInfo, apiService: APIService, user: User) {
         self.socketIOService = socketIOService
         self.towerInfo = towerInfo
-        self.token = token
+        self.apiService = apiService
         self.user = user
         self.router = router
         self.socketIOService.delegate = self
@@ -137,7 +131,6 @@ class RingingRoomViewModel: ObservableObject {
     }
     
     var state = RingingRoomState()
-    let towerControlsState = TowerControlsState()
     var wheatleyState = WheatleyState()
     
     var unwrappedRinger: Ringer {
@@ -152,7 +145,7 @@ class RingingRoomViewModel: ObservableObject {
     }
     
     let router: Router<MainRoute>
-    let token: String
+    let apiService: APIService
     let user: User
     
     let socketIOService: SocketIOService
@@ -166,9 +159,9 @@ class RingingRoomViewModel: ObservableObject {
         let payload = {
             switch event {
             case .join:
-                return ["tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false] as [String : Any]
+                return ["tower_id": towerInfo.towerID, "user_token": apiService.token, "anonymous_user": false] as [String : Any]
             case .leaveTower:
-                return ["user_name": user.username, "tower_id": towerInfo.towerID, "user_token": token, "anonymous_user": false]
+                return ["user_name": user.username, "tower_id": towerInfo.towerID, "user_token": apiService.token, "anonymous_user": false]
             case .requestGlobalState:
                 return ["tower_id": towerInfo.towerID]
             case .bellRung(let bell, let stroke):
@@ -245,6 +238,7 @@ protocol SocketIODelegate: AnyObject {
     func didReceiveMessage(_ message: Message)
     func didReceiveCall(_ call: String)
     func methodDidChange(to method: WheatleyMethod)
+    func didReceiveBadToken()
 }
 
 extension RingingRoomViewModel: SocketIODelegate {
@@ -394,5 +388,15 @@ extension RingingRoomViewModel: SocketIODelegate {
     
     func methodDidChange(to method: WheatleyMethod) {
         wheatleyState.rowGen = method
+    }
+    
+    func didReceiveBadToken() {
+        Task {
+            await ErrorUtil.do(networkRequest: true) { [weak self] in
+                try await self?.apiService.updateToken()
+            }
+
+            connect()
+        }
     }
 }
