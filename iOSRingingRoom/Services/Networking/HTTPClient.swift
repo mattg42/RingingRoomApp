@@ -58,14 +58,15 @@ extension HTTPClient {
             }
         }
 
-        print(request.url?.absoluteString)
-        print(String(data: request.httpBody ?? Data(), encoding: .utf8))
+        print(request.url?.absoluteString as Any)
+        print(String(data: request.httpBody ?? Data(), encoding: .utf8) as Any)
         
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse else {
                 throw APIError.noResponse
             }
+            print(response.statusCode)
             switch response.statusCode {
             case 200...299:
                 print(String(data: data, encoding: .utf8)!)
@@ -99,14 +100,40 @@ extension UnauthenticatedClient {
     }
 }
 
-protocol AuthenticatedClient: HTTPClient {    
-    var token: String { get }
+protocol AuthenticatedClient: AnyObject, HTTPClient {
+    var token: String { get set }
     
-    func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, model: T.Type)  async throws -> T}
+    func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, model: T.Type)  async throws -> T
+}
 
 extension AuthenticatedClient {
     func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON? = nil, headers: JSON? = nil, model: T.Type)  async throws -> T {
-        try await request(path: path, method: method, json: json, headers: headers, token: token, model: model)
+        do {
+            return try await request(path: path, method: method, json: json, headers: headers, token: token, model: model)
+        } catch APIError.unauthorized {
+            try await updateToken()
+            return try await request(path: path, method: method, json: json, headers: headers, token: token, model: model)
+        }
+    }
+    
+    func updateToken() async throws {
+        let authenticationService = AuthenticationService()
+        
+        let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
+        
+        let password: String
+        
+        do {
+            password = try KeychainService.getPasswordFor(account: email, server: authenticationService.domain)
+        } catch {
+            KeychainService.clear()
+            UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
+            throw error
+        }
+
+        let token = try await authenticationService.getToken(email: email.lowercased(), password: password)
+        
+        self.token = token
     }
 }
 

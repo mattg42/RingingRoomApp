@@ -9,7 +9,7 @@ enum RingingMenuView: Identifiable, CaseIterable {
     
     var id: Self { self }
     
-    case users, settings, chat
+    case users, controls, chat
     //    ,wheatley
     
     var title: String {
@@ -18,8 +18,8 @@ enum RingingMenuView: Identifiable, CaseIterable {
             return "Users"
         case .chat:
             return "Chat"
-        case .settings:
-            return "Settings"
+        case .controls:
+            return "Controls"
             //        case .wheatley:
             //            return "Wheatley"
         }
@@ -31,8 +31,8 @@ enum RingingMenuView: Identifiable, CaseIterable {
             UsersView()
         case .chat:
             ChatView()
-        case .settings:
-            SettingsView()
+        case .controls:
+            ControlsView()
             //        case .wheatley:
             //            Text("W")
         }
@@ -42,7 +42,7 @@ enum RingingMenuView: Identifiable, CaseIterable {
         switch self {
         case .users:
             "person.3.fill"
-        case .settings:
+        case .controls:
             "gear"
         case .chat:
             "text.bubble.fill"
@@ -76,20 +76,6 @@ struct HelpButton: View {
         .sheet(isPresented: $showingHelp, content: {
             HelpView(showDismiss: true)
         })
-    }
-}
-
-struct TowerControlsButton: View {
-    @State private var showingTowerControls = false
-    
-    var body: some View {
-        Button("Controls") {
-            showingTowerControls = true
-        }
-        .ringingControlButtonStyle()
-        .fullScreenCover(isPresented: $showingTowerControls) {
-            TowerControlsView()
-        }
     }
 }
 
@@ -261,16 +247,10 @@ struct RingingView: View {
                             if state.bellMode == .ring {
                                 Menu {
                                     Section {
-                                        Button("Users") {
-                                            menuView = .users
-                                        }
-                                        
-                                        Button("Settings") {
-                                            menuView = .settings
-                                        }
-                                        
-                                        Button("Chat") {
-                                            menuView = .chat
+                                        ForEach(RingingMenuView.allCases) { menuViewType in
+                                            Button(menuViewType.title) {
+                                                menuView = menuViewType
+                                            }
                                         }
                                     }
                                     Section {
