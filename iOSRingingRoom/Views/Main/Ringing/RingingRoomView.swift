@@ -161,7 +161,7 @@ struct RingingRoomView: View {
             
             GeometryReader { geo in
                 if sizeClass == .regular && geo.frame(in: .global).width > geo.frame(in: .global).height {
-                    HStack {
+                    HStack(spacing: 0) {
                         RingingRoomMenuView(menuView: .users, showDone: false)
                             .frame(width: 350)
                         RingingView(wide: true)
@@ -202,7 +202,7 @@ struct RingingView: View {
     
     @State private var showingConnectionErrorAlert = false
     
-    var wide: Bool
+    let wide: Bool
     
     @State var menuView: RingingMenuView? = nil
     
@@ -340,7 +340,7 @@ struct RingingView: View {
                     }
                 }
                 
-                RingingButtonsView()
+                RingingButtonsView(wide: wide)
             }
             .padding([.horizontal, .bottom], 5)
             

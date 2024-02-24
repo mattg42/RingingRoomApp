@@ -35,9 +35,10 @@ enum Call {
         }
     }
 }
-
+ 
 struct RingButton:View {
-    var number: Int
+    let number: Int
+    let height: CGFloat
     
     var body: some View {
         ZStack {
@@ -48,26 +49,50 @@ struct RingButton:View {
                 .font(.title3)
                 .bold()
         }
-        .frame(height: 70)
+        .frame(height: height)
     }
 }
 
 struct RingingButtonsView: View {
+    
+    let wide: Bool
 
     var body: some View {
-        VStack(spacing: 5) {
-            AssignedButtons()
-            
-            HStack(spacing: 5) {
-                CallButton(call: .bob)
-                CallButton(call: .single)
-                CallButton(call: .thatsAll)
+        if !wide {
+            VStack(spacing: 5) {
+                AssignedButtons(height: 70)
+                
+                HStack(spacing: 5) {
+                    CallButton(call: .bob, height: 30)
+                    CallButton(call: .single, height: 30)
+                    CallButton(call: .thatsAll, height: 30)
+                }
+                
+                HStack(spacing: 5) {
+                    CallButton(call: .lookTo, height: 30)
+                    CallButton(call: .go, height: 30)
+                    CallButton(call: .stand, height: 30)
+                }
             }
-            
+        } else {
             HStack(spacing: 5) {
-                CallButton(call: .lookTo)
-                CallButton(call: .go)
-                CallButton(call: .stand)
+                VStack(spacing: 5) {
+                    CallButton(call: .bob, height: 45)
+                    CallButton(call: .single, height: 45)
+                    CallButton(call: .thatsAll, height: 45)
+                }
+                .frame(maxWidth: 150)
+                
+                
+                VStack(spacing: 5) {
+                    CallButton(call: .lookTo, height: 45)
+                    CallButton(call: .go, height: 45)
+                    CallButton(call: .stand, height: 45)
+                }
+                .frame(maxWidth: 150)
+
+                AssignedButtons(height: 145)
+                
             }
         }
     }
@@ -78,6 +103,8 @@ struct AssignedButtons: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
     @EnvironmentObject var state: RingingRoomState
     
+    let height: CGFloat
+    
     var body: some View {
         if state.ringer != nil {
             if state.assignments.contains(viewModel.unwrappedRinger.ringerID) {
@@ -87,7 +114,7 @@ struct AssignedButtons: View {
                             Button {
                                 viewModel.ringBell(number: state.size - i)
                             } label: {
-                                RingButton(number: state.size - i)
+                                RingButton(number: state.size - i, height: height)
                             }
                             .buttonStyle(.bellTouchdown)
                         }
@@ -103,6 +130,7 @@ struct CallButton: View {
     @EnvironmentObject var state: RingingRoomState
     
     var call: Call
+    let height: CGFloat
     
     var body: some View {
         Button {
@@ -115,7 +143,7 @@ struct CallButton: View {
                     .foregroundColor(.primary)
                 
             }
-            .frame(height: 30)
+            .frame(height: height)
         }
         .buttonStyle(.callTouchdown)
         .disabled(state.hostMode && !viewModel.towerInfo.isHost && !state.assignments.contains(where: { $0 == viewModel.unwrappedRinger.ringerID }))
