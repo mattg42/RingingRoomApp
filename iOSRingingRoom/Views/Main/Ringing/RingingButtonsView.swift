@@ -55,6 +55,8 @@ struct RingButton:View {
 
 struct RingingButtonsView: View {
     
+    @EnvironmentObject var viewModel: RingingRoomViewModel
+    @EnvironmentObject var state: RingingRoomState
     let wide: Bool
 
     var body: some View {
@@ -81,7 +83,7 @@ struct RingingButtonsView: View {
                     CallButton(call: .single, height: 45)
                     CallButton(call: .thatsAll, height: 45)
                 }
-                .frame(maxWidth: 150)
+                .frame(maxWidth: state.ringer != nil ? state.assignments.contains(viewModel.unwrappedRinger.ringerID) ? 150 : .infinity : .infinity)
                 
                 
                 VStack(spacing: 5) {
@@ -89,10 +91,11 @@ struct RingingButtonsView: View {
                     CallButton(call: .go, height: 45)
                     CallButton(call: .stand, height: 45)
                 }
-                .frame(maxWidth: 150)
+                .frame(maxWidth: state.ringer != nil ? state.assignments.contains(viewModel.unwrappedRinger.ringerID) ? 150 : .infinity : .infinity)
 
                 AssignedButtons(height: 145)
                 
+                Spacer(minLength: 0)
             }
         }
     }

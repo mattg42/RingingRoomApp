@@ -117,7 +117,9 @@ class RingingRoomViewModel: ObservableObject {
     }
     
     func ringBell(number: Int) {
+        #if DEBUG
         ringTime = .now
+        #endif
         send(.bellRung(bell: number, stroke: state.bellStates[number - 1].boolValue))
     }
     
@@ -211,7 +213,9 @@ class RingingRoomViewModel: ObservableObject {
     
     var autoRotate = UserDefaults.standard.optionalBool(forKey: "autoRotate") ?? true
     
+    #if DEBUG
     var ringTime: Date = .now
+    #endif
     
     @Published var connected = false
 }
@@ -269,7 +273,10 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func bellDidRing(number: Int, globalState: [BellStroke]) {
+        #if DEBUG
         print(Date.now.timeIntervalSince(ringTime))
+        #endif
+        
         state.bellStates = globalState
         
         guard var fileName = state.bellType.sounds[state.size]?[number - 1] else { return }
