@@ -94,8 +94,6 @@ struct RingingButtonsView: View {
                 .frame(maxWidth: state.ringer != nil ? state.assignments.contains(viewModel.unwrappedRinger.ringerID) ? 150 : .infinity : .infinity)
 
                 AssignedButtons(height: 145)
-                
-                Spacer(minLength: 0)
             }
         }
     }
