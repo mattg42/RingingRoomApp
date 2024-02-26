@@ -1076,7 +1076,7 @@
 				CODE_SIGN_ENTITLEMENTS = iOSRingingRoom/iOSRingingRoom.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_ASSET_PATHS = "\"iOSRingingRoom/Preview Content\"";
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
 				ENABLE_PREVIEWS = YES;
@@ -1104,7 +1104,7 @@
 				CODE_SIGN_ENTITLEMENTS = iOSRingingRoom/iOSRingingRoom.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_ASSET_PATHS = "\"iOSRingingRoom/Preview Content\"";
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
 				ENABLE_PREVIEWS = YES;

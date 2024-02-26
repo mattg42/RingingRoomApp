@@ -17,9 +17,7 @@ struct HomeView: View {
     
     @Binding var user: User
     let apiService: APIService
-    
-    @State private var showingPrivacyPolicyView = false
-    
+        
     init(user: Binding<User>, apiService: APIService) {
         print("Init")
         self._user = user
@@ -37,13 +35,6 @@ struct HomeView: View {
                     Image(systemName: "list.bullet")
                         .font(.title)
                     Text("Towers")
-                }
-            StoreView()
-                .tag(TabViewType.store)
-                .tabItem {
-                    Image(systemName: "cart")
-                        .font(.title)
-                    Text("Store")
                 }
             HelpView(showDismiss: false)
                 .tag(TabViewType.help)
@@ -64,11 +55,6 @@ struct HomeView: View {
             tabViewSelection = .ring
             print("Called")
         }
-        .sheet(isPresented: $showingPrivacyPolicyView, content: {
-            PrivacyPolicyWebView(isPresented: $showingPrivacyPolicyView)
-            
-        })
-
         .accentColor(Color.main)
 
     }
