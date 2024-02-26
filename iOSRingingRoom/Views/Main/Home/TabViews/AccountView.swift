@@ -41,6 +41,10 @@ struct AccountView: View {
                     }
                     
                     Section {
+                        Link("Visit the Ringing Room store", destination: URL(string: "https://www.redbubble.com/people/ringingroom/shop")!)
+                    }
+                    
+                    Section {
                         Button {
                             AlertHandler.presentAlert(title: "Are you sure you want to log out?", message: nil, dismiss: .logout(action: logout))
                         } label: {
