@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1210"
+   LastUpgradeVersion = "1410"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3494797C24D9EFA7006B4ABE"
+               BlueprintIdentifier = "341C9F2726B87C6900EB093A"
                BuildableName = "Ringing Room.app"
-               BlueprintName = "iOSRingingRoom"
+               BlueprintName = "Ringing Room"
                ReferencedContainer = "container:Ringing Room.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,9 +44,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3494797C24D9EFA7006B4ABE"
+            BlueprintIdentifier = "341C9F2726B87C6900EB093A"
             BuildableName = "Ringing Room.app"
-            BlueprintName = "iOSRingingRoom"
+            BlueprintName = "Ringing Room"
             ReferencedContainer = "container:Ringing Room.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -61,9 +61,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3494797C24D9EFA7006B4ABE"
+            BlueprintIdentifier = "341C9F2726B87C6900EB093A"
             BuildableName = "Ringing Room.app"
-            BlueprintName = "iOSRingingRoom"
+            BlueprintName = "Ringing Room"
             ReferencedContainer = "container:Ringing Room.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

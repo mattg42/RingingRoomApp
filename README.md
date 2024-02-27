@@ -1,12 +1,9 @@
 # iOSRingingRoom
-A native iOS client for [Ringing Room](https://github.com/lelandpaul/virtual-ringing-room), now available [on the App Store](https://apps.apple.com/app/ringing-room/id1531929847)!
-
-## Disclaimer
-I wrote this code a year ago and have improved a lot since then. Major update in the works!
+A native iOS client for [Ringing Room](https://github.com/lelandpaul/ringingroom), now available [on the App Store](https://apps.apple.com/app/ringing-room/id1531929847)!
 
 ## Contributing
 
-As this is my first Swift/SwiftUI project, there are undoubtedly many ways to improve it. If you can in any way, please feel free to open an issue or pull request.
+If you would like to contribute anything, please feel free to open an issue or pull request.
 
 Comments coming soon!
 
