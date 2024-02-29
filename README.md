@@ -1,14 +1,9 @@
 # iOSRingingRoom
-A native iOS client for [Ringing Room](https://github.com/lelandpaul/virtual-ringing-room)
-
-It will be available soon on the App Store.
-
-## About
-I had 2 clear goals in mind when I started this project: to make it easier for people to use Ringing Room on their iOS devices, and to learn more about Swift and SwiftUI. I am pleased to say that I achieved both of these. I managed to make the project using 100% SwiftUI, while making (what I think at least is) a great UX.
+A native iOS client for [Ringing Room](https://github.com/lelandpaul/ringingroom), now available [on the App Store](https://apps.apple.com/app/ringing-room/id1531929847)!
 
 ## Contributing
 
-As this is my first Swift/SwiftUI project, there are undoubtedly many ways to improve it. If you can in any way, please feel free to open an issue or pull request.
+If you would like to contribute anything, please feel free to open an issue or pull request.
 
 Comments coming soon!
 
