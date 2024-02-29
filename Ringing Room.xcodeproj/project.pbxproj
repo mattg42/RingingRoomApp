@@ -127,6 +127,7 @@
 		34706FB0287F5007004127CD /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34706FAF287F5007004127CD /* AudioService.swift */; };
 		34706FC728804A38004127CD /* CGFloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34706FC628804A38004127CD /* CGFloat.swift */; };
 		34706FD72880C04D004127CD /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34706FD62880C04D004127CD /* UserDefaults.swift */; };
+		3470F9F12B90CF6E008124C9 /* EasyAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3470F9F02B90CF6E008124C9 /* EasyAudio.swift */; };
 		3471D43A26C18F9700A20FA8 /* LoginOverview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3471D43926C18F9700A20FA8 /* LoginOverview.swift */; };
 		3471D43C26C191E000A20FA8 /* AutoLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3471D43B26C191E000A20FA8 /* AutoLoginView.swift */; };
 		3496CD57293B206A004311A3 /* Starling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3496CD56293B2069004311A3 /* Starling.swift */; };
@@ -284,6 +285,7 @@
 		34706FAF287F5007004127CD /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
 		34706FC628804A38004127CD /* CGFloat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
 		34706FD62880C04D004127CD /* UserDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaults.swift; sourceTree = "<group>"; };
+		3470F9F02B90CF6E008124C9 /* EasyAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EasyAudio.swift; sourceTree = "<group>"; };
 		3471D43926C18F9700A20FA8 /* LoginOverview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginOverview.swift; sourceTree = "<group>"; };
 		3471D43B26C191E000A20FA8 /* AutoLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoLoginView.swift; sourceTree = "<group>"; };
 		3496CD56293B2069004311A3 /* Starling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Starling.swift; sourceTree = "<group>"; };
@@ -662,6 +664,7 @@
 		34706FB1287F5038004127CD /* Audio */ = {
 			isa = PBXGroup;
 			children = (
+				3470F9F02B90CF6E008124C9 /* EasyAudio.swift */,
 				34706FAF287F5007004127CD /* AudioService.swift */,
 				3496CD56293B2069004311A3 /* Starling.swift */,
 			);
@@ -750,8 +753,9 @@
 		341C9F2026B87C6900EB093A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1250;
-				LastUpgradeCheck = 1250;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					341C9F2726B87C6900EB093A = {
 						CreatedOnToolsVersion = 12.5.1;
@@ -924,6 +928,7 @@
 				341C9F4826B8851400EB093A /* HTTPClient.swift in Sources */,
 				341D38E12721CECE00E340CF /* KeychainService.swift in Sources */,
 				3454CBBF287DF46000FB2495 /* HelpSection.swift in Sources */,
+				3470F9F12B90CF6E008124C9 /* EasyAudio.swift in Sources */,
 				3435AD8A287F061500C8CF41 /* Ringer.swift in Sources */,
 				34706FB0287F5007004127CD /* AudioService.swift in Sources */,
 				3454CBBD287DEAE100FB2495 /* AboutView.swift in Sources */,
@@ -989,6 +994,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1050,6 +1056,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
