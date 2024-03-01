@@ -8,7 +8,13 @@
 import Foundation
 import SwiftUI
 
+enum RowGenType: String, Identifiable, CaseIterable {
+    var id: Self { self }
+    case method, composition
+}
+
 struct WheatleyView: View {
+    @EnvironmentObject var state: RingingRoomState
     @EnvironmentObject var wheatleyState: WheatleyState
     @EnvironmentObject var viewModel: RingingRoomViewModel
 
@@ -19,20 +25,129 @@ struct WheatleyView: View {
     @State var fixedStrikingInterval = true
     @State var wholePullAndOff = true
     @State var stopAtRounds = true
+    @State var callComposition = true
     
-    var wheatleyText: LocalizedStringKey {
+    @State var complibUrl = ""
+    @State var selectedRowGenType = RowGenType.method
+    
+    @FocusState var isFocused: Bool
+    
+    func wheatleyMethodText(title: String, url: String) -> LocalizedStringKey {
         // Needs to be split up to get the markdown link working
-        let urlString = "After 'Look To', Wheatley will ring [\(wheatleyState.rowGen.title)](https://rsw.me.uk/blueline/methods/view/\(wheatleyState.rowGen.url))."
+        let urlString = "After 'Look To', Wheatley will ring [\(title)](https://rsw.me.uk/blueline/methods/view/\(url))."
         return LocalizedStringKey(urlString)
     }
     
+    func wheatleyCompText(title: String, url: String) -> LocalizedStringKey {
+        // Needs to be split up to get the markdown link working
+        let urlString = "After 'Look To', Wheatley will ring [\(title)](\(url))."
+        return LocalizedStringKey(urlString)
+    }
+    
+    // TODO: disable controls whern wheatley is running
     var body: some View {
         Form {
             Section {
-                Text(wheatleyText)
-                    .tint(.main)
-                NavigationLink("Change method") {
-                    WheatleySearchView()
+                switch wheatleyState.rowGen {
+                case .method(let method):
+                    Text(wheatleyMethodText(title: method.title, url: method.url))
+                        .tint(.main)
+                case .comp(let comp):
+                    Text(wheatleyCompText(title: comp.title, url: comp.url))
+                        .tint(.main)
+                    Toggle("Wheatley makes calls", isOn: $callComposition)
+                        .onAppear {
+                            callComposition = wheatleyState.callComposition
+                        }
+                        .onChange(of: wheatleyState.callComposition) { newValue in
+                            if callComposition != newValue {
+                                callComposition = newValue
+                            }
+                        }
+                        .onChange(of: callComposition) { newValue in
+                            if wheatleyState.callComposition != newValue {
+                                viewModel.send(.setWheatleySetting(setting: .callComposition(newValue)))
+                                
+                                wheatleyState.callComposition = callComposition
+                            }
+                        }
+                }
+                
+                Picker("Row gen type", selection: $selectedRowGenType) {
+                    ForEach(RowGenType.allCases) { rowGenType in
+                        Text(rowGenType.rawValue.capitalized)
+                            .id(rowGenType)
+                    }
+                }
+                .pickerStyle(.segmented)
+                
+                if selectedRowGenType == .method {
+                    NavigationLink("Set method") {
+                        WheatleySearchView()
+                    }
+                } else {
+                    TextField("Complib url or id", text: $complibUrl)
+                        .focused($isFocused)
+                    Button("Load") {
+                        var processedUrl = complibUrl.trimmingCharacters(in: .whitespaces)
+                        
+                        let range = NSRange(location: 0, length: processedUrl.utf16.count)
+                        let regex = try! NSRegularExpression(pattern: "^[0-9]+(?:\\?.*)?$")
+                        if regex.firstMatch(in: processedUrl, range: range) != nil {
+                            processedUrl = "https://complib.org/composition/" + processedUrl
+                        }
+                        processedUrl = processedUrl
+                            .lowercased()
+                            .replacingOccurrences(of: "https://", with: "")
+                            .replacingOccurrences(of: "http://", with: "")
+                        let urlSegments = processedUrl.split(separator: "/")
+                        
+                        if (!processedUrl.hasPrefix("complib.org")) {
+                            AlertHandler.presentAlert(title: "Error", message: "URL doesn't point to 'complib.org'.", dismiss: .cancel(title: "OK", action: nil))
+                            return
+                        }
+                        
+                        if (urlSegments.count != 3 || urlSegments[1] != "composition") {
+                            AlertHandler.presentAlert(title: "Error", message: "URL doesn't point to a composition.", dismiss: .cancel(title: "OK", action: nil))
+                            return
+                        }
+
+                        if (urlSegments.count == 3 && urlSegments[2] == "") {
+                            AlertHandler.presentAlert(title: "Error", message: "Composition ID is empty", dismiss: .cancel(title: "OK", action: nil))
+                            return;
+                        }
+                        
+                        let complibID = urlSegments.last!.split(separator: "?").first!
+                        
+                        Task {
+                            await ErrorUtil.do {
+                                let (data, response) = try await URLSession.shared.data(from: URL(string: "https://api.\(processedUrl)")!)
+                                guard let response = response as? HTTPURLResponse else { throw APIError.noResponse }
+                                switch response.statusCode {
+                                case 200...299:
+                                    let json = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
+                                    let stage = json["stage"] as! Int
+                                    let title = json["derivedTitle"] as! String
+                                    
+                                    if stage == state.size || stage == state.size - 1 {
+                                        viewModel.send(.setWheatleyRowGen(rowGen: ["type": "composition", "title": title, "url": "https://\(processedUrl)"]))
+                                        complibUrl = ""
+                                        isFocused = false
+                                    }
+                                    
+                                case 401:
+                                    AlertHandler.presentAlert(title: "Error", message: "Composition #\(complibID) is private.", dismiss: .cancel(title: "OK", action: nil))
+                                case 404:
+                                    AlertHandler.presentAlert(title: "Error", message: "Composition #\(complibID) doesn't exist.", dismiss: .cancel(title: "OK", action: nil))
+                                case 500...599:
+                                    AlertHandler.presentAlert(title: "Error", message: "Complib server error.", dismiss: .cancel(title: "OK", action: nil))
+                                default:
+                                    AlertHandler.presentAlert(title: "Error", message: "Unknown complib error: \(response.statusCode).", dismiss: .cancel(title: "OK", action: nil))
+                                }
+                            }
+                        }
+                        
+                    }
                 }
             }
             

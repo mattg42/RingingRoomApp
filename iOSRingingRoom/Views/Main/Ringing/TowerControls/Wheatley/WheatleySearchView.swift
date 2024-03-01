@@ -118,30 +118,30 @@ struct BluelineMethod: Codable, Identifiable, Hashable {
         wheatleyMethod["notation"] = notation
         wheatleyMethod["url"] = url
         
-        func convertCall(call: Bob) -> [String: String] {
-            var convertedCall = [String: String]()
-            for i in 0..<Int((Double(lengthOfLead)/Double(call.every)).rounded(.up)) {
-                convertedCall[String(call.from + i * call.every)] = call.notation
+        func convertCall(call: Bob?) -> [String: String] {
+            if let call  {
+                var convertedCall = [String: String]()
+                for i in 0..<Int((Double(lengthOfLead)/Double(call.every)).rounded(.up)) {
+                    convertedCall[String(call.from + i * call.every)] = call.notation
+                }
+                return convertedCall
+            } else {
+                return .init()
             }
-            return convertedCall
         }
         
-        let bob: [String: String]
+        
+
+        let bob = convertCall(call: calls?.bob)
         let single: [String: String]
-        if let calls {
-            bob = convertCall(call: calls.bob)
-            
-            if title == "Stedman Doubles" {
-                single = [
-                    "0": "145",
-                    "6": "345"
-                ]
-            } else {
-                single = convertCall(call: calls.single)
-            }
+        
+        if title == "Stedman Doubles" {
+            single = [
+                "0": "145",
+                "6": "345"
+            ]
         } else {
-            bob = .init()
-            single = .init()
+            single = convertCall(call: calls?.single)
         }
         
         wheatleyMethod["bob"] = bob
@@ -152,7 +152,7 @@ struct BluelineMethod: Codable, Identifiable, Hashable {
 }
 
 struct Calls: Codable, Hashable {
-    let bob, single: Bob
+    let bob, single: Bob?
     
     enum CodingKeys: String, CodingKey {
         case bob = "Bob"
@@ -165,9 +165,41 @@ struct Bob: Codable, Hashable {
     let from, every: Int
 }
 
+enum RowGen: Decodable {
+    init(from decoder: Decoder) throws {
+        fatalError("Not implemented")
+    }
+    
+    case method(WheatleyMethod)
+    case comp(WheatleyComp)
+    
+    enum CodingKeys: String, CodingKey {
+        case type = "type"
+    }
+    
+    init(dictionary: [String: Any]) throws {
+        var decodingDictionary = dictionary
+        
+        guard let type = decodingDictionary.removeValue(forKey: "type") as? String else { throw DecodingError.keyNotFound(RowGen.CodingKeys.type, .init(codingPath: [RowGen.CodingKeys.type], debugDescription: "Unable to find type")) }
+        
+        if type == "method" {
+            self = .method(try JSONDecoder().decode(WheatleyMethod.self, from: JSONSerialization.data(withJSONObject: decodingDictionary)))
+        } else if type == "composition" {
+            self = .comp(try JSONDecoder().decode(WheatleyComp.self, from: JSONSerialization.data(withJSONObject: decodingDictionary)))
+        } else {
+            throw DecodingError.dataCorrupted(.init(codingPath: [RowGen.CodingKeys.type], debugDescription: "Type is neither method or comp."))
+        }
+        
+    }
+}
+
+struct WheatleyComp: Codable {
+    let title: String
+    let url: String
+}
+
 struct WheatleyMethod: Codable {
-    init(type: String, title: String, stage: Int, notation: String, url: String, bob: [Int : String], single: [Int : String]) {
-        self.type = type
+    init(title: String, stage: Int, notation: String, url: String, bob: [Int : String], single: [Int : String]) {
         self.title = title
         self.stage = stage
         self.notation = notation
@@ -176,12 +208,6 @@ struct WheatleyMethod: Codable {
         self.single = single
     }
     
-    init(dictionary: [String: Any]) throws {
-        guard dictionary["type"] as? String == "method" else { throw DecodingError.keyNotFound(WheatleyMethod.CodingKeys.title, .init(codingPath: [WheatleyMethod.CodingKeys.title], debugDescription: "Is comp not method")) }
-        self = try JSONDecoder().decode(WheatleyMethod.self, from: JSONSerialization.data(withJSONObject: dictionary))
-    }
-    
-    let type: String
     let title: String
     let stage: Int
     let notation: String

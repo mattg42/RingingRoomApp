@@ -215,16 +215,16 @@ class SocketIOService {
         }
         
         listen(for: "s_wheatley_row_gen") { [weak self] data in
-            let newMethod = try WheatleyMethod(dictionary: data)
-            self?.delegate?.methodDidChange(to: newMethod)
+            let newRowGen = try RowGen(dictionary: data)
+            self?.delegate?.rowGenDidChange(to: newRowGen)
         }
         
         listen(for: "s_wheatley_setting") { [weak self] data in
-            for (key, value) in data {
+            for key in data.keys {
                 switch key {
                 case "sensitivity":
                     // Currently unused
-                    let newSetting = try data.extract(key, as: Double.self)
+                    break
                 case "use_up_down_in":
                     let newSetting = try data.extract(key, as: Bool.self)
                     self?.delegate?.wholePullAndOffDidChange(to: newSetting)
@@ -235,8 +235,8 @@ class SocketIOService {
                     let newSetting = try data.extract(key, as: Int.self)
                     self?.delegate?.pealSpeedDidChange(to: newSetting)
                 case "call_composition":
-                    // TODO: Compos
                     let newSetting = try data.extract(key, as: Bool.self)
+                    self?.delegate?.callCompositionDidChange(to: newSetting)
                 case "fixed_striking_interval":
                     let newSetting = try data.extract(key, as: Bool.self)
                     self?.delegate?.fixedStrikingIntervalDidChange(to: newSetting)
@@ -245,6 +245,11 @@ class SocketIOService {
                 }
             }
         }
+        
+//        listen(for: "s_wheatley_is_ringing") { [weak self] data in
+//            print("s_wheatley_is_ringings_wheatley_is_ringings_wheatley_is_ringing")
+//            print(data)
+//        }
 
     }
     
@@ -255,8 +260,9 @@ class SocketIOService {
     func listen(for event: String, callback: @escaping ([String: Any]) throws -> Void) {
         socket.on(event) { data, _ in
             do {
-                print(data[0] as! [String: Any])
-                try callback(data[0] as! [String: Any])
+                guard let object = data[0] as? [String: Any] else { throw SocketIOError(message: "Payload for \(event) is not an object.") }
+                print(object)
+                try callback(object)
             } catch {
                 AlertHandler.presentAlert(title: "SocketIO error", message: "Event: \(event). Error: \(error). Please screenshot and send to ringingroomapp@gmail.com.", dismiss: .cancel(title: "OK", action: nil))
             }

@@ -241,12 +241,13 @@ protocol SocketIODelegate: AnyObject {
     func hostModeDidChange(to: Bool)
     func didReceiveMessage(_ message: Message)
     func didReceiveCall(_ call: String)
-    func methodDidChange(to method: WheatleyMethod)
+    func rowGenDidChange(to rowGen: RowGen)
     func didReceiveBadToken()
     func pealSpeedDidChange(to speed: Int)
     func fixedStrikingIntervalDidChange(to newValue: Bool)
     func wholePullAndOffDidChange(to newValue: Bool)
     func stopAtRoundsDidChange(to newValue: Bool)
+    func callCompositionDidChange(to newValue: Bool)
 }
 
 extension RingingRoomViewModel: SocketIODelegate {
@@ -397,8 +398,8 @@ extension RingingRoomViewModel: SocketIODelegate {
         callPublisher.send(call)
     }
     
-    func methodDidChange(to method: WheatleyMethod) {
-        wheatleyState.rowGen = method
+    func rowGenDidChange(to rowGen: RowGen) {
+        wheatleyState.rowGen = rowGen
     }
     
     func didReceiveBadToken() {
@@ -425,5 +426,9 @@ extension RingingRoomViewModel: SocketIODelegate {
     
     func stopAtRoundsDidChange(to newValue: Bool) {
         wheatleyState.stopAtRounds = newValue
+    }
+    
+    func callCompositionDidChange(to newValue: Bool) {
+        wheatleyState.callComposition = newValue
     }
 }
