@@ -248,6 +248,7 @@ protocol SocketIODelegate: AnyObject {
     func wholePullAndOffDidChange(to newValue: Bool)
     func stopAtRoundsDidChange(to newValue: Bool)
     func callCompositionDidChange(to newValue: Bool)
+    func wheatleyStateDidChange(to newValue: Bool)
 }
 
 extension RingingRoomViewModel: SocketIODelegate {
@@ -430,5 +431,9 @@ extension RingingRoomViewModel: SocketIODelegate {
     
     func callCompositionDidChange(to newValue: Bool) {
         wheatleyState.callComposition = newValue
+    }
+    
+    func wheatleyStateDidChange(to newValue: Bool) {
+        wheatleyState.wheatleyIsRinging = newValue
     }
 }

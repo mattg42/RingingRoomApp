@@ -1099,7 +1099,7 @@
 				CODE_SIGN_ENTITLEMENTS = iOSRingingRoom/iOSRingingRoom.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 17;
 				DEVELOPMENT_ASSET_PATHS = "\"iOSRingingRoom/Preview Content\"";
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
 				ENABLE_PREVIEWS = YES;
@@ -1110,7 +1110,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1127,7 +1127,7 @@
 				CODE_SIGN_ENTITLEMENTS = iOSRingingRoom/iOSRingingRoom.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 17;
 				DEVELOPMENT_ASSET_PATHS = "\"iOSRingingRoom/Preview Content\"";
 				DEVELOPMENT_TEAM = Q74YGQBJ89;
 				ENABLE_PREVIEWS = YES;
@@ -1138,7 +1138,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

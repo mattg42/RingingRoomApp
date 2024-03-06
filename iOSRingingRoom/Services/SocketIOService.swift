@@ -246,14 +246,15 @@ class SocketIOService {
             }
         }
         
-//        listen(for: "s_wheatley_is_ringing") { [weak self] data in
-//            print("s_wheatley_is_ringings_wheatley_is_ringings_wheatley_is_ringing")
-//            print(data)
-//        }
+        listen(for: "s_wheatley_is_ringing") { [weak self] data in
+            let isRinging = try data.extract("is_ringing", as: Bool.self)
+            self?.delegate?.wheatleyStateDidChange(to: isRinging)
+        }
 
     }
     
     func send(event: String, with data: SocketData) {
+        print("Sending \(event) with \(data)")
         socket.emit(event, data)
     }
     
