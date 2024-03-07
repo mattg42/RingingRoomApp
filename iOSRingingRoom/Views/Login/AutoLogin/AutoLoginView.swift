@@ -12,6 +12,8 @@ struct AutoLoginView: View {
     @EnvironmentObject var router: Router<AppRoute>
     @EnvironmentObject var monitor: NetworkMonitor
     
+    @Binding var loginState: LoginState
+    
     @State private var autoJoinTowerID: Int?
     
     var body: some View {
@@ -41,7 +43,6 @@ struct AutoLoginView: View {
     }
         
     func login() async {
-        //TODO: Refresh token on scenechange
         var authenticationService = AuthenticationService()
         
         let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
@@ -51,10 +52,12 @@ struct AutoLoginView: View {
             
             do {
                 password = try KeychainService.getPasswordFor(account: email, server: authenticationService.domain)
-            } catch {
+            } catch let error as KeychainError {
                 KeychainService.clear()
                 UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
-                throw error
+                
+                AlertHandler.presentAlert(title: error.alertData.title, message: error.alertData.message, dismiss: .cancel(title: "OK", action: { loginState = .welcome}))
+                return
             }
             
             let authenticate = { () async -> () in

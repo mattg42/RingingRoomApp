@@ -31,7 +31,7 @@ struct LoginOverview: View {
             case .welcome:
                 WelcomeLoginView()
             case .auto:
-                AutoLoginView()
+                AutoLoginView(loginState: $loginState)
             }
         }
     }
