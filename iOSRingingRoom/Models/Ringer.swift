@@ -25,10 +25,16 @@ struct Ringer: Identifiable, Codable, Equatable {
     
     init(from dict: [String: Any]) {
         print(dict)
-        let name = dict["username"] as! String
+        
         let ringerID = dict["user_id"] as! Int
         
-        self = Ringer(name: name, id: ringerID)
+        if ringerID == -1 {
+            self = .wheatley
+        } else {
+            let name = dict["username"] as? String ?? "Username not found"
+            
+            self = Ringer(name: name, id: ringerID)
+        }
     }
     
     static let wheatley = Ringer(name: "Wheatley", id: -1)
