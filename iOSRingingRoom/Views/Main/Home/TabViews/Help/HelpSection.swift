@@ -10,7 +10,7 @@ import SwiftUI
 
 protocol HelpSection {
     var title: String { get }
-    var helpText: String { get }
+    var helpText: LocalizedStringKey { get }
 }
 
 enum QuickStartGuideHelpSection: CaseIterable, HelpSection, Identifiable {
@@ -40,15 +40,15 @@ enum QuickStartGuideHelpSection: CaseIterable, HelpSection, Identifiable {
         }
     }
     
-    var helpText: String {
+    var helpText: LocalizedStringKey {
         switch self {
         case .accountSettings:
             return """
 To change your account settings such as email or password, you need to login to the ringingroom.com website on your device or computer and change the settings there. Account settings will be added to the app in a later update.
 """
-"""
-To change your account settings, go to the account tab. There you will find buttons to change your username, email, password, and to delete your account. To change a particular setting, tap on the relevant 'change' button. This will bring up a form. Follow the instructions on the form to change the setting.
-"""
+//"""
+//To change your account settings, go to the account tab. There you will find buttons to change your username, email, password, and to delete your account. To change a particular setting, tap on the relevant 'change' button. This will bring up a form. Follow the instructions on the form to change the setting.
+//"""
         case .creatingOrJoiningATower:
             return """
 If you have visited a tower before, then you can join it by tapping on its name in the list of recent towers.
@@ -107,7 +107,7 @@ enum AdvancedFeaturesHelpSection: CaseIterable, HelpSection, Identifiable {
         }
     }
     
-    var helpText: String {
+    var helpText: LocalizedStringKey {
         switch self {
         case .tips:
             return """
@@ -123,21 +123,37 @@ There is also a button called 'Fill In'. This will randomly assign unassigned ri
 """
         case .wheatley:
             return """
-Wheatley is a computer ringer for Ringing Room, made by Ben White-Horne and Matthew Johnson and designed to be a 'ninja helper with no ego' - i.e. Wheatley will ring any number of bells to whatever you want to ring, but should fit in as much as possible to what you're ringing. Wheatley is now available directly inside Ringing Room, without any installation.
+Wheatley is a computer ringer for Ringing Room, made by Ben White-Horne and Matthew Johnson and designed to be a *'ninja helper with no ego'* - i.e. Wheatley will ring any number of bells to whatever you want to ring, but should fit in as much as possible to what you're ringing.
 
-Enabling Wheatley
-Wheatley needs to be enabled on a per-tower basis with the switch in the tower settings. This can only be done through the website currently. Once Wheatley is enabled, a user called 'Wheatley' will be present in the users list. You can then assign Wheatley to bells like any other person. The Fill In button will randomly assign all human ringers first, then fill the remaining bells with Wheatley.
+**Enabling Wheatley**
 
-To tell Wheatley what to ring, you need to join the tower through the website. The control for Wheatley in the app is coming soon.
+Wheatley needs to be enabled on a per-tower basis with the switch in the tower settings. This can only be done through the website currently. Once Wheatley is enabled, a user called 'Wheatley' will be present in the users list. You can then assign Wheatley to bells like any other person. The Fill In button will randomly assign all unassigned human ringers first, then fill the remaining bells with Wheatley.
+Now, you need to tell Wheatley what you want to ring. Wheatley can ring any method you want, and will respond to any calls made through Ringing Room via the hotkeys while ringing.
 
-To start ringing a method with Wheatley (only on the website):
-Click on the "Methods" tab in the Wheatley box.
-Click in the text box that says "Start typing method name".
-Start typing the name of the method you want to ring. As you type, a list of potential method names will appear (filtered according to the tower size).
-Click on the method name you want to ring, or click "Enter" to select the first option.
-If everything worked out, the first line of the Wheatley box should say "After 'Look To', Wheatley will ring <your method name>", and Wheatley will ring that method after Look To is called.
+**Ringing a single method with Wheatley**
 
-Wheatley will still respond to all yours calls from the app, such as Look to, or Stand.
+1. In a tower, navigate to the wheatley tab by tapping the 3 lined menu button, then tap Wheatley.
+2. Tap the 'Set method' button
+3. Start typing the method name in the text box at the top of the screen. Only methods for the correct number of bells will be shown
+4. Tap the method that you want to ring
+5. This will take you back to the wheatley tab, and the first line should say *"After 'Look To', Wheatley will ring <your method name>"*, and Wheatley will ring that method after Look To is called.
+
+**Getting Wheatley to call a composition**
+
+1. Go to [complib.org](https://complib.org) and find the composition you want to ring.
+2. In the top-right corner, click the chain icon and copy the link that's generated.
+3. Return to Ringing Room and tap on 'Composition' (as opposed to 'Method').
+4. Paste the link you copied into the box that says 'CompLib URL or ID'.
+5. Tap 'Load'. Change the tower size if prompted. When the composition has been successfylly loaded, the title of the composition will be displayed.
+6. Wheatley is now ready to ring and call the composition. If you just Wheatley to ring the composition and not call it, turn the 'Wheatley makes calls' toggle to off (useful for getting Wheatley to ring compostions of spliced that you want to conduct).
+
+**Other Controls**
+
+1. 'Peal speed' controls the speed at which Wheatley rings.
+2. 'Fixed Striking Interval' controls whether or not the peal speed changes when the tower size changes in order to keep a fixed striking interval.
+2. 'Whole pull and off' controls whether Wheatley rings "handbell-style" — i.e. two blows in rounds and then directly into the method, without waiting for a Go call.
+3. 'Stop at rounds' controls whether Wheatley stops the method when it comes round, or continues ringing — useful if you're ringing a multi-extent quarter peal, for instance.
+4. 'Reset Wheatley' destroys and creates a new Wheatley instance on the server — useful if Wheatley seems to have gotten confused about what's being rung.
 """
         case .rotating:
             return """
