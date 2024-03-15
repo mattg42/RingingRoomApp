@@ -12,11 +12,6 @@ struct WheatleySearchView: View {
     @EnvironmentObject var viewModel: RingingRoomViewModel
     @Environment(\.presentationMode) var presentationMode
     
-    init() {
-        UITableView.appearance().backgroundColor = .clear
-    }
-    
-    
     @State var text: String = ""
     
     @FocusState private var isEditing: Bool
@@ -64,17 +59,23 @@ struct WheatleySearchView: View {
                         
                     }
                     .padding(.horizontal)
-
-               
             }
-            List(methods) { method in
-                Button {
-                    viewModel.send(.setWheatleyRowGen(rowGen: method.rowGen))
-                    presentationMode.wrappedValue.dismiss()
-                } label: {
-                    HStack {
-                        Text(method.title)
-                        Spacer()
+            
+            ZStack {
+                Color(uiColor: .systemGroupedBackground)
+                
+                if methods.count > 0 {
+                    List(methods) { method in
+                        Button {
+                            viewModel.send(.setWheatleyRowGen(rowGen: method.rowGen))
+                            presentationMode.wrappedValue.dismiss()
+                        } label: {
+                            HStack {
+                                Text(method.title)
+                                
+                                Spacer()
+                            }
+                        }
                     }
                 }
             }
@@ -88,10 +89,6 @@ struct WheatleySearchView: View {
                 }
             }
         }
-        .onDisappear {
-            UITableView.appearance().backgroundColor = .systemBackground
-        }
-        
     }
 }
 
