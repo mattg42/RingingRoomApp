@@ -100,7 +100,7 @@ class SocketIOService {
         }
     }
     
-    private let manager: SocketManager
+    private var manager: SocketManager
     private var socket: SocketIOClient
     private let url: URL
     
@@ -117,6 +117,8 @@ class SocketIOService {
     }
     
     func connect(completion: @escaping () -> ()) {
+        guard socket.status == .notConnected || socket.status == .disconnected else { return }
+        
         socket = manager.defaultSocket
         
         // Making sure the connection and listeners are reset if we try to reconnect
@@ -130,6 +132,13 @@ class SocketIOService {
         }
         
         socket.connect()
+    }
+    
+    func reset() {
+        manager.disconnect()
+    
+        manager = SocketManager(socketURL: url)
+        socket = manager.defaultSocket
     }
     
     func disconnect() {

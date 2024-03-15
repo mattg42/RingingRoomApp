@@ -110,6 +110,7 @@ class RingingRoomViewModel: ObservableObject {
         self.user = user
         self.router = router
         self.socketIOService.delegate = self
+        self.audioService.starling.prepareToStart()
     }
     
     deinit {
@@ -127,7 +128,6 @@ class RingingRoomViewModel: ObservableObject {
         socketIOService.connect { [weak self] in
             if let self {
                 self.send(.join)
-                self.audioService.starling.prepareToStart()
             }
         }
     }
@@ -155,6 +155,11 @@ class RingingRoomViewModel: ObservableObject {
     
     func disconnect() {
         socketIOService.disconnect()
+    }
+    
+    func resetSocket() {
+        socketIOService.reset()
+        connect()
     }
     
     func send(_ event: ClientSocketEvent) {

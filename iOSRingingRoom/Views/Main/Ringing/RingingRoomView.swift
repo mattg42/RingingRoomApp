@@ -170,7 +170,6 @@ struct RingingRoomView: View {
             }
         }
         .ignoresSafeArea(.keyboard)
-        
         .onAppear {
             viewModel.connect()
         }
@@ -373,6 +372,9 @@ connection is restored.
         }
         .onChange(of: monitor.status, perform: { newValue in
             showingConnectionErrorAlert = newValue != .satisfied
+            if newValue == .satisfied {
+                viewModel.resetSocket()
+            }
         })
     }
 }

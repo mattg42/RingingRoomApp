@@ -23,7 +23,7 @@ struct LoginOverview: View {
         }
     }
     
-    let loginState: LoginState
+    @State var loginState: LoginState
     
     var body: some View {
         Group {

@@ -10,7 +10,6 @@ import SwiftUI
 struct AutoLoginView: View {
         
     @EnvironmentObject var router: Router<AppRoute>
-    @EnvironmentObject var monitor: NetworkMonitor
     
     @Binding var loginState: LoginState
     
