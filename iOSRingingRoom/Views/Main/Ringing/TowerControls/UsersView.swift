@@ -85,9 +85,17 @@ struct UsersView: View {
     
     @State private var selectedUser = 0
     
-    @State var assignedUsers = [Ringer]()
+    var assignedUsers: [Ringer] {
+        state.users
+            .filter { state.assignments.contains($0.ringerID) }
+            .sorted { state.assignments.firstIndex(of: $0.ringerID)! < state.assignments.firstIndex(of: $1.ringerID)! }
+    }
     
-    @State var unassignedUsers = [Ringer]()
+    var unassignedUsers: [Ringer] {
+        state.users
+            .filter { !state.assignments.contains($0.ringerID) }
+            .sorted { $0.name.lowercased() < $1.name.lowercased() }
+    }
     
     @State var dialogData = [Int]()
     @State var presenting = false
@@ -98,7 +106,6 @@ struct UsersView: View {
     
     var body: some View {
         Form {
-            
             Section(header: Text("Unassigned")) {
                 List(unassignedUsers) { user in
                     ListCell(user: user)
@@ -155,47 +162,14 @@ struct UsersView: View {
             Section(footer: Text("Tap a name then a number to assign or unassign." + (state.hostMode && !viewModel.towerInfo.isHost ? "\n\nHost mode is enabled, you may catch hold, but not assign others." : ""))) {
                 FillInButton()
                     .disabled(state.hostMode && !viewModel.towerInfo.isHost)
-
+                
                 UnassignAllButton()
                     .disabled(state.hostMode && !viewModel.towerInfo.isHost)
-
-            }
-            
-            
-        }
-        .onAppear {
-            updateAssignedUsers(users: state.users, assignments: state.assignments)
-            updateUnassignedUsers(users: state.users, assignments: state.assignments)
-        }
-        .onChange(of: state.assignments) { newValue in
-            withAnimation {
-                updateAssignedUsers(users: state.users, assignments: newValue)
-                updateUnassignedUsers(users: state.users, assignments: newValue)
+                
             }
         }
-        .onChange(of: state.users) { newValue in
-            withAnimation {
-                updateUnassignedUsers(users: newValue, assignments: state.assignments)
-            }
-        }
-    }
-    
-    func updateUnassignedUsers(users: [Ringer], assignments: [Int?]) {
-        unassignedUsers = users
-            .filter({ !assignments.contains($0.ringerID) })
-            .sorted { user1, user2 in
-                user1.name.lowercased() < user2.name.lowercased()
-            }
-    }
-    
-    func updateAssignedUsers(users: [Ringer], assignments: [Int?]) {
-        assignedUsers = Set(assignments)
-            .compactMap { user in
-                users.first(where: { $0.ringerID == user})
-            }
-            .sorted { user1, user2 in
-                assignments.firstIndex(of: user1.ringerID)! < assignments.firstIndex(of: user2.ringerID)!
-            }
+        .animation(.default, value: state.assignments)
+        .animation(.default, value: state.users)
     }
 }
 
@@ -205,12 +179,24 @@ struct ListCell: View {
     
     let user: Ringer
 
-    @State var unassignedBells = [Int]()
-    @State var assignedBells = [Int]()
+    var unassignedBells: [Int] {
+        state.assignments
+            .enumerated()
+            .filter { $0.element == nil }
+            .map(\.offset)
+            .map { $0 + 1 }
+    }
+    
+    var assignedBells: [Int] {
+        state.assignments
+            .enumerated()
+            .filter { $0.element == user.ringerID }
+            .map(\.offset)
+            .map { $0 + 1 }
+    }
     
     var body: some View {
         Menu {
-            if !unassignedBells.isEmpty {
                 Section("Assign") {
                     ForEach(unassignedBells, id: \.self) { num in
                         Button {
@@ -220,8 +206,6 @@ struct ListCell: View {
                         }
                     }
                 }
-            }
-            if !assignedBells.isEmpty {
                 Section("Unassign") {
                     ForEach(assignedBells, id: \.self) { num in
                         Button(role: .destructive) {
@@ -241,7 +225,6 @@ struct ListCell: View {
                     }
                 }
                 .tint(.red)
-            }
         } label: {
             HStack {
                 Text(user.name)
@@ -261,28 +244,5 @@ struct ListCell: View {
                     .allowsTightening(true)
             }
         }
-        .onAppear {
-            setUnassignedBells(newValue: state.assignments)
-            setAssignedBells(newValue: state.assignments)
-        }
-        .onChange(of: state.assignments) { newValue in
-            setUnassignedBells(newValue: newValue)
-            setAssignedBells(newValue: newValue)
-        }
-    }
-    
-    func setUnassignedBells(newValue: [Int?]) {
-        unassignedBells = newValue.enumerated()
-            .filter { $0.element == nil }
-            .map(\.offset)
-            .map { $0 + 1 }
-        print(user.name, "Changed", unassignedBells)
-    }
-    
-    func setAssignedBells(newValue: [Int?]) {
-        assignedBells = newValue.enumerated()
-            .filter { $0.element == user.ringerID }
-            .map(\.offset)
-            .map { $0 + 1 }
     }
 }
