@@ -118,6 +118,7 @@ class RingingRoomViewModel: ObservableObject {
     deinit {
         MainActor.assumeIsolated {
             connectionTimeoutTask?.cancel()
+            tokenRecoveryTask?.cancel()
             socketIOService.disconnect()
         }
     }
@@ -176,14 +177,18 @@ class RingingRoomViewModel: ObservableObject {
     func disconnect() {
         connectionTimeoutTask?.cancel()
         connectionTimeoutTask = nil
+        cancelTokenRecovery()
         connectionState = .disconnected
         resetTowerState()
         socketIOService.disconnect()
     }
     
-    func resetSocket() {
+    func resetSocket(cancelTokenRecovery: Bool = true) {
         connectionTimeoutTask?.cancel()
         connectionTimeoutTask = nil
+        if cancelTokenRecovery {
+            self.cancelTokenRecovery()
+        }
         socketIOService.reset()
         connectionState = .idle
         resetTowerState()
@@ -191,12 +196,7 @@ class RingingRoomViewModel: ObservableObject {
     }
 
     func retryConnection() {
-        connectionTimeoutTask?.cancel()
-        connectionTimeoutTask = nil
-        socketIOService.reset()
-        connectionState = .idle
-        resetTowerState()
-        connect()
+        resetSocket()
     }
 
     func leaveTower() {
@@ -208,6 +208,9 @@ class RingingRoomViewModel: ObservableObject {
     }
 
     private var connectionTimeoutTask: Task<Void, Never>?
+    private var tokenRecoveryTask: Task<Void, Never>?
+    private var isRecoveringToken = false
+    private var tokenRecoveryGeneration = 0
 
     @Published var connectionState: SocketConnectionState = .idle
 
@@ -528,13 +531,51 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func didReceiveBadToken() {
-        Task { @MainActor in
-            await ErrorUtil.do(networkRequest: true) { [weak self] in
-                try await self?.apiService.updateToken()
+        guard !isRecoveringToken else { return }
+        isRecoveringToken = true
+        tokenRecoveryGeneration += 1
+        let generation = tokenRecoveryGeneration
+
+        tokenRecoveryTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            defer {
+                if self.tokenRecoveryGeneration == generation {
+                    self.tokenRecoveryTask = nil
+                    self.isRecoveringToken = false
+                }
             }
-            
-            connect()
+
+            do {
+                try await self.apiService.updateToken()
+                try Task.checkCancellation()
+                guard self.tokenRecoveryGeneration == generation else { return }
+                self.resetSocket(cancelTokenRecovery: false)
+            } catch is CancellationError {
+                return
+            } catch let error as Alertable {
+                guard self.tokenRecoveryGeneration == generation else { return }
+                self.failTokenRecovery()
+                AlertHandler.handle(error: error)
+            } catch {
+                guard self.tokenRecoveryGeneration == generation else { return }
+                self.failTokenRecovery()
+                AlertHandler.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: "Dismiss", action: nil))
+            }
         }
+    }
+
+    private func cancelTokenRecovery() {
+        tokenRecoveryGeneration += 1
+        tokenRecoveryTask?.cancel()
+        tokenRecoveryTask = nil
+        isRecoveringToken = false
+    }
+
+    private func failTokenRecovery() {
+        connectionTimeoutTask?.cancel()
+        connectionTimeoutTask = nil
+        connectionState = .failed
+        resetTowerState()
     }
     
     func pealSpeedDidChange(to speed: Int) {
