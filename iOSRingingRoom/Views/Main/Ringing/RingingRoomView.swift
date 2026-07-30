@@ -181,7 +181,9 @@ struct RingingRoomView: View {
                 viewModel.disconnect()
             }
         }
-        .onChange(of: viewModel.connected ) { _ in
+        .onChange(of: viewModel.connected ) { connected in
+            guard connected else { return }
+
             Task(priority: .medium) {
                 await ErrorUtil.do(networkRequest: true) {
                     user.towers = try await apiService.getTowers()
@@ -223,9 +225,7 @@ struct RingingView: View {
                         
                         if wide {
                             Button(role: .destructive) {
-                                viewModel.send(.leaveTower)
-                                
-                                router.moveTo(.home)
+                                viewModel.leaveTower()
                             } label: {
                                 ZStack {
                                     Color.main
@@ -252,9 +252,7 @@ struct RingingView: View {
                                     }
                                     Section {
                                         Button("Leave tower", role: .destructive) {
-                                            viewModel.send(.leaveTower)
-                                            
-                                            router.moveTo(.home)
+                                            viewModel.leaveTower()
                                         }
                                     }
                                 } label: {
@@ -340,6 +338,14 @@ struct RingingView: View {
                 RingingButtonsView(wide: wide)
             }
             .padding([.horizontal, .bottom], 5)
+
+            if viewModel.connectionState != .joined {
+                RingingConnectionView(
+                    connectionState: viewModel.connectionState,
+                    retryAction: viewModel.retryConnection,
+                    leaveAction: viewModel.leaveTower
+                )
+            }
             
             ZStack {
                 Color.black
@@ -370,11 +376,98 @@ connection is restored.
             }
             .opacity(showingConnectionErrorAlert ? 1 : 0)
         }
+        .onAppear {
+            showingConnectionErrorAlert = monitor.status != .satisfied
+        }
         .onChange(of: monitor.status, perform: { newValue in
             showingConnectionErrorAlert = newValue != .satisfied
             if newValue == .satisfied {
                 viewModel.resetSocket()
             }
         })
+    }
+}
+
+private struct RingingConnectionView: View {
+    let connectionState: SocketConnectionState
+    let retryAction: () -> Void
+    let leaveAction: () -> Void
+
+    private var title: String {
+        switch connectionState {
+        case .idle, .connecting:
+            return "Connecting to tower"
+        case .authenticating:
+            return "Joining tower"
+        case .reconnecting:
+            return "Reconnecting to tower"
+        case .failed:
+            return "Unable to connect to tower"
+        case .joined:
+            return ""
+        case .disconnected:
+            return "Tower disconnected"
+        }
+    }
+
+    private var message: String {
+        switch connectionState {
+        case .idle, .connecting:
+            return "Connecting…"
+        case .authenticating:
+            return "Authenticating with the tower…"
+        case .reconnecting:
+            return "The connection was interrupted. Trying again…"
+        case .failed:
+            return "The tower could not be reached. Check your connection and try again."
+        case .joined:
+            return ""
+        case .disconnected:
+            return "The tower connection has ended."
+        }
+    }
+
+    private var isConnecting: Bool {
+        switch connectionState {
+        case .idle, .connecting, .authenticating, .reconnecting:
+            return true
+        case .joined, .failed, .disconnected:
+            return false
+        }
+    }
+
+    var body: some View {
+        if isConnecting {
+            ProgressView()
+                .scaleEffect(1.5)
+        } else {
+        ZStack {
+            Color.black
+                .ignoresSafeArea()
+                .opacity(0.35)
+
+            VStack(spacing: 16) {
+                Text(title)
+                    .font(.headline)
+
+                if isConnecting {
+                    ProgressView()
+                }
+
+                Text(message)
+                    .multilineTextAlignment(.center)
+                    .font(.callout)
+
+                Button("Retry", action: retryAction)
+                    .buttonStyle(.borderedProminent)
+
+                Button("Leave tower", role: .cancel, action: leaveAction)
+            }
+            .padding(24)
+            .background(Color(.ringingButtonBackground))
+            .cornerRadius(10)
+                .padding()
+        }
+        }
     }
 }

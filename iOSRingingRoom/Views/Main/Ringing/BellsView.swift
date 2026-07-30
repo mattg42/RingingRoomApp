@@ -26,31 +26,33 @@ struct BellsView: View {
     }
     
     var body: some View {
-        ForEach(1...state.size, id: \.self) { bellNumber in
-            if bellPositions.count == state.size {
-                Button {
-                    if state.bellMode == .ring {
-                        viewModel.ringBell(number: bellNumber)
-                    } else {
-                        state.perspective = bellNumber
-                        state.bellMode = .ring
-                    }
-                } label: {
-                    HStack {
-                        if !isLeft(bellNumber) {
-                            Text(String(bellNumber))
-                                .font(.body)
+        if state.size >= 1 {
+            ForEach(1...state.size, id: \.self) { bellNumber in
+                if bellPositions.count == state.size {
+                    Button {
+                        if state.bellMode == .ring {
+                            viewModel.ringBell(number: bellNumber)
+                        } else {
+                            state.perspective = bellNumber
+                            state.bellMode = .ring
                         }
-                        ropeImage(number: bellNumber)
-                        if isLeft(bellNumber) {
-                            Text(String(bellNumber))
-                                .font(.body)
+                    } label: {
+                        HStack {
+                            if !isLeft(bellNumber) {
+                                Text(String(bellNumber))
+                                    .font(.body)
+                            }
+                            ropeImage(number: bellNumber)
+                            if isLeft(bellNumber) {
+                                Text(String(bellNumber))
+                                    .font(.body)
+                            }
                         }
                     }
+                    .buttonStyle(.bellTouchdown)
+                    .position(bellPositions[bellNumber - 1])
+                    .disabled(state.hostMode && !viewModel.towerInfo.isHost && state.assignments[safe: bellNumber - 1] ?? 0 != viewModel.unwrappedRinger.ringerID)
                 }
-                .buttonStyle(.bellTouchdown)
-                .position(bellPositions[bellNumber - 1])
-                .disabled(state.hostMode && !viewModel.towerInfo.isHost && state.assignments[safe: bellNumber - 1] ?? 0 != viewModel.unwrappedRinger.ringerID)
             }
         }
     }

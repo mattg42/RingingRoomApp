@@ -23,7 +23,7 @@ enum APIError: Error, Alertable {
         case .decode(let error):
             return AlertData(title: "Decoding error", message: "There was an error decoding the server response: \(error.localizedDescription) Please make sure the app is updated.")
         case .url(let error, let retry):
-            return AlertData(title: "Couldn't reach server", message: "There was an error reaching the server: \(error.localizedDescription)", dissmiss: retry != nil ? .retry(action: {Task { retry! }}) : .cancel(title: "Ok", action: nil))
+            return AlertData(title: "Couldn't reach server", message: "There was an error reaching the server: \(error.localizedDescription)", dissmiss: retry != nil ? .retry(action: { Task { await retry?() } }) : .cancel(title: "Ok", action: nil))
         case .invalidURL(let url):
             return AlertData(title: "Invalid URL", message: "Invalid request URL: \(url). Please screenshot and email to support at ringingroomapp@gmail.com.")
         case .noResponse:

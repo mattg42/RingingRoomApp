@@ -117,6 +117,7 @@ class RingingRoomViewModel: ObservableObject {
     
     deinit {
         MainActor.assumeIsolated {
+            connectionTimeoutTask?.cancel()
             socketIOService.disconnect()
         }
     }
@@ -129,8 +130,23 @@ class RingingRoomViewModel: ObservableObject {
     }
     
     func connect() {
+        guard connectionState != .connecting,
+              connectionState != .authenticating,
+              connectionState != .reconnecting,
+              connectionState != .joined else { return }
+
+        if connectionState != .idle {
+            resetTowerState()
+        }
+
+        connected = false
+        connectionState = .connecting
+        startConnectionTimeout()
+
         socketIOService.connect { [weak self] in
             if let self {
+                self.connectionState = .authenticating
+                self.startConnectionTimeout()
                 self.send(.join)
             }
         }
@@ -158,12 +174,70 @@ class RingingRoomViewModel: ObservableObject {
     let towerInfo: TowerInfo
     
     func disconnect() {
+        connectionTimeoutTask?.cancel()
+        connectionTimeoutTask = nil
+        connectionState = .disconnected
+        resetTowerState()
         socketIOService.disconnect()
     }
     
     func resetSocket() {
+        connectionTimeoutTask?.cancel()
+        connectionTimeoutTask = nil
         socketIOService.reset()
+        connectionState = .idle
+        resetTowerState()
         connect()
+    }
+
+    func retryConnection() {
+        connectionTimeoutTask?.cancel()
+        connectionTimeoutTask = nil
+        socketIOService.reset()
+        connectionState = .idle
+        resetTowerState()
+        connect()
+    }
+
+    func leaveTower() {
+        if connectionState == .joined {
+            send(.leaveTower)
+        }
+        disconnect()
+        router.moveTo(.home)
+    }
+
+    private var connectionTimeoutTask: Task<Void, Never>?
+
+    @Published var connectionState: SocketConnectionState = .idle
+
+    private func startConnectionTimeout() {
+        connectionTimeoutTask?.cancel()
+        connectionTimeoutTask = Task { [weak self] in
+            do {
+                try await Task.sleep(nanoseconds: 20_000_000_000)
+            } catch {
+                return
+            }
+
+            guard let self, self.connectionState != .joined else { return }
+            self.connectionTimeoutTask = nil
+            self.connectionState = .failed
+            self.resetTowerState()
+            self.socketIOService.disconnect()
+        }
+    }
+
+    private func resetTowerState() {
+        connected = false
+        state.ringer = nil
+        state.users = []
+        state.assignments = []
+        state.bellStates = []
+        state.size = 0
+        state.hostMode = false
+        state.newMessages = 0
+        state.messages = []
     }
     
     func send(_ event: ClientSocketEvent) {
@@ -240,6 +314,10 @@ class RingingRoomViewModel: ObservableObject {
 
 @MainActor
 protocol SocketIODelegate: AnyObject, Sendable {
+    func socketDidConnect()
+    func socketWillReconnect()
+    func socketDidDisconnect(reason: String)
+    func socketDidFail(message: String)
     func sizeDidChange(to newSize: Int)
     func userDidEnter(_ ringer: Ringer)
     func userDidLeave(_ ringer: Ringer)
@@ -262,11 +340,47 @@ protocol SocketIODelegate: AnyObject, Sendable {
 }
 
 extension RingingRoomViewModel: SocketIODelegate {
+    func socketDidConnect() {
+        guard connectionState != .disconnected else { return }
+        connectionState = .authenticating
+        startConnectionTimeout()
+    }
+
+    func socketWillReconnect() {
+        guard connectionState != .disconnected else { return }
+        connectionState = .reconnecting
+        startConnectionTimeout()
+    }
+
+    func socketDidDisconnect(reason: String) {
+        guard connectionState != .disconnected,
+              connectionState != .failed else { return }
+
+        connectionTimeoutTask?.cancel()
+        connectionTimeoutTask = nil
+        resetTowerState()
+        connectionState = .failed
+    }
+
+    func socketDidFail(message: String) {
+        guard connectionState != .disconnected,
+              connectionState != .failed else { return }
+
+        connectionState = .reconnecting
+        startConnectionTimeout()
+    }
+
     func userDidEnter(_ ringer: Ringer) {
+        guard connectionState != .disconnected else { return }
+
         if self.state.ringer == nil {
             self.state.ringer = ringer
-            connected = true
         }
+
+        connectionTimeoutTask?.cancel()
+        connectionTimeoutTask = nil
+        connected = true
+        connectionState = .joined
         
         guard !state.users.contains(where: { $0 == ringer }) else { return }
         state.users.append(ringer)

@@ -9,6 +9,16 @@ import Foundation
 import SocketIO
 import Combine
 
+enum SocketConnectionState: Equatable {
+    case idle
+    case connecting
+    case authenticating
+    case joined
+    case reconnecting
+    case failed
+    case disconnected
+}
+
 enum WheatleySetting {
     case sensitivity(Double)
     case useUpDownIn(Bool)
@@ -108,7 +118,12 @@ class SocketIOService {
     
     init(url: URL) {
         self.url = url
-        manager = SocketManager(socketURL: url)
+        manager = SocketManager(socketURL: url, config: [
+            .reconnects(true),
+            .reconnectAttempts(3),
+            .reconnectWait(2),
+            .reconnectWaitMax(8)
+        ])
         socket = manager.defaultSocket
     }
     
@@ -127,17 +142,42 @@ class SocketIOService {
         
         setupListeners()
         
-        socket.on(clientEvent: .connect) { _, _ in
+        socket.on(clientEvent: .connect) { [weak self] _, _ in
+            self?.notify { $0.socketDidConnect() }
             completion()
+        }
+
+        socket.on(clientEvent: .reconnect) { [weak self] _, _ in
+            self?.notify { $0.socketWillReconnect() }
+        }
+
+        socket.on(clientEvent: .reconnectAttempt) { [weak self] _, _ in
+            self?.notify { $0.socketWillReconnect() }
+        }
+
+        socket.on(clientEvent: .disconnect) { [weak self] data, _ in
+            let reason = data.first as? String ?? "The connection was closed."
+            self?.notify { $0.socketDidDisconnect(reason: reason) }
+        }
+
+        socket.on(clientEvent: .error) { [weak self] data, _ in
+            let message = data.first.map(String.init(describing:)) ?? "The socket connection failed."
+            self?.notify { $0.socketDidFail(message: message) }
         }
         
         socket.connect()
     }
     
     func reset() {
+        socket.removeAllHandlers()
         manager.disconnect()
     
-        manager = SocketManager(socketURL: url)
+        manager = SocketManager(socketURL: url, config: [
+            .reconnects(true),
+            .reconnectAttempts(3),
+            .reconnectWait(2),
+            .reconnectWaitMax(8)
+        ])
         socket = manager.defaultSocket
     }
     
