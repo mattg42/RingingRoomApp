@@ -16,10 +16,10 @@ private final class AuthenticationRetryBox {
 struct AutoLoginView: View {
         
     @EnvironmentObject var router: Router<AppRoute>
+    @EnvironmentObject private var pendingDeepLinkRouter: PendingDeepLinkRouter
     
     @Binding var loginState: LoginState
     
-    @State private var autoJoinTowerID: Int?
     @State private var isAttempting = false
     
     var body: some View {
@@ -34,15 +34,6 @@ struct AutoLoginView: View {
             }
         }
         .edgesIgnoringSafeArea(.all)
-        .onOpenURL(perform: { url in
-            let pathComponents = url.pathComponents.dropFirst()
-            if let firstPath = pathComponents.first {
-                if let towerID = Int(firstPath) {
-                    autoJoinTowerID = towerID
-                }
-            }
-            AppLogger.navigation.debug("Received deep link during automatic login")
-        })
         .task {
             await login()
         }
@@ -127,7 +118,7 @@ struct AutoLoginView: View {
             do {
                 let (user, apiService) = try await authenticationService.login(email: email, password: password)
 
-                if let towerID = autoJoinTowerID {
+                if let towerID = pendingDeepLinkRouter.consumeTowerID() {
                     router.moveTo(.main(user: user, apiService: apiService, route: .joinTower(towerID: towerID, towerDetails: nil)))
                 } else {
                     router.moveTo(.main(user: user, apiService: apiService, route: .home))

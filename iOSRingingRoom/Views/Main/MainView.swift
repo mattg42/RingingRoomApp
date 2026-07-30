@@ -19,6 +19,7 @@ struct MainView: View {
     let apiService: APIService
 
     @EnvironmentObject private var appRouter: Router<AppRoute>
+    @EnvironmentObject private var pendingDeepLinkRouter: PendingDeepLinkRouter
     
     @StateObject var router: Router<MainRoute>
     
@@ -42,18 +43,18 @@ struct MainView: View {
             apiService.sessionExpiredAction = { [weak appRouter] in
                 appRouter?.moveTo(.login)
             }
+            openPendingTowerIfNeeded()
         }
         .onDisappear {
             apiService.sessionExpiredAction = nil
         }
-        .onOpenURL(perform: { url in
-            let pathComponents = url.pathComponents.dropFirst()
-            AppLogger.navigation.debug("Received deep link in the main application")
-            if let firstPath = pathComponents.first {
-                if let towerID = Int(firstPath) {
-                    router.moveTo(.joinTower(towerID: towerID, towerDetails: nil))
-                }
-            }
-        })
+        .onChange(of: pendingDeepLinkRouter.pendingTowerID) { _ in
+            openPendingTowerIfNeeded()
+        }
+    }
+
+    private func openPendingTowerIfNeeded() {
+        guard let towerID = pendingDeepLinkRouter.consumeTowerID() else { return }
+        router.moveTo(.joinTower(towerID: towerID, towerDetails: nil))
     }
 }

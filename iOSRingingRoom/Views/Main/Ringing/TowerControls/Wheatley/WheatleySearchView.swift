@@ -7,6 +7,49 @@
 
 import SwiftUI
 
+private struct MethodSearchRequest: Hashable {
+    let query: String
+    let stage: Int
+}
+
+enum WheatleyError: LocalizedError {
+    case invalidURL
+    case invalidResponse
+    case httpStatus(Int)
+    case invalidMethodPayload
+    case invalidCompositionPayload
+    case invalidCallInterval
+    case invalidCompositionURL
+    case invalidCompositionHost
+    case invalidCompositionPath
+    case emptyCompositionID
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidURL:
+            return "The Wheatley request URL was invalid."
+        case .invalidResponse:
+            return "Wheatley returned an invalid response."
+        case .httpStatus(let status):
+            return "The Wheatley server returned HTTP status \(status)."
+        case .invalidMethodPayload:
+            return "The method response was missing required data."
+        case .invalidCompositionPayload:
+            return "The composition response was missing required data."
+        case .invalidCallInterval:
+            return "The method response contained an invalid call interval."
+        case .invalidCompositionURL:
+            return "Enter a Complib composition ID or a complib.org composition URL."
+        case .invalidCompositionHost:
+            return "The URL must point exactly to complib.org."
+        case .invalidCompositionPath:
+            return "The URL must point to a Complib composition."
+        case .emptyCompositionID:
+            return "The composition ID is empty."
+        }
+    }
+}
+
 struct WheatleySearchView: View {
     @EnvironmentObject var state: RingingRoomState
     @EnvironmentObject var viewModel: RingingRoomViewModel
@@ -16,7 +59,7 @@ struct WheatleySearchView: View {
     
     @FocusState private var isEditing: Bool
     
-    @State var methods = [BluelineMethod]()
+    @State private var methods = [BluelineMethod]()
     
     var body: some View {
         VStack {
@@ -48,16 +91,6 @@ struct WheatleySearchView: View {
                             }
                         }
                     )
-                    .onChange(of: text) { newValue in
-                        Task {
-                            await ErrorUtil.do {
-                                let (json, _) = try await URLSession.shared.data(from: URL(string: "https://rsw.me.uk/blueline/methods/search.json?q=\(newValue)&stage=\(state.size - 1),\(state.size)")!)
-                                let methods = (try JSONDecoder().decode(Methods.self, from: json)).results
-                                self.methods = methods
-                            }
-                        }
-                        
-                    }
                     .padding(.horizontal)
             }
             
@@ -67,8 +100,12 @@ struct WheatleySearchView: View {
                 if methods.count > 0 {
                     List(methods) { method in
                         Button {
-                            viewModel.send(.setWheatleyRowGen(rowGen: method.rowGen))
-                            presentationMode.wrappedValue.dismiss()
+                            do {
+                                viewModel.send(.setWheatleyRowGen(rowGen: try method.makeRowGen()))
+                                presentationMode.wrappedValue.dismiss()
+                            } catch {
+                                AlertHandler.presentAlert(title: "Wheatley", message: error.localizedDescription, dismiss: .cancel(title: "Dismiss", action: nil))
+                            }
                         } label: {
                             HStack {
                                 Text(method.title)
@@ -80,14 +117,55 @@ struct WheatleySearchView: View {
                 }
             }
         }
-        .onAppear {
-            Task {
-                await ErrorUtil.do {
-                    let (json, _) = try await URLSession.shared.data(from: URL(string: "https://rsw.me.uk/blueline/methods/search.json?q=&stage=\(state.size - 1),\(state.size)")!)
-                    let methods = (try JSONDecoder().decode(Methods.self, from: json)).results
-                    self.methods = methods
-                }
+        .task(id: MethodSearchRequest(query: text, stage: state.size)) {
+            await searchMethods(query: text, stage: state.size)
+        }
+    }
+
+    @MainActor
+    private func searchMethods(query: String, stage: Int) async {
+        guard stage > 0 else {
+            methods = []
+            return
+        }
+
+        do {
+            try await Task.sleep(nanoseconds: 250_000_000)
+            try Task.checkCancellation()
+
+            var components = URLComponents()
+            components.scheme = "https"
+            components.host = "rsw.me.uk"
+            components.path = "/blueline/methods/search.json"
+            components.queryItems = [
+                URLQueryItem(name: "q", value: query),
+                URLQueryItem(name: "stage", value: "\(stage - 1),\(stage)")
+            ]
+
+            guard let url = components.url else { throw WheatleyError.invalidURL }
+            let (data, response) = try await URLSession.shared.data(from: url)
+            try Task.checkCancellation()
+
+            guard let response = response as? HTTPURLResponse else {
+                throw WheatleyError.invalidResponse
             }
+            guard 200..<300 ~= response.statusCode else {
+                throw WheatleyError.httpStatus(response.statusCode)
+            }
+
+            let decodedMethods: Methods
+            do {
+                decodedMethods = try JSONDecoder().decode(Methods.self, from: data)
+            } catch {
+                throw WheatleyError.invalidMethodPayload
+            }
+            try Task.checkCancellation()
+            methods = decodedMethods.results
+        } catch is CancellationError {
+            return
+        } catch {
+            guard !Task.isCancelled else { return }
+            AlertHandler.presentAlert(title: "Wheatley", message: error.localizedDescription, dismiss: .cancel(title: "Dismiss", action: nil))
         }
     }
 }
@@ -97,8 +175,8 @@ struct Methods: Codable {
 }
 
 struct BluelineMethod: Codable, Identifiable, Hashable {
-    var id: Int {
-        hashValue
+    var id: String {
+        "\(url)-\(stage)"
     }
     
     let title: String
@@ -108,15 +186,16 @@ struct BluelineMethod: Codable, Identifiable, Hashable {
     let calls: Calls?
     let url: String
     
-    var rowGen: [String: Any] {
+    func makeRowGen() throws -> [String: Any] {
         var wheatleyMethod = [String: Any]()
         wheatleyMethod["title"] = title
         wheatleyMethod["stage"] = stage
         wheatleyMethod["notation"] = notation
         wheatleyMethod["url"] = url
         
-        func convertCall(call: Bob?) -> [String: String] {
+        func convertCall(call: Bob?) throws -> [String: String] {
             if let call  {
+                guard call.every > 0 else { throw WheatleyError.invalidCallInterval }
                 var convertedCall = [String: String]()
                 for i in 0..<Int((Double(lengthOfLead)/Double(call.every)).rounded(.up)) {
                     convertedCall[String(call.from + i * call.every)] = call.notation
@@ -129,7 +208,7 @@ struct BluelineMethod: Codable, Identifiable, Hashable {
         
         
 
-        let bob = convertCall(call: calls?.bob)
+        let bob = try convertCall(call: calls?.bob)
         let single: [String: String]
         
         if title == "Stedman Doubles" {
@@ -138,7 +217,7 @@ struct BluelineMethod: Codable, Identifiable, Hashable {
                 "6": "345"
             ]
         } else {
-            single = convertCall(call: calls?.single)
+            single = try convertCall(call: calls?.single)
         }
         
         wheatleyMethod["bob"] = bob
@@ -164,7 +243,17 @@ struct Bob: Codable, Hashable {
 
 enum RowGen: Decodable, Sendable {
     init(from decoder: Decoder) throws {
-        fatalError("Not implemented")
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .type)
+
+        switch type {
+        case "method":
+            self = .method(try WheatleyMethod(from: decoder))
+        case "composition":
+            self = .comp(try WheatleyComp(from: decoder))
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown row generation type.")
+        }
     }
     
     case method(WheatleyMethod)
@@ -175,18 +264,8 @@ enum RowGen: Decodable, Sendable {
     }
     
     init(dictionary: [String: Any]) throws {
-        var decodingDictionary = dictionary
-        
-        guard let type = decodingDictionary.removeValue(forKey: "type") as? String else { throw DecodingError.keyNotFound(RowGen.CodingKeys.type, .init(codingPath: [RowGen.CodingKeys.type], debugDescription: "Unable to find type")) }
-        
-        if type == "method" {
-            self = .method(try JSONDecoder().decode(WheatleyMethod.self, from: JSONSerialization.data(withJSONObject: decodingDictionary)))
-        } else if type == "composition" {
-            self = .comp(try JSONDecoder().decode(WheatleyComp.self, from: JSONSerialization.data(withJSONObject: decodingDictionary)))
-        } else {
-            throw DecodingError.dataCorrupted(.init(codingPath: [RowGen.CodingKeys.type], debugDescription: "Type is neither method or comp."))
-        }
-        
+        let data = try JSONSerialization.data(withJSONObject: dictionary)
+        self = try JSONDecoder().decode(RowGen.self, from: data)
     }
 }
 

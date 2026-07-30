@@ -13,6 +13,77 @@ enum RowGenType: String, Identifiable, CaseIterable {
     case method, composition
 }
 
+private struct CompositionRequest: Identifiable {
+    let id = UUID()
+    let apiURL: URL
+    let publicURL: URL
+    let compositionID: String
+    let towerSize: Int
+
+    init(input: String, towerSize: Int) throws {
+        guard towerSize > 0 else { throw WheatleyError.invalidCompositionURL }
+
+        let trimmedInput = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        let compositionID: String
+
+        if !trimmedInput.isEmpty && trimmedInput.unicodeScalars.allSatisfy({ CharacterSet.decimalDigits.contains($0) }) {
+            compositionID = trimmedInput
+        } else {
+            guard
+                let components = URLComponents(string: trimmedInput),
+                let scheme = components.scheme?.lowercased(),
+                scheme == "http" || scheme == "https"
+            else {
+                throw WheatleyError.invalidCompositionURL
+            }
+
+            guard components.host?.lowercased() == "complib.org" else {
+                throw WheatleyError.invalidCompositionHost
+            }
+
+            guard components.user == nil, components.password == nil, components.port == nil else {
+                throw WheatleyError.invalidCompositionHost
+            }
+
+            let pathSegments = components.path.split(separator: "/")
+            guard pathSegments.count == 2, String(pathSegments[0]).lowercased() == "composition" else {
+                throw WheatleyError.invalidCompositionPath
+            }
+
+            compositionID = String(pathSegments[1])
+        }
+
+        guard !compositionID.isEmpty else { throw WheatleyError.emptyCompositionID }
+        guard compositionID.unicodeScalars.allSatisfy({ CharacterSet.decimalDigits.contains($0) }) else {
+            throw WheatleyError.invalidCompositionURL
+        }
+
+        var publicComponents = URLComponents()
+        publicComponents.scheme = "https"
+        publicComponents.host = "complib.org"
+        publicComponents.path = "/composition/\(compositionID)"
+
+        var apiComponents = URLComponents()
+        apiComponents.scheme = "https"
+        apiComponents.host = "api.complib.org"
+        apiComponents.path = "/composition/\(compositionID)"
+
+        guard let publicURL = publicComponents.url, let apiURL = apiComponents.url else {
+            throw WheatleyError.invalidURL
+        }
+
+        self.apiURL = apiURL
+        self.publicURL = publicURL
+        self.compositionID = compositionID
+        self.towerSize = towerSize
+    }
+}
+
+private struct ComplibCompositionResponse: Decodable {
+    let stage: Int
+    let derivedTitle: String
+}
+
 struct WheatleyView: View {
     @EnvironmentObject var state: RingingRoomState
     @EnvironmentObject var wheatleyState: WheatleyState
@@ -28,6 +99,7 @@ struct WheatleyView: View {
     @State var callComposition = true
     
     @State var complibUrl = ""
+    @State private var compositionRequest: CompositionRequest?
     @State var selectedRowGenType = RowGenType.method
     
     @FocusState var isFocused: Bool
@@ -100,64 +172,11 @@ struct WheatleyView: View {
                             TextField("Complib url or ID", text: $complibUrl)
                                 .focused($isFocused)
                             Button("Load") {
-                                var processedUrl = complibUrl.trimmingCharacters(in: .whitespaces)
-                                
-                                let range = NSRange(location: 0, length: processedUrl.utf16.count)
-                                let regex = try! NSRegularExpression(pattern: "^[0-9]+(?:\\?.*)?$")
-                                if regex.firstMatch(in: processedUrl, range: range) != nil {
-                                    processedUrl = "https://complib.org/composition/" + processedUrl
-                                }
-                                processedUrl = processedUrl
-                                    .lowercased()
-                                    .replacingOccurrences(of: "https://", with: "")
-                                    .replacingOccurrences(of: "http://", with: "")
-                                let urlSegments = processedUrl.split(separator: "/")
-                                
-                                if (!processedUrl.hasPrefix("complib.org")) {
-                                    AlertHandler.presentAlert(title: "Error", message: "URL doesn't point to 'complib.org'.", dismiss: .cancel(title: "OK", action: nil))
-                                    return
-                                }
-                                
-                                if (urlSegments.count != 3 || urlSegments[1] != "composition") {
-                                    AlertHandler.presentAlert(title: "Error", message: "URL doesn't point to a composition.", dismiss: .cancel(title: "OK", action: nil))
-                                    return
-                                }
-                                
-                                if (urlSegments.count == 3 && urlSegments[2] == "") {
-                                    AlertHandler.presentAlert(title: "Error", message: "Composition ID is empty", dismiss: .cancel(title: "OK", action: nil))
-                                    return;
-                                }
-                                
-                                let complibID = urlSegments.last!.split(separator: "?").first!
-                                
-                                Task {
-                                    await ErrorUtil.do {
-                                        let (data, response) = try await URLSession.shared.data(from: URL(string: "https://api.\(processedUrl)")!)
-                                        guard let response = response as? HTTPURLResponse else { throw APIError.noResponse }
-                                        switch response.statusCode {
-                                        case 200...299:
-                                            let json = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
-                                            let stage = json["stage"] as! Int
-                                            let title = json["derivedTitle"] as! String
-                                            
-                                            if stage == state.size || stage == state.size - 1 {
-                                                viewModel.send(.setWheatleyRowGen(rowGen: ["type": "composition", "title": title, "url": "https://\(processedUrl)"]))
-                                                complibUrl = ""
-                                                isFocused = false
-                                            } else {
-                                                AlertHandler.presentAlert(title: "Error", message: "Composition needs \(stage) bells, not \(state.size). Change the tower size in tower controls and try again.", dismiss: .cancel(title: "OK", action: nil))
-                                            }
-                                            
-                                        case 401:
-                                            AlertHandler.presentAlert(title: "Error", message: "Composition #\(complibID) is private.", dismiss: .cancel(title: "OK", action: nil))
-                                        case 404:
-                                            AlertHandler.presentAlert(title: "Error", message: "Composition #\(complibID) doesn't exist.", dismiss: .cancel(title: "OK", action: nil))
-                                        case 500...599:
-                                            AlertHandler.presentAlert(title: "Error", message: "Complib server error.", dismiss: .cancel(title: "OK", action: nil))
-                                        default:
-                                            AlertHandler.presentAlert(title: "Error", message: "Unknown complib error: \(response.statusCode).", dismiss: .cancel(title: "OK", action: nil))
-                                        }
-                                    }
+                                compositionRequest = nil
+                                do {
+                                    compositionRequest = try CompositionRequest(input: complibUrl, towerSize: state.size)
+                                } catch {
+                                    AlertHandler.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: "OK", action: nil))
                                 }
                             }
                         }
@@ -290,6 +309,65 @@ struct WheatleyView: View {
                     }
                 }
             }
+            .task(id: compositionRequest?.id) {
+                guard let compositionRequest else { return }
+                await loadComposition(compositionRequest)
+            }
+        }
+    }
+
+    @MainActor
+    private func loadComposition(_ request: CompositionRequest) async {
+        do {
+            let (data, response) = try await URLSession.shared.data(from: request.apiURL)
+            try Task.checkCancellation()
+
+            guard let response = response as? HTTPURLResponse else {
+                throw WheatleyError.invalidResponse
+            }
+            guard 200..<300 ~= response.statusCode else {
+                throw WheatleyError.httpStatus(response.statusCode)
+            }
+
+            let composition: ComplibCompositionResponse
+            do {
+                composition = try JSONDecoder().decode(ComplibCompositionResponse.self, from: data)
+            } catch {
+                throw WheatleyError.invalidCompositionPayload
+            }
+            try Task.checkCancellation()
+
+            guard request.towerSize == state.size else { return }
+
+            guard composition.stage == state.size || composition.stage == state.size - 1 else {
+                AlertHandler.presentAlert(
+                    title: "Error",
+                    message: "Composition needs \(composition.stage) bells, not \(state.size). Change the tower size in tower controls and try again.",
+                    dismiss: .cancel(title: "OK", action: nil)
+                )
+                return
+            }
+
+            viewModel.send(.setWheatleyRowGen(rowGen: [
+                "type": "composition",
+                "title": composition.derivedTitle,
+                "url": request.publicURL.absoluteString
+            ]))
+            complibUrl = ""
+            isFocused = false
+        } catch is CancellationError {
+            return
+        } catch WheatleyError.httpStatus(401) {
+            AlertHandler.presentAlert(title: "Error", message: "Composition #\(request.compositionID) is private.", dismiss: .cancel(title: "OK", action: nil))
+        } catch WheatleyError.httpStatus(404) {
+            AlertHandler.presentAlert(title: "Error", message: "Composition #\(request.compositionID) doesn't exist.", dismiss: .cancel(title: "OK", action: nil))
+        } catch WheatleyError.httpStatus(let status) where status >= 500 {
+            AlertHandler.presentAlert(title: "Error", message: "Complib server error.", dismiss: .cancel(title: "OK", action: nil))
+        } catch WheatleyError.invalidCompositionPayload {
+            AlertHandler.presentAlert(title: "Error", message: WheatleyError.invalidCompositionPayload.localizedDescription, dismiss: .cancel(title: "OK", action: nil))
+        } catch {
+            guard !Task.isCancelled else { return }
+            AlertHandler.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: "OK", action: nil))
         }
     }
 }

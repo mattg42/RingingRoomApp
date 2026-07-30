@@ -25,6 +25,7 @@ struct WelcomeLoginView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @EnvironmentObject var router: Router<AppRoute>
+    @EnvironmentObject private var pendingDeepLinkRouter: PendingDeepLinkRouter
 
     var backgroundColor: Color {
         if colorScheme == .light {
@@ -39,8 +40,6 @@ struct WelcomeLoginView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var stayLoggedIn = false
-    
-    @State private var autoJoinTowerID = 0
     
     @State private var validEmail = false
     @State private var validPassword = false
@@ -181,13 +180,6 @@ struct WelcomeLoginView: View {
                 AccountCreationView(email: $email, password: $password, accountCreated: $accountCreated)
             }
         })
-        .onOpenURL(perform: { url in
-            let pathComponents = Array(url.pathComponents.dropFirst())
-            AppLogger.navigation.debug("Received deep link on the login screen")
-            if pathComponents.first ?? "" == "privacy" {
-                UIApplication.shared.open(url)
-            }
-        })
     }
     
     func login() async {
@@ -216,7 +208,13 @@ struct WelcomeLoginView: View {
                 }
             }
             
-            router.moveTo(.main(user: user, apiService: apiService, route: .home))
+            let route: MainRoute
+            if let towerID = pendingDeepLinkRouter.consumeTowerID() {
+                route = .joinTower(towerID: towerID, towerDetails: nil)
+            } else {
+                route = .home
+            }
+            router.moveTo(.main(user: user, apiService: apiService, route: route))
         }
     }
 }
