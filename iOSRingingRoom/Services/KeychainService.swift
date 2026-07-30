@@ -44,7 +44,7 @@ enum KeychainService {
         }
         
         guard let passwordData = password.data(using: .utf8) else {
-            print("Error converting value to data.")
+            AppLogger.storage.error("Failed to encode password for Keychain storage")
             throw KeychainError.badData
         }
         
@@ -103,7 +103,7 @@ enum KeychainService {
     
     static func updatePasswordFor(account: String, password: String, server: String) throws {
         guard let passwordData = password.data(using: .utf8) else {
-            print("Error converting value to data.")
+            AppLogger.storage.error("Failed to encode password for Keychain update")
             return
         }
         let query: [String: Any] = [

@@ -19,7 +19,7 @@ struct HomeView: View {
     let apiService: APIService
         
     init(user: Binding<User>, apiService: APIService) {
-        print("Init")
+        AppLogger.ui.debug("Home view initialized")
         self._user = user
         self.apiService = apiService
         self._tabViewSelection = State(initialValue: .ring)
@@ -53,7 +53,7 @@ struct HomeView: View {
         }
         .onAppear {
             tabViewSelection = .ring
-            print("Called")
+            AppLogger.ui.debug("Home view appeared")
         }
         .accentColor(Color.main)
 

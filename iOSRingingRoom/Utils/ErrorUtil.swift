@@ -18,7 +18,7 @@ enum ErrorUtil {
         } catch let error as Alertable {
             AlertHandler.handle(error: error)
         } catch {
-            print(error)
+            AppLogger.app.error("Operation failed: \(String(describing: error), privacy: .private)")
             AlertHandler.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: "Dismiss", action: nil))
         }
     }

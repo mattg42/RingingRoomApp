@@ -54,7 +54,7 @@ struct ControlsView: View {
                         }
                         .onChange(of: hostMode) { newValue in
                             if state.hostMode != newValue {
-                                print("sending")
+                                AppLogger.ui.debug("Sending host mode change")
                                 viewModel.send(.hostModeSet(to: newValue))
                                 
                                 // The server doesn't emit s_host_mode_ to the sender, so we update the state here

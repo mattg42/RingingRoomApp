@@ -175,7 +175,7 @@ struct RingingRoomView: View {
         }
         .onChange(of: scenePhase) { newValue in
             if newValue == .active {
-                print("cocnnecting again")
+                AppLogger.ui.debug("Ringing view became active; requesting connection")
                 viewModel.connect()
             } else {
                 viewModel.disconnect()

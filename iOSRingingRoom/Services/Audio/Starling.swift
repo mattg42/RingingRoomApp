@@ -92,7 +92,7 @@ public class Starling {
             engine.prepare()
             try engine.start()
         } catch {
-            print("failed to start")
+            AppLogger.audio.error("Audio engine failed to start after output configuration changed")
         }
     }
     
@@ -268,7 +268,7 @@ public class Starling {
     }
     
     private func handleNonFatalError(_ error: Error) {
-        print("*** Starling error: \(error)")
+        AppLogger.audio.error("Audio error: \(String(describing: error), privacy: .private)")
         Task { @MainActor in
             Self.nonFatalErrorHandler?(error)
         }
@@ -288,15 +288,16 @@ public class Starling {
     }
     
     @objc private func diagnosticTimerFire(_ timer: Timer) {
-        print("****** Starling Debug Info ******")
-        print("Audio files loaded: \(files.count)")
+        let loadedFileCount = files.count
+        AppLogger.audio.debug("Audio diagnostics: \(loadedFileCount, privacy: .public) files loaded")
         objc_sync_enter(players)
-        print("Total living players: \(players.count)")
-        print("Currently playing: \(players.filter({ $0.state.status != .idle }).count)")
+        let playerCount = players.count
+        let playingCount = players.filter({ $0.state.status != .idle }).count
+        AppLogger.audio.debug("Audio diagnostics: \(playerCount, privacy: .public) players, \(playingCount, privacy: .public) currently playing")
         for (index, player) in players.enumerated() {
-            print("Player \(index): \(player.state.status == .idle ? "Idle" : "Playing \(player.state.sound ?? "(Null)")")")
+            let status = player.state.status == .idle ? "Idle" : "Playing"
+            AppLogger.audio.debug("Audio player \(index, privacy: .public): \(status, privacy: .public)")
         }
-        print("\n")
         objc_sync_exit(players)
     }
 }

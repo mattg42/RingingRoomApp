@@ -48,7 +48,7 @@ struct MainView: View {
         }
         .onOpenURL(perform: { url in
             let pathComponents = url.pathComponents.dropFirst()
-            print(pathComponents)
+            AppLogger.navigation.debug("Received deep link in the main application")
             if let firstPath = pathComponents.first {
                 if let towerID = Int(firstPath) {
                     router.moveTo(.joinTower(towerID: towerID, towerDetails: nil))

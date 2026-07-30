@@ -183,7 +183,7 @@ struct WelcomeLoginView: View {
         })
         .onOpenURL(perform: { url in
             let pathComponents = Array(url.pathComponents.dropFirst())
-            print(pathComponents)
+            AppLogger.navigation.debug("Received deep link on the login screen")
             if pathComponents.first ?? "" == "privacy" {
                 UIApplication.shared.open(url)
             }

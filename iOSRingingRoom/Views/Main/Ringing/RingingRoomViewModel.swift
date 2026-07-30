@@ -417,7 +417,8 @@ extension RingingRoomViewModel: SocketIODelegate {
     
     func bellDidRing(number: Int, globalState: [BellStroke]) {
         #if DEBUG
-        print(Date.now.timeIntervalSince(ringTime))
+        let latency = Date.now.timeIntervalSince(ringTime)
+        AppLogger.socket.debug("Bell event latency: \(latency, privacy: .public) seconds")
         #endif
         
         state.bellStates = globalState

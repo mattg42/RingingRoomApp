@@ -24,7 +24,7 @@ struct Ringer: Identifiable, Codable, Equatable, Sendable {
     }
     
     init(from dict: [String: Any]) {
-        print(dict)
+        AppLogger.socket.debug("Parsing ringer payload")
         
         let ringerID = dict["user_id"] as! Int
         

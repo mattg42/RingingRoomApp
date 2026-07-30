@@ -119,6 +119,7 @@ class SocketIOService {
     init(url: URL) {
         self.url = url
         manager = SocketManager(socketURL: url, config: [
+            .log(false),
             .reconnects(true),
             .reconnectAttempts(3),
             .reconnectWait(2),
@@ -128,11 +129,13 @@ class SocketIOService {
     }
     
     deinit {
-        print("socket deinit")
+        AppLogger.socket.debug("Socket service deinitialized")
     }
     
     func connect(completion: @escaping () -> ()) {
         guard socket.status == .notConnected || socket.status == .disconnected else { return }
+
+        AppLogger.socket.info("Opening socket connection")
         
         socket = manager.defaultSocket
         
@@ -141,27 +144,32 @@ class SocketIOService {
         socket.removeAllHandlers()
         
         setupListeners()
-        
+
         socket.on(clientEvent: .connect) { [weak self] _, _ in
+            AppLogger.socket.info("Socket connection established")
             self?.notify { $0.socketDidConnect() }
             completion()
         }
 
         socket.on(clientEvent: .reconnect) { [weak self] _, _ in
+            AppLogger.socket.info("Socket reconnected")
             self?.notify { $0.socketWillReconnect() }
         }
 
         socket.on(clientEvent: .reconnectAttempt) { [weak self] _, _ in
+            AppLogger.socket.debug("Socket reconnect attempt started")
             self?.notify { $0.socketWillReconnect() }
         }
 
         socket.on(clientEvent: .disconnect) { [weak self] data, _ in
             let reason = data.first as? String ?? "The connection was closed."
+            AppLogger.socket.warning("Socket disconnected: \(reason, privacy: .private)")
             self?.notify { $0.socketDidDisconnect(reason: reason) }
         }
 
         socket.on(clientEvent: .error) { [weak self] data, _ in
             let message = data.first.map(String.init(describing:)) ?? "The socket connection failed."
+            AppLogger.socket.error("Socket error: \(message, privacy: .private)")
             self?.notify { $0.socketDidFail(message: message) }
         }
         
@@ -169,10 +177,12 @@ class SocketIOService {
     }
     
     func reset() {
+        AppLogger.socket.debug("Resetting socket connection")
         socket.removeAllHandlers()
         manager.disconnect()
     
         manager = SocketManager(socketURL: url, config: [
+            .log(false),
             .reconnects(true),
             .reconnectAttempts(3),
             .reconnectWait(2),
@@ -182,6 +192,7 @@ class SocketIOService {
     }
     
     func disconnect() {
+        AppLogger.socket.info("Closing socket connection")
         socket.disconnect()
     }
 
@@ -309,7 +320,7 @@ class SocketIOService {
     }
     
     func send(event: String, with data: SocketData) {
-        print("Sending \(event) with \(data)")
+        AppLogger.socket.debug("Sending socket event \(event, privacy: .public)")
         socket.emit(event, data)
     }
     
@@ -317,9 +328,9 @@ class SocketIOService {
         socket.on(event) { data, _ in
             do {
                 guard let object = data[0] as? [String: Any] else { throw SocketIOError(message: "Payload for \(event) is not an object.") }
-                print(object)
                 try callback(object)
             } catch {
+                AppLogger.socket.error("Failed to process socket event \(event, privacy: .public): \(String(describing: error), privacy: .private)")
                 let message = "Event: \(event). Error: \(error). Please screenshot and send to ringingroomapp@gmail.com."
                 Task { @MainActor in
                     AlertHandler.presentAlert(title: "SocketIO error", message: message, dismiss: .cancel(title: "OK", action: nil))

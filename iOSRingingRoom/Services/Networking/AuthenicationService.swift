@@ -22,7 +22,8 @@ struct AuthenticationService: UnauthenticatedClient, Sendable {
     var retryAction: AsyncAction? = nil
     
     @discardableResult func registerUser(username: String, email: String, password: String) async throws -> APIModel.User {
-        try await request(
+        AppLogger.auth.info("Starting account registration")
+        return try await request(
             path: "user",
             method: .post,
             json: ["password": password,
@@ -33,7 +34,8 @@ struct AuthenticationService: UnauthenticatedClient, Sendable {
     }
     
     @discardableResult func resetPassword(email: String) async throws -> JSON {
-        try await request(
+        AppLogger.auth.info("Starting password reset request")
+        return try await request(
             path: "user/reset_password",
             method: .post,
             json: ["email": email],
@@ -42,16 +44,19 @@ struct AuthenticationService: UnauthenticatedClient, Sendable {
     }
     
     func getToken(email: String, password: String) async throws -> String {
+        AppLogger.auth.info("Starting authentication request")
         let utf8str = "\(email.lowercased()):\(password)".data(using: .utf8)
         
         if let base64Encoded = utf8str?.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0)) {
-            return try await request(
+            let token = try await request(
                 path: "tokens",
                 method: .post,
                 headers: ["Authorization":"Basic \(base64Encoded)"],
                 model: APIModel.Login.self
             )
                 .token
+            AppLogger.auth.info("Authentication request succeeded")
+            return token
         } else {
             throw APIError.encode
         }
@@ -62,6 +67,7 @@ struct AuthenticationService: UnauthenticatedClient, Sendable {
     }
     
     func login(email: String, password: String) async throws -> (User, APIService) {
+        AppLogger.auth.info("Starting login flow")
         let credentials = SessionCredentials(email: email, password: password)
         let token = try await getToken(email: credentials.email, password: credentials.password)
         let apiService = APIService(token: token, region: region, credentials: credentials)
@@ -69,6 +75,7 @@ struct AuthenticationService: UnauthenticatedClient, Sendable {
         let towers = try await apiService.getTowers()
         let userDetails = try await apiService.getUserDetails()
         let user = User(email: credentials.email, password: password, username: userDetails.username, towers: towers)
+        AppLogger.auth.info("Login flow succeeded")
         return (user, apiService)
     }
 }

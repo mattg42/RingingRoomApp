@@ -38,7 +38,7 @@ struct RopeCircleView: View {
                             getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
                         }
                         .onAppear {
-                            print("Rope circle appeared")
+                            AppLogger.ui.debug("Rope circle appeared")
                         }
                     
                     AssignmentsListView(bellPositions: bellPositions, imageWidth: imageWidth(size: imageSize, bellType: state.bellType), imageHeight: imageHeight(size: imageSize, bellType: state.bellType), geo: geo)
@@ -48,7 +48,7 @@ struct RopeCircleView: View {
                         .onAppear {
                             calculateImageSize(size: geo.size)
                             getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
-                            print("calculated")
+                            AppLogger.ui.debug("Rope circle positions calculated")
                         }
                 }
             }
@@ -166,7 +166,7 @@ struct RopeCircleView: View {
         }
         
         maxOverlap = max(vOverlap, hOverlap)
-        print(vOverlap, hOverlap, maxOverlap)
+        AppLogger.ui.debug("Rope circle overlap calculated: vertical=\(vOverlap, privacy: .private), horizontal=\(hOverlap, privacy: .private), maximum=\(maxOverlap, privacy: .private)")
         
         if state.size == 4 {
             if maxOverlap >= -20 {

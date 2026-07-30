@@ -41,7 +41,7 @@ struct AutoLoginView: View {
                     autoJoinTowerID = towerID
                 }
             }
-            print("opened from \(url.pathComponents.dropFirst())")
+            AppLogger.navigation.debug("Received deep link during automatic login")
         })
         .task {
             await login()

@@ -77,22 +77,21 @@ extension HTTPClient {
             do {
                 request.httpBody = try JSONSerialization.data(withJSONObject: json)
             } catch {
-                print(error)
+                AppLogger.network.error("Failed to encode request body: \(String(describing: error), privacy: .private)")
             }
         }
 
-        print(request.url?.absoluteString as Any)
-        print(String(data: request.httpBody ?? Data(), encoding: .utf8) as Any)
+        AppLogger.network.debug("Starting \(method.rawValue, privacy: .public) request for \(path, privacy: .private(mask: .hash))")
         
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let response = response as? HTTPURLResponse else {
                 throw APIError.noResponse
             }
-            print(response.statusCode)
+            AppLogger.network.debug("Received HTTP response with status \(response.statusCode, privacy: .public)")
             switch response.statusCode {
             case 200...299:
-                print(String(data: data, encoding: .utf8)!)
+                AppLogger.network.debug("Request succeeded with \(data.count, privacy: .public) response bytes")
                 return try JSONDecoder().decode(model, from: data)
             case 401:
                 throw APIError.unauthorized
@@ -100,12 +99,16 @@ extension HTTPClient {
                 throw APIError.http(code: response.statusCode)
             }
         } catch let error as DecodingError {
+            AppLogger.network.error("Failed to decode response for \(path, privacy: .private(mask: .hash)): \(String(describing: error), privacy: .private)")
             throw APIError.decode(error: error)
         } catch let error as URLError {
+            AppLogger.network.error("Network request failed for \(path, privacy: .private(mask: .hash)) with URL error \(error.code.rawValue, privacy: .public)")
             throw APIError.url(error: error, retryAction: retryAction)
         } catch let error as APIError {
+            AppLogger.network.debug("Request failed for \(path, privacy: .private(mask: .hash)) with API error \(String(describing: error), privacy: .private)")
             throw error
         } catch {
+            AppLogger.network.error("Request failed for \(path, privacy: .private(mask: .hash)): \(String(describing: error), privacy: .private)")
             throw APIError.unknown(message: error.localizedDescription)
         }
     }
