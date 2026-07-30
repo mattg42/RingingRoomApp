@@ -7,24 +7,16 @@
 
 import Foundation
 
+@MainActor
 enum ThreadUtil {
-    static func runInMain(after delay: Double = 0, _ closure: @escaping () -> Void) {
+    static func runInMain(after delay: Double = 0, _ closure: @escaping @MainActor () -> Void) {
         if delay == 0 {
-            if Thread.isMainThread {
-                closure()
-            } else {
-                DispatchQueue.main.async {
-                    closure()
-                }
-            }
+            closure()
         } else {
-            Task {
+            Task { @MainActor in
                 try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-                DispatchQueue.main.async {
-                    closure()
-                }
+                closure()
             }
         }
     }
 }
-

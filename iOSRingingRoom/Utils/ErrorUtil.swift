@@ -7,8 +7,9 @@
 
 import Foundation
 
+@MainActor
 enum ErrorUtil {
-    static func `do`(networkRequest: Bool = false, _ closure: @escaping () async throws -> Void) async {
+    static func `do`(networkRequest: Bool = false, _ closure: @escaping @MainActor () async throws -> Void) async {
         do {
             if networkRequest {
                 guard NetworkMonitor.shared.isConnected else {
@@ -32,7 +33,7 @@ enum ErrorUtil {
         }
     }
     
-    static func `do`(_ closure: () throws -> Void) {
+    static func `do`(_ closure: @MainActor () throws -> Void) {
         do {
             try closure()
         } catch let error as Alertable {

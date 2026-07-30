@@ -90,6 +90,7 @@ enum SoundAsset: String, CaseIterable {
     case C16 = "C16"
 }
 
+@MainActor
 struct AudioService {
         
     let starling = Starling()
@@ -123,5 +124,4 @@ struct AudioService {
         starling.play(SoundIdentifier(file))
     }
 }
-
 

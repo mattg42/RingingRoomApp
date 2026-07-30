@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Message {
+struct Message: Sendable {
     let sender: String
     let message: String
 }

@@ -19,7 +19,7 @@ struct MailView: UIViewControllerRepresentable {
 
     var recipient: String
     
-    class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
+    @MainActor class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
 
         var dismiss: DismissAction
         @Binding var result: Result<MFMailComposeResult, Error>?
@@ -30,18 +30,20 @@ struct MailView: UIViewControllerRepresentable {
             _result = result
         }
 
-        func mailComposeController(_ controller: MFMailComposeViewController,
-                                   didFinishWith result: MFMailComposeResult,
-                                   error: Error?) {
-            defer {
-                dismiss()
+        nonisolated func mailComposeController(_ controller: MFMailComposeViewController,
+                                               didFinishWith result: MFMailComposeResult,
+                                               error: Error?) {
+            MainActor.assumeIsolated {
+                defer {
+                    dismiss()
+                }
+
+                guard error == nil else {
+                    self.result = .failure(error!)
+                    return
+                }
+                self.result = .success(result)
             }
-            
-            guard error == nil else {
-                self.result = .failure(error!)
-                return
-            }
-            self.result = .success(result)
         }
     }
 

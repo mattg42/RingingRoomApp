@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+@MainActor
 class WheatleyState: ObservableObject {
     @Published var rowGen = RowGen.method(WheatleyMethod(title: "", stage: 0, notation: "", url: "", bob: [Int: String](), single: [Int: String]()))
     @Published var pealSpeed = 175

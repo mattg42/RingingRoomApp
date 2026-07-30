@@ -59,7 +59,7 @@ struct AutoLoginView: View {
                 return
             }
             
-            let authenticate = { () async -> () in
+            let authenticate: AsyncAction = { @MainActor in
                 await ErrorUtil.do {
                     let (user, apiService) = try await authenticationService.login(email: email.lowercased(), password: password)
                     

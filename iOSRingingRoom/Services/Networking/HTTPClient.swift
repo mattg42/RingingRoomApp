@@ -9,13 +9,16 @@ import Foundation
 import Combine
 import SwiftUI
 
+@MainActor
 protocol HTTPClient {
     var region: Region { get }
     var domain: String { get }
-    var retryAction: (() async -> Void)? { get set }
+    var retryAction: AsyncAction? { get set }
         
     func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, model: T.Type)  async throws -> T
 }
+
+typealias AsyncAction = @MainActor @Sendable () async -> Void
 
 extension HTTPClient {
     
@@ -88,6 +91,7 @@ extension HTTPClient {
     }
 }
 
+@MainActor
 protocol UnauthenticatedClient: HTTPClient {
     var region: Region { get set }
         
@@ -100,6 +104,7 @@ extension UnauthenticatedClient {
     }
 }
 
+@MainActor
 protocol AuthenticatedClient: AnyObject, HTTPClient {
     var token: String { get set }
     

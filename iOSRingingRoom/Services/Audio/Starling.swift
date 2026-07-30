@@ -36,6 +36,7 @@ enum StarlingError: Error {
     case engineIsStopped
 }
 
+@MainActor
 public class Starling {
     
     /// Defines the number of players which Starling instantiates
@@ -58,7 +59,7 @@ public class Starling {
 
     // MARK: - Error handling
 
-    public static var nonFatalErrorHandler: ((Error) -> Void)? = nil
+    @MainActor public static var nonFatalErrorHandler: ((Error) -> Void)? = nil
 
     // MARK: - Initializer
     
@@ -103,7 +104,7 @@ public class Starling {
     // MARK: - Public API (Loading Sounds)
     
     public func load(resource: String, type: String, for identifier: SoundIdentifier, in bundle: Bundle? = nil) {
-        DispatchQueue.global(qos: .utility).async { [weak self] in
+        Task { @MainActor [weak self] in
             if let blockSelf = self {
                 if let url = (bundle ?? Bundle.main).url(forResource: resource, withExtension: type) {
                     blockSelf.load(sound: url, for: identifier)
@@ -135,13 +136,13 @@ public class Starling {
             resetPlayersAndEngine()
         }
         
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        Task { @MainActor [weak self] in
             self?.performSoundPlayback(sound, allowOverlap: allowOverlap)
         }
     }
     
     public func stop(_ sound: SoundIdentifier) {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        Task { @MainActor [weak self] in
             self?.performSoundStop(sound)
         }
     }
@@ -268,7 +269,9 @@ public class Starling {
     
     private func handleNonFatalError(_ error: Error) {
         print("*** Starling error: \(error)")
-        Self.nonFatalErrorHandler?(error)
+        Task { @MainActor in
+            Self.nonFatalErrorHandler?(error)
+        }
     }
     
     // MARK: - Debugging / Diagnostics
@@ -320,6 +323,7 @@ private struct PlayerState {
     }
 }
 
+@MainActor
 private class StarlingAudioPlayer {
     let node = AVAudioPlayerNode()
     var state: PlayerState = PlayerState.idle()
@@ -327,7 +331,9 @@ private class StarlingAudioPlayer {
     func play(_ file: AVAudioFile, identifier: SoundIdentifier) {
         node.scheduleFile(file, at: nil, completionCallbackType: .dataPlayedBack) {
             [weak self] callbackType in
-            self?.didCompletePlayback(for: identifier)
+            Task { @MainActor [weak self] in
+                self?.didCompletePlayback(for: identifier)
+            }
         }
         state = PlayerState(sound: identifier, status: .playing)
         node.play()

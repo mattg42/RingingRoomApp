@@ -8,6 +8,7 @@
 import Foundation
 import Network
 
+@MainActor
 class NetworkMonitor: ObservableObject {
     
     static let shared = NetworkMonitor()
@@ -28,7 +29,7 @@ class NetworkMonitor: ObservableObject {
     
     func startMonitoring() {
         monitor.pathUpdateHandler = { path in
-            ThreadUtil.runInMain { [weak self] in
+            Task { @MainActor [weak self] in
                 guard let self = self else { return }
                 self.status = path.status
             }
@@ -42,6 +43,6 @@ class NetworkMonitor: ObservableObject {
     }
     
     deinit {
-        stopMonitoring()
+        monitor.cancel()
     }
 }

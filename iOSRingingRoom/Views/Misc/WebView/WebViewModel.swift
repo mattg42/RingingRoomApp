@@ -11,31 +11,29 @@ import WebKit
 
 import SwiftUI
 
+@MainActor
 class WebViewModel: ObservableObject {
     var estimatedProgress: Double = 0.0 {
         didSet {
-            DispatchQueue.main.async { [weak self] in
-                if self?.estimatedProgress ?? 1 >= 1.0 {
-                    withAnimation(.linear(duration: 0.3)) {
-                        self?.progress = 1
+            if estimatedProgress >= 1.0 {
+                withAnimation(.linear(duration: 0.3)) {
+                    progress = 1
+                }
+                Task { @MainActor [weak self] in
+                    try? await Task.sleep(nanoseconds: 300_000_000)
+                    guard let self else { return }
+                    withAnimation(.linear(duration: 0.2)) {
+                        self.alpha = 0.0
                     }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: { [weak self] in
-                        withAnimation(.linear(duration: 0.2)) {
-                            self?.alpha = 0.0
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                            self?.progress = 0
-                        }
-                    })
-                    
-                } else {
-                    self?.alpha = 1.0
-                    withAnimation {
-                        self?.progress = self?.estimatedProgress ?? 1
-                    }
+                    try? await Task.sleep(nanoseconds: 200_000_000)
+                    self.progress = 0
+                }
+            } else {
+                alpha = 1.0
+                withAnimation {
+                    progress = estimatedProgress
                 }
             }
-            
         }
     }
     @Published var link : String

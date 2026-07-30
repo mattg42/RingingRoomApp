@@ -162,7 +162,7 @@ struct Bob: Codable, Hashable {
     let from, every: Int
 }
 
-enum RowGen: Decodable {
+enum RowGen: Decodable, Sendable {
     init(from decoder: Decoder) throws {
         fatalError("Not implemented")
     }
@@ -190,12 +190,12 @@ enum RowGen: Decodable {
     }
 }
 
-struct WheatleyComp: Codable {
+struct WheatleyComp: Codable, Sendable {
     let title: String
     let url: String
 }
 
-struct WheatleyMethod: Codable {
+struct WheatleyMethod: Codable, Sendable {
     init(title: String, stage: Int, notation: String, url: String, bob: [Int : String], single: [Int : String]) {
         self.title = title
         self.stage = stage

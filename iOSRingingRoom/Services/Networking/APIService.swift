@@ -7,8 +7,9 @@
 
 import Foundation
 
+@MainActor
 class APIService: AuthenticatedClient {
-    init(token: String, region: Region, retryAction: (() async -> ())? = nil) {
+    init(token: String, region: Region, retryAction: AsyncAction? = nil) {
         self.token = token
         self.region = region
         self.retryAction = retryAction
@@ -17,7 +18,7 @@ class APIService: AuthenticatedClient {
     var token: String
     let region: Region
     
-    var retryAction: (() async -> ())? = nil
+    var retryAction: AsyncAction? = nil
     
     func getTowers() async throws -> [Tower] {
         try await request(path: "my_towers", method: .get, model: [String: APIModel.Tower].self)

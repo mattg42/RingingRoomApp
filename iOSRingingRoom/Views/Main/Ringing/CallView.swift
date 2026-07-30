@@ -13,7 +13,7 @@ struct CallView: View {
     
     @State private var callTextOpacity = 0.0
     @State private var callText = ""
-    @State private var callTimer: Timer? = nil
+    @State private var callTask: Task<Void, Never>?
     
     var body: some View {
         ZStack {
@@ -32,18 +32,20 @@ struct CallView: View {
             callTextOpacity = 1
             callText = call
             
-            if let callTimer {
-                callTimer.invalidate()
-            }
-            
-            callTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
+            callTask?.cancel()
+            callTask = Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                guard !Task.isCancelled else { return }
                 withAnimation {
                     callTextOpacity = 0
                 }
-            })
+            }
             
         })
         .opacity(callTextOpacity)
         .fixedSize()
+        .onDisappear {
+            callTask?.cancel()
+        }
     }
 }

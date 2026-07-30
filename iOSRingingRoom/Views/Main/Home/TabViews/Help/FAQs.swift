@@ -20,7 +20,7 @@ struct FAQ: Identifiable {
         self.answer = answer
     }
     
-    static var FAQs = [
+    @MainActor static let FAQs = [
         FAQ(
             question: "I can't hear any audio",
             answer: "Make sure your volume is up. Ringing room also has it's own volume slider in tower controls. If are using Zoom on the same device and still can't hear any audio, this might be because you joined the Zoom call before opening Ringing Room. Make sure you have Ringing Room open, then leave your Zoom call and rejoin it. Now you should be able to hear Ringing Room and Zoom clearly. If you are not using using Zoom, and still can't hear any audio, then please restart the app."

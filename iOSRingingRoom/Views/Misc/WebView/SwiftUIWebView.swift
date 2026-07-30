@@ -48,10 +48,12 @@ class Coordinator: NSObject, WKNavigationDelegate {
         super.init()
         
         estimatedProgressObserver = self.parent.webView.observe(\.estimatedProgress, options: [.new]) { [weak self] webView, _ in
-            print(Float(webView.estimatedProgress))
-            guard let weakSelf = self else { return }
-            
-            weakSelf.viewModel.estimatedProgress = webView.estimatedProgress
+            MainActor.assumeIsolated {
+                print(Float(webView.estimatedProgress))
+                guard let weakSelf = self else { return }
+
+                weakSelf.viewModel.estimatedProgress = webView.estimatedProgress
+            }
             
         }
         self.webViewNavigationSubscriber = self.parent.viewModel.webViewNavigationPublisher.receive(on: RunLoop.main).sink(receiveValue: { navigation in
@@ -69,14 +71,11 @@ class Coordinator: NSObject, WKNavigationDelegate {
         
     }
     
-    deinit {
-        estimatedProgressObserver = nil
-        webViewNavigationSubscriber?.cancel()
-    }
-    
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        viewModel.link = webView.url?.absoluteString ?? ""
+        let link = webView.url?.absoluteString ?? ""
+        Task { @MainActor in
+            viewModel.link = link
+        }
     }
     
 }
-

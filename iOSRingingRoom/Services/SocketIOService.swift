@@ -144,47 +144,53 @@ class SocketIOService {
     func disconnect() {
         socket.disconnect()
     }
+
+    private func notify(_ action: @escaping @MainActor (any SocketIODelegate) -> Void) {
+        guard let delegate else { return }
+        Task { @MainActor in
+            action(delegate)
+        }
+    }
     
     private func setupListeners() {
 
         listen(for: "s_user_entered") { [weak self] data in
             let user = Ringer(from: data)
-            self?.delegate?.userDidEnter(user)
+            self?.notify { $0.userDidEnter(user) }
         }
         
         listen(for: "s_user_left") { [weak self] data in
             let user = Ringer(from: data)
 
-            self?.delegate?.userDidLeave(user)
+            self?.notify { $0.userDidLeave(user) }
         }
         
         listen(for: "s_global_state") { [weak self] data in
             let globalState = try data.extract("global_bell_state", as: [Bool].self)
             
-            self?.delegate?.didReceiveGlobalState(globalState.map { BellStroke(bool: $0) })
+            let state = globalState.map { BellStroke(bool: $0) }
+            self?.notify { $0.didReceiveGlobalState(state) }
         }
         
         listen(for: "s_set_userlist") { [weak self] data in
             let userList = (try data.extract("user_list", as: [[String: Any]].self))
                 .map({ Ringer(from: $0) })
 
-            self?.delegate?.didReceiveUserList(userList)
+            self?.notify { $0.didReceiveUserList(userList) }
         }
         
         listen(for: "s_bell_rung") { [weak self] data in
             let bell = try data.extract("who_rang", as: Int.self)
             let globalState = try data.extract("global_bell_state", as: [Bool].self)
 
-            self?.delegate?.bellDidRing(
-                number: bell,
-                globalState: globalState.map { BellStroke(bool: $0) }
-            )
+            let state = globalState.map { BellStroke(bool: $0) }
+            self?.notify { $0.bellDidRing(number: bell, globalState: state) }
         }
         
         listen(for: "s_assign_user") { [weak self] data in
             let bell = try data.extract("bell", as: Int.self)
             let userID = try data.extract("user", as: Int.self, else: 0)
-            self?.delegate?.didAssign(ringerID: userID, to: bell)
+            self?.notify { $0.didAssign(ringerID: userID, to: bell) }
         }
         
         listen(for: "s_audio_change") { [weak self] data in
@@ -194,38 +200,38 @@ class SocketIOService {
                 throw SocketIOError(message: "Unable to convert \(newAudio) to an audio type.")
             }
             
-            self?.delegate?.audioDidChange(to: bellType)
+            self?.notify { $0.audioDidChange(to: bellType) }
         }
         
         listen(for: "s_host_mode") { [weak self] data in
             let newMode = try data.extract("new_mode", as: Bool.self)
-            self?.delegate?.hostModeDidChange(to: newMode)
+            self?.notify { $0.hostModeDidChange(to: newMode) }
         }
         
         listen(for: "s_size_change") { [weak self] data in
             let newSize = try data.extract("size", as: Int.self)
-            self?.delegate?.sizeDidChange(to: newSize)
+            self?.notify { $0.sizeDidChange(to: newSize) }
         }
         
         listen(for: "s_msg_sent") { [weak self] data in
             let user = try data.extract("user", as: String.self)
             let message = try data.extract("msg", as: String.self)
 
-            self?.delegate?.didReceiveMessage(Message(sender: user, message: message))
+            self?.notify { $0.didReceiveMessage(Message(sender: user, message: message)) }
         }
         
         listen(for: "s_call") { [weak self] data in
             let call = try data.extract("call", as: String.self)
-            self?.delegate?.didReceiveCall(call)
+            self?.notify { $0.didReceiveCall(call) }
         }
         
         listen(for: "s_bad_token") { [weak self] data in
-            self?.delegate?.didReceiveBadToken()
+            self?.notify { $0.didReceiveBadToken() }
         }
         
         listen(for: "s_wheatley_row_gen") { [weak self] data in
             let newRowGen = try RowGen(dictionary: data)
-            self?.delegate?.rowGenDidChange(to: newRowGen)
+            self?.notify { $0.rowGenDidChange(to: newRowGen) }
         }
         
         listen(for: "s_wheatley_setting") { [weak self] data in
@@ -236,19 +242,19 @@ class SocketIOService {
                     break
                 case "use_up_down_in":
                     let newSetting = try data.extract(key, as: Bool.self)
-                    self?.delegate?.wholePullAndOffDidChange(to: newSetting)
+                    self?.notify { $0.wholePullAndOffDidChange(to: newSetting) }
                 case "stop_at_rounds":
                     let newSetting = try data.extract(key, as: Bool.self)
-                    self?.delegate?.stopAtRoundsDidChange(to: newSetting)
+                    self?.notify { $0.stopAtRoundsDidChange(to: newSetting) }
                 case "peal_speed":
                     let newSetting = try data.extract(key, as: Int.self)
-                    self?.delegate?.pealSpeedDidChange(to: newSetting)
+                    self?.notify { $0.pealSpeedDidChange(to: newSetting) }
                 case "call_composition":
                     let newSetting = try data.extract(key, as: Bool.self)
-                    self?.delegate?.callCompositionDidChange(to: newSetting)
+                    self?.notify { $0.callCompositionDidChange(to: newSetting) }
                 case "fixed_striking_interval":
                     let newSetting = try data.extract(key, as: Bool.self)
-                    self?.delegate?.fixedStrikingIntervalDidChange(to: newSetting)
+                    self?.notify { $0.fixedStrikingIntervalDidChange(to: newSetting) }
                 default:
                     throw SocketIOError(message: "Setting not found \(key)")
                 }
@@ -257,7 +263,7 @@ class SocketIOService {
         
         listen(for: "s_wheatley_is_ringing") { [weak self] data in
             let isRinging = try data.extract("is_ringing", as: Bool.self)
-            self?.delegate?.wheatleyStateDidChange(to: isRinging)
+            self?.notify { $0.wheatleyStateDidChange(to: isRinging) }
         }
 
     }
@@ -274,7 +280,10 @@ class SocketIOService {
                 print(object)
                 try callback(object)
             } catch {
-                AlertHandler.presentAlert(title: "SocketIO error", message: "Event: \(event). Error: \(error). Please screenshot and send to ringingroomapp@gmail.com.", dismiss: .cancel(title: "OK", action: nil))
+                let message = "Event: \(event). Error: \(error). Please screenshot and send to ringingroomapp@gmail.com."
+                Task { @MainActor in
+                    AlertHandler.presentAlert(title: "SocketIO error", message: message, dismiss: .cancel(title: "OK", action: nil))
+                }
             }
         }
     }

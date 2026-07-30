@@ -24,7 +24,7 @@ enum RingingMenuView: Identifiable, CaseIterable {
         }
     }
     
-    @ViewBuilder var view: some View {
+    @MainActor @ViewBuilder var view: some View {
         switch self {
         case .users:
             UsersView()

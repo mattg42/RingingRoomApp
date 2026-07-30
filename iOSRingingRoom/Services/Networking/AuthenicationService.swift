@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 struct AuthenticationService: UnauthenticatedClient {
     
     var region: Region = Region(server: UserDefaults.standard.string(forKey: UserDefaults.Keys.Server) ?? "") ?? .uk {
@@ -15,7 +16,7 @@ struct AuthenticationService: UnauthenticatedClient {
         }
     }
     
-    var retryAction: (() async -> Void)? = nil
+    var retryAction: AsyncAction? = nil
     
     @discardableResult func registerUser(username: String, email: String, password: String) async throws -> APIModel.User {
         try await request(

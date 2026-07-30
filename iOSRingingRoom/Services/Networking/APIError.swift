@@ -9,7 +9,7 @@ import Foundation
 
 enum APIError: Error, Alertable {
     case decode(error: DecodingError)
-    case url(error: URLError, retryAction: (() async -> ())?)
+    case url(error: URLError, retryAction: AsyncAction?)
     case invalidURL(attemptedURL: String)
     case noResponse
     case unauthorized

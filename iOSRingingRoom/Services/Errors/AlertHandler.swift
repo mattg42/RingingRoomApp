@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+@MainActor
 public enum AlertHandler {
     static func presentAlert(title: String, message: String?, dismiss: DismissType) {
         let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -52,6 +53,7 @@ public enum AlertHandler {
     }
 }
 
+@MainActor
 extension UIAlertAction {
     var titleTextColor: UIColor? {
         get {
@@ -62,6 +64,7 @@ extension UIAlertAction {
     }
 }
 
+@MainActor
 extension UIApplication {
     
     var keyWindow: UIWindow? {

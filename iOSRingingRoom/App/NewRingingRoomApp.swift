@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 import AVFoundation
 
+@MainActor
 class Router<Route>: ObservableObject {
     init(defaultRoute: Route) {
         currentRoute = defaultRoute

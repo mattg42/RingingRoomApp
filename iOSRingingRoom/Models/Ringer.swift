@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Ringer: Identifiable, Codable, Equatable {
+struct Ringer: Identifiable, Codable, Equatable, Sendable {
     var id: Int { ringerID }
     
     var name: String

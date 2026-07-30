@@ -19,7 +19,7 @@ struct CallTouchdownButtonStyle: PrimitiveButtonStyle {
     
     @GestureState var location = CGPoint.zero
     
-    @State private var timer: Timer? = nil
+    @State private var pressTask: Task<Void, Never>?
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -38,7 +38,7 @@ struct CallTouchdownButtonStyle: PrimitiveButtonStyle {
             )
             .onChange(of: scenePhase) { newValue in
                 if newValue != .active {
-                    timer?.invalidate()
+                    pressTask?.cancel()
                 } else {
                     disabled = false
                 }
@@ -46,16 +46,18 @@ struct CallTouchdownButtonStyle: PrimitiveButtonStyle {
     }
     
     func isPressed(configuration: Configuration) {
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 0.07, repeats: false) { _ in
+        pressTask?.cancel()
+        pressTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 70_000_000)
+            guard !Task.isCancelled else { return }
             configuration.trigger()
             opacity = 0.35
             withAnimation(.linear(duration: cooldown)) {
                 opacity = 1
             }
-            ThreadUtil.runInMain(after: cooldown) {
+            try? await Task.sleep(nanoseconds: UInt64(cooldown * 1_000_000_000))
+            guard !Task.isCancelled else { return }
                 disabled = false
-            }
         }
     }
     

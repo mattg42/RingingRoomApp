@@ -14,7 +14,7 @@ extension Double {
     }
 }
 
-enum BellType: String, CaseIterable, Identifiable {
+enum BellType: String, CaseIterable, Identifiable, Sendable {
     var id: Self { self }
     
     case tower = "Tower", hand = "Hand", cowbell = "Cow"
@@ -59,7 +59,7 @@ enum BellType: String, CaseIterable, Identifiable {
     }
 }
 
-enum BellStroke {
+enum BellStroke: Sendable {
     case hand, back
     
     init(bool: Bool) {
@@ -81,6 +81,7 @@ enum BellMode {
     case ring, rotate
 }
 
+@MainActor
 class RingingRoomState: ObservableObject {
     
     @Published var ringer: Ringer?
@@ -101,6 +102,7 @@ class RingingRoomState: ObservableObject {
     @Published var messages = [Message]()
 }
 
+@MainActor
 class RingingRoomViewModel: ObservableObject {
     
     init(socketIOService: SocketIOService, router: Router<MainRoute>, towerInfo: TowerInfo, apiService: APIService, user: User) {
@@ -114,7 +116,9 @@ class RingingRoomViewModel: ObservableObject {
     }
     
     deinit {
-        socketIOService.disconnect()
+        MainActor.assumeIsolated {
+            socketIOService.disconnect()
+        }
     }
     
     func ringBell(number: Int) {
@@ -234,7 +238,8 @@ class RingingRoomViewModel: ObservableObject {
     @Published var connected = false
 }
 
-protocol SocketIODelegate: AnyObject {
+@MainActor
+protocol SocketIODelegate: AnyObject, Sendable {
     func sizeDidChange(to newSize: Int)
     func userDidEnter(_ ringer: Ringer)
     func userDidLeave(_ ringer: Ringer)
@@ -409,7 +414,7 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func didReceiveBadToken() {
-        Task {
+        Task { @MainActor in
             await ErrorUtil.do(networkRequest: true) { [weak self] in
                 try await self?.apiService.updateToken()
             }
