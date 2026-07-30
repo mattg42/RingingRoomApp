@@ -71,4 +71,29 @@ enum APIModel {
         var username: String
         var email: String
     }
+
+    struct DeletedUser: Decodable {
+        let deleted_user: String
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            if let value = try? container.decode(String.self, forKey: .deleted_user) {
+                deleted_user = value
+            } else if let value = try? container.decode(Int.self, forKey: .deleted_user) {
+                deleted_user = String(value)
+            } else {
+                deleted_user = try container.decode(String.self, forKey: .deleted_user)
+            }
+        }
+
+        private enum CodingKeys: String, CodingKey {
+            case deleted_user
+        }
+    }
+
+    struct ErrorResponse: Decodable {
+        let error: String?
+        let message: String?
+    }
 }

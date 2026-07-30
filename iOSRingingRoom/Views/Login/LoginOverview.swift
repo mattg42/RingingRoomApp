@@ -19,7 +19,7 @@ struct LoginOverview: View {
         if let loginState {
             self.loginState = loginState
         } else {
-            self.loginState = UserDefaults.standard.bool(forKey: "keepMeLoggedIn") ? .auto : .welcome
+            self.loginState = SessionCredentialStore.standard.keepMeLoggedIn ? .auto : .welcome
         }
     }
     

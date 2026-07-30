@@ -43,7 +43,7 @@ struct HomeView: View {
                         .font(.title)
                     Text("Help")
                 }
-            AccountView(user: user, apiService: apiService)
+            AccountView(user: $user, apiService: apiService)
                 .tag(TabViewType.settings)
                 .tabItem {
                     Image(systemName: "person.crop.circle.fill")

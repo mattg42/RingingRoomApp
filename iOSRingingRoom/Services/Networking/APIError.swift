@@ -15,7 +15,8 @@ enum APIError: Error, Alertable {
     case unauthorized
     case sessionExpired
     case encode
-    case http(code: Int)
+    case http(code: Int, error: String?, message: String?)
+    case credentialsNotSaved(user: APIModel.User)
     case unknown(message: String)
     
     var alertData: AlertData {
@@ -34,8 +35,15 @@ enum APIError: Error, Alertable {
             return AlertData(title: "Session expired", message: "Your session has expired. Please log in again.")
         case .encode:
             return AlertData(title: "Encoding error", message: "There was an error encoding your username or password.")
-        case .http(let code):
-            return AlertData(title: "Unexpected server response", message: "HTTP code: \(code). Please contact support at ringingroomapp@gmail.com, and provide the HTTP code and explain what you were trying to do.")
+        case .http(let code, let error, let message):
+            let title = error?.isEmpty == false ? error! : "Request failed"
+            let detail = message?.isEmpty == false ? message! : "HTTP code: \(code). Please contact support at ringingroomapp@gmail.com, and provide the HTTP code and explain what you were trying to do."
+            return AlertData(title: title, message: detail)
+        case .credentialsNotSaved:
+            return AlertData(
+                title: "Account updated",
+                message: "Your account was updated, but the new credentials could not be saved for automatic login. You can continue using the app, but you will need to log in manually next time."
+            )
         case .unknown(let message):
             return AlertData(title: "Unexpected error", message: "An unknown error occured: \(message)")
         }

@@ -45,7 +45,7 @@ struct AboutView: View {
                         
                         Text("Ringing Room is a website built by Leland Paul Kusmer and Bryn Marie Reinstadler to allow change ringers to continue ringing with one another even when socially distanced.")
                         
-                        Text("The app will be continually improved, with support for features such as tower management and account settings coming soon. If you would like to submit a feature request or bug report, please contact me at")
+                        Text("The app will be continually improved. If you would like to submit a feature request or bug report, please contact me at")
                         
                         Button("ringingroomapp@gmail.com") {
                             MFMailComposeViewController.canSendMail() ? self.isShowingMailView.toggle() : self.noMailAlert.toggle()

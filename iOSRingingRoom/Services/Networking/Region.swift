@@ -57,5 +57,8 @@ extension Region {
 extension UserDefaults {
     enum Keys {
         static let Server = "server"
+        static let userEmail = "userEmail"
+        static let keepMeLoggedIn = "keepMeLoggedIn"
+        static let userEmailAliases = "userEmailAliases"
     }
 }

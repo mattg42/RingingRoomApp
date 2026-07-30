@@ -49,63 +49,30 @@ struct AutoLoginView: View {
         let region = authenticationService.region
         let server = authenticationService.domain
         let retryBox = AuthenticationRetryBox()
-        
-        guard let storedEmail = UserDefaults.standard.string(forKey: "userEmail") else {
-            UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
-            loginState = .welcome
-            return
-        }
 
-        let trimmedEmail = storedEmail.trimmingCharacters(in: .whitespacesAndNewlines)
-        let email = trimmedEmail.lowercased()
-        guard !email.isEmpty else {
-            UserDefaults.standard.removeObject(forKey: "userEmail")
-            UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
-            loginState = .welcome
-            return
-        }
-
-        var candidateAccounts = [storedEmail]
-        if !candidateAccounts.contains(trimmedEmail) {
-            candidateAccounts.append(trimmedEmail)
-        }
-        if !candidateAccounts.contains(email) {
-            candidateAccounts.append(email)
-        }
-
-        var password: String?
-        var keychainAccount: String?
-        var lookupError: KeychainError?
-
-        for account in candidateAccounts {
-            do {
-                password = try KeychainService.getPasswordFor(account: account, server: server)
-                keychainAccount = account
-                break
-            } catch let error as KeychainError {
-                if case .itemNotFound = error {
-                    continue
-                }
-                lookupError = error
-                break
-            } catch {
+        let credentialStore = SessionCredentialStore.standard
+        let storedCredentials: SessionCredentialStore.StoredCredentials
+        do {
+            guard let credentials = try credentialStore.load(for: server) else {
+                credentialStore.disableAutomaticLogin()
                 loginState = .welcome
-                AlertHandler.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: "Dismiss", action: nil))
                 return
             }
-        }
-
-        guard let password, let keychainAccount else {
-            for account in candidateAccounts {
-                try? KeychainService.deletePasswordFor(account: account, server: server)
-            }
-            UserDefaults.standard.removeObject(forKey: "userEmail")
-            UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
+            storedCredentials = credentials
+        } catch let error as Alertable {
+            credentialStore.clear()
             loginState = .welcome
-
-            AlertHandler.handle(error: lookupError ?? .itemNotFound)
+            AlertHandler.handle(error: error)
+            return
+        } catch {
+            credentialStore.clear()
+            loginState = .welcome
+            AlertHandler.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: "Dismiss", action: nil))
             return
         }
+
+        let email = storedCredentials.credentials.email
+        let password = storedCredentials.credentials.password
 
         let authenticate: AsyncAction = { @MainActor in
             guard !retryBox.isRunning else { return }
@@ -124,9 +91,7 @@ struct AutoLoginView: View {
                     router.moveTo(.main(user: user, apiService: apiService, route: .home))
                 }
             } catch APIError.unauthorized {
-                try? KeychainService.deletePasswordFor(account: keychainAccount, server: server)
-                UserDefaults.standard.removeObject(forKey: "userEmail")
-                UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
+                credentialStore.clear(currentEmail: email)
                 loginState = .welcome
                 AlertHandler.handle(error: APIError.unauthorized)
             } catch is CancellationError {

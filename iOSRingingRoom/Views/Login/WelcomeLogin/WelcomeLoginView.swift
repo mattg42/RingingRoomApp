@@ -186,27 +186,8 @@ struct WelcomeLoginView: View {
         focused = nil
         await ErrorUtil.do(networkRequest: true) {
             let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            let previouslyStoredEmail = UserDefaults.standard.string(forKey: "userEmail")?
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-                .lowercased()
             let (user, apiService) = try await authenticationService.login(email: normalizedEmail, password: password)
-            
-            UserDefaults.standard.set(stayLoggedIn, forKey: "keepMeLoggedIn")
-            
-            if stayLoggedIn {
-                UserDefaults.standard.set(normalizedEmail, forKey: "userEmail")
-                try KeychainService.storePasswordFor(account: normalizedEmail, password: password, server: authenticationService.domain)
-            } else {
-                UserDefaults.standard.removeObject(forKey: "userEmail")
-                if let previouslyStoredEmail, !previouslyStoredEmail.isEmpty {
-                    for region in Region.allCases {
-                        try? KeychainService.deletePasswordFor(
-                            account: previouslyStoredEmail,
-                            server: "\(region.server)ringingroom.com"
-                        )
-                    }
-                }
-            }
+            try apiService.persistLogin(keepMeLoggedIn: stayLoggedIn)
             
             let route: MainRoute
             if let towerID = pendingDeepLinkRouter.consumeTowerID() {

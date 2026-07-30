@@ -44,11 +44,10 @@ enum QuickStartGuideHelpSection: CaseIterable, HelpSection, Identifiable {
         switch self {
         case .accountSettings:
             return """
-To change your account settings such as email or password, you need to login to the ringingroom.com website on your device or computer and change the settings there. Account settings will be added to the app in a later update.
+Open the Account tab to change your username, email address, or password. Choose the setting you want to change, enter the new value, and enter your current password to confirm it. Changes are saved only after the server accepts them, and the account tab updates with the values returned by the server.
+
+To delete your account, open the separate Delete account section at the bottom of the Account tab. Account deletion is permanent. Enter your current password, review the warning, and confirm the final Delete prompt. Deletion removes your account and tower relationships; towers you created are not explicitly deleted by the account-deletion request.
 """
-//"""
-//To change your account settings, go to the account tab. There you will find buttons to change your username, email, password, and to delete your account. To change a particular setting, tap on the relevant 'change' button. This will bring up a form. Follow the instructions on the form to change the setting.
-//"""
         case .creatingOrJoiningATower:
             return """
 If you have visited a tower before, then you can join it by tapping on its name in the list of recent towers.

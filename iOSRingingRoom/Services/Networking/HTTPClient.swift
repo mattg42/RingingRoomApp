@@ -13,6 +13,7 @@ import SwiftUI
 protocol HTTPClient {
     var region: Region { get }
     var domain: String { get }
+    var urlSession: URLSession { get }
     var retryAction: AsyncAction? { get set }
         
     func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, model: T.Type)  async throws -> T
@@ -84,7 +85,7 @@ extension HTTPClient {
         AppLogger.network.debug("Starting \(method.rawValue, privacy: .public) request for \(path, privacy: .private(mask: .hash))")
         
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await urlSession.data(for: request)
             guard let response = response as? HTTPURLResponse else {
                 throw APIError.noResponse
             }
@@ -96,7 +97,12 @@ extension HTTPClient {
             case 401:
                 throw APIError.unauthorized
             default:
-                throw APIError.http(code: response.statusCode)
+                let errorResponse = try? JSONDecoder().decode(APIModel.ErrorResponse.self, from: data)
+                throw APIError.http(
+                    code: response.statusCode,
+                    error: errorResponse?.error,
+                    message: errorResponse?.message
+                )
             }
         } catch let error as DecodingError {
             AppLogger.network.error("Failed to decode response for \(path, privacy: .private(mask: .hash)): \(String(describing: error), privacy: .private)")
@@ -130,7 +136,8 @@ extension UnauthenticatedClient {
 @MainActor
 protocol AuthenticatedClient: AnyObject, HTTPClient {
     var token: String { get set }
-    var sessionCredentials: SessionCredentials? { get }
+    var sessionCredentials: SessionCredentials? { get set }
+    var credentialStore: SessionCredentialStore { get }
     var tokenRefreshCoordinator: TokenRefreshCoordinator { get }
     var sessionExpiredAction: AsyncAction? { get set }
     
@@ -156,13 +163,15 @@ extension AuthenticatedClient {
         let email = credentials.email
         let password = credentials.password
         let region = self.region
+        let networkSession = self.urlSession
 
         do {
             let token = try await tokenRefreshCoordinator.refresh {
                 try await AuthenticationService.getToken(
                     email: email,
                     password: password,
-                    region: region
+                    region: region,
+                    urlSession: networkSession
                 )
             }
 
@@ -179,19 +188,9 @@ extension AuthenticatedClient {
     }
 
     private func endSession() async {
-        var credentialAccounts = sessionCredentials.map { [$0.email] } ?? []
-
-        if let storedEmail = UserDefaults.standard.string(forKey: "userEmail") {
-            let trimmedEmail = storedEmail.trimmingCharacters(in: .whitespacesAndNewlines)
-            credentialAccounts.append(contentsOf: [storedEmail, trimmedEmail, trimmedEmail.lowercased()])
-        }
-
-        for account in Set(credentialAccounts) where !account.isEmpty {
-            try? KeychainService.deletePasswordFor(account: account, server: domain)
-        }
-
-        UserDefaults.standard.removeObject(forKey: "userEmail")
-        UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
+        credentialStore.clear(currentEmail: sessionCredentials?.email)
+        sessionCredentials = nil
+        token = ""
 
         if let sessionExpiredAction {
             await sessionExpiredAction()

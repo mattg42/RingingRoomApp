@@ -9,8 +9,9 @@ import Foundation
 
 @MainActor
 struct AuthenticationService: UnauthenticatedClient, Sendable {
-    init(region: Region? = nil) {
+    init(region: Region? = nil, urlSession: URLSession = .shared) {
         self.region = region ?? Region(server: UserDefaults.standard.string(forKey: UserDefaults.Keys.Server) ?? "") ?? .uk
+        self.urlSession = urlSession
     }
 
     var region: Region {
@@ -20,6 +21,7 @@ struct AuthenticationService: UnauthenticatedClient, Sendable {
     }
     
     var retryAction: AsyncAction? = nil
+    let urlSession: URLSession
     
     @discardableResult func registerUser(username: String, email: String, password: String) async throws -> APIModel.User {
         AppLogger.auth.info("Starting account registration")
@@ -62,19 +64,19 @@ struct AuthenticationService: UnauthenticatedClient, Sendable {
         }
     }
 
-    static func getToken(email: String, password: String, region: Region) async throws -> String {
-        try await AuthenticationService(region: region).getToken(email: email, password: password)
+    static func getToken(email: String, password: String, region: Region, urlSession: URLSession = .shared) async throws -> String {
+        try await AuthenticationService(region: region, urlSession: urlSession).getToken(email: email, password: password)
     }
     
     func login(email: String, password: String) async throws -> (User, APIService) {
         AppLogger.auth.info("Starting login flow")
         let credentials = SessionCredentials(email: email, password: password)
         let token = try await getToken(email: credentials.email, password: credentials.password)
-        let apiService = APIService(token: token, region: region, credentials: credentials)
+        let apiService = APIService(token: token, region: region, credentials: credentials, urlSession: urlSession)
         
         let towers = try await apiService.getTowers()
         let userDetails = try await apiService.getUserDetails()
-        let user = User(email: credentials.email, password: password, username: userDetails.username, towers: towers)
+        let user = User(email: userDetails.email, username: userDetails.username, towers: towers)
         AppLogger.auth.info("Login flow succeeded")
         return (user, apiService)
     }
