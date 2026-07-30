@@ -15,67 +15,78 @@ struct SwiftUIWebView: UIViewRepresentable {
     @ObservedObject var viewModel: WebViewModel
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(self, viewModel: viewModel)
+        Coordinator(viewModel: viewModel)
     }
     
-    let webView = WKWebView()
-    
     func makeUIView(context: Context) -> WKWebView {
-        webView.navigationDelegate = context.coordinator
-        
-        return webView
+        context.coordinator.configure()
+        context.coordinator.update(webView: context.coordinator.webView, link: viewModel.link)
+        return context.coordinator.webView
     }
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        if let url = URL(string: viewModel.link) {
-            webView.load(URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad))
-        }
+        context.coordinator.update(webView: uiView, link: viewModel.link)
     }
 }
 
 class Coordinator: NSObject, WKNavigationDelegate {
     
-    private var viewModel: WebViewModel
+    let webView = WKWebView()
+    private let viewModel: WebViewModel
     
-    var webViewNavigationSubscriber: AnyCancellable? = nil
-    
-    var parent: SwiftUIWebView
+    private var webViewNavigationSubscriber: AnyCancellable?
     private var estimatedProgressObserver: NSKeyValueObservation?
+    private var lastRequestedURL: URL?
     
-    init(_ parent: SwiftUIWebView, viewModel: WebViewModel) {
-        self.parent = parent
+    init(viewModel: WebViewModel) {
         self.viewModel = viewModel
         super.init()
-        
-        estimatedProgressObserver = self.parent.webView.observe(\.estimatedProgress, options: [.new]) { [weak self] webView, _ in
-            MainActor.assumeIsolated {
-                print(Float(webView.estimatedProgress))
-                guard let weakSelf = self else { return }
+    }
 
-                weakSelf.viewModel.estimatedProgress = webView.estimatedProgress
+    func configure() {
+        webView.navigationDelegate = self
+
+        guard estimatedProgressObserver == nil else { return }
+
+        estimatedProgressObserver = webView.observe(\.estimatedProgress, options: [.new]) { [weak self] webView, _ in
+            MainActor.assumeIsolated {
+                AppLogger.ui.debug("Web view loading progress: \(Float(webView.estimatedProgress), privacy: .public)")
+                guard let self else { return }
+
+                self.viewModel.estimatedProgress = webView.estimatedProgress
             }
-            
         }
-        self.webViewNavigationSubscriber = self.parent.viewModel.webViewNavigationPublisher.receive(on: RunLoop.main).sink(receiveValue: { navigation in
+
+        webViewNavigationSubscriber = viewModel.webViewNavigationPublisher.receive(on: RunLoop.main).sink { [weak self] navigation in
+            guard let self else { return }
+
             switch navigation {
             case .backward:
-                if parent.webView.canGoBack {
-                    parent.webView.goBack()
+                if self.webView.canGoBack {
+                    self.webView.goBack()
                 }
             case .forward:
-                if parent.webView.canGoForward {
-                    parent.webView.goForward()
+                if self.webView.canGoForward {
+                    self.webView.goForward()
                 }
             }
-        })
-        
+        }
+    }
+
+    func update(webView: WKWebView, link: String) {
+        guard let url = URL(string: link), url != lastRequestedURL else { return }
+
+        lastRequestedURL = url
+        webView.load(URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad))
     }
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        let link = webView.url?.absoluteString ?? ""
-        Task { @MainActor in
-            viewModel.link = link
+        guard let url = webView.url else { return }
+
+        lastRequestedURL = url
+        Task { @MainActor [weak self] in
+            self?.viewModel.link = url.absoluteString
         }
     }
-    
+
 }

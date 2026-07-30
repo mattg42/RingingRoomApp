@@ -2,12 +2,14 @@ import SwiftUI
 import WebKit
 
 struct WebView: View {
-    static var privacy = WebView(url: "https://ringingroom.com/privacy", showControls: false)
+    static var privacy: WebView {
+        WebView(url: "https://ringingroom.com/privacy", showControls: false)
+    }
     
-    @ObservedObject var model: WebViewModel
+    @StateObject private var model: WebViewModel
     
     init(url: String, showControls: Bool) {
-        self.model = WebViewModel(progress: 0.0, link: url)
+        _model = StateObject(wrappedValue: WebViewModel(progress: 0.0, link: url))
         self.showControls = showControls
     }
     
@@ -61,13 +63,16 @@ struct WebView: View {
                         Image(systemName: "square.and.arrow.up")
                     }
                     .sheet(isPresented: $actionSheetIsPresented) {
-                        ShareSheet(activityItems: [URL(string: model.link)!], applicationActivities: nil)
+                        if let url = URL(string: model.link) {
+                            ShareSheet(activityItems: [url], applicationActivities: nil)
+                        }
                     }
                     
                     Spacer()
                     
                     Button {
-                        UIApplication.shared.open(URL(string: model.link)!)
+                        guard let url = URL(string: model.link) else { return }
+                        UIApplication.shared.open(url)
                     } label: {
                         Image(systemName: "safari")
                     }
