@@ -14,31 +14,28 @@ struct BellTouchdownButtonStyle: PrimitiveButtonStyle {
     @State private var opacity = 1.0
     
     @State private var disabled = false
-    
-    @GestureState private var location = CGPoint.zero
-        
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .opacity(opacity)
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged({ gesture in
-                        if !disabled && location == .zero {
-                            disabled = true
-                            configuration.trigger()
-                            opacity = 0.35
-                            withAnimation(.linear(duration: cooldown)) {
-                                opacity = 1
-                            }
-                            
-                            ThreadUtil.runInMain(after: cooldown) {
-                                disabled = false
-                            }
-                        }
-                    })
-                    .updating($location) { value, state, transaction in
-                        state = value.location
+            .onLongPressGesture(
+                minimumDuration: 0,
+                maximumDistance: 10,
+                perform: {},
+                onPressingChanged: { isPressing in
+                    guard isPressing else { return }
+                    guard !disabled else { return }
+                    disabled = true
+                    configuration.trigger()
+                    opacity = 0.35
+                    withAnimation(.linear(duration: cooldown)) {
+                        opacity = 1
                     }
+
+                    ThreadUtil.runInMain(after: cooldown) {
+                        disabled = false
+                    }
+                }
             )
     }
 }

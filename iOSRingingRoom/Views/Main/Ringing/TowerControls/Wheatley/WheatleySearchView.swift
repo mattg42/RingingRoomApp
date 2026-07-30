@@ -33,7 +33,7 @@ enum WheatleyError: LocalizedError {
         case .httpStatus(let status):
             return "The Wheatley server returned HTTP status \(status)."
         case .invalidMethodPayload:
-            return "The method response was missing required data."
+            return "Wheatley returned an unsupported method response."
         case .invalidCompositionPayload:
             return "The composition response was missing required data."
         case .invalidCallInterval:
@@ -139,7 +139,8 @@ struct WheatleySearchView: View {
             components.path = "/blueline/methods/search.json"
             components.queryItems = [
                 URLQueryItem(name: "q", value: query),
-                URLQueryItem(name: "stage", value: "\(stage - 1),\(stage)")
+                URLQueryItem(name: "stage", value: "\(stage - 1),\(stage)"),
+                URLQueryItem(name: "fields", value: "title,stage,notation,lengthOfLead,calls,url")
             ]
 
             guard let url = components.url else { throw WheatleyError.invalidURL }
@@ -157,6 +158,7 @@ struct WheatleySearchView: View {
             do {
                 decodedMethods = try JSONDecoder().decode(Methods.self, from: data)
             } catch {
+                AppLogger.network.error("Failed to decode Wheatley method payload: \(String(describing: error), privacy: .private)")
                 throw WheatleyError.invalidMethodPayload
             }
             try Task.checkCancellation()
@@ -229,6 +231,27 @@ struct BluelineMethod: Codable, Identifiable, Hashable {
 
 struct Calls: Codable, Hashable {
     let bob, single: Bob?
+
+    init(from decoder: Decoder) throws {
+        if let container = try? decoder.unkeyedContainer() {
+            guard container.isAtEnd else {
+                throw DecodingError.dataCorrupted(
+                    .init(
+                        codingPath: decoder.codingPath,
+                        debugDescription: "Expected calls to be an object or an empty array."
+                    )
+                )
+            }
+
+            bob = nil
+            single = nil
+            return
+        }
+
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        bob = try container.decodeIfPresent(Bob.self, forKey: .bob)
+        single = try container.decodeIfPresent(Bob.self, forKey: .single)
+    }
     
     enum CodingKeys: String, CodingKey {
         case bob = "Bob"
