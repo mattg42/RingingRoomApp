@@ -25,6 +25,15 @@ struct TowersView: View {
     @State private var towerName = ""
 
     @EnvironmentObject var router: Router<MainRoute>
+
+    private var enteredTowerID: Int? {
+        guard !towerID.isEmpty,
+              towerID.allSatisfy({ "0123456789".contains($0) }) else {
+            return nil
+        }
+
+        return Int(towerID)
+    }
     
     var body: some View {
             NavigationView {
@@ -69,43 +78,50 @@ struct TowersView: View {
                     Divider()
                     
                     DisclosureGroup(isExpanded: $joinTowerShowing) {
-                        HStack {
-                            ZStack {
-                                TextField("Tower ID", text: $towerID)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .disableAutocorrection(true)
-                                    .autocapitalization(.none)
-                                    .onChange(of: towerID, perform: { value in
-                                        if Int(towerID) == nil || towerID.contains("0") {
-                                            towerID = towerID.filter("123456789".contains)
-                                        }
-                                    })
-                                
-                                if !towerID.isEmpty {
-                                    HStack {
-                                        Spacer()
-                                        
-                                        Button {
-                                            towerID = ""
-                                        } label: {
-                                            Image(systemName: "xmark.circle.fill")
-                                                .foregroundColor(.secondary)
-                                        }
-                                    }
-                                    .padding(5)
-                                }
-                            }
-                            
-                            Button {
-                                router.moveTo(.joinTower(towerID: Int(towerID)!, towerDetails: nil))
-                            } label: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
                                 ZStack {
-                                    Color.main
-                                        .cornerRadius(5)
-                                    
-                                    Text("Join Tower")
-                                        .foregroundColor(.white)
+                                    TextField("Tower ID", text: $towerID)
+                                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                                        .disableAutocorrection(true)
+                                        .autocapitalization(.none)
+                                        .keyboardType(.numberPad)
+
+                                    if !towerID.isEmpty {
+                                        HStack {
+                                            Spacer()
+
+                                            Button {
+                                                towerID = ""
+                                            } label: {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundColor(.secondary)
+                                            }
+                                        }
+                                        .padding(5)
+                                    }
                                 }
+
+                                Button {
+                                    guard let enteredTowerID else { return }
+                                    router.moveTo(.joinTower(towerID: enteredTowerID, towerDetails: nil))
+                                } label: {
+                                    ZStack {
+                                        Color.main
+                                            .cornerRadius(5)
+
+                                        Text("Join Tower")
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                                .disabled(enteredTowerID == nil)
+                                .opacity(enteredTowerID == nil ? 0.5 : 1)
+                            }
+
+                            if !towerID.isEmpty && enteredTowerID == nil {
+                                Text("Enter a valid tower ID.")
+                                    .font(.caption)
+                                    .foregroundColor(.red)
                             }
                         }
                         .padding(.vertical, 8)

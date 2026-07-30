@@ -193,13 +193,27 @@ struct WelcomeLoginView: View {
     func login() async {
         focused = nil
         await ErrorUtil.do(networkRequest: true) {
-            let (user, apiService) = try await authenticationService.login(email: email.lowercased(), password: password)
+            let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            let previouslyStoredEmail = UserDefaults.standard.string(forKey: "userEmail")?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .lowercased()
+            let (user, apiService) = try await authenticationService.login(email: normalizedEmail, password: password)
             
             UserDefaults.standard.set(stayLoggedIn, forKey: "keepMeLoggedIn")
             
             if stayLoggedIn {
-                UserDefaults.standard.set(email, forKey: "userEmail")
-                try KeychainService.storePasswordFor(account: email, password: password, server: authenticationService.domain)
+                UserDefaults.standard.set(normalizedEmail, forKey: "userEmail")
+                try KeychainService.storePasswordFor(account: normalizedEmail, password: password, server: authenticationService.domain)
+            } else {
+                UserDefaults.standard.removeObject(forKey: "userEmail")
+                if let previouslyStoredEmail, !previouslyStoredEmail.isEmpty {
+                    for region in Region.allCases {
+                        try? KeychainService.deletePasswordFor(
+                            account: previouslyStoredEmail,
+                            server: "\(region.server)ringingroom.com"
+                        )
+                    }
+                }
             }
             
             router.moveTo(.main(user: user, apiService: apiService, route: .home))

@@ -20,6 +20,26 @@ protocol HTTPClient {
 
 typealias AsyncAction = @MainActor @Sendable () async -> Void
 
+actor TokenRefreshCoordinator {
+    private var refreshTask: Task<String, Error>?
+
+    func refresh(using operation: @escaping @Sendable () async throws -> String) async throws -> String {
+        if let refreshTask {
+            return try await refreshTask.value
+        }
+
+        let task = Task {
+            try await operation()
+        }
+        refreshTask = task
+        return try await task.value
+    }
+
+    func finish() {
+        refreshTask = nil
+    }
+}
+
 extension HTTPClient {
     
     var domain: String {
@@ -107,6 +127,9 @@ extension UnauthenticatedClient {
 @MainActor
 protocol AuthenticatedClient: AnyObject, HTTPClient {
     var token: String { get set }
+    var sessionCredentials: SessionCredentials? { get }
+    var tokenRefreshCoordinator: TokenRefreshCoordinator { get }
+    var sessionExpiredAction: AsyncAction? { get set }
     
     func request<T: Decodable>(path: String, method: HTTPMethod, json: JSON?, headers: JSON?, model: T.Type)  async throws -> T
 }
@@ -122,23 +145,54 @@ extension AuthenticatedClient {
     }
     
     func updateToken() async throws {
-        let authenticationService = AuthenticationService()
-        
-        let email = UserDefaults.standard.string(forKey: "userEmail")!.trimmingCharacters(in: .whitespaces)
-        
-        let password: String
-        
-        do {
-            password = try KeychainService.getPasswordFor(account: email, server: authenticationService.domain)
-        } catch {
-            KeychainService.clear()
-            UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
-            throw error
+        guard let credentials = sessionCredentials else {
+            await endSession()
+            throw APIError.sessionExpired
         }
 
-        let token = try await authenticationService.getToken(email: email.lowercased(), password: password)
-        
-        self.token = token
+        let email = credentials.email
+        let password = credentials.password
+        let region = self.region
+
+        do {
+            let token = try await tokenRefreshCoordinator.refresh {
+                try await AuthenticationService.getToken(
+                    email: email,
+                    password: password,
+                    region: region
+                )
+            }
+
+            self.token = token
+            await tokenRefreshCoordinator.finish()
+        } catch APIError.unauthorized {
+            await tokenRefreshCoordinator.finish()
+            await endSession()
+            throw APIError.sessionExpired
+        } catch {
+            await tokenRefreshCoordinator.finish()
+            throw error
+        }
+    }
+
+    private func endSession() async {
+        var credentialAccounts = sessionCredentials.map { [$0.email] } ?? []
+
+        if let storedEmail = UserDefaults.standard.string(forKey: "userEmail") {
+            let trimmedEmail = storedEmail.trimmingCharacters(in: .whitespacesAndNewlines)
+            credentialAccounts.append(contentsOf: [storedEmail, trimmedEmail, trimmedEmail.lowercased()])
+        }
+
+        for account in Set(credentialAccounts) where !account.isEmpty {
+            try? KeychainService.deletePasswordFor(account: account, server: domain)
+        }
+
+        UserDefaults.standard.removeObject(forKey: "userEmail")
+        UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
+
+        if let sessionExpiredAction {
+            await sessionExpiredAction()
+        }
     }
 }
 

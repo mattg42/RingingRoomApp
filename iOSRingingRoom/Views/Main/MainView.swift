@@ -17,6 +17,8 @@ struct MainView: View {
     
     @State private var user: User
     let apiService: APIService
+
+    @EnvironmentObject private var appRouter: Router<AppRoute>
     
     @StateObject var router: Router<MainRoute>
     
@@ -36,6 +38,14 @@ struct MainView: View {
             }
         }
         .environmentObject(router)
+        .onAppear {
+            apiService.sessionExpiredAction = { [weak appRouter] in
+                appRouter?.moveTo(.login)
+            }
+        }
+        .onDisappear {
+            apiService.sessionExpiredAction = nil
+        }
         .onOpenURL(perform: { url in
             let pathComponents = url.pathComponents.dropFirst()
             print(pathComponents)

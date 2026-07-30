@@ -8,9 +8,12 @@
 import Foundation
 
 @MainActor
-struct AuthenticationService: UnauthenticatedClient {
-    
-    var region: Region = Region(server: UserDefaults.standard.string(forKey: UserDefaults.Keys.Server) ?? "") ?? .uk {
+struct AuthenticationService: UnauthenticatedClient, Sendable {
+    init(region: Region? = nil) {
+        self.region = region ?? Region(server: UserDefaults.standard.string(forKey: UserDefaults.Keys.Server) ?? "") ?? .uk
+    }
+
+    var region: Region {
         didSet {
             UserDefaults.standard.set(region.server, forKey: UserDefaults.Keys.Server)
         }
@@ -53,14 +56,19 @@ struct AuthenticationService: UnauthenticatedClient {
             throw APIError.encode
         }
     }
+
+    static func getToken(email: String, password: String, region: Region) async throws -> String {
+        try await AuthenticationService(region: region).getToken(email: email, password: password)
+    }
     
     func login(email: String, password: String) async throws -> (User, APIService) {
-        let token = try await getToken(email: email.lowercased(), password: password)
-        let apiService = APIService(token: token, region: region)
+        let credentials = SessionCredentials(email: email, password: password)
+        let token = try await getToken(email: credentials.email, password: credentials.password)
+        let apiService = APIService(token: token, region: region, credentials: credentials)
         
         let towers = try await apiService.getTowers()
         let userDetails = try await apiService.getUserDetails()
-        let user = User(email: email, password: password, username: userDetails.username, towers: towers)
+        let user = User(email: credentials.email, password: password, username: userDetails.username, towers: towers)
         return (user, apiService)
     }
 }

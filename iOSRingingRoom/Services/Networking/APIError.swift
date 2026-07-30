@@ -13,6 +13,7 @@ enum APIError: Error, Alertable {
     case invalidURL(attemptedURL: String)
     case noResponse
     case unauthorized
+    case sessionExpired
     case encode
     case http(code: Int)
     case unknown(message: String)
@@ -29,6 +30,8 @@ enum APIError: Error, Alertable {
             return AlertData(title: "No response", message: "There was no response from the server. Please try again.")
         case .unauthorized:
             return AlertData(title: "Unable to login", message: "Your email or password is incorrect.")
+        case .sessionExpired:
+            return AlertData(title: "Session expired", message: "Your session has expired. Please log in again.")
         case .encode:
             return AlertData(title: "Encoding error", message: "There was an error encoding your username or password.")
         case .http(let code):

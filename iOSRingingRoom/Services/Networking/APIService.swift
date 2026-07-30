@@ -7,18 +7,32 @@
 
 import Foundation
 
+struct SessionCredentials: Sendable {
+    let email: String
+    let password: String
+
+    init(email: String, password: String) {
+        self.email = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        self.password = password
+    }
+}
+
 @MainActor
 class APIService: AuthenticatedClient {
-    init(token: String, region: Region, retryAction: AsyncAction? = nil) {
+    init(token: String, region: Region, credentials: SessionCredentials? = nil, retryAction: AsyncAction? = nil) {
         self.token = token
         self.region = region
+        self.sessionCredentials = credentials
         self.retryAction = retryAction
     }
 
     var token: String
     let region: Region
+    let sessionCredentials: SessionCredentials?
+    let tokenRefreshCoordinator = TokenRefreshCoordinator()
     
     var retryAction: AsyncAction? = nil
+    var sessionExpiredAction: AsyncAction? = nil
     
     func getTowers() async throws -> [Tower] {
         try await request(path: "my_towers", method: .get, model: [String: APIModel.Tower].self)

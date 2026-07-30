@@ -41,7 +41,6 @@ struct RingingRoomApp: App {
     init() {
         let freshInstall = !UserDefaults.standard.bool(forKey: "alreadyInstalled")
         if freshInstall {
-            KeychainService.clear()
             UserDefaults.standard.set(true, forKey: "alreadyInstalled")
         }
         
