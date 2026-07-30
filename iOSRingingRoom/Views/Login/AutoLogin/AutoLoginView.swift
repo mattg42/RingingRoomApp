@@ -10,6 +10,7 @@ import SwiftUI
 @MainActor
 private final class AuthenticationRetryBox {
     var action: AsyncAction?
+    var isRunning = false
 }
 
 struct AutoLoginView: View {
@@ -19,6 +20,7 @@ struct AutoLoginView: View {
     @Binding var loginState: LoginState
     
     @State private var autoJoinTowerID: Int?
+    @State private var isAttempting = false
     
     var body: some View {
         ZStack {
@@ -48,6 +50,10 @@ struct AutoLoginView: View {
         
     @MainActor
     func login() async {
+        guard !isAttempting else { return }
+        isAttempting = true
+        defer { isAttempting = false }
+
         let authenticationService = AuthenticationService()
         let region = authenticationService.region
         let server = authenticationService.domain
@@ -75,66 +81,75 @@ struct AutoLoginView: View {
         if !candidateAccounts.contains(email) {
             candidateAccounts.append(email)
         }
-        
-        await ErrorUtil.do(networkRequest: true) {
-            var password: String?
-            var keychainAccount: String?
-            var lookupError: KeychainError?
 
-            for account in candidateAccounts {
-                do {
-                    password = try KeychainService.getPasswordFor(account: account, server: server)
-                    keychainAccount = account
-                    break
-                } catch let error as KeychainError {
-                    if case .itemNotFound = error {
-                        continue
-                    }
-                    lookupError = error
-                    break
+        var password: String?
+        var keychainAccount: String?
+        var lookupError: KeychainError?
+
+        for account in candidateAccounts {
+            do {
+                password = try KeychainService.getPasswordFor(account: account, server: server)
+                keychainAccount = account
+                break
+            } catch let error as KeychainError {
+                if case .itemNotFound = error {
+                    continue
                 }
+                lookupError = error
+                break
+            } catch {
+                loginState = .welcome
+                AlertHandler.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: "Dismiss", action: nil))
+                return
             }
+        }
 
-            guard let password, let keychainAccount else {
-                for account in candidateAccounts {
-                    try? KeychainService.deletePasswordFor(account: account, server: server)
+        guard let password, let keychainAccount else {
+            for account in candidateAccounts {
+                try? KeychainService.deletePasswordFor(account: account, server: server)
+            }
+            UserDefaults.standard.removeObject(forKey: "userEmail")
+            UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
+            loginState = .welcome
+
+            AlertHandler.handle(error: lookupError ?? .itemNotFound)
+            return
+        }
+
+        let authenticate: AsyncAction = { @MainActor in
+            guard !retryBox.isRunning else { return }
+            retryBox.isRunning = true
+            defer { retryBox.isRunning = false }
+
+            var authenticationService = AuthenticationService(region: region)
+            authenticationService.retryAction = retryBox.action
+
+            do {
+                let (user, apiService) = try await authenticationService.login(email: email, password: password)
+
+                if let towerID = autoJoinTowerID {
+                    router.moveTo(.main(user: user, apiService: apiService, route: .joinTower(towerID: towerID, towerDetails: nil)))
+                } else {
+                    router.moveTo(.main(user: user, apiService: apiService, route: .home))
                 }
+            } catch APIError.unauthorized {
+                try? KeychainService.deletePasswordFor(account: keychainAccount, server: server)
                 UserDefaults.standard.removeObject(forKey: "userEmail")
                 UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
                 loginState = .welcome
-
-                let error = lookupError ?? .itemNotFound
-                AlertHandler.presentAlert(title: error.alertData.title, message: error.alertData.message, dismiss: .cancel(title: "OK", action: nil))
-                return
+                AlertHandler.handle(error: APIError.unauthorized)
+            } catch is CancellationError {
+                loginState = .welcome
+            } catch let error as Alertable {
+                loginState = .welcome
+                AlertHandler.handle(error: error)
+            } catch {
+                loginState = .welcome
+                AlertHandler.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: "Dismiss", action: nil))
             }
-            
-            let authenticate: AsyncAction = { @MainActor in
-                var authenticationService = AuthenticationService(region: region)
-                authenticationService.retryAction = retryBox.action
-
-                await ErrorUtil.do {
-                    do {
-                        let (user, apiService) = try await authenticationService.login(email: email, password: password)
-
-                        if let towerID = autoJoinTowerID {
-                            router.moveTo(.main(user: user, apiService: apiService, route: .joinTower(towerID: towerID, towerDetails: nil)))
-                        } else {
-                            router.moveTo(.main(user: user, apiService: apiService, route: .home))
-                        }
-                    } catch APIError.unauthorized {
-                        try? KeychainService.deletePasswordFor(account: keychainAccount, server: server)
-                        UserDefaults.standard.removeObject(forKey: "userEmail")
-                        UserDefaults.standard.set(false, forKey: "keepMeLoggedIn")
-                        loginState = .welcome
-                        throw APIError.unauthorized
-                    } catch {
-                        loginState = .welcome
-                        throw error
-                    }
-                }
-            }
-            retryBox.action = authenticate
-            await authenticate()
         }
+
+        retryBox.action = authenticate
+        await authenticate()
     }
 }

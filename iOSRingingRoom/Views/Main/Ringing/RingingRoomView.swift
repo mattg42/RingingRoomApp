@@ -377,11 +377,11 @@ connection is restored.
             .opacity(showingConnectionErrorAlert ? 1 : 0)
         }
         .onAppear {
-            showingConnectionErrorAlert = monitor.status != .satisfied
+            showingConnectionErrorAlert = monitor.availability == .disconnected
         }
-        .onChange(of: monitor.status, perform: { newValue in
-            showingConnectionErrorAlert = newValue != .satisfied
-            if newValue == .satisfied {
+        .onChange(of: monitor.availability, perform: { newValue in
+            showingConnectionErrorAlert = newValue == .disconnected
+            if newValue == .connected {
                 viewModel.resetSocket()
             }
         })
