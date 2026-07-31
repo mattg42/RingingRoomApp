@@ -88,15 +88,6 @@ struct RingingRoomApp: App {
             UserDefaults.standard.set(true, forKey: "alreadyInstalled")
         }
         
-        let session = AVAudioSession.sharedInstance()
-        
-        do {
-            try session.setCategory(.playback, mode: .default, options: [.duckOthers, .interruptSpokenAudioAndMixWithOthers])
-            
-            try session.setPreferredIOBufferDuration(0.002)
-            try session.setActive(true, options: .notifyOthersOnDeactivation)
-        } catch {
-        }
     }
     
     @StateObject var router = Router<AppRoute>(defaultRoute: .login)

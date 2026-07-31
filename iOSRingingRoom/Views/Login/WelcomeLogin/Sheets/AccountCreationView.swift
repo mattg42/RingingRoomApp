@@ -32,7 +32,7 @@ struct AccountCreationView: View {
                         .disableAutocorrection(true)
                 }
                 
-                Section(footer: Text("You'll use your email address to log in. We will never share it with anyone.")) {
+                Section(footer: Text("You'll use your email address to log in and reset your password. It is sent to Ringing Room for account services and is not included in chat messages sent to tower participants.")) {
                     TextField("Email", text: $email)
                         .textContentType(.username)
                         .keyboardType(.emailAddress)

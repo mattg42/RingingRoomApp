@@ -35,20 +35,27 @@ struct JoinTowerView: View {
     func joinTower(id: Int, towerDetails: APIModel.TowerDetails?) async {
         await ErrorUtil.do(networkRequest: true) {
             if let towerDetails {
-                connectToTower(towerDetails: towerDetails, isHost: true)
+                try connectToTower(towerDetails: towerDetails, isHost: true)
             } else {
                 let towerDetails = try await apiService.getTowerDetails(towerID: id)
                 let isHost = user.towers.first(where: { $0.towerID == id })?.host ?? false
                 
-                connectToTower(towerDetails: towerDetails, isHost: isHost)
+                try connectToTower(towerDetails: towerDetails, isHost: isHost)
             }
         }
     }
     
-    func connectToTower(towerDetails: APIModel.TowerDetails, isHost: Bool) {
+    func connectToTower(towerDetails: APIModel.TowerDetails, isHost: Bool) throws {
+        guard let url = URL(string: towerDetails.server_address),
+              let scheme = url.scheme?.lowercased(),
+              ["http", "https", "ws", "wss"].contains(scheme),
+              url.host != nil else {
+            throw APIError.invalidURL(attemptedURL: towerDetails.server_address)
+        }
+
         let towerInfo = TowerInfo(towerDetails: towerDetails, isHost: isHost)
         
-        let socketIOService = SocketIOService(url: URL(string: towerDetails.server_address)!)
+        let socketIOService = SocketIOService(url: url)
         
         let ringingRoomViewModel = RingingRoomViewModel(socketIOService: socketIOService, router: router, towerInfo: towerInfo, apiService: apiService, user: user)
         

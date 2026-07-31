@@ -46,10 +46,16 @@ class APIService: AuthenticatedClient {
     var sessionExpiredAction: AsyncAction? = nil
     
     func getTowers() async throws -> [Tower] {
-        try await request(path: "my_towers", method: .get, model: [String: APIModel.Tower].self)
-            .values
-            .map { tower in
-                Tower(towerModel: tower)
+        let towerModels = try await request(path: "my_towers", method: .get, model: [String: APIModel.Tower].self)
+
+        return towerModels.values
+            .compactMap { towerModel in
+                do {
+                    return try Tower(towerModel: towerModel)
+                } catch {
+                    AppLogger.network.warning("Ignoring malformed tower row: \(String(describing: error), privacy: .private)")
+                    return nil
+                }
             }
             .sorted(by: {
                 $0.visited > $1.visited

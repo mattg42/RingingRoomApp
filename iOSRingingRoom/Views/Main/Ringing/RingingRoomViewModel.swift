@@ -112,7 +112,9 @@ class RingingRoomViewModel: ObservableObject {
         self.user = user
         self.router = router
         self.socketIOService.delegate = self
-        self.audioService.starling.prepareToStart()
+        Task { [audioService] in
+            await audioService.prepareToStart()
+        }
     }
     
     deinit {
@@ -124,10 +126,16 @@ class RingingRoomViewModel: ObservableObject {
     }
     
     func ringBell(number: Int) {
+        guard isValidBell(number),
+              let stroke = state.bellStates[safe: number - 1] else {
+            AppLogger.socket.warning("Ignoring attempt to ring bell outside the current tower state")
+            return
+        }
+
         #if DEBUG
         ringTime = .now
         #endif
-        send(.bellRung(bell: number, stroke: state.bellStates[number - 1].boolValue))
+        send(.bellRung(bell: number, stroke: stroke.boolValue))
     }
     
     func connect() {
@@ -233,11 +241,13 @@ class RingingRoomViewModel: ObservableObject {
 
     private func resetTowerState() {
         connected = false
+        // Set the size first, so SwiftUI never observes a non-zero size with
+        // empty bell-state or assignment arrays.
+        state.size = 0
         state.ringer = nil
         state.users = []
         state.assignments = []
         state.bellStates = []
-        state.size = 0
         state.hostMode = false
         state.newMessages = 0
         state.messages = []
@@ -265,7 +275,7 @@ class RingingRoomViewModel: ObservableObject {
             case .sizeChange(let newSize):
                 return ["tower_id": towerInfo.towerID, "new_size": newSize]
             case .messageSent(let message, let time):
-                return ["user": user.username, "email": user.email, "msg": message, "tower_id": towerInfo.towerID, "time": time]
+                return ["user": user.username, "msg": message, "tower_id": towerInfo.towerID, "time": time]
             case .call(let call):
                 return ["call": call, "tower_id": towerInfo.towerID]
             case .setBells:
@@ -295,7 +305,7 @@ class RingingRoomViewModel: ObservableObject {
         UserDefaults.standard.set(volume, forKey: "volume")
 
         let mappedVolume = pow(volume, 3)
-        audioService.starling.changeVolume(to: Float(mappedVolume))
+        audioService.changeVolume(to: Float(mappedVolume))
     }
     
     var canSeeMessages = false
@@ -405,9 +415,21 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func didReceiveGlobalState(_ globalState: [BellStroke]) {
-        if state.size == 0 {
-            sizeDidChange(to: globalState.count)
+        guard isSupportedSize(globalState.count) else {
+            AppLogger.socket.warning("Ignoring global state with unsupported size \(globalState.count, privacy: .public)")
+            return
         }
+
+        guard state.size == 0 || state.size == globalState.count else {
+            AppLogger.socket.warning("Ignoring global state that does not match the current tower size")
+            return
+        }
+
+        if state.size == 0 {
+            resizeTowerState(to: globalState.count, bellStates: globalState)
+            return
+        }
+
         state.bellStates = globalState
     }
     
@@ -421,21 +443,26 @@ extension RingingRoomViewModel: SocketIODelegate {
         AppLogger.socket.debug("Bell event latency: \(latency, privacy: .public) seconds")
         #endif
         
+        guard isValidBell(number), globalState.count == state.size else {
+            AppLogger.socket.warning("Ignoring bell event with invalid bell number or global state")
+            return
+        }
+
         state.bellStates = globalState
         
-        guard var fileName = state.bellType.sounds[state.size]?[number - 1] else { return }
+        guard var fileName = state.bellType.sounds[state.size]?[safe: number - 1] else { return }
         
         if state.bellType == .tower {
             fileName = "T" + fileName
             switch towerInfo.muffled {
             case .toll:
-                if (number != state.size) || globalState[number - 1] == .back {
+                if (number != state.size) || globalState[safe: number - 1] == .back {
                     fileName += "-muf"
                 }
             case .full:
                 fileName += "-muf"
             case .half:
-                if state.bellStates[number-1] == .hand {
+                if state.bellStates[safe: number - 1] == .hand {
                     fileName += "-muf"
                 }
             default:
@@ -451,6 +478,11 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func didAssign(ringerID: Int, to bell: Int) {
+        guard isValidBell(bell), state.assignments.count == state.size else {
+            AppLogger.socket.warning("Ignoring assignment outside the current tower state")
+            return
+        }
+
         if state.users.contains(where: { $0.ringerID == ringerID }) {
             state.assignments[bell - 1] = ringerID
         } else if ringerID == 0 {
@@ -486,31 +518,54 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func sizeDidChange(to newSize: Int) {
-        if state.size != newSize {
-            if state.size == 0 {
-                send(.requestGlobalState)
-            }
-            
-            if newSize > state.size {
-                for _ in 1...(newSize - state.size) {
-                    state.assignments.append(nil)
-                }
-            } else {
-                state.assignments = Array(state.assignments[..<newSize])
-            }
-            
-            if autoRotate {
-                setPersective()
-            } else {
-                if state.perspective > newSize {
-                    state.perspective = 1
-                }
-            }
-            
-            state.bellStates = Array(repeating: .hand, count: newSize)
-            state.size = newSize
-        } else {
+        guard isSupportedSize(newSize) else {
+            AppLogger.socket.warning("Ignoring unsupported tower size \(newSize, privacy: .public)")
+            return
+        }
+
+        if state.size == newSize {
             send(.requestGlobalState)
+            return
+        }
+
+        let needsGlobalState = state.size == 0
+        resizeTowerState(to: newSize)
+
+        if needsGlobalState {
+            send(.requestGlobalState)
+        }
+    }
+
+    private func isSupportedSize(_ size: Int) -> Bool {
+        towerInfo.towerSizes.contains(size)
+    }
+
+    private func isValidBell(_ bell: Int) -> Bool {
+        isSupportedSize(state.size) && (1...state.size).contains(bell)
+    }
+
+    private func resizeTowerState(to newSize: Int, bellStates: [BellStroke]? = nil) {
+        let oldSize = state.size
+        var assignments = Array(state.assignments.prefix(newSize))
+        assignments.append(contentsOf: repeatElement(nil, count: newSize - assignments.count))
+        let newBellStates = bellStates ?? Array(repeating: .hand, count: newSize)
+
+        // Maintain the view-model invariant at every observable step: any
+        // non-zero size has matching assignment and bell-state arrays.
+        if newSize < oldSize {
+            state.size = newSize
+            state.assignments = assignments
+            state.bellStates = newBellStates
+        } else {
+            state.assignments = assignments
+            state.bellStates = newBellStates
+            state.size = newSize
+        }
+
+        if autoRotate {
+            setPersective()
+        } else if state.perspective > newSize {
+            state.perspective = 1
         }
     }
     

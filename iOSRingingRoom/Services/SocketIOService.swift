@@ -206,12 +206,12 @@ class SocketIOService {
     private func setupListeners() {
 
         listen(for: "s_user_entered") { [weak self] data in
-            let user = Ringer(from: data)
+            let user = try Ringer(socketPayload: data)
             self?.notify { $0.userDidEnter(user) }
         }
         
         listen(for: "s_user_left") { [weak self] data in
-            let user = Ringer(from: data)
+            let user = try Ringer(socketPayload: data)
 
             self?.notify { $0.userDidLeave(user) }
         }
@@ -224,8 +224,8 @@ class SocketIOService {
         }
         
         listen(for: "s_set_userlist") { [weak self] data in
-            let userList = (try data.extract("user_list", as: [[String: Any]].self))
-                .map({ Ringer(from: $0) })
+            let userPayloads = try data.extract("user_list", as: [[String: Any]].self)
+            let userList = try userPayloads.map { try Ringer(socketPayload: $0) }
 
             self?.notify { $0.didReceiveUserList(userList) }
         }

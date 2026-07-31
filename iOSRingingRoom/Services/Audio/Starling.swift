@@ -56,6 +56,9 @@ public class Starling {
     private var players: [StarlingAudioPlayer]
     private var files: [String: AVAudioFile]
     private let engine = AVAudioEngine()
+    private let audioSession = AVAudioSession.sharedInstance()
+    private let notificationObservers = NotificationObserverStore()
+    private var isInterrupted = false
 
     // MARK: - Error handling
 
@@ -71,31 +74,16 @@ public class Starling {
         files = [String: AVAudioFile]()
 
         createInitialPlayers()
-        startEngine()
+        configureAudioSession()
+        prepareToStart()
         
         let volume = UserDefaults.standard.optionalDouble(forKey: "volume") ?? 1
         let mappedVolume = pow(volume, 3)
         changeVolume(to: Float(mappedVolume))
         
-        NotificationCenter.default.addObserver(self, selector: #selector(audioOutputChanged), name: Notification.Name.AVAudioEngineConfigurationChange, object: nil)
+        observeAudioEvents()
     }
-    
-    @objc func audioOutputChanged(notification:Notification) {
-        for node in engine.attachedNodes {
-            engine.disconnectNodeOutput(node)
-        }
-        for player in players {
-            engine.connect(player.node, to: engine.mainMixerNode, format: nil)
-        }
-        engine.connect(engine.mainMixerNode, to: engine.outputNode, format: nil)
-        do {
-            engine.prepare()
-            try engine.start()
-        } catch {
-            AppLogger.audio.error("Audio engine failed to start after output configuration changed")
-        }
-    }
-    
+
     // MARK: - Public API (Change volume)
     public func changeVolume(to volume: Float) {
         engine.mainMixerNode.outputVolume = volume
@@ -104,14 +92,10 @@ public class Starling {
     // MARK: - Public API (Loading Sounds)
     
     public func load(resource: String, type: String, for identifier: SoundIdentifier, in bundle: Bundle? = nil) {
-        Task { @MainActor [weak self] in
-            if let blockSelf = self {
-                if let url = (bundle ?? Bundle.main).url(forResource: resource, withExtension: type) {
-                    blockSelf.load(sound: url, for: identifier)
-                } else {
-                    blockSelf.handleNonFatalError(StarlingError.resourceNotFound(name: "\(resource).\(type)"))
-                }
-            }
+        if let url = (bundle ?? Bundle.main).url(forResource: resource, withExtension: type) {
+            load(sound: url, for: identifier)
+        } else {
+            handleNonFatalError(StarlingError.resourceNotFound(name: "\(resource).\(type)"))
         }
     }
     
@@ -126,35 +110,26 @@ public class Starling {
     // MARK: - Public API (Playback)
     
     public func prepareToStart() {
-        if !engine.isRunning && !startEngine() {
+        guard !engine.isRunning, !isInterrupted else { return }
+
+        if !startEngine() {
             resetPlayersAndEngine()
         }
     }
     
     public func play(_ sound: SoundIdentifier, allowOverlap: Bool = true) {
-        if !engine.isRunning && !startEngine() {
-            resetPlayersAndEngine()
-        }
-        
-        Task { @MainActor [weak self] in
-            self?.performSoundPlayback(sound, allowOverlap: allowOverlap)
-        }
+        prepareToStart()
+        performSoundPlayback(sound, allowOverlap: allowOverlap)
     }
     
     public func stop(_ sound: SoundIdentifier) {
-        Task { @MainActor [weak self] in
-            self?.performSoundStop(sound)
-        }
+        performSoundStop(sound)
     }
 
     // MARK: - Internal Functions
     
     private func performSoundPlayback(_ sound: SoundIdentifier, allowOverlap: Bool) {
-        // Note: self is used as the lock pointer here to avoid
-        // the possibility of locking on _swiftEmptyDictionaryStorage
-        objc_sync_enter(self)
         let file = files[sound]
-        objc_sync_exit(self)
         
         guard let audio = file else {
             handleNonFatalError(StarlingError.invalidSoundIdentifier(name: sound))
@@ -168,10 +143,7 @@ public class Starling {
             }
 
             guard let player = firstAvailablePlayer() else { return }
-
-            objc_sync_enter(players)
             player.play(audio, identifier: sound)
-            objc_sync_exit(players)
         }
         
         if allowOverlap {
@@ -183,20 +155,14 @@ public class Starling {
         }
     }
 
-  public func performSoundStop(_ sound: SoundIdentifier)  {
-      objc_sync_enter(players)
-      defer { objc_sync_exit(players) }
-      // TODO: This O(n) loop could be eliminated by simply keeping a playback tally
-      for player in players {
-          if player.state.status != .idle && player.state.sound == sound {
-              player.stop(identifier: sound)
-          }
-      }
-  }
+    public func performSoundStop(_ sound: SoundIdentifier)  {
+        // TODO: This O(n) loop could be eliminated by simply keeping a playback tally.
+        for player in players where player.state.status != .idle && player.state.sound == sound {
+            player.stop(identifier: sound)
+        }
+    }
 
     private func soundIsCurrentlyPlaying(_ sound: SoundIdentifier) -> Bool {
-        objc_sync_enter(players)
-        defer { objc_sync_exit(players) }
         // TODO: This O(n) loop could be eliminated by simply keeping a playback tally
         for player in players {
             let state = player.state
@@ -208,20 +174,15 @@ public class Starling {
     }
     
     private func firstAvailablePlayer() -> StarlingAudioPlayer? {
-        objc_sync_enter(players)
-        defer { objc_sync_exit(players) }
-        let player: StarlingAudioPlayer? = {
-            // TODO: A better solution would be to actively manage a pool of available player references
-            // For almost every general use case of this library, however, this performance penalty is trivial
-            let player = players.first(where: { $0.state.status == .idle })
-            if player == nil && players.count < Starling.maximumTotalPlayers {
-                let newPlayer = createNewPlayerAttachedToEngine()
-                players.append(newPlayer)
-                return newPlayer
-            }
+        // TODO: A better solution would be to actively manage a pool of available player references
+        // For almost every general use case of this library, however, this performance penalty is trivial
+        if let player = players.first(where: { $0.state.status == .idle }) {
             return player
-        }()
-        
+        }
+
+        guard players.count < Starling.maximumTotalPlayers else { return nil }
+        let player = createNewPlayerAttachedToEngine()
+        players.append(player)
         return player
     }
     
@@ -233,11 +194,7 @@ public class Starling {
     }
     
     private func didFinishLoadingAudioFile(_ file: AVAudioFile, identifier: SoundIdentifier) {
-        // Note: self is used as the lock pointer here to avoid
-        // the possibility of locking on _swiftEmptyDictionaryStorage
-        objc_sync_enter(self)
         files[identifier] = file
-        objc_sync_exit(self)
     }
         
     private func createInitialPlayers() {
@@ -247,7 +204,11 @@ public class Starling {
     }
     
     @discardableResult private func startEngine() -> Bool {
+        guard !isInterrupted else { return false }
+
         do {
+            try audioSession.setActive(true)
+            engine.prepare()
             try engine.start()
         } catch {
             handleNonFatalError(error)
@@ -258,19 +219,111 @@ public class Starling {
     }
     
     private func resetPlayersAndEngine() {
+        guard !isInterrupted else { return }
+
+        engine.stop()
         engine.reset()
-        objc_sync_enter(players)
-        players = []
+        players.removeAll()
         createInitialPlayers()
-        objc_sync_exit(players)
-        
-        startEngine()
+
+        _ = startEngine()
     }
     
     private func handleNonFatalError(_ error: Error) {
         AppLogger.audio.error("Audio error: \(String(describing: error), privacy: .private)")
-        Task { @MainActor in
-            Self.nonFatalErrorHandler?(error)
+        Self.nonFatalErrorHandler?(error)
+    }
+
+    private func configureAudioSession() {
+        do {
+            try audioSession.setCategory(
+                .playback,
+                mode: .default,
+                options: [.duckOthers, .interruptSpokenAudioAndMixWithOthers]
+            )
+            try audioSession.setPreferredIOBufferDuration(0.002)
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            handleNonFatalError(error)
+        }
+    }
+
+    private func observeAudioEvents() {
+        let notificationCenter = NotificationCenter.default
+
+        notificationObservers.append(
+            notificationCenter.addObserver(
+                forName: .AVAudioEngineConfigurationChange,
+                object: engine,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    self?.recoverFromAudioConfigurationChange()
+                }
+            }
+        )
+
+        notificationObservers.append(
+            notificationCenter.addObserver(
+                forName: AVAudioSession.interruptionNotification,
+                object: audioSession,
+                queue: .main
+            ) { [weak self] notification in
+                let interruptionType = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
+                let interruptionOptions = notification.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt
+                Task { @MainActor [weak self] in
+                    self?.handleAudioInterruption(type: interruptionType, options: interruptionOptions)
+                }
+            }
+        )
+
+        notificationObservers.append(
+            notificationCenter.addObserver(
+                forName: AVAudioSession.routeChangeNotification,
+                object: audioSession,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    self?.recoverFromAudioConfigurationChange()
+                }
+            }
+        )
+    }
+
+    private func handleAudioInterruption(type rawType: UInt?, options rawOptions: UInt?) {
+        guard let rawType,
+              let interruptionType = AVAudioSession.InterruptionType(rawValue: rawType) else {
+            return
+        }
+
+        switch interruptionType {
+        case .began:
+            isInterrupted = true
+            engine.pause()
+        case .ended:
+            isInterrupted = false
+            let options = AVAudioSession.InterruptionOptions(rawValue: rawOptions ?? 0)
+            if options.contains(.shouldResume) {
+                recoverFromAudioConfigurationChange()
+            }
+        @unknown default:
+            break
+        }
+    }
+
+    private func recoverFromAudioConfigurationChange() {
+        guard !isInterrupted else { return }
+
+        engine.stop()
+        for player in players {
+            engine.disconnectNodeOutput(player.node)
+            engine.connect(player.node, to: engine.mainMixerNode, format: nil)
+        }
+        engine.disconnectNodeOutput(engine.mainMixerNode)
+        engine.connect(engine.mainMixerNode, to: engine.outputNode, format: nil)
+
+        if !startEngine() {
+            resetPlayersAndEngine()
         }
     }
     
@@ -290,7 +343,6 @@ public class Starling {
     @objc private func diagnosticTimerFire(_ timer: Timer) {
         let loadedFileCount = files.count
         AppLogger.audio.debug("Audio diagnostics: \(loadedFileCount, privacy: .public) files loaded")
-        objc_sync_enter(players)
         let playerCount = players.count
         let playingCount = players.filter({ $0.state.status != .idle }).count
         AppLogger.audio.debug("Audio diagnostics: \(playerCount, privacy: .public) players, \(playingCount, privacy: .public) currently playing")
@@ -298,7 +350,23 @@ public class Starling {
             let status = player.state.status == .idle ? "Idle" : "Playing"
             AppLogger.audio.debug("Audio player \(index, privacy: .public): \(status, privacy: .public)")
         }
-        objc_sync_exit(players)
+    }
+}
+
+/// Notification-center observer tokens are not Sendable, but this store is
+/// only mutated on Starling's main-actor executor. It owns and unregisters
+/// tokens without forcing Starling's nonisolated deinitializer to touch them.
+private final class NotificationObserverStore: @unchecked Sendable {
+    private var observers = [NSObjectProtocol]()
+
+    func append(_ observer: NSObjectProtocol) {
+        observers.append(observer)
+    }
+
+    deinit {
+        for observer in observers {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 }
 

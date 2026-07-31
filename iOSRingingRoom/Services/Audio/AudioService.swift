@@ -6,8 +6,6 @@
 //
 
 import Foundation
-
-import Foundation
 import AVFoundation
 
 enum SoundAsset: String, CaseIterable {
@@ -91,37 +89,73 @@ enum SoundAsset: String, CaseIterable {
 }
 
 @MainActor
-struct AudioService {
-        
-    let starling = Starling()
-    
+final class AudioService {
+    private let starling = Starling()
+    private var preloadTask: Task<Void, Never>?
+
+    private(set) var isReady = false
+
     init() {
-        loadSounds()
-    }
-    
-    func loadSounds() {
-        for sound in SoundAsset.allCases {
-            switch sound.rawValue {
-            case "bob":
-                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("Bob"))
-            case "single":
-                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("Single"))
-            case "go":
-                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("Go"))
-            case "look":
-                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("Look to"))
-            case "stand":
-                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("Stand next"))
-            case "all":
-                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier("That's all"))
-            default:
-                starling.load(resource: sound.rawValue, type: "wav", for: SoundIdentifier(sound.rawValue))
+        preloadTask = Task { @MainActor [weak self, starling] in
+            for sound in SoundAsset.allCases {
+                guard !Task.isCancelled else { return }
+
+                starling.load(resource: sound.rawValue, type: "wav", for: sound.identifier)
+                // Keep startup responsive while still loading every sound on
+                // Starling's single, main-actor executor.
+                await Task.yield()
             }
+
+            self?.isReady = true
         }
     }
-    
-    func play(_ file:String) {
-        starling.play(SoundIdentifier(file))
+
+    deinit {
+        preloadTask?.cancel()
+    }
+
+    /// Waits for all bundled sounds to be available before preparing playback.
+    func prepareToStart() async {
+        await preloadTask?.value
+        guard !Task.isCancelled else { return }
+        starling.prepareToStart()
+    }
+
+    func changeVolume(to volume: Float) {
+        starling.changeVolume(to: volume)
+    }
+
+    /// Playback requests made during preload are retained and run as soon as
+    /// the complete sound bank is available, rather than being discarded.
+    func play(_ file: String) {
+        let task = preloadTask
+        let identifier = SoundIdentifier(file)
+
+        Task { @MainActor [starling] in
+            await task?.value
+            guard !Task.isCancelled else { return }
+            starling.play(identifier)
+        }
     }
 }
 
+private extension SoundAsset {
+    var identifier: SoundIdentifier {
+        switch self {
+        case .BOB:
+            SoundIdentifier("Bob")
+        case .SINGLE:
+            SoundIdentifier("Single")
+        case .GO:
+            SoundIdentifier("Go")
+        case .LOOKTO:
+            SoundIdentifier("Look to")
+        case .STAND:
+            SoundIdentifier("Stand next")
+        case .THATSALL:
+            SoundIdentifier("That's all")
+        default:
+            SoundIdentifier(rawValue)
+        }
+    }
+}

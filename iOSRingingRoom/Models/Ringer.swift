@@ -23,21 +23,42 @@ struct Ringer: Identifiable, Codable, Equatable, Sendable {
         case ringerID = "user_id"
     }
     
-    init(from dict: [String: Any]) {
+    init(socketPayload: [String: Any]) throws {
         AppLogger.socket.debug("Parsing ringer payload")
-        
-        let ringerID = dict["user_id"] as! Int
-        
-        if ringerID == -1 {
+
+        guard JSONSerialization.isValidJSONObject(socketPayload) else {
+            throw RingerPayloadError.invalidJSON
+        }
+
+        let data = try JSONSerialization.data(withJSONObject: socketPayload)
+        let payload = try JSONDecoder().decode(SocketPayload.self, from: data)
+
+        if payload.ringerID == -1 {
             self = .wheatley
         } else {
-            let name = dict["username"] as? String ?? "Username not found"
-            
-            self = Ringer(name: name, id: ringerID)
+            self = Ringer(name: payload.name ?? "Username not found", id: payload.ringerID)
         }
     }
     
     static let wheatley = Ringer(name: "Wheatley", id: -1)
+
+    private struct SocketPayload: Decodable {
+        let name: String?
+        let ringerID: Int
+
+        enum CodingKeys: String, CodingKey {
+            case name = "username"
+            case ringerID = "user_id"
+        }
+    }
+}
+
+private enum RingerPayloadError: LocalizedError {
+    case invalidJSON
+
+    var errorDescription: String? {
+        "Ringer payload is not a valid JSON object."
+    }
 }
 
 extension Array where Element == Ringer? {
