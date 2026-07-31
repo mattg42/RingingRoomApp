@@ -105,12 +105,27 @@ class RingingRoomState: ObservableObject {
 @MainActor
 class RingingRoomViewModel: ObservableObject {
     
-    init(socketIOService: SocketIOService, router: Router<MainRoute>, towerInfo: TowerInfo, apiService: APIService, user: User) {
+    init(
+        socketIOService: any SocketTransport,
+        router: Router<MainRoute>,
+        towerInfo: TowerInfo,
+        apiService: any RingingRoomAPIClient,
+        user: User,
+        audioService: any AudioPlaying = AudioService(),
+        preferences: any PreferencesStoring = UserDefaultsPreferences(),
+        alertPresenter: any AlertPresenting = SystemAlertPresenter(),
+        scheduler: any TaskScheduling = LiveTaskScheduler()
+    ) {
         self.socketIOService = socketIOService
         self.towerInfo = towerInfo
         self.apiService = apiService
         self.user = user
         self.router = router
+        self.audioService = audioService
+        self.preferences = preferences
+        self.alertPresenter = alertPresenter
+        self.scheduler = scheduler
+        self.autoRotate = preferences.optionalBool(forKey: "autoRotate") ?? true
         self.socketIOService.delegate = self
         Task { [audioService] in
             await audioService.prepareToStart()
@@ -168,7 +183,7 @@ class RingingRoomViewModel: ObservableObject {
         if let ringer = state.ringer {
             return ringer
         } else {
-            AlertHandler.presentAlert(title: "An error occured", message: "Please leave the tower and rejoin", dismiss: .cancel(title: "Leave", action: { [weak self] in
+            alertPresenter.presentAlert(title: "An error occured", message: "Please leave the tower and rejoin", dismiss: .cancel(title: "Leave", action: { [weak self] in
                 self?.send(.leaveTower)
             }))
             return Ringer(name: "", id: 0)
@@ -176,11 +191,14 @@ class RingingRoomViewModel: ObservableObject {
     }
     
     let router: Router<MainRoute>
-    let apiService: APIService
+    let apiService: any RingingRoomAPIClient
     let user: User
     
-    let socketIOService: SocketIOService
+    let socketIOService: any SocketTransport
     let towerInfo: TowerInfo
+    private let preferences: any PreferencesStoring
+    private let alertPresenter: any AlertPresenting
+    private let scheduler: any TaskScheduling
     
     func disconnect() {
         connectionTimeoutTask?.cancel()
@@ -224,13 +242,7 @@ class RingingRoomViewModel: ObservableObject {
 
     private func startConnectionTimeout() {
         connectionTimeoutTask?.cancel()
-        connectionTimeoutTask = Task { [weak self] in
-            do {
-                try await Task.sleep(nanoseconds: 20_000_000_000)
-            } catch {
-                return
-            }
-
+        connectionTimeoutTask = scheduler.schedule(after: 20_000_000_000) { [weak self] in
             guard let self, self.connectionState != .joined else { return }
             self.connectionTimeoutTask = nil
             self.connectionState = .failed
@@ -299,10 +311,10 @@ class RingingRoomViewModel: ObservableObject {
     
     let callPublisher = PassthroughSubject<String, Never>()
     
-    private let audioService = AudioService()
+    private let audioService: any AudioPlaying
     
     func changeVolume(to volume: Double) {
-        UserDefaults.standard.set(volume, forKey: "volume")
+        preferences.set(volume, forKey: "volume")
 
         let mappedVolume = pow(volume, 3)
         audioService.changeVolume(to: Float(mappedVolume))
@@ -316,7 +328,7 @@ class RingingRoomViewModel: ObservableObject {
     var assignmentsBuffer = [Ringer?]()
     var usersBuffer = [Ringer]()
     
-    var autoRotate = UserDefaults.standard.optionalBool(forKey: "autoRotate") ?? true
+    var autoRotate: Bool
     
     #if DEBUG
     var ringTime: Date = .now
@@ -489,7 +501,7 @@ extension RingingRoomViewModel: SocketIODelegate {
             state.assignments[bell - 1] = nil
         } else {
             // TODO: Change action to acutally leave the tower
-            AlertHandler.presentAlert(title: "Error", message: "The users list is out of sync. Please leave the tower and rejoin.", dismiss: .cancel(title: "OK", action: nil))
+            alertPresenter.presentAlert(title: "Error", message: "The users list is out of sync. Please leave the tower and rejoin.", dismiss: .cancel(title: "OK", action: nil))
             return
         }
         
@@ -611,11 +623,11 @@ extension RingingRoomViewModel: SocketIODelegate {
             } catch let error as Alertable {
                 guard self.tokenRecoveryGeneration == generation else { return }
                 self.failTokenRecovery()
-                AlertHandler.handle(error: error)
+                alertPresenter.handle(error: error)
             } catch {
                 guard self.tokenRecoveryGeneration == generation else { return }
                 self.failTokenRecovery()
-                AlertHandler.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: "Dismiss", action: nil))
+                alertPresenter.presentAlert(title: "Error", message: error.localizedDescription, dismiss: .cancel(title: "Dismiss", action: nil))
             }
         }
     }

@@ -232,6 +232,11 @@ struct BluelineMethod: Codable, Identifiable, Hashable {
 struct Calls: Codable, Hashable {
     let bob, single: Bob?
 
+    init(bob: Bob?, single: Bob?) {
+        self.bob = bob
+        self.single = single
+    }
+
     init(from decoder: Decoder) throws {
         if let container = try? decoder.unkeyedContainer() {
             guard container.isAtEnd else {

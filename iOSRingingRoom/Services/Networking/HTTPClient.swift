@@ -137,7 +137,7 @@ extension UnauthenticatedClient {
 protocol AuthenticatedClient: AnyObject, HTTPClient {
     var token: String { get set }
     var sessionCredentials: SessionCredentials? { get set }
-    var credentialStore: SessionCredentialStore { get }
+    var credentialStore: any SessionCredentialStoring { get }
     var tokenRefreshCoordinator: TokenRefreshCoordinator { get }
     var sessionExpiredAction: AsyncAction? { get set }
     

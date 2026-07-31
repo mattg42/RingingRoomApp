@@ -14,8 +14,10 @@ enum LoginState {
 }
 
 struct LoginOverview: View {
+    private let isUITestingAutomaticLogin: Bool
     
-    init(_ loginState: LoginState? = nil) {
+    init(_ loginState: LoginState? = nil, isUITestingAutomaticLogin: Bool = false) {
+        self.isUITestingAutomaticLogin = isUITestingAutomaticLogin
         if let loginState {
             self.loginState = loginState
         } else {
@@ -31,7 +33,7 @@ struct LoginOverview: View {
             case .welcome:
                 WelcomeLoginView()
             case .auto:
-                AutoLoginView(loginState: $loginState)
+                AutoLoginView(loginState: $loginState, isUITesting: isUITestingAutomaticLogin)
             }
         }
     }

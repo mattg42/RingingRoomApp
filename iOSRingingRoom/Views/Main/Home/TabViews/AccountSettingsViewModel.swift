@@ -19,10 +19,15 @@ struct AccountDeletionResult {
 final class AccountSettingsViewModel: ObservableObject {
     @Published private(set) var isRunning = false
 
-    let apiService: APIService
+    let apiService: any AccountAPIClient
+    private let alertPresenter: any AlertPresenting
 
-    init(apiService: APIService) {
+    init(
+        apiService: any AccountAPIClient,
+        alertPresenter: any AlertPresenting = SystemAlertPresenter()
+    ) {
         self.apiService = apiService
+        self.alertPresenter = alertPresenter
     }
 
     func updateUser(
@@ -32,7 +37,7 @@ final class AccountSettingsViewModel: ObservableObject {
         currentPassword: String
     ) async -> AccountSettingsUpdateResult? {
         guard !currentPassword.isEmpty else {
-            AlertHandler.presentAlert(
+            alertPresenter.presentAlert(
                 title: "Current password required",
                 message: "Enter your current password to confirm this change.",
                 dismiss: .cancel(title: "OK", action: nil)
@@ -56,10 +61,10 @@ final class AccountSettingsViewModel: ObservableObject {
                 return AccountSettingsUpdateResult(user: updatedUser, automaticLoginDisabled: true)
             }
 
-            AlertHandler.handle(error: error)
+            alertPresenter.handle(error: error)
             return nil
         } catch {
-            AlertHandler.presentAlert(
+            alertPresenter.presentAlert(
                 title: "Unable to update account",
                 message: error.localizedDescription,
                 dismiss: .cancel(title: "OK", action: nil)
@@ -70,7 +75,7 @@ final class AccountSettingsViewModel: ObservableObject {
 
     func deleteAccount(currentPassword: String) async -> AccountDeletionResult? {
         guard !currentPassword.isEmpty else {
-            AlertHandler.presentAlert(
+            alertPresenter.presentAlert(
                 title: "Current password required",
                 message: "Enter your current password to confirm account deletion.",
                 dismiss: .cancel(title: "OK", action: nil)
@@ -90,10 +95,10 @@ final class AccountSettingsViewModel: ObservableObject {
             let cleanup = apiService.clearSession()
             return AccountDeletionResult(credentialsRemoved: cleanup.succeeded)
         } catch let error as APIError {
-            AlertHandler.handle(error: error)
+            alertPresenter.handle(error: error)
             return nil
         } catch {
-            AlertHandler.presentAlert(
+            alertPresenter.presentAlert(
                 title: "Unable to delete account",
                 message: error.localizedDescription,
                 dismiss: .cancel(title: "OK", action: nil)

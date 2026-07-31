@@ -23,17 +23,19 @@ struct ResetPasswordView: View {
                         .keyboardType(.emailAddress)
                         .disableAutocorrection(true)
                         .autocapitalization(.none)
+                        .accessibilityIdentifier("reset.email")
                 }
                 Section {
                     AsyncButton("Request password reset") {
                         await resetPassword()
                     }
+                    .accessibilityIdentifier("reset.submit")
                 }
             }
             .navigationBarTitle("Reset Password", displayMode: .inline)
             .navigationBarItems(trailing: Button("Back") {
                 dismiss()
-            })
+            }.accessibilityIdentifier("reset.back"))
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }

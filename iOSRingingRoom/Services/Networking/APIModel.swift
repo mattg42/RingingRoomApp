@@ -55,10 +55,10 @@ enum APIModel {
             self.tower_name = try container.decode(String.self, forKey: APIModel.TowerDetails.CodingKeys.tower_name)
             self.server_address = try container.decode(String.self, forKey: APIModel.TowerDetails.CodingKeys.server_address)
             
-            self.additional_sizes_enabled = try container.decode((Bool?).self, forKey: APIModel.TowerDetails.CodingKeys.additional_sizes_enabled) ?? false
-            self.host_mode_permitted = try container.decode((Bool?).self, forKey: APIModel.TowerDetails.CodingKeys.host_mode_permitted) ?? false
-            self.half_muffled = try container.decode((Bool?).self, forKey: APIModel.TowerDetails.CodingKeys.half_muffled) ?? false
-            self.fully_muffled = try container.decode((Bool?).self, forKey: APIModel.TowerDetails.CodingKeys.fully_muffled) ?? false
+            self.additional_sizes_enabled = try container.decodeIfPresent(Bool.self, forKey: APIModel.TowerDetails.CodingKeys.additional_sizes_enabled) ?? false
+            self.host_mode_permitted = try container.decodeIfPresent(Bool.self, forKey: APIModel.TowerDetails.CodingKeys.host_mode_permitted) ?? false
+            self.half_muffled = try container.decodeIfPresent(Bool.self, forKey: APIModel.TowerDetails.CodingKeys.half_muffled) ?? false
+            self.fully_muffled = try container.decodeIfPresent(Bool.self, forKey: APIModel.TowerDetails.CodingKeys.fully_muffled) ?? false
         }
     }
     

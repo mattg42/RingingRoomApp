@@ -19,6 +19,7 @@ struct AutoLoginView: View {
     @EnvironmentObject private var pendingDeepLinkRouter: PendingDeepLinkRouter
     
     @Binding var loginState: LoginState
+    var isUITesting = false
     
     @State private var isAttempting = false
     
@@ -26,16 +27,26 @@ struct AutoLoginView: View {
         ZStack {
             Color.main
 
-            HStack {
-                Image("rrLogo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 256, height: 256)
+            VStack {
+                HStack {
+                    Image("rrLogo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 256, height: 256)
+                }
+
+                if isUITesting {
+                    Text("Automatic login")
+                        .foregroundColor(.white)
+                        .accessibilityIdentifier("login.automatic")
+                }
             }
         }
         .edgesIgnoringSafeArea(.all)
         .task {
-            await login()
+            if !isUITesting {
+                await login()
+            }
         }
     }
         

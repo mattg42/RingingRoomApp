@@ -15,6 +15,23 @@
 		3454ED2D280C607D00C60E3C /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 3454ED2C280C607D00C60E3C /* SocketIO */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		A10000000000000000000051 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 341C9F2026B87C6900EB093A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 341C9F2726B87C6900EB093A;
+			remoteInfo = "Ringing Room";
+		};
+		A10000000000000000000052 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 341C9F2026B87C6900EB093A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 341C9F2726B87C6900EB093A;
+			remoteInfo = "Ringing Room";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		341C9F2826B87C6900EB093A /* Ringing Room.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ringing Room.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		341D38FE2722E5C000E340CF /* Simonetta-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Simonetta-Black.ttf"; sourceTree = "<group>"; };
@@ -24,6 +41,8 @@
 		341D39022722E5C000E340CF /* Simonetta-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Simonetta-BlackItalic.ttf"; sourceTree = "<group>"; };
 		34EC1A4A2B05B848004B0506 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		34EC1A4B2B05B855004B0506 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		A10000000000000000000003 /* iOSRingingRoomTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iOSRingingRoomTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000004 /* iOSRingingRoomUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iOSRingingRoomUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -38,6 +57,8 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		34306D1C301B3E3500A9B2F3 /* iOSRingingRoom */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (34306DB4301B3E3600A9B2F3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = iOSRingingRoom; sourceTree = "<group>"; };
+		A10000000000000000000001 /* iOSRingingRoomTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = iOSRingingRoomTests; sourceTree = "<group>"; };
+		A10000000000000000000002 /* iOSRingingRoomUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = iOSRingingRoomUITests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +67,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				3454ED2D280C607D00C60E3C /* SocketIO in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000011 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000012 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,6 +93,8 @@
 				34EC1A4A2B05B848004B0506 /* README.md */,
 				34EC1A4B2B05B855004B0506 /* LICENSE */,
 				34306D1C301B3E3500A9B2F3 /* iOSRingingRoom */,
+				A10000000000000000000001 /* iOSRingingRoomTests */,
+				A10000000000000000000002 /* iOSRingingRoomUITests */,
 				341C9F2926B87C6900EB093A /* Products */,
 				341D38FD2722E5C000E340CF /* Simonetta */,
 			);
@@ -67,6 +104,8 @@
 			isa = PBXGroup;
 			children = (
 				341C9F2826B87C6900EB093A /* Ringing Room.app */,
+				A10000000000000000000003 /* iOSRingingRoomTests.xctest */,
+				A10000000000000000000004 /* iOSRingingRoomUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -109,6 +148,48 @@
 			productReference = 341C9F2826B87C6900EB093A /* Ringing Room.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A10000000000000000000041 /* iOSRingingRoomTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000071 /* Build configuration list for PBXNativeTarget "iOSRingingRoomTests" */;
+			buildPhases = (
+				A10000000000000000000031 /* Sources */,
+				A10000000000000000000011 /* Frameworks */,
+				A10000000000000000000021 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A10000000000000000000061 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A10000000000000000000001 /* iOSRingingRoomTests */,
+			);
+			name = iOSRingingRoomTests;
+			productName = iOSRingingRoomTests;
+			productReference = A10000000000000000000003 /* iOSRingingRoomTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A10000000000000000000042 /* iOSRingingRoomUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000072 /* Build configuration list for PBXNativeTarget "iOSRingingRoomUITests" */;
+			buildPhases = (
+				A10000000000000000000032 /* Sources */,
+				A10000000000000000000012 /* Frameworks */,
+				A10000000000000000000022 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A10000000000000000000062 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A10000000000000000000002 /* iOSRingingRoomUITests */,
+			);
+			name = iOSRingingRoomUITests;
+			productName = iOSRingingRoomUITests;
+			productReference = A10000000000000000000004 /* iOSRingingRoomUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -141,6 +222,8 @@
 			projectRoot = "";
 			targets = (
 				341C9F2726B87C6900EB093A /* Ringing Room */,
+				A10000000000000000000041 /* iOSRingingRoomTests */,
+				A10000000000000000000042 /* iOSRingingRoomUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -158,6 +241,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A10000000000000000000021 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000022 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -168,7 +265,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A10000000000000000000031 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000032 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A10000000000000000000061 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 341C9F2726B87C6900EB093A /* Ringing Room */;
+			targetProxy = A10000000000000000000051 /* PBXContainerItemProxy */;
+		};
+		A10000000000000000000062 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 341C9F2726B87C6900EB093A /* Ringing Room */;
+			targetProxy = A10000000000000000000052 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		341C9F3526B87C6B00EB093A /* Debug */ = {
@@ -347,6 +471,64 @@
 			};
 			name = Release;
 		};
+		A10000000000000000000081 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = iOSRingingRoomTests;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoomTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ringing Room.app/Ringing Room";
+			};
+			name = Debug;
+		};
+		A10000000000000000000082 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = iOSRingingRoomTests;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoomTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ringing Room.app/Ringing Room";
+			};
+			name = Release;
+		};
+		A10000000000000000000083 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = iOSRingingRoomUITests;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoomUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Ringing Room";
+			};
+			name = Debug;
+		};
+		A10000000000000000000084 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = iOSRingingRoomUITests;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.goodship.iOSRingingRoomUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Ringing Room";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -364,6 +546,24 @@
 			buildConfigurations = (
 				341C9F3826B87C6B00EB093A /* Debug */,
 				341C9F3926B87C6B00EB093A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000071 /* Build configuration list for PBXNativeTarget "iOSRingingRoomTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000081 /* Debug */,
+				A10000000000000000000082 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000072 /* Build configuration list for PBXNativeTarget "iOSRingingRoomUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000083 /* Debug */,
+				A10000000000000000000084 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

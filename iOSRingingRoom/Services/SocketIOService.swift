@@ -205,121 +205,18 @@ class SocketIOService {
     
     private func setupListeners() {
 
-        listen(for: "s_user_entered") { [weak self] data in
-            let user = try Ringer(socketPayload: data)
-            self?.notify { $0.userDidEnter(user) }
-        }
-        
-        listen(for: "s_user_left") { [weak self] data in
-            let user = try Ringer(socketPayload: data)
-
-            self?.notify { $0.userDidLeave(user) }
-        }
-        
-        listen(for: "s_global_state") { [weak self] data in
-            let globalState = try data.extract("global_bell_state", as: [Bool].self)
-            
-            let state = globalState.map { BellStroke(bool: $0) }
-            self?.notify { $0.didReceiveGlobalState(state) }
-        }
-        
-        listen(for: "s_set_userlist") { [weak self] data in
-            let userPayloads = try data.extract("user_list", as: [[String: Any]].self)
-            let userList = try userPayloads.map { try Ringer(socketPayload: $0) }
-
-            self?.notify { $0.didReceiveUserList(userList) }
-        }
-        
-        listen(for: "s_bell_rung") { [weak self] data in
-            let bell = try data.extract("who_rang", as: Int.self)
-            let globalState = try data.extract("global_bell_state", as: [Bool].self)
-
-            let state = globalState.map { BellStroke(bool: $0) }
-            self?.notify { $0.bellDidRing(number: bell, globalState: state) }
-        }
-        
-        listen(for: "s_assign_user") { [weak self] data in
-            let bell = try data.extract("bell", as: Int.self)
-            let userID = try data.extract("user", as: Int.self, else: 0)
-            self?.notify { $0.didAssign(ringerID: userID, to: bell) }
-        }
-        
-        listen(for: "s_audio_change") { [weak self] data in
-            let newAudio = try data.extract("new_audio", as: String.self)
-            
-            guard let bellType = BellType(rawValue: newAudio) else {
-                throw SocketIOError(message: "Unable to convert \(newAudio) to an audio type.")
-            }
-            
-            self?.notify { $0.audioDidChange(to: bellType) }
-        }
-        
-        listen(for: "s_host_mode") { [weak self] data in
-            let newMode = try data.extract("new_mode", as: Bool.self)
-            self?.notify { $0.hostModeDidChange(to: newMode) }
-        }
-        
-        listen(for: "s_size_change") { [weak self] data in
-            let newSize = try data.extract("size", as: Int.self)
-            self?.notify { $0.sizeDidChange(to: newSize) }
-        }
-        
-        listen(for: "s_msg_sent") { [weak self] data in
-            let user = try data.extract("user", as: String.self)
-            let message = try data.extract("msg", as: String.self)
-
-            self?.notify { $0.didReceiveMessage(Message(sender: user, message: message)) }
-        }
-        
-        listen(for: "s_call") { [weak self] data in
-            let call = try data.extract("call", as: String.self)
-            self?.notify { $0.didReceiveCall(call) }
-        }
-        
-        listen(for: "s_bad_token") { [weak self] data in
-            self?.notify { $0.didReceiveBadToken() }
-        }
-        
-        listen(for: "s_wheatley_row_gen") { [weak self] data in
-            let newRowGen = try RowGen(dictionary: data)
-            self?.notify { $0.rowGenDidChange(to: newRowGen) }
-        }
-        
-        listen(for: "s_wheatley_setting") { [weak self] data in
-            for key in data.keys {
-                switch key {
-                case "sensitivity":
-                    // Currently unused
-                    break
-                case "use_up_down_in":
-                    let newSetting = try data.extract(key, as: Bool.self)
-                    self?.notify { $0.wholePullAndOffDidChange(to: newSetting) }
-                case "stop_at_rounds":
-                    let newSetting = try data.extract(key, as: Bool.self)
-                    self?.notify { $0.stopAtRoundsDidChange(to: newSetting) }
-                case "peal_speed":
-                    let newSetting = try data.extract(key, as: Int.self)
-                    self?.notify { $0.pealSpeedDidChange(to: newSetting) }
-                case "call_composition":
-                    let newSetting = try data.extract(key, as: Bool.self)
-                    self?.notify { $0.callCompositionDidChange(to: newSetting) }
-                case "fixed_striking_interval":
-                    let newSetting = try data.extract(key, as: Bool.self)
-                    self?.notify { $0.fixedStrikingIntervalDidChange(to: newSetting) }
-                default:
-                    throw SocketIOError(message: "Setting not found \(key)")
+        for eventName in ServerSocketEvent.supportedEventNames {
+            listen(for: eventName) { [weak self] data in
+                let events = try ServerSocketEvent.decode(eventName: eventName, payload: data)
+                for event in events {
+                    self?.notify { event.deliver(to: $0) }
                 }
             }
-        }
-        
-        listen(for: "s_wheatley_is_ringing") { [weak self] data in
-            let isRinging = try data.extract("is_ringing", as: Bool.self)
-            self?.notify { $0.wheatleyStateDidChange(to: isRinging) }
         }
 
     }
     
-    func send(event: String, with data: SocketData) {
+    func send(event: String, with data: [String: Any]) {
         AppLogger.socket.debug("Sending socket event \(event, privacy: .public)")
         socket.emit(event, data)
     }

@@ -90,17 +90,18 @@ enum SoundAsset: String, CaseIterable {
 
 @MainActor
 final class AudioService {
-    private let starling = Starling()
+    private let starling: any AudioEngine
     private var preloadTask: Task<Void, Never>?
 
     private(set) var isReady = false
 
-    init() {
+    init(starling: any AudioEngine = Starling()) {
+        self.starling = starling
         preloadTask = Task { @MainActor [weak self, starling] in
             for sound in SoundAsset.allCases {
                 guard !Task.isCancelled else { return }
 
-                starling.load(resource: sound.rawValue, type: "wav", for: sound.identifier)
+                starling.load(resource: sound.rawValue, type: "wav", for: sound.identifier, in: nil)
                 // Keep startup responsive while still loading every sound on
                 // Starling's single, main-actor executor.
                 await Task.yield()
@@ -134,12 +135,12 @@ final class AudioService {
         Task { @MainActor [starling] in
             await task?.value
             guard !Task.isCancelled else { return }
-            starling.play(identifier)
+            starling.play(identifier, allowOverlap: true)
         }
     }
 }
 
-private extension SoundAsset {
+extension SoundAsset {
     var identifier: SoundIdentifier {
         switch self {
         case .BOB:

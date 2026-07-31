@@ -30,6 +30,7 @@ struct AccountCreationView: View {
                 Section(footer: Text("This is the name that will appear in the tower when you're ringing. You can change it later.")) {
                     TextField("Username", text: $username)
                         .disableAutocorrection(true)
+                        .accessibilityIdentifier("account.username")
                 }
                 
                 Section(footer: Text("You'll use your email address to log in and reset your password. It is sent to Ringing Room for account services and is not included in chat messages sent to tower participants.")) {
@@ -38,13 +39,16 @@ struct AccountCreationView: View {
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
+                        .accessibilityIdentifier("account.email")
                 }
                 
                 Section {
                     SecureField("Password", text: $password)
                         .textContentType(.newPassword)
+                        .accessibilityIdentifier("account.password")
                     SecureField("Repeat password", text: $repeatedPassword)
                         .textContentType(.newPassword)
+                        .accessibilityIdentifier("account.password.repeat")
                 }
                 
                 Section {
@@ -53,6 +57,7 @@ struct AccountCreationView: View {
                     }) {
                         Text(privacyPolicyButtonText)
                     }
+                    .accessibilityIdentifier("account.privacy")
                     .sheet(isPresented: $isShowingPrivacyPolicy) {
                         AgreeToPrivacyPolicyView(isPresented: $isShowingPrivacyPolicy, agreed: $agreedToPrivacyPolicy)
                     }
@@ -61,6 +66,7 @@ struct AccountCreationView: View {
                 Section {
                     AsyncButton("Create account", action: createAccount)
                     .disabled(!agreedToPrivacyPolicy)
+                    .accessibilityIdentifier("account.submit")
                 }
             }
             .navigationBarTitle("Create Account", displayMode: .inline)
@@ -69,7 +75,7 @@ struct AccountCreationView: View {
             } label: {
                 Text("Back")
                 .bold()
-            })
+            }.accessibilityIdentifier("account.back"))
         }
         .accentColor(.main)
         .navigationViewStyle(StackNavigationViewStyle())

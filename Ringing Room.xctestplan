@@ -1,0 +1,52 @@
+{
+  "configurations" : [
+    {
+      "id" : "A1000000-0000-0000-0000-000000000001",
+      "name" : "Default Configuration",
+      "options" : {
+        "testExecutionOrdering" : "random"
+      },
+      "testTargets" : [
+        {
+          "target" : {
+            "containerPath" : "container:Ringing Room.xcodeproj",
+            "identifier" : "A10000000000000000000041",
+            "name" : "iOSRingingRoomTests"
+          }
+        },
+        {
+          "target" : {
+            "containerPath" : "container:Ringing Room.xcodeproj",
+            "identifier" : "A10000000000000000000042",
+            "name" : "iOSRingingRoomUITests"
+          }
+        }
+      ]
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Ringing Room.xcodeproj",
+      "identifier" : "341C9F2726B87C6900EB093A",
+      "name" : "Ringing Room"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Ringing Room.xcodeproj",
+        "identifier" : "A10000000000000000000041",
+        "name" : "iOSRingingRoomTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Ringing Room.xcodeproj",
+        "identifier" : "A10000000000000000000042",
+        "name" : "iOSRingingRoomUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -71,7 +71,8 @@ struct WelcomeLoginView: View {
                     Spacer()
                     
                     VStack {
-                        Text("Welcome to")
+                Text("Welcome to")
+                    .accessibilityIdentifier("welcome.login.title")
                         
                         Text("Ringing Room")
                             .font(Font.custom("Simonetta-Regular", size: 55, relativeTo: .title))
@@ -97,6 +98,7 @@ struct WelcomeLoginView: View {
                     .disableAutocorrection(true)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .focused($focused, equals: .email)
+                    .accessibilityIdentifier("login.email")
                 
                 SecureField("Password", text: $password)
                     .onChange(of: password, perform: { _ in
@@ -107,11 +109,13 @@ struct WelcomeLoginView: View {
                     .disableAutocorrection(true)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .focused($focused, equals: .password)
+                    .accessibilityIdentifier("login.password")
                 
                 Toggle(isOn: $stayLoggedIn) {
                     Text("Keep me logged in")
                 }
                 .toggleStyle(SwitchToggleStyle(tint: .main))
+                .accessibilityIdentifier("login.keepMeLoggedIn")
                 
                 HStack {
                     Text("Server")
@@ -124,6 +128,7 @@ struct WelcomeLoginView: View {
                         }
                     }
                     .pickerStyle(.menu)
+                    .accessibilityIdentifier("login.server")
                 }
                 
                 AsyncButton(progressViewColor: .white, progressViewPadding: 10) {
@@ -140,6 +145,7 @@ struct WelcomeLoginView: View {
                 .contentShape(Rectangle())
                 .foregroundColor(.white)
                 .disabled(loginDisabled)
+                .accessibilityIdentifier("login.submit")
                 
                 HStack {
                     Button {
@@ -149,6 +155,7 @@ struct WelcomeLoginView: View {
                         Text("Forgot password?")
                             .font(.callout)
                     }
+                    .accessibilityIdentifier("login.forgotPassword")
                     
                     Spacer()
                     
@@ -159,6 +166,7 @@ struct WelcomeLoginView: View {
                         Text("Create an account")
                             .font(.callout)
                     }
+                    .accessibilityIdentifier("login.createAccount")
                 }
                 .accentColor(Color.main)
             }

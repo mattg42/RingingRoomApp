@@ -6,7 +6,45 @@
 import Foundation
 
 @MainActor
-final class SessionCredentialStore {
+protocol PasswordStoring {
+    func storePasswordFor(account: String, password: String, server: String) throws
+    func getPasswordFor(account: String, server: String) throws -> String
+    func updatePasswordFor(account: String, password: String, server: String) throws
+    func deletePasswordFor(account: String, server: String) throws
+}
+
+@MainActor
+struct KeychainPasswordStore: PasswordStoring {
+    func storePasswordFor(account: String, password: String, server: String) throws {
+        try KeychainService.storePasswordFor(account: account, password: password, server: server)
+    }
+
+    func getPasswordFor(account: String, server: String) throws -> String {
+        try KeychainService.getPasswordFor(account: account, server: server)
+    }
+
+    func updatePasswordFor(account: String, password: String, server: String) throws {
+        try KeychainService.updatePasswordFor(account: account, password: password, server: server)
+    }
+
+    func deletePasswordFor(account: String, server: String) throws {
+        try KeychainService.deletePasswordFor(account: account, server: server)
+    }
+}
+
+@MainActor
+protocol SessionCredentialStoring: AnyObject {
+    var keepMeLoggedIn: Bool { get }
+    func load(for server: String) throws -> SessionCredentialStore.StoredCredentials?
+    func persistLogin(credentials: SessionCredentials, keepMeLoggedIn: Bool, server: String) throws
+    func updateCredentials(from old: SessionCredentials, to new: SessionCredentials, server: String) throws
+    func disableAutomaticLogin()
+    @discardableResult
+    func clear(currentEmail: String?) -> SessionCredentialStore.CleanupResult
+}
+
+@MainActor
+final class SessionCredentialStore: SessionCredentialStoring {
     struct StoredCredentials {
         let credentials: SessionCredentials
         let keychainAccount: String
@@ -23,9 +61,14 @@ final class SessionCredentialStore {
     static let standard = SessionCredentialStore()
 
     private let userDefaults: UserDefaults
+    private let passwordStore: any PasswordStoring
 
-    init(userDefaults: UserDefaults = .standard) {
+    init(
+        userDefaults: UserDefaults = .standard,
+        passwordStore: any PasswordStoring = KeychainPasswordStore()
+    ) {
         self.userDefaults = userDefaults
+        self.passwordStore = passwordStore
     }
 
     var keepMeLoggedIn: Bool {
@@ -40,7 +83,7 @@ final class SessionCredentialStore {
         let accounts = accountAliases(for: [storedEmail] + storedAliases.map { Optional($0) })
         for account in accounts {
             do {
-                let password = try KeychainService.getPasswordFor(account: account, server: server)
+                let password = try passwordStore.getPasswordFor(account: account, server: server)
                 return StoredCredentials(
                     credentials: SessionCredentials(email: storedEmail, password: password),
                     keychainAccount: account
@@ -60,7 +103,7 @@ final class SessionCredentialStore {
 
         if keepMeLoggedIn {
             // Store the replacement before removing any aliases for the old email.
-            try KeychainService.storePasswordFor(
+            try passwordStore.storePasswordFor(
                 account: credentials.email,
                 password: credentials.password,
                 server: server
@@ -98,7 +141,7 @@ final class SessionCredentialStore {
 
         // This ordering matters when the email changes: the new alias must exist
         // before the old alias is removed.
-        try KeychainService.storePasswordFor(
+        try passwordStore.storePasswordFor(
             account: new.email,
             password: new.password,
             server: server
@@ -172,7 +215,7 @@ final class SessionCredentialStore {
         for account in Set(accounts) where !account.isEmpty {
             for server in Set(servers) {
                 do {
-                    try KeychainService.deletePasswordFor(account: account, server: server)
+                    try passwordStore.deletePasswordFor(account: account, server: server)
                 } catch {
                     failures.append(error)
                 }

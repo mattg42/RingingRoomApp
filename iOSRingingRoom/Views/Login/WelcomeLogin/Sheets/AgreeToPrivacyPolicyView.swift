@@ -34,6 +34,7 @@ struct AgreeToPrivacyPolicyView: View {
                             .foregroundColor(.white)
                             .padding(.vertical, 10)
                     }
+                    .accessibilityIdentifier("privacy.agree")
                     .fixedSize(horizontal: false, vertical: /*@START_MENU_TOKEN@*/true/*@END_MENU_TOKEN@*/)
                 }
             }
@@ -44,10 +45,9 @@ struct AgreeToPrivacyPolicyView: View {
             } label: {
                 Text("Back")
                 .bold()
-            })
+            }.accessibilityIdentifier("privacy.back"))
         }
         .accentColor(.main)
         .navigationViewStyle(StackNavigationViewStyle())
     }
 }
-

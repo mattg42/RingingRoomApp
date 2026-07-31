@@ -25,7 +25,7 @@ class APIService: AuthenticatedClient {
         credentials: SessionCredentials? = nil,
         retryAction: AsyncAction? = nil,
         urlSession: URLSession = .shared,
-        credentialStore: SessionCredentialStore = .standard
+        credentialStore: any SessionCredentialStoring = SessionCredentialStore.standard
     ) {
         self.token = token
         self.region = region
@@ -39,7 +39,7 @@ class APIService: AuthenticatedClient {
     let region: Region
     var sessionCredentials: SessionCredentials?
     let urlSession: URLSession
-    let credentialStore: SessionCredentialStore
+    let credentialStore: any SessionCredentialStoring
     let tokenRefreshCoordinator = TokenRefreshCoordinator()
     
     var retryAction: AsyncAction? = nil

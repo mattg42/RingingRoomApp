@@ -68,6 +68,7 @@ struct TowersView: View {
                                     .frame(height: 35)
                                     .padding(.horizontal)
                                     .cornerRadius(10)
+                                    .accessibilityIdentifier("tower.\(tower.towerID)")
                                     .id(tower.towerID)
                                 }
                             }
