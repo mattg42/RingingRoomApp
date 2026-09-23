@@ -24,6 +24,7 @@
 
 import Foundation
 import AVFoundation
+import Dispatch
 
 /// Typealias used for identifying specific sound effects
 public typealias SoundIdentifier = String
@@ -56,9 +57,11 @@ public class Starling {
     private var players: [StarlingAudioPlayer]
     private var files: [String: AVAudioFile]
     private let engine = AVAudioEngine()
-    private let audioSession = AVAudioSession.sharedInstance()
+    private let audioSessionController = AudioSessionController()
     private let notificationObservers = NotificationObserverStore()
     private var isInterrupted = false
+    private var isAudioSessionConfigured = false
+    private var engineStartTask: Task<Void, Never>?
 
     // MARK: - Error handling
 
@@ -74,8 +77,6 @@ public class Starling {
         files = [String: AVAudioFile]()
 
         createInitialPlayers()
-        configureAudioSession()
-        prepareToStart()
         
         let volume = UserDefaults.standard.optionalDouble(forKey: "volume") ?? 1
         let mappedVolume = pow(volume, 3)
@@ -109,16 +110,31 @@ public class Starling {
     
     // MARK: - Public API (Playback)
     
-    public func prepareToStart() {
+    public func prepareToStart() async {
         guard !engine.isRunning, !isInterrupted else { return }
 
-        if !startEngine() {
-            resetPlayersAndEngine()
+        if let engineStartTask {
+            await engineStartTask.value
+            return
         }
+
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            if !(await self.startEngine()) {
+                self.resetPlayersAndEngine()
+                _ = await self.startEngine()
+            }
+
+            self.engineStartTask = nil
+        }
+        engineStartTask = task
+        await task.value
     }
     
-    public func play(_ sound: SoundIdentifier, allowOverlap: Bool = true) {
-        prepareToStart()
+    public func play(_ sound: SoundIdentifier, allowOverlap: Bool = true) async {
+        await prepareToStart()
+        guard !Task.isCancelled else { return }
         performSoundPlayback(sound, allowOverlap: allowOverlap)
     }
     
@@ -203,11 +219,19 @@ public class Starling {
         }
     }
     
-    @discardableResult private func startEngine() -> Bool {
+    @discardableResult private func startEngine() async -> Bool {
         guard !isInterrupted else { return false }
+        guard !engine.isRunning else { return true }
 
         do {
-            try audioSession.setActive(true)
+            if !isAudioSessionConfigured {
+                try await audioSessionController.configure()
+                isAudioSessionConfigured = true
+            }
+            try await audioSessionController.activate()
+            guard !isInterrupted else { return false }
+            guard !engine.isRunning else { return true }
+
             engine.prepare()
             try engine.start()
         } catch {
@@ -225,27 +249,11 @@ public class Starling {
         engine.reset()
         players.removeAll()
         createInitialPlayers()
-
-        _ = startEngine()
     }
     
     private func handleNonFatalError(_ error: Error) {
         AppLogger.audio.error("Audio error: \(String(describing: error), privacy: .private)")
         Self.nonFatalErrorHandler?(error)
-    }
-
-    private func configureAudioSession() {
-        do {
-            try audioSession.setCategory(
-                .playback,
-                mode: .default,
-                options: [.duckOthers, .interruptSpokenAudioAndMixWithOthers]
-            )
-            try audioSession.setPreferredIOBufferDuration(0.002)
-            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-        } catch {
-            handleNonFatalError(error)
-        }
     }
 
     private func observeAudioEvents() {
@@ -258,7 +266,7 @@ public class Starling {
                 queue: .main
             ) { [weak self] _ in
                 Task { @MainActor [weak self] in
-                    self?.recoverFromAudioConfigurationChange()
+                    await self?.recoverFromAudioConfigurationChange()
                 }
             }
         )
@@ -266,13 +274,13 @@ public class Starling {
         notificationObservers.append(
             notificationCenter.addObserver(
                 forName: AVAudioSession.interruptionNotification,
-                object: audioSession,
+                object: AVAudioSession.sharedInstance(),
                 queue: .main
             ) { [weak self] notification in
                 let interruptionType = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
                 let interruptionOptions = notification.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt
                 Task { @MainActor [weak self] in
-                    self?.handleAudioInterruption(type: interruptionType, options: interruptionOptions)
+                    await self?.handleAudioInterruption(type: interruptionType, options: interruptionOptions)
                 }
             }
         )
@@ -280,17 +288,17 @@ public class Starling {
         notificationObservers.append(
             notificationCenter.addObserver(
                 forName: AVAudioSession.routeChangeNotification,
-                object: audioSession,
+                object: AVAudioSession.sharedInstance(),
                 queue: .main
             ) { [weak self] _ in
                 Task { @MainActor [weak self] in
-                    self?.recoverFromAudioConfigurationChange()
+                    await self?.recoverFromAudioConfigurationChange()
                 }
             }
         )
     }
 
-    private func handleAudioInterruption(type rawType: UInt?, options rawOptions: UInt?) {
+    private func handleAudioInterruption(type rawType: UInt?, options rawOptions: UInt?) async {
         guard let rawType,
               let interruptionType = AVAudioSession.InterruptionType(rawValue: rawType) else {
             return
@@ -304,14 +312,14 @@ public class Starling {
             isInterrupted = false
             let options = AVAudioSession.InterruptionOptions(rawValue: rawOptions ?? 0)
             if options.contains(.shouldResume) {
-                recoverFromAudioConfigurationChange()
+                await recoverFromAudioConfigurationChange()
             }
         @unknown default:
             break
         }
     }
 
-    private func recoverFromAudioConfigurationChange() {
+    private func recoverFromAudioConfigurationChange() async {
         guard !isInterrupted else { return }
 
         engine.stop()
@@ -322,9 +330,7 @@ public class Starling {
         engine.disconnectNodeOutput(engine.mainMixerNode)
         engine.connect(engine.mainMixerNode, to: engine.outputNode, format: nil)
 
-        if !startEngine() {
-            resetPlayersAndEngine()
-        }
+        await prepareToStart()
     }
     
     // MARK: - Debugging / Diagnostics
@@ -350,6 +356,67 @@ public class Starling {
             let status = player.state.status == .idle ? "Idle" : "Playing"
             AppLogger.audio.debug("Audio player \(index, privacy: .public): \(status, privacy: .public)")
         }
+    }
+}
+
+/// Serializes AVAudioSession configuration and activation away from the main thread.
+private final class AudioSessionController: @unchecked Sendable {
+    private let audioSession = AVAudioSession.sharedInstance()
+    private let sessionQueue = DispatchQueue(label: "com.ringingroom.audio-session", qos: .userInitiated)
+
+    func configure() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            sessionQueue.async { [self] in
+                do {
+                    try audioSession.setCategory(
+                        .playback,
+                        mode: .default,
+                        options: [.duckOthers, .interruptSpokenAudioAndMixWithOthers]
+                    )
+                    try audioSession.setPreferredIOBufferDuration(0.002)
+                    continuation.resume()
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
+    func activate() async throws {
+        if #available(iOS 27.0, *) {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                sessionQueue.async { [self] in
+                    audioSession.activate(options: []) { activated, error in
+                        if let error {
+                            continuation.resume(throwing: error)
+                        } else if activated {
+                            continuation.resume()
+                        } else {
+                            continuation.resume(throwing: AudioSessionControllerError.activationFailed)
+                        }
+                    }
+                }
+            }
+        } else {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                sessionQueue.async { [self] in
+                    do {
+                        try audioSession.setActive(true)
+                        continuation.resume()
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private enum AudioSessionControllerError: LocalizedError {
+    case activationFailed
+
+    var errorDescription: String? {
+        "The audio session did not activate."
     }
 }
 

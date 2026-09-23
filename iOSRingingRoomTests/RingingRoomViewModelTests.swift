@@ -40,6 +40,7 @@ final class AudioPlayingSpy: AudioPlaying {
     private(set) var prepared = false
     private(set) var changedVolumes = [Float]()
     private(set) var playedFiles = [String]()
+    private(set) var pendingPlaybackCancellationCount = 0
 
     func prepareToStart() async {
         prepared = true
@@ -52,13 +53,18 @@ final class AudioPlayingSpy: AudioPlaying {
     func play(_ file: String) {
         playedFiles.append(file)
     }
+
+    func cancelPendingPlayback() {
+        pendingPlaybackCancellationCount += 1
+    }
 }
 
 @MainActor
 final class RingingRoomViewModelTests: XCTestCase {
     func testConnectionTransitionsAndJoinPayload() {
         let socket = SocketTransportSpy()
-        let viewModel = makeViewModel(socket: socket)
+        let audio = AudioPlayingSpy()
+        let viewModel = makeViewModel(socket: socket, audio: audio)
 
         viewModel.connect()
         XCTAssertEqual(viewModel.connectionState, .connecting)
@@ -79,6 +85,34 @@ final class RingingRoomViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state.size, 0)
         XCTAssertTrue(viewModel.state.assignments.isEmpty)
         XCTAssertTrue(viewModel.state.bellStates.isEmpty)
+        XCTAssertEqual(audio.pendingPlaybackCancellationCount, 1)
+    }
+
+    func testLeavingTowerCancelsBellWaitingForAudioActivation() async {
+        let socket = SocketTransportSpy()
+        let engine = DelayedActivationAudioEngineSpy()
+        let audioService = AudioService(starling: engine)
+        let viewModel = makeViewModel(socket: socket, audio: audioService)
+        let activationStarted = expectation(description: "startup and bell playback await activation")
+        let playbackReturned = expectation(description: "pending playback finishes after activation")
+
+        engine.onActivationWaiterCountChanged = { waiterCount in
+            if waiterCount == 2 {
+                activationStarted.fulfill()
+            }
+        }
+        engine.onPlaybackReturned = {
+            playbackReturned.fulfill()
+        }
+
+        viewModel.didReceiveCall("Bob")
+        await fulfillment(of: [activationStarted], timeout: 2)
+
+        viewModel.leaveTower()
+        engine.finishActivation()
+
+        await fulfillment(of: [playbackReturned], timeout: 2)
+        XCTAssertTrue(engine.playedSounds.isEmpty)
     }
 
     func testConnectionTimeoutIsDeterministicAndDisconnects() async {
@@ -699,7 +733,7 @@ final class RingingRoomViewModelTests: XCTestCase {
 
     private func makeViewModel(
         socket: SocketTransportSpy,
-        audio: AudioPlayingSpy = AudioPlayingSpy(),
+        audio: any AudioPlaying = AudioPlayingSpy(),
         router: Router<MainRoute>? = nil,
         isHost: Bool = true,
         halfMuffled: Bool = false,

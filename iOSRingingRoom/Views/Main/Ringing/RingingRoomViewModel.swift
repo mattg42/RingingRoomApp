@@ -136,6 +136,7 @@ class RingingRoomViewModel: ObservableObject {
         MainActor.assumeIsolated {
             connectionTimeoutTask?.cancel()
             tokenRecoveryTask?.cancel()
+            audioService.cancelPendingPlayback()
             socketIOService.disconnect()
         }
     }
@@ -252,6 +253,7 @@ class RingingRoomViewModel: ObservableObject {
     }
 
     private func resetTowerState() {
+        audioService.cancelPendingPlayback()
         connected = false
         // Set the size first, so SwiftUI never observes a non-zero size with
         // empty bell-state or assignment arrays.
@@ -589,6 +591,7 @@ extension RingingRoomViewModel: SocketIODelegate {
     }
     
     func didReceiveCall(_ call: String) {
+        guard connectionState != .disconnected else { return }
         audioService.play(call)
         
         callPublisher.send(call)

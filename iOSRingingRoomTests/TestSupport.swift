@@ -168,7 +168,7 @@ final class AudioEngineSpy: AudioEngine {
         loadedResources.append((resource, type, identifier))
     }
 
-    func prepareToStart() {
+    func prepareToStart() async {
         prepareCount += 1
     }
 
@@ -176,9 +176,47 @@ final class AudioEngineSpy: AudioEngine {
         self.volume = volume
     }
 
-    func play(_ sound: SoundIdentifier, allowOverlap: Bool) {
+    func play(_ sound: SoundIdentifier, allowOverlap: Bool) async {
         playedSounds.append(sound)
         onPlay?()
+    }
+}
+
+@MainActor
+final class DelayedActivationAudioEngineSpy: AudioEngine {
+    private var activationWaiters = [CheckedContinuation<Void, Never>]()
+    private var hasActivated = false
+
+    private(set) var playedSounds = [SoundIdentifier]()
+    var onActivationWaiterCountChanged: ((Int) -> Void)?
+    var onPlaybackReturned: (() -> Void)?
+
+    func load(resource: String, type: String, for identifier: SoundIdentifier, in bundle: Bundle?) {}
+
+    func prepareToStart() async {
+        guard !hasActivated else { return }
+
+        await withCheckedContinuation { continuation in
+            activationWaiters.append(continuation)
+            onActivationWaiterCountChanged?(activationWaiters.count)
+        }
+    }
+
+    func changeVolume(to volume: Float) {}
+
+    func play(_ sound: SoundIdentifier, allowOverlap: Bool) async {
+        await prepareToStart()
+        if !Task.isCancelled {
+            playedSounds.append(sound)
+        }
+        onPlaybackReturned?()
+    }
+
+    func finishActivation() {
+        hasActivated = true
+        let waiters = activationWaiters
+        activationWaiters.removeAll()
+        waiters.forEach { $0.resume() }
     }
 }
 

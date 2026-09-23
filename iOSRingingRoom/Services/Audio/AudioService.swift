@@ -92,6 +92,8 @@ enum SoundAsset: String, CaseIterable {
 final class AudioService {
     private let starling: any AudioEngine
     private var preloadTask: Task<Void, Never>?
+    private var pendingPlaybackTasks = [UUID: Task<Void, Never>]()
+    private var playbackGeneration = 0
 
     private(set) var isReady = false
 
@@ -113,30 +115,43 @@ final class AudioService {
 
     deinit {
         preloadTask?.cancel()
+        pendingPlaybackTasks.values.forEach { $0.cancel() }
     }
 
     /// Waits for all bundled sounds to be available before preparing playback.
     func prepareToStart() async {
         await preloadTask?.value
         guard !Task.isCancelled else { return }
-        starling.prepareToStart()
+        await starling.prepareToStart()
     }
 
     func changeVolume(to volume: Float) {
         starling.changeVolume(to: volume)
     }
 
-    /// Playback requests made during preload are retained and run as soon as
-    /// the complete sound bank is available, rather than being discarded.
+    /// Playback requests made during preload wait for the sound bank, and can
+    /// be cancelled if the ringing session ends before playback starts.
     func play(_ file: String) {
-        let task = preloadTask
+        let preloadTask = preloadTask
         let identifier = SoundIdentifier(file)
+        let taskID = UUID()
+        let generation = playbackGeneration
 
-        Task { @MainActor [starling] in
-            await task?.value
-            guard !Task.isCancelled else { return }
-            starling.play(identifier, allowOverlap: true)
+        let task = Task { @MainActor [weak self, starling] in
+            await preloadTask?.value
+            guard let self else { return }
+            defer { self.pendingPlaybackTasks[taskID] = nil }
+
+            guard !Task.isCancelled, self.playbackGeneration == generation else { return }
+            await starling.play(identifier, allowOverlap: true)
         }
+        pendingPlaybackTasks[taskID] = task
+    }
+
+    func cancelPendingPlayback() {
+        playbackGeneration &+= 1
+        pendingPlaybackTasks.values.forEach { $0.cancel() }
+        pendingPlaybackTasks.removeAll()
     }
 }
 

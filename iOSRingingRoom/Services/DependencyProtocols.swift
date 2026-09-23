@@ -14,9 +14,9 @@ extension SocketIOService: SocketTransport {}
 @MainActor
 protocol AudioEngine: AnyObject {
     func load(resource: String, type: String, for identifier: SoundIdentifier, in bundle: Bundle?)
-    func prepareToStart()
+    func prepareToStart() async
     func changeVolume(to volume: Float)
-    func play(_ sound: SoundIdentifier, allowOverlap: Bool)
+    func play(_ sound: SoundIdentifier, allowOverlap: Bool) async
 }
 
 extension Starling: AudioEngine {}
@@ -26,6 +26,11 @@ protocol AudioPlaying: AnyObject {
     func prepareToStart() async
     func changeVolume(to volume: Float)
     func play(_ file: String)
+    func cancelPendingPlayback()
+}
+
+extension AudioPlaying {
+    func cancelPendingPlayback() {}
 }
 
 extension AudioService: AudioPlaying {}
