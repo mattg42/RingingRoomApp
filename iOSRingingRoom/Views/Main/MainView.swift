@@ -77,7 +77,7 @@ struct MainView: View {
         .onDisappear {
             apiService.sessionExpiredAction = nil
         }
-        .onChange(of: pendingDeepLinkRouter.pendingTowerID) { _ in
+        .onChange(of: pendingDeepLinkRouter.pendingTowerID) {
             openPendingTowerIfNeeded()
         }
     }

@@ -87,11 +87,11 @@ struct WelcomeLoginView: View {
                 Spacer()
                 
                 TextField("Email", text: $email)
-                    .onChange(of: email, perform: { _ in
+                    .onChange(of: email) {
                         validEmail = email
                             .trimmingCharacters(in: .whitespaces)
                             .isValidEmail()
-                    })
+                    }
                     .autocapitalization(.none)
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
@@ -101,9 +101,9 @@ struct WelcomeLoginView: View {
                     .accessibilityIdentifier("login.email")
                 
                 SecureField("Password", text: $password)
-                    .onChange(of: password, perform: { _ in
+                    .onChange(of: password) {
                         validPassword = password.count > 0
-                    })
+                    }
                     .autocapitalization(.none)
                     .textContentType(.password)
                     .disableAutocorrection(true)

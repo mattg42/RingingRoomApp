@@ -21,19 +21,19 @@ struct RopeCircleView: View {
             GeometryReader { geo in
                 ZStack {
                     BellsView(bellPositions: bellPositions, imageWidth: imageWidth(size: imageSize, bellType: state.bellType), imageHeight: imageHeight(size: imageSize, bellType: state.bellType))
-                        .onChange(of: state.size) { _ in
+                        .onChange(of: state.size) {
                             calculateImageSize(size: geo.size)
                             getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
                         }
-                        .onChange(of: state.perspective) { _ in
+                        .onChange(of: state.perspective) {
                             getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
                             
                         }
-                        .onChange(of: state.bellType) { _ in
+                        .onChange(of: state.bellType) {
                             calculateImageSize(size: geo.size)
                             getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
                         }
-                        .onChange(of: geo.size) { _ in
+                        .onChange(of: geo.size) {
                             calculateImageSize(size: geo.size)
                             getNewPositions(radius: radius, centre: CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
                         }

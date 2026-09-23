@@ -57,7 +57,7 @@ struct AssignmentsListView: View {
                     .position(CGPoint(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY))
             }
         }
-         .onChange(of: bellPositions) { newValue in
+         .onChange(of: bellPositions) { _, newValue in
              getHeight(bellPositions: newValue)
              getWidth(bellPositions: newValue)
          }

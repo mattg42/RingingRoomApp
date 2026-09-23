@@ -140,12 +140,12 @@ struct WheatleyView: View {
                             .onAppear {
                                 callComposition = wheatleyState.callComposition
                             }
-                            .onChange(of: wheatleyState.callComposition) { newValue in
+                            .onChange(of: wheatleyState.callComposition) { _, newValue in
                                 if callComposition != newValue {
                                     callComposition = newValue
                                 }
                             }
-                            .onChange(of: callComposition) { newValue in
+                            .onChange(of: callComposition) { _, newValue in
                                 if wheatleyState.callComposition != newValue {
                                     viewModel.send(.setWheatleySetting(setting: .callComposition(newValue)))
                                     
@@ -235,12 +235,12 @@ struct WheatleyView: View {
                             }
                         }
                     }
-                    .onChange(of: pealSpeed) { newValue in
+                    .onChange(of: pealSpeed) { _, newValue in
                         if wheatleyState.pealSpeed != newValue {
                             viewModel.send(.setWheatleySetting(setting: .pealSpeed(pealSpeed)))
                         }
                     }
-                    .onChange(of: wheatleyState.pealSpeed) { newValue in
+                    .onChange(of: wheatleyState.pealSpeed) { _, newValue in
                         hours = newValue / 60
                         minutes = newValue % 60
                     }
@@ -253,12 +253,12 @@ struct WheatleyView: View {
                         .onAppear {
                             fixedStrikingInterval = wheatleyState.fixedStrikingInterval
                         }
-                        .onChange(of: wheatleyState.fixedStrikingInterval) { newValue in
+                        .onChange(of: wheatleyState.fixedStrikingInterval) { _, newValue in
                             if fixedStrikingInterval != newValue {
                                 fixedStrikingInterval = newValue
                             }
                         }
-                        .onChange(of: fixedStrikingInterval) { newValue in
+                        .onChange(of: fixedStrikingInterval) { _, newValue in
                             if wheatleyState.fixedStrikingInterval != newValue {
                                 viewModel.send(.setWheatleySetting(setting: .fixedStrikingInterval(newValue)))
                                 
@@ -272,12 +272,12 @@ struct WheatleyView: View {
                         .onAppear {
                             wholePullAndOff = wheatleyState.wholePullAndOff
                         }
-                        .onChange(of: wheatleyState.wholePullAndOff) { newValue in
+                        .onChange(of: wheatleyState.wholePullAndOff) { _, newValue in
                             if wholePullAndOff != newValue {
                                 wholePullAndOff = newValue
                             }
                         }
-                        .onChange(of: wholePullAndOff) { newValue in
+                        .onChange(of: wholePullAndOff) { _, newValue in
                             if wheatleyState.wholePullAndOff != newValue {
                                 viewModel.send(.setWheatleySetting(setting: .useUpDownIn(newValue)))
                                 
@@ -289,12 +289,12 @@ struct WheatleyView: View {
                         .onAppear {
                             stopAtRounds = wheatleyState.stopAtRounds
                         }
-                        .onChange(of: wheatleyState.stopAtRounds) { newValue in
+                        .onChange(of: wheatleyState.stopAtRounds) { _, newValue in
                             if stopAtRounds != newValue {
                                 stopAtRounds = newValue
                             }
                         }
-                        .onChange(of: stopAtRounds) { newValue in
+                        .onChange(of: stopAtRounds) { _, newValue in
                             if wheatleyState.stopAtRounds != newValue {
                                 viewModel.send(.setWheatleySetting(setting: .stopAtRounds(newValue)))
                                 

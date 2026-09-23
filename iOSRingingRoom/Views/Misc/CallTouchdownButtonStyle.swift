@@ -36,7 +36,7 @@ struct CallTouchdownButtonStyle: PrimitiveButtonStyle {
                         state = value.location
                     }
             )
-            .onChange(of: scenePhase) { newValue in
+            .onChange(of: scenePhase) { _, newValue in
                 if newValue != .active {
                     pressTask?.cancel()
                 } else {

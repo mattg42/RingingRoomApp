@@ -173,7 +173,7 @@ struct RingingRoomView: View {
         .onAppear {
             viewModel.connect()
         }
-        .onChange(of: scenePhase) { newValue in
+        .onChange(of: scenePhase) { _, newValue in
             if newValue == .active {
                 AppLogger.ui.debug("Ringing view became active; requesting connection")
                 viewModel.connect()
@@ -181,7 +181,7 @@ struct RingingRoomView: View {
                 viewModel.disconnect()
             }
         }
-        .onChange(of: viewModel.connected ) { connected in
+        .onChange(of: viewModel.connected) { _, connected in
             guard connected else { return }
 
             Task(priority: .medium) {
@@ -379,12 +379,12 @@ connection is restored.
         .onAppear {
             showingConnectionErrorAlert = monitor.availability == .disconnected
         }
-        .onChange(of: monitor.availability, perform: { newValue in
+        .onChange(of: monitor.availability) { _, newValue in
             showingConnectionErrorAlert = newValue == .disconnected
             if newValue == .connected {
                 viewModel.resetSocket()
             }
-        })
+        }
     }
 }
 

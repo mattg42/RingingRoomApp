@@ -36,7 +36,7 @@ struct ControlsView: View {
             }
             Section {
                 Slider(value: $volume, in: 0.0...1.0, minimumValueLabel: Image(systemName: "speaker.fill"), maximumValueLabel: Image(systemName: "speaker.3.fill"), label: { Text("Volume slider") })
-                    .onChange(of: volume) { newValue in
+                    .onChange(of: volume) { _, newValue in
                         viewModel.changeVolume(to: newValue)
                     }
             }
@@ -47,12 +47,12 @@ struct ControlsView: View {
                         .onAppear {
                             hostMode = state.hostMode
                         }
-                        .onChange(of: state.hostMode) { newValue in
+                        .onChange(of: state.hostMode) { _, newValue in
                             if hostMode != newValue {
                                 hostMode = newValue
                             }
                         }
-                        .onChange(of: hostMode) { newValue in
+                        .onChange(of: hostMode) { _, newValue in
                             if state.hostMode != newValue {
                                 AppLogger.ui.debug("Sending host mode change")
                                 viewModel.send(.hostModeSet(to: newValue))
@@ -74,12 +74,12 @@ struct ControlsView: View {
                 .onAppear {
                     size = state.size
                 }
-                .onChange(of: state.size) { newValue in
+                .onChange(of: state.size) { _, newValue in
                     if size != newValue {
                         size = newValue
                     }
                 }
-                .onChange(of: size) { newValue in
+                .onChange(of: size) { _, newValue in
                     if state.size != newValue {
                         viewModel.send(.sizeChange(to: newValue))
                     }
@@ -96,12 +96,12 @@ struct ControlsView: View {
                 .onAppear {
                     bellType = state.bellType
                 }
-                .onChange(of: state.bellType) { newValue in
+                .onChange(of: state.bellType) { _, newValue in
                     if bellType != newValue {
                         bellType = newValue
                     }
                 }
-                .onChange(of: bellType) { newValue in
+                .onChange(of: bellType) { _, newValue in
                     if state.bellType != newValue {
                         viewModel.send(.audioChange(to: newValue))
                     }
